@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    .ecf-page {
+        --navy: #102b50;
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+        --text: #263a55;
+        --muted: #8391a5;
+        --border: #dce4ef;
+
+        min-height: 100vh;
+        padding: 36px 34px 60px;
+
+        background:
+            radial-gradient(
+                circle at 90% 5%,
+                rgba(37, 99, 235, .07),
+                transparent 25%
+            ),
+            #f5f8fc;
+    }
+
+    .ecf-container {
+        max-width: 930px;
+        margin: 0 auto;
+    }
+
+    .ecf-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        margin-bottom: 23px;
+
+        color: #6c7d94;
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .ecf-back:hover {
+        color: var(--blue);
+    }
+
+    .ecf-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        margin-bottom: 26px;
+    }
+
+    .ecf-header-icon {
+        width: 52px;
+        height: 52px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #102b50,
+                #173d70
+            );
+
+        color: white;
+
+        box-shadow:
+            0 10px 25px rgba(16, 43, 80, .17);
+    }
+
+    .ecf-header-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .ecf-eyebrow {
+        margin-bottom: 4px;
+
+        color: var(--blue);
+
+        font-size: 10px;
+        font-weight: 800;
+
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .ecf-title {
+        margin: 0;
+
+        color: var(--navy);
+
+        font-size: 28px;
+        font-weight: 760;
+
+        letter-spacing: -.02em;
+    }
+
+    .ecf-subtitle {
+        margin: 6px 0 0;
+
+        color: var(--muted);
+
+        font-size: 13px;
+    }
+
+    .ecf-card {
+        overflow: hidden;
+
+        background: #ffffff;
+
+        border: 1px solid var(--border);
+        border-radius: 16px;
+
+        box-shadow:
+            0 8px 28px rgba(28, 47, 73, .06);
+    }
+
+    .ecf-card-header {
+        padding: 21px 25px;
+
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .ecf-card-header h2 {
+        margin: 0;
+
+        color: var(--navy);
+
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .ecf-card-header p {
+        margin: 5px 0 0;
+
+        color: #929daf;
+
+        font-size: 12px;
+    }
+
+    .ecf-body {
+        padding: 27px 25px;
+    }
+
+    .ecf-group {
+        margin-bottom: 25px;
+    }
+
+    .ecf-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .ecf-label {
+        display: block;
+
+        margin-bottom: 8px;
+
+        color: #344861;
+
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .ecf-required {
+        color: #df3e4e;
+    }
+
+    .ecf-body .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        padding: 11px 13px;
+
+        border: 1px solid #d8e1eb;
+        border-radius: 9px;
+
+        background: #ffffff;
+
+        color: #33475f;
+
+        font: inherit;
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .ecf-body input.form-control {
+        height: 45px;
+    }
+
+    .ecf-body textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .ecf-body .form-control:focus {
+        border-color: #79a8f4;
+
+        box-shadow:
+            0 0 0 3px rgba(37, 99, 235, .08);
+    }
+
+    .ecf-help {
+        margin-top: 7px;
+
+        color: #98a3b2;
+
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .ecf-error {
+        margin-top: 7px;
+
+        color: #c93645;
+
+        font-size: 12px;
+    }
+
+    .ecf-error ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .ecf-status-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+
+        padding: 16px;
+
+        border: 1px solid #e0e7f0;
+        border-radius: 10px;
+
+        background: #fafcff;
+    }
+
+    .ecf-status-box .form-check-input {
+        width: 18px;
+        height: 18px;
+
+        margin-top: 2px;
+
+        accent-color: var(--blue);
+    }
+
+    .ecf-status-title {
+        color: #344861;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ecf-status-help {
+        margin-top: 4px;
+
+        color: #8b98aa;
+
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .ecf-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+
+        padding: 18px 25px;
+
+        border-top: 1px solid #edf1f5;
+
+        background: #fafcff;
+    }
+
+    .ecf-footer-note {
+        color: #98a3b2;
+        font-size: 11px;
+    }
+
+    .ecf-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ecf-cancel {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 18px;
+
+        border: 1px solid #d7e0ea;
+        border-radius: 9px;
+
+        background: #ffffff;
+
+        color: #5d6e83;
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ecf-cancel:hover {
+        background: #f6f8fb;
+    }
+
+    .ecf-submit {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 0 19px;
+
+        border: none;
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: #ffffff;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 7px 17px rgba(37, 99, 235, .18);
+    }
+
+    .ecf-submit:hover {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 650px) {
+        .ecf-page {
+            padding: 24px 18px;
+        }
+
+        .ecf-header-icon {
+            display: none;
+        }
+
+        .ecf-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .ecf-footer-note {
+            display: none;
+        }
+
+        .ecf-actions {
+            flex-direction: column-reverse;
+        }
+
+        .ecf-cancel,
+        .ecf-submit {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="ecf-page">
+
+    <div class="ecf-container">
+
+        <a
+            href="{% url 'payables:expense_category_list' %}"
+            class="ecf-back"
+        >
+            ← Back to Expense Categories
+        </a>
+
+
+        <div class="ecf-header">
+
+            <div class="ecf-header-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <rect
+                        x="4"
+                        y="4"
+                        width="16"
+                        height="16"
+                        rx="4"
+                    ></rect>
+
+                    <path d="M8 9h8"></path>
+                    <path d="M8 13h5"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="ecf-eyebrow">
+                    Expense Management
+                </div>
+
+                <h1 class="ecf-title">
+                    {{ page_title }}
+                </h1>
+
+                <p class="ecf-subtitle">
+                    Define how school expenses should be
+                    classified across EduFinance.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="ecf-card">
+
+                <div class="ecf-card-header">
+
+                    <h2>
+                        Category Information
+                    </h2>
+
+                    <p>
+                        Enter the details used to identify
+                        this expense category.
+                    </p>
+
+                </div>
+
+
+                <div class="ecf-body">
+
+                    {% if form.non_field_errors %}
+
+                        <div class="ecf-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="ecf-group">
+
+                        <label class="ecf-label">
+                            Category Name
+                            <span class="ecf-required">*</span>
+                        </label>
+
+                        {{ form.name }}
+
+                        <div class="ecf-help">
+                            Examples: Maintenance, Electricity,
+                            Transportation, Stationery.
+                        </div>
+
+                        {% if form.name.errors %}
+
+                            <div class="ecf-error">
+                                {{ form.name.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="ecf-group">
+
+                        <label class="ecf-label">
+                            Description
+                        </label>
+
+                        {{ form.description }}
+
+                        <div class="ecf-help">
+                            Add a short explanation of what
+                            expenses belong to this category.
+                        </div>
+
+                        {% if form.description.errors %}
+
+                            <div class="ecf-error">
+                                {{ form.description.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="ecf-group">
+
+                        <label class="ecf-label">
+                            Availability
+                        </label>
+
+                        <div class="ecf-status-box">
+
+                            {{ form.is_active }}
+
+                            <div>
+
+                                <div class="ecf-status-title">
+                                    Active Category
+                                </div>
+
+                                <div class="ecf-status-help">
+                                    When active, this category
+                                    can be selected while
+                                    recording new expenses.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% if form.is_active.errors %}
+
+                            <div class="ecf-error">
+                                {{ form.is_active.errors }}
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="ecf-footer">
+
+                    <div class="ecf-footer-note">
+                        Fields marked with * are required.
+                    </div>
+
+
+                    <div class="ecf-actions">
+
+                        <a
+                            href="{% url 'payables:expense_category_list' %}"
+                            class="ecf-cancel"
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="ecf-submit"
+                        >
+                            ✓ {{ submit_text }}
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
