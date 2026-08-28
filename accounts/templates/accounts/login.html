@@ -1,0 +1,290 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in — EduFinance</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --navy-dark: #0b2545;
+            --navy-deep: #13315c;
+            --blue-accent: #1e50a2;
+            --blue-hover: #163c7a;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Left Split Screen Pane */
+        .left-pane {
+            background: linear-gradient(180deg, #0d2847 0%, #081a30 100%);
+            color: #ffffff;
+            padding: 2.5rem 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 50%;
+        }
+        .brand-logo img {
+            height: 69px;
+            width: auto;
+        }
+        
+        /* Container to group center content for 1:1 vertical matching */
+        .left-content-wrapper {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .hero-title {
+            font-size: 2.35rem;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            max-width: 480px;
+        }
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            max-width: 480px;
+            margin-top: 2rem;
+            backdrop-filter: blur(8px);
+        }
+        .testimonial-card p {
+            font-size: 0.925rem;
+            color: #e2e8f0;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        .footer-copy {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* Right Form Pane */
+        .right-pane {
+            width: 50%;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 2rem;
+        }
+        .form-wrapper {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Header Title with Inline Icon */
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .form-header-icon {
+            width: 42px;
+            height: 42px;
+            background: #eff6ff;
+            color: var(--blue-accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 10px rgba(30, 80, 162, 0.08);
+            flex-shrink: 0;
+        }
+        .form-title {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .form-group-custom {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Input Groups */
+        .input-group-text-custom {
+            background-color: #f8fafc;
+            border-right: none;
+            border-color: #cbd5e1;
+            color: #64748b;
+            padding-left: 1rem;
+            padding-right: 0.75rem;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .form-control-custom {
+            border-left: none;
+            border-color: #cbd5e1;
+            padding: 0.75rem 1rem 0.75rem 0;
+            font-size: 0.925rem;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            height: 48px;
+        }
+        
+        .input-group:focus-within .input-group-text-custom,
+        .input-group:focus-within .form-control-custom {
+            border-color: var(--blue-accent);
+            box-shadow: none;
+        }
+        .input-group:focus-within {
+            box-shadow: 0 0 0 3px rgba(30, 80, 162, 0.15);
+            border-radius: 8px;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--blue-accent);
+            border: none;
+            height: 48px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            width: 100%;
+            color: white;
+            transition: all 0.2s ease;
+            margin-top: 0.25rem;
+            box-shadow: 0 4px 12px rgba(30, 80, 162, 0.25);
+        }
+        .btn-primary-custom:hover {
+            background-color: var(--blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(30, 80, 162, 0.3);
+        }
+        .forgot-link {
+            font-size: 0.85rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+        .security-badge {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 991px) {
+            .left-pane { display: none; }
+            .right-pane { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- Left Navy Panel -->
+    <div class="left-pane">
+        <div class="brand-logo">
+            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance Logo">
+        </div>
+        
+        <!-- Wrapped in left-content-wrapper to balance top and bottom alignment -->
+        <div class="left-content-wrapper">
+            <h1 class="hero-title">Every balance, receipt, and approval — traceable in seconds.</h1>
+            <div class="testimonial-card">
+                <p>"Collection rate up 12 points this term, and every discount is finally auditable."</p>
+            </div>
+        </div>
+
+        <div class="footer-copy">
+            © 2026 EduFinance. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Right Login Form Panel -->
+    <div class="right-pane">
+        <div class="form-wrapper">
+            
+            <div class="form-header">
+                <div class="form-header-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h2 class="form-title">Sign in</h2>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div class="form-group-custom">
+                    <label class="form-label">Email address</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-group-text-custom">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input type="email" name="username" class="form-control form-control-custom" placeholder="user@domain.com" required id="id_username">
+                    </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-group-text-custom">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••••••" required id="id_password">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom">
+                    Sign in <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </form>
+
+            <div class="security-badge">
+                <i class="bi bi-check-circle-fill text-success me-1"></i> Protected by role-based access & audit logging
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
