@@ -618,3 +618,255 @@ class SupplierPayment(models.Model):
                             )
                     }
                 )
+
+
+
+# ============================================================
+# EXPENSE NUMBER GENERATOR
+# ============================================================
+
+def generate_expense_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"EXP-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# EXPENSE
+# ============================================================
+
+class Expense(models.Model):
+
+    class PaymentMethod(models.TextChoices):
+
+        CASH = (
+            "cash",
+            "Cash",
+        )
+
+        BANK_TRANSFER = (
+            "bank_transfer",
+            "Bank Transfer",
+        )
+
+        CHEQUE = (
+            "cheque",
+            "Cheque",
+        )
+
+        CARD = (
+            "card",
+            "Card",
+        )
+
+        OTHER = (
+            "other",
+            "Other",
+        )
+
+    class ApprovalStatus(models.TextChoices):
+
+        NOT_REQUIRED = (
+            "not_required",
+            "Not Required",
+        )
+
+        PENDING = (
+            "pending",
+            "Pending",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+    class RecordStatus(models.TextChoices):
+
+        ACTIVE = (
+            "active",
+            "Active",
+        )
+
+        VOIDED = (
+            "voided",
+            "Voided",
+        )
+
+    expense_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_expense_number,
+        editable=False,
+    )
+
+    category = models.ForeignKey(
+        ExpenseCategory,
+        on_delete=models.PROTECT,
+        related_name="expenses",
+    )
+
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.PROTECT,
+        related_name="expenses",
+        blank=True,
+        null=True,
+    )
+
+    description = models.TextField()
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    expense_date = models.DateField()
+
+    payment_method = models.CharField(
+        max_length=30,
+        choices=PaymentMethod.choices,
+    )
+
+    reference = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    receipt = models.FileField(
+        upload_to="expenses/%Y/%m/",
+        blank=True,
+        null=True,
+    )
+
+    created_by = models.ForeignKey(
+        "auth.User",
+        on_delete=models.PROTECT,
+        related_name="created_expenses",
+    )
+
+    approval_status = models.CharField(
+        max_length=25,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.NOT_REQUIRED,
+    )
+
+    record_status = models.CharField(
+        max_length=20,
+        choices=RecordStatus.choices,
+        default=RecordStatus.ACTIVE,
+        editable=False,
+    )
+
+    void_reason = models.TextField(
+        blank=True,
+    )
+
+    voided_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    voided_by = models.ForeignKey(
+        "auth.User",
+        on_delete=models.PROTECT,
+        related_name="voided_expenses",
+        blank=True,
+        null=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+
+        db_table = "expenses"
+
+        ordering = [
+            "-expense_date",
+            "-created_at",
+        ]
+
+        verbose_name = "Expense"
+
+        verbose_name_plural = "Expenses"
+
+    def __str__(self):
+
+        return (
+            f"{self.expense_number} - "
+            f"{self.description[:40]}"
+        )
+
+    def clean(self):
+
+        super().clean()
+
+        if (
+            self.amount is None
+            or self.amount <= 0
+        ):
+
+            raise ValidationError(
+                {
+                    "amount":
+                        (
+                            "Expense amount must "
+                            "be greater than zero."
+                        )
+                }
+            )
+
+        if (
+            self.category_id
+            and
+            not self.category.is_active
+        ):
+
+            raise ValidationError(
+                {
+                    "category":
+                        (
+                            "Inactive expense categories "
+                            "cannot be used for new expenses."
+                        )
+                }
+            )
+
+        if (
+            self.supplier_id
+            and
+            not self.supplier.is_active
+        ):
+
+            raise ValidationError(
+                {
+                    "supplier":
+                        (
+                            "Inactive suppliers cannot "
+                            "be used for new expenses."
+                        )
+                }
+            )

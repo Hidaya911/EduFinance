@@ -20,6 +20,7 @@ from .forms import (
     SupplierForm,
     SupplierBillForm,
     SupplierPaymentForm,
+    ExpenseForm,
 )
 
 from .models import (
@@ -27,11 +28,13 @@ from .models import (
     Supplier,
     SupplierBill,
     SupplierPayment,
+    Expense,
 )
 
 from .services import (
     create_supplier_payment,
     void_supplier_payment,
+    void_expense,
 )
 
 @login_required
@@ -1355,4 +1358,555 @@ def supplier_payment_void(
 
     return redirect(
         "payables:supplier_payment_list"
+    )
+
+
+
+
+# ============================================================
+# EXPENSE LIST
+# ============================================================
+
+@login_required
+def expense_list(request):
+
+    search = (
+        request.GET.get(
+            "search",
+            ""
+        )
+        .strip()
+    )
+
+    category_id = (
+        request.GET.get(
+            "category",
+            ""
+        )
+        .strip()
+    )
+
+    supplier_id = (
+        request.GET.get(
+            "supplier",
+            ""
+        )
+        .strip()
+    )
+
+    payment_method = (
+        request.GET.get(
+            "payment_method",
+            ""
+        )
+        .strip()
+    )
+
+    approval_status = (
+        request.GET.get(
+            "approval_status",
+            ""
+        )
+        .strip()
+    )
+
+    record_status = (
+        request.GET.get(
+            "record_status",
+            ""
+        )
+        .strip()
+    )
+
+    expenses = (
+        Expense.objects.all()
+    )
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        matching_category_ids = list(
+            ExpenseCategory.objects
+            .filter(
+                name__icontains=search
+            )
+            .values_list(
+                "pk",
+                flat=True,
+            )
+        )
+
+        matching_supplier_ids = list(
+            Supplier.objects
+            .filter(
+                name__icontains=search
+            )
+            .values_list(
+                "pk",
+                flat=True,
+            )
+        )
+
+        expenses = expenses.filter(
+
+            Q(
+                expense_number__icontains=
+                    search
+            )
+            |
+            Q(
+                description__icontains=
+                    search
+            )
+            |
+            Q(
+                reference__icontains=
+                    search
+            )
+            |
+            Q(
+                category_id__in=
+                    matching_category_ids
+            )
+            |
+            Q(
+                supplier_id__in=
+                    matching_supplier_ids
+            )
+        )
+
+    # --------------------------------------------------------
+    # FILTERS
+    # --------------------------------------------------------
+
+    if category_id:
+
+        expenses = expenses.filter(
+            category_id=category_id
+        )
+
+    if supplier_id:
+
+        expenses = expenses.filter(
+            supplier_id=supplier_id
+        )
+
+    if payment_method:
+
+        expenses = expenses.filter(
+            payment_method=
+                payment_method
+        )
+
+    if approval_status:
+
+        expenses = expenses.filter(
+            approval_status=
+                approval_status
+        )
+
+    if record_status:
+
+        expenses = expenses.filter(
+            record_status=
+                record_status
+        )
+
+    expenses = expenses.order_by(
+        "-expense_date",
+        "-created_at",
+    )
+
+    # --------------------------------------------------------
+    # KPI DATA
+    # Use Python sums for predictable Mongo compatibility.
+    # --------------------------------------------------------
+
+    all_expenses = list(
+        Expense.objects.all()
+    )
+
+    active_expenses = [
+        expense
+        for expense in all_expenses
+        if (
+            expense.record_status
+            == Expense.RecordStatus.ACTIVE
+        )
+    ]
+
+    total_expenses = sum(
+        (
+            expense.amount
+            for expense
+            in active_expenses
+        ),
+        Decimal("0.00"),
+    )
+
+    today = timezone.localdate()
+
+    month_expenses = sum(
+        (
+            expense.amount
+            for expense
+            in active_expenses
+            if (
+                expense.expense_date.year
+                == today.year
+                and
+                expense.expense_date.month
+                == today.month
+            )
+        ),
+        Decimal("0.00"),
+    )
+
+    pending_count = sum(
+        1
+        for expense in active_expenses
+        if (
+            expense.approval_status
+            == Expense.ApprovalStatus.PENDING
+        )
+    )
+
+    voided_count = sum(
+        1
+        for expense in all_expenses
+        if (
+            expense.record_status
+            == Expense.RecordStatus.VOIDED
+        )
+    )
+
+    context = {
+
+        "expenses":
+            expenses,
+
+        "categories":
+            ExpenseCategory.objects
+            .order_by(
+                "name"
+            ),
+
+        "suppliers":
+            Supplier.objects
+            .order_by(
+                "name"
+            ),
+
+        "payment_method_choices":
+            Expense
+            .PaymentMethod
+            .choices,
+
+        "approval_status_choices":
+            Expense
+            .ApprovalStatus
+            .choices,
+
+        "record_status_choices":
+            Expense
+            .RecordStatus
+            .choices,
+
+        "search":
+            search,
+
+        "selected_category":
+            category_id,
+
+        "selected_supplier":
+            supplier_id,
+
+        "selected_payment_method":
+            payment_method,
+
+        "selected_approval_status":
+            approval_status,
+
+        "selected_record_status":
+            record_status,
+
+        "total_records":
+            len(all_expenses),
+
+        "active_count":
+            len(active_expenses),
+
+        "total_expenses":
+            total_expenses,
+
+        "month_expenses":
+            month_expenses,
+
+        "pending_count":
+            pending_count,
+
+        "voided_count":
+            voided_count,
+    }
+
+    return render(
+        request,
+        "payables/expense_list.html",
+        context,
+    )
+
+
+# ============================================================
+# CREATE EXPENSE
+# ============================================================
+
+@login_required
+def expense_create(request):
+
+    if request.method == "POST":
+
+        form = ExpenseForm(
+            request.POST,
+            request.FILES,
+        )
+
+        if form.is_valid():
+
+            expense = (
+                form.save(
+                    commit=False
+                )
+            )
+
+            expense.created_by = (
+                request.user
+            )
+
+            expense.save()
+
+            messages.success(
+                request,
+                (
+                    f"Expense "
+                    f"{expense.expense_number} "
+                    f"was recorded successfully."
+                ),
+            )
+
+            return redirect(
+                "payables:expense_detail",
+                pk=expense.pk,
+            )
+
+    else:
+
+        form = ExpenseForm(
+            initial={
+                "expense_date":
+                    timezone.localdate(),
+            }
+        )
+
+    context = {
+
+        "form":
+            form,
+
+        "page_title":
+            "Record Expense",
+
+        "submit_text":
+            "Record Expense",
+
+        "is_edit":
+            False,
+    }
+
+    return render(
+        request,
+        "payables/expense_form.html",
+        context,
+    )
+
+
+# ============================================================
+# EDIT EXPENSE
+# ============================================================
+
+@login_required
+def expense_edit(
+    request,
+    pk,
+):
+
+    expense = get_object_or_404(
+        Expense,
+        pk=pk,
+    )
+
+    if (
+        expense.record_status
+        == Expense.RecordStatus.VOIDED
+    ):
+
+        messages.error(
+            request,
+            (
+                "Voided expenses cannot "
+                "be edited."
+            ),
+        )
+
+        return redirect(
+            "payables:expense_detail",
+            pk=expense.pk,
+        )
+
+    if request.method == "POST":
+
+        form = ExpenseForm(
+            request.POST,
+            request.FILES,
+            instance=expense,
+        )
+
+        if form.is_valid():
+
+            expense = form.save()
+
+            messages.success(
+                request,
+                (
+                    f"Expense "
+                    f"{expense.expense_number} "
+                    f"was updated successfully."
+                ),
+            )
+
+            return redirect(
+                "payables:expense_detail",
+                pk=expense.pk,
+            )
+
+    else:
+
+        form = ExpenseForm(
+            instance=expense
+        )
+
+    context = {
+
+        "form":
+            form,
+
+        "expense":
+            expense,
+
+        "page_title":
+            "Edit Expense",
+
+        "submit_text":
+            "Save Changes",
+
+        "is_edit":
+            True,
+    }
+
+    return render(
+        request,
+        "payables/expense_form.html",
+        context,
+    )
+
+
+# ============================================================
+# EXPENSE DETAIL
+# ============================================================
+
+@login_required
+def expense_detail(
+    request,
+    pk,
+):
+
+    expense = get_object_or_404(
+        Expense,
+        pk=pk,
+    )
+
+    context = {
+        "expense":
+            expense,
+    }
+
+    return render(
+        request,
+        "payables/expense_detail.html",
+        context,
+    )
+
+
+# ============================================================
+# VOID EXPENSE
+# ============================================================
+
+@login_required
+@require_POST
+def expense_void(
+    request,
+    pk,
+):
+
+    expense = get_object_or_404(
+        Expense,
+        pk=pk,
+    )
+
+    reason = (
+        request.POST.get(
+            "reason",
+            ""
+        )
+        .strip()
+    )
+
+    try:
+
+        void_expense(
+            expense=expense,
+            user=request.user,
+            reason=reason,
+        )
+
+    except ValidationError as error:
+
+        message = (
+            error.messages[0]
+            if error.messages
+            else
+            "Unable to void this expense."
+        )
+
+        messages.error(
+            request,
+            message,
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                f"Expense "
+                f"{expense.expense_number} "
+                f"was voided successfully."
+            ),
+        )
+
+    return redirect(
+        "payables:expense_detail",
+        pk=expense.pk,
     )

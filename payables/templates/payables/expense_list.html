@@ -1,0 +1,3615 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — EXPENSES COMMAND CENTER
+       Scoped with exl-
+    ========================================================== */
+
+    .exl-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --navy-800: #12335d;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+
+        --green-600: #059669;
+        --green-100: #eafaf3;
+
+        --amber-600: #d97706;
+        --amber-100: #fff7e8;
+
+        --red-600: #dc2626;
+        --red-100: #fff0f1;
+
+        --purple-600: #7c3aed;
+        --purple-100: #f3efff;
+
+        --slate-600: #667085;
+        --slate-100: #f2f4f7;
+
+        --text-900: #12243d;
+        --text-700: #43556d;
+        --text-500: #7e8da1;
+        --text-400: #9aa5b4;
+
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 92% 2%,
+                rgba(37,99,235,.12),
+                transparent 25%
+            ),
+            radial-gradient(
+                circle at 8% 15%,
+                rgba(16,185,129,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: var(--text-900);
+    }
+
+    .exl-container {
+        width: 100%;
+        max-width: 1500px;
+
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       GLOBAL LOADING BAR
+    ========================================================== */
+
+    .exl-top-progress {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        z-index: 99999;
+
+        width: 100%;
+        height: 3px;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        transition:
+            opacity .15s ease;
+    }
+
+    .exl-top-progress.active {
+        opacity: 1;
+    }
+
+    .exl-top-progress::after {
+        content: "";
+
+        display: block;
+
+        width: 38%;
+        height: 100%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #60a5fa,
+                #22d3ee
+            );
+
+        box-shadow:
+            0 0 13px
+            rgba(37,99,235,.42);
+
+        animation:
+            exl-loading
+            .8s ease-in-out infinite;
+    }
+
+    @keyframes exl-loading {
+
+        from {
+            transform:
+                translateX(-110%);
+        }
+
+        to {
+            transform:
+                translateX(300%);
+        }
+    }
+
+
+    /* ==========================================================
+       CONTEXT
+    ========================================================== */
+
+    .exl-context {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        margin-bottom: 16px;
+    }
+
+    .exl-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .exl-current {
+        color: #49617e;
+    }
+
+    .exl-context-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .exl-context-link {
+        min-height: 32px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            11px;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 8px;
+
+        background:
+            rgba(255,255,255,.82);
+
+        color: #66778c;
+
+        text-decoration: none;
+
+        font-size: 10px;
+        font-weight: 650;
+
+        transition: .2s ease;
+    }
+
+    .exl-context-link:hover {
+        color: #2563eb;
+
+        background: white;
+
+        transform:
+            translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .exl-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 30px;
+
+        margin-bottom: 22px;
+
+        padding:
+            30px
+            32px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39 0%,
+                #0d2d58 52%,
+                #174b8e 100%
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13,42,83,.17);
+    }
+
+    .exl-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 350px;
+        height: 350px;
+
+        right: -105px;
+        top: -205px;
+
+        border-radius: 50%;
+
+        border:
+            48px solid
+            rgba(255,255,255,.055);
+    }
+
+    .exl-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 180px;
+        height: 180px;
+
+        right: 205px;
+        bottom: -135px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(54,135,255,.18);
+    }
+
+    .exl-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .exl-hero-icon {
+        width: 64px;
+        height: 64px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.15),
+                rgba(255,255,255,.06)
+            );
+
+        backdrop-filter:
+            blur(12px);
+    }
+
+    .exl-hero-icon svg {
+        width: 29px;
+        height: 29px;
+    }
+
+    .exl-eyebrow {
+        display: flex;
+        align-items: center;
+
+        gap: 7px;
+
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .exl-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 5px
+            rgba(94,234,212,.10);
+    }
+
+    .exl-title {
+        margin: 0;
+
+        font-size: 32px;
+        line-height: 1.1;
+
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .exl-subtitle {
+        max-width: 720px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+    .exl-hero-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .exl-hero-btn {
+        min-height: 45px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 8px;
+
+        padding:
+            0
+            16px;
+
+        border-radius: 10px;
+
+        text-decoration: none;
+
+        font-size: 11px;
+        font-weight: 730;
+
+        transition: .2s ease;
+    }
+
+    .exl-hero-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .exl-hero-btn.secondary {
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: white;
+    }
+
+    .exl-hero-btn.primary {
+        border:
+            1px solid
+            rgba(255,255,255,.14);
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        box-shadow:
+            0 11px 23px
+            rgba(0,44,119,.29);
+    }
+
+    .exl-hero-btn:hover {
+        color: white;
+
+        transform:
+            translateY(-2px);
+    }
+
+
+    /* ==========================================================
+       MESSAGES
+    ========================================================== */
+
+    .exl-message-wrap {
+        margin-bottom: 18px;
+    }
+
+    .exl-message {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 8px;
+
+        padding:
+            13px
+            15px;
+
+        border-radius: 11px;
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .exl-message.success {
+        border:
+            1px solid #c4ead8;
+
+        background:
+            linear-gradient(
+                90deg,
+                #eefcf5,
+                #f7fffb
+            );
+
+        color: #147650;
+    }
+
+    .exl-message.error {
+        border:
+            1px solid #f2cbd0;
+
+        background:
+            linear-gradient(
+                90deg,
+                #fff3f4,
+                #fff9f9
+            );
+
+        color: #c2414c;
+    }
+
+
+    /* ==========================================================
+       KPI GRID
+    ========================================================== */
+
+    .exl-kpis {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4,minmax(0,1fr));
+
+        gap: 16px;
+
+        margin-bottom: 21px;
+    }
+
+    .exl-kpi {
+        position: relative;
+
+        overflow: hidden;
+
+        min-height: 141px;
+
+        padding: 20px;
+
+        border:
+            1px solid #dbe4ee;
+
+        border-radius: 17px;
+
+        background:
+            rgba(255,255,255,.97);
+
+        box-shadow:
+            0 7px 24px
+            rgba(25,43,69,.05);
+
+        transition:
+            transform .23s ease,
+            box-shadow .23s ease;
+    }
+
+    .exl-kpi:hover {
+        transform:
+            translateY(-4px);
+
+        box-shadow:
+            0 16px 34px
+            rgba(25,43,69,.09);
+    }
+
+    .exl-kpi::after {
+        content: "";
+
+        position: absolute;
+
+        width: 110px;
+        height: 110px;
+
+        right: -42px;
+        top: -50px;
+
+        border-radius: 50%;
+    }
+
+    .exl-kpi.blue::after {
+        background:
+            rgba(37,99,235,.05);
+    }
+
+    .exl-kpi.green::after {
+        background:
+            rgba(5,150,105,.05);
+    }
+
+    .exl-kpi.amber::after {
+        background:
+            rgba(217,119,6,.05);
+    }
+
+    .exl-kpi.red::after {
+        background:
+            rgba(220,38,38,.045);
+    }
+
+    .exl-kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .exl-kpi-icon {
+        width: 42px;
+        height: 42px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 12px;
+    }
+
+    .exl-kpi-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .exl-kpi.blue
+    .exl-kpi-icon {
+        color: #2563eb;
+        background: #edf4ff;
+    }
+
+    .exl-kpi.green
+    .exl-kpi-icon {
+        color: #059669;
+        background: #eafaf3;
+    }
+
+    .exl-kpi.amber
+    .exl-kpi-icon {
+        color: #d97706;
+        background: #fff7e8;
+    }
+
+    .exl-kpi.red
+    .exl-kpi-icon {
+        color: #dc2626;
+        background: #fff0f1;
+    }
+
+    .exl-kpi-label {
+        color: #8794a7;
+
+        font-size: 8.5px;
+        font-weight: 850;
+
+        letter-spacing: .085em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .exl-kpi-value {
+        margin-top: 15px;
+
+        color: #0b2344;
+
+        font-size: 23px;
+        font-weight: 790;
+    }
+
+    .exl-kpi-value.money {
+        font-size: 21px;
+    }
+
+    .exl-kpi-note {
+        margin-top: 7px;
+
+        color: #9aa5b4;
+
+        font-size: 9.2px;
+    }
+
+
+    /* ==========================================================
+       INTELLIGENCE STRIP
+    ========================================================== */
+
+    .exl-intelligence {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        margin-bottom: 18px;
+
+        padding:
+            13px
+            17px;
+
+        border:
+            1px solid #dbe7f4;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                100deg,
+                #f7fbff,
+                #eef6ff
+            );
+    }
+
+    .exl-intelligence-left {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+    }
+
+    .exl-intelligence-icon {
+        width: 31px;
+        height: 31px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 9px;
+
+        background: white;
+
+        color: #2563eb;
+
+        font-size: 13px;
+
+        box-shadow:
+            0 4px 12px
+            rgba(37,99,235,.07);
+    }
+
+    .exl-intelligence-title {
+        color: #183557;
+
+        font-size: 10px;
+        font-weight: 760;
+    }
+
+    .exl-intelligence-text {
+        margin-top: 2px;
+
+        color: #8090a4;
+
+        font-size: 8.8px;
+    }
+
+    .exl-intelligence-badge {
+        padding:
+            6px
+            9px;
+
+        border:
+            1px solid #d9e5f2;
+
+        border-radius: 999px;
+
+        background: white;
+
+        color: #64758b;
+
+        font-size: 8.7px;
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================
+       LEDGER PANEL
+    ========================================================== */
+
+    .exl-panel {
+        overflow: hidden;
+
+        border:
+            1px solid #dae4ef;
+
+        border-radius: 19px;
+
+        background:
+            rgba(255,255,255,.98);
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .exl-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        padding:
+            20px
+            21px
+            17px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .exl-panel-head-left {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .exl-panel-icon {
+        width: 39px;
+        height: 39px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .exl-panel-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .exl-panel-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 15px;
+        font-weight: 770;
+    }
+
+    .exl-panel-subtitle {
+        margin-top: 3px;
+
+        color: #929eae;
+
+        font-size: 9.7px;
+    }
+
+    .exl-count {
+        padding:
+            7px
+            10px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 999px;
+
+        background: #f8faff;
+
+        color: #6d7d91;
+
+        font-size: 9px;
+        font-weight: 750;
+    }
+
+
+    /* ==========================================================
+       TOOLBAR
+    ========================================================== */
+
+    .exl-toolbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(245px,1.15fr)
+            160px
+            170px
+            155px
+            160px
+            145px;
+
+        gap: 9px;
+
+        padding:
+            15px
+            19px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                #fbfcfe,
+                #f9fbfd
+            );
+    }
+
+    .exl-search-wrap {
+        position: relative;
+    }
+
+    .exl-search-icon {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        width: 16px;
+        height: 16px;
+
+        transform:
+            translateY(-50%);
+
+        color: #9aa7b7;
+
+        pointer-events: none;
+    }
+
+    .exl-search,
+    .exl-select {
+        width: 100%;
+        height: 44px;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #c9d5e4;
+
+        border-radius: 10px;
+
+        background: white;
+
+        color: #34465e;
+
+        outline: none;
+
+        font-size: 10.5px;
+
+        transition: .2s ease;
+    }
+
+    .exl-search {
+        padding:
+            0
+            46px
+            0
+            41px;
+    }
+
+    .exl-select {
+        padding:
+            0
+            10px;
+    }
+
+    .exl-search:hover,
+    .exl-select:hover {
+        border-color: #aebfd2;
+    }
+
+    .exl-search:focus,
+    .exl-select:focus {
+        border-color: #2563eb;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+    }
+
+    .exl-search-spinner {
+        position: absolute;
+
+        right: 15px;
+        top: 50%;
+
+        width: 15px;
+        height: 15px;
+
+        margin-top: -7.5px;
+
+        border:
+            2px solid #d6e1ed;
+
+        border-top-color:
+            #2563eb;
+
+        border-radius: 50%;
+
+        opacity: 0;
+        visibility: hidden;
+
+        animation:
+            exl-spin
+            .7s linear infinite;
+    }
+
+    .exl-search-spinner.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @keyframes exl-spin {
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       TABLE
+    ========================================================== */
+
+    .exl-table-wrap {
+        overflow-x: auto;
+    }
+
+    .exl-table {
+        width: 100%;
+
+        border-collapse:
+            collapse;
+    }
+
+    .exl-table thead {
+        background:
+            linear-gradient(
+                180deg,
+                #fafbfd,
+                #f7f9fc
+            );
+    }
+
+    .exl-table th {
+        padding:
+            13px
+            14px;
+
+        border-bottom:
+            1px solid #e7ecf3;
+
+        color: #7d899c;
+
+        text-align: left;
+
+        font-size: 7.9px;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-transform:
+            uppercase;
+
+        white-space: nowrap;
+    }
+
+    .exl-table td {
+        padding:
+            15px
+            14px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        color: #42536b;
+
+        font-size: 10px;
+
+        vertical-align: middle;
+    }
+
+    .exl-table tbody tr {
+        transition:
+            background .18s ease;
+    }
+
+    .exl-table tbody tr:hover {
+        background:
+            linear-gradient(
+                90deg,
+                #f8fbff,
+                white
+            );
+    }
+
+    .exl-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* ==========================================================
+       EXPENSE IDENTITY
+    ========================================================== */
+
+    .exl-expense {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+    }
+
+    .exl-expense-icon {
+        width: 39px;
+        height: 39px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border:
+            1px solid #dce7f5;
+
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f3f7ff,
+                #eaf2ff
+            );
+
+        color: #2563eb;
+    }
+
+    .exl-expense-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .exl-expense-number {
+        color: #0b2344;
+
+        font-size: 10.6px;
+        font-weight: 780;
+
+        white-space: nowrap;
+    }
+
+    .exl-expense-desc {
+        max-width: 210px;
+
+        margin-top: 3px;
+
+        overflow: hidden;
+
+        color: #929eae;
+
+        font-size: 8.4px;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================================
+       CATEGORY
+    ========================================================== */
+
+    .exl-category {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        max-width: 170px;
+
+        padding:
+            6px
+            8px;
+
+        border:
+            1px solid #dde6f0;
+
+        border-radius: 8px;
+
+        background: #f8fafc;
+
+        color: #53657c;
+
+        font-size: 8.8px;
+        font-weight: 700;
+    }
+
+    .exl-category-dot {
+        width: 6px;
+        height: 6px;
+
+        flex-shrink: 0;
+
+        border-radius: 50%;
+
+        background: #2563eb;
+    }
+
+
+    /* ==========================================================
+       SUPPLIER
+    ========================================================== */
+
+    .exl-supplier {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .exl-supplier-avatar {
+        width: 28px;
+        height: 28px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 8px;
+
+        background: #f1f5fb;
+
+        color: #4f6d95;
+
+        font-size: 8.5px;
+        font-weight: 850;
+    }
+
+    .exl-supplier-name {
+        max-width: 130px;
+
+        overflow: hidden;
+
+        color: #40536c;
+
+        font-size: 9.6px;
+        font-weight: 680;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .exl-no-supplier {
+        color: #9aa5b4;
+
+        font-size: 8.8px;
+    }
+
+
+    /* ==========================================================
+       MONEY
+    ========================================================== */
+
+    .exl-money {
+        color: #173b5d;
+
+        font-size: 11.5px;
+        font-weight: 790;
+
+        font-variant-numeric:
+            tabular-nums;
+
+        white-space: nowrap;
+    }
+
+    .exl-money-note {
+        margin-top: 3px;
+
+        color: #9aa5b4;
+
+        font-size: 8px;
+    }
+
+
+    /* ==========================================================
+       DATE
+    ========================================================== */
+
+    .exl-date {
+        color: #596b81;
+
+        font-size: 9.6px;
+        font-weight: 620;
+
+        white-space: nowrap;
+    }
+
+    .exl-date-note {
+        margin-top: 3px;
+
+        color: #9ca7b5;
+
+        font-size: 8px;
+    }
+
+
+    /* ==========================================================
+       PAYMENT METHOD
+    ========================================================== */
+
+    .exl-method {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            6px
+            8px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 8px;
+
+        background: #f8fafc;
+
+        color: #53657c;
+
+        font-size: 8.5px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+    .exl-method-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #64748b;
+    }
+
+    .exl-method.cash
+    .exl-method-dot {
+        background: #16a34a;
+    }
+
+    .exl-method.bank_transfer
+    .exl-method-dot {
+        background: #2563eb;
+    }
+
+    .exl-method.cheque
+    .exl-method-dot {
+        background: #d97706;
+    }
+
+    .exl-method.card
+    .exl-method-dot {
+        background: #7c3aed;
+    }
+
+
+    /* ==========================================================
+       APPROVAL STATUS
+    ========================================================== */
+
+    .exl-approval {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            6px
+            9px;
+
+        border-radius: 999px;
+
+        font-size: 8.4px;
+        font-weight: 760;
+
+        white-space: nowrap;
+    }
+
+    .exl-approval-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+    .exl-approval.not_required {
+        background: #f2f4f7;
+
+        color: #667085;
+    }
+
+    .exl-approval.pending {
+        background: #fff7e8;
+
+        color: #b45309;
+    }
+
+    .exl-approval.approved {
+        background: #eafaf3;
+
+        color: #078152;
+    }
+
+    .exl-approval.rejected {
+        background: #fff0f1;
+
+        color: #c2414c;
+    }
+
+
+    /* ==========================================================
+       RECORD STATUS
+    ========================================================== */
+
+    .exl-record {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            6px
+            9px;
+
+        border-radius: 999px;
+
+        font-size: 8.4px;
+        font-weight: 760;
+
+        white-space: nowrap;
+    }
+
+    .exl-record-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+    .exl-record.active {
+        background: #edf4ff;
+
+        color: #2563eb;
+    }
+
+    .exl-record.voided {
+        background: #fff0f1;
+
+        color: #c2414c;
+    }
+
+
+    /* ==========================================================
+       ACTIONS
+    ========================================================== */
+
+    .exl-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        gap: 6px;
+    }
+
+    .exl-action {
+        min-height: 33px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            9px;
+
+        border-radius: 8px;
+
+        font-size: 8.8px;
+        font-weight: 700;
+
+        text-decoration: none;
+
+        transition: .18s ease;
+    }
+
+    .exl-action:hover {
+        transform:
+            translateY(-1px);
+    }
+
+    .exl-action.view {
+        border:
+            1px solid #d7e5ff;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .exl-action.edit {
+        border:
+            1px solid #dce7df;
+
+        background: #f3fbf7;
+
+        color: #078152;
+    }
+
+
+    /* ==========================================================
+       EMPTY STATE
+    ========================================================== */
+
+    .exl-empty {
+        position: relative;
+
+        overflow: hidden;
+
+        min-height: 390px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            45px
+            25px;
+
+        text-align: center;
+
+        background:
+            radial-gradient(
+                circle at center,
+                rgba(37,99,235,.05),
+                transparent 43%
+            );
+    }
+
+    .exl-empty::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+
+        opacity: .28;
+
+        background-image:
+            linear-gradient(
+                #e8eef6 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                #e8eef6 1px,
+                transparent 1px
+            );
+
+        background-size:
+            32px
+            32px;
+
+        mask-image:
+            radial-gradient(
+                circle at center,
+                black,
+                transparent 70%
+            );
+    }
+
+    .exl-empty-inner {
+        position: relative;
+        z-index: 2;
+
+        max-width: 480px;
+    }
+
+    .exl-empty-art {
+        width: 88px;
+        height: 88px;
+
+        display: grid;
+        place-items: center;
+
+        margin:
+            0 auto
+            20px;
+
+        border:
+            1px solid #dce7f5;
+
+        border-radius: 24px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f8fbff,
+                #eaf2ff
+            );
+
+        color: #2563eb;
+
+        box-shadow:
+            0 15px 35px
+            rgba(37,99,235,.08);
+    }
+
+    .exl-empty-art svg {
+        width: 38px;
+        height: 38px;
+    }
+
+    .exl-empty-kicker {
+        margin-bottom: 7px;
+
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .11em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .exl-empty-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 20px;
+        font-weight: 780;
+    }
+
+    .exl-empty-text {
+        max-width: 405px;
+
+        margin:
+            9px auto
+            20px;
+
+        color: #8290a4;
+
+        font-size: 11px;
+        line-height: 1.65;
+    }
+
+    .exl-empty-btn {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            16px;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 10.5px;
+        font-weight: 720;
+
+        box-shadow:
+            0 8px 18px
+            rgba(37,99,235,.20);
+    }
+
+
+    /* ==========================================================
+       AJAX STATE
+    ========================================================== */
+
+    .exl-dynamic {
+        transition:
+            opacity .15s ease;
+    }
+
+    .exl-dynamic.loading {
+        opacity: .55;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1350px) {
+
+        .exl-toolbar {
+            grid-template-columns:
+                repeat(3,minmax(0,1fr));
+        }
+
+        .exl-search-wrap {
+            grid-column:
+                span 2;
+        }
+    }
+
+    @media(max-width:1100px) {
+
+        .exl-kpis {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+    }
+
+    @media(max-width:850px) {
+
+        .exl-hero {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .exl-hero-actions {
+            justify-content:
+                flex-start;
+        }
+
+        .exl-intelligence {
+            flex-direction: column;
+
+            align-items:
+                flex-start;
+        }
+
+        .exl-toolbar {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .exl-search-wrap {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width:680px) {
+
+        .exl-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .exl-context {
+            display: none;
+        }
+
+        .exl-hero {
+            padding:
+                24px
+                20px;
+
+            border-radius: 18px;
+        }
+
+        .exl-hero-icon {
+            display: none;
+        }
+
+        .exl-title {
+            font-size: 27px;
+        }
+
+        .exl-hero-actions {
+            flex-direction: column;
+        }
+
+        .exl-hero-btn {
+            width: 100%;
+        }
+
+        .exl-kpis,
+        .exl-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .exl-search-wrap {
+            grid-column: auto;
+        }
+
+        .exl-count {
+            display: none;
+        }
+    }
+</style>
+
+
+
+<div
+    class="exl-top-progress"
+    id="expenseTopProgress"
+></div>
+
+
+
+<div class="exl-page">
+
+<div class="exl-container">
+
+
+    <!-- ======================================================
+         CONTEXT
+    ======================================================= -->
+
+    <div class="exl-context">
+
+
+        <div class="exl-breadcrumb">
+
+            <span>
+                EduFinance
+            </span>
+
+            <span>›</span>
+
+            <span>
+                Payables
+            </span>
+
+            <span>›</span>
+
+            <span class="exl-current">
+                Expenses
+            </span>
+
+        </div>
+
+
+
+        <div class="exl-context-actions">
+
+
+            <a
+                href="{% url 'payables:expense_category_list' %}"
+                class="exl-context-link"
+            >
+                Expense Categories
+            </a>
+
+
+            <a
+                href="{% url 'payables:supplier_list' %}"
+                class="exl-context-link"
+            >
+                Suppliers
+            </a>
+
+
+            <a
+                href="{% url 'payables:supplier_payment_list' %}"
+                class="exl-context-link"
+            >
+                Supplier Payments
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <section class="exl-hero">
+
+
+        <div class="exl-hero-left">
+
+
+            <div class="exl-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M4 6h16v14H4z"></path>
+
+                    <path d="M8 10h8"></path>
+
+                    <path d="M8 14h5"></path>
+
+                    <path d="M17 3v6"></path>
+
+                    <path d="M14 6h6"></path>
+                </svg>
+
+            </div>
+
+
+
+            <div>
+
+
+                <div class="exl-eyebrow">
+
+                    <span class="exl-eyebrow-dot"></span>
+
+                    Financial Operations
+
+                </div>
+
+
+                <h1 class="exl-title">
+                    School Expenses
+                </h1>
+
+
+                <p class="exl-subtitle">
+
+                    Record, review and analyze school spending across
+                    expense categories, suppliers and payment methods
+                    while preserving approval and financial audit history.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="exl-hero-actions">
+
+
+            <a
+                href="{% url 'payables:expense_category_list' %}"
+                class="exl-hero-btn secondary"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M4 5h16"></path>
+
+                    <path d="M4 12h16"></path>
+
+                    <path d="M4 19h16"></path>
+                </svg>
+
+                Categories
+
+            </a>
+
+
+            <a
+                href="{% url 'payables:expense_create' %}"
+                class="exl-hero-btn primary"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                >
+                    <path d="M12 5v14"></path>
+
+                    <path d="M5 12h14"></path>
+                </svg>
+
+                Record Expense
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         MESSAGES
+    ======================================================= -->
+
+    {% if messages %}
+
+        <div class="exl-message-wrap">
+
+            {% for message in messages %}
+
+                <div
+                    class="
+                        exl-message
+                        {% if message.tags == 'error' %}
+                            error
+                        {% else %}
+                            success
+                        {% endif %}
+                    "
+                >
+
+                    {% if message.tags == "error" %}
+                        !
+                    {% else %}
+                        ✓
+                    {% endif %}
+
+                    {{ message }}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+
+    <!-- ======================================================
+         AJAX REGION
+    ======================================================= -->
+
+    <div
+        class="exl-dynamic"
+        id="expenseDynamicArea"
+    >
+
+
+        <!-- ==================================================
+             KPI GRID
+        =================================================== -->
+
+        <section class="exl-kpis">
+
+
+            <!-- TOTAL SPENDING -->
+
+            <article class="exl-kpi blue">
+
+
+                <div class="exl-kpi-top">
+
+
+                    <div class="exl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M4 5h16v14H4z"></path>
+
+                            <path d="M8 9h8"></path>
+
+                            <path d="M8 13h6"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="exl-kpi-label">
+                        Total Active Expenses
+                    </div>
+
+                </div>
+
+
+                <div class="exl-kpi-value money">
+
+                    ${{ total_expenses|floatformat:2 }}
+
+                </div>
+
+
+                <div class="exl-kpi-note">
+
+                    Total value excluding voided records
+
+                </div>
+
+            </article>
+
+
+
+            <!-- MONTH -->
+
+            <article class="exl-kpi green">
+
+
+                <div class="exl-kpi-top">
+
+
+                    <div class="exl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <rect
+                                x="4"
+                                y="5"
+                                width="16"
+                                height="15"
+                                rx="2"
+                            ></rect>
+
+                            <path d="M4 10h16"></path>
+
+                            <path d="M8 3v4"></path>
+
+                            <path d="M16 3v4"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="exl-kpi-label">
+                        This Month
+                    </div>
+
+                </div>
+
+
+                <div class="exl-kpi-value money">
+
+                    ${{ month_expenses|floatformat:2 }}
+
+                </div>
+
+
+                <div class="exl-kpi-note">
+
+                    Active expenses in the current month
+
+                </div>
+
+            </article>
+
+
+
+            <!-- PENDING -->
+
+            <article class="exl-kpi amber">
+
+
+                <div class="exl-kpi-top">
+
+
+                    <div class="exl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path d="M12 7v5"></path>
+
+                            <path d="M12 16h.01"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="exl-kpi-label">
+                        Pending Approval
+                    </div>
+
+                </div>
+
+
+                <div class="exl-kpi-value">
+
+                    {{ pending_count }}
+
+                </div>
+
+
+                <div class="exl-kpi-note">
+
+                    Active expenses awaiting decision
+
+                </div>
+
+            </article>
+
+
+
+            <!-- VOIDED -->
+
+            <article class="exl-kpi red">
+
+
+                <div class="exl-kpi-top">
+
+
+                    <div class="exl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path d="M8 8l8 8"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="exl-kpi-label">
+                        Voided Records
+                    </div>
+
+                </div>
+
+
+                <div class="exl-kpi-value">
+
+                    {{ voided_count }}
+
+                </div>
+
+
+                <div class="exl-kpi-note">
+
+                    Preserved reversed financial entries
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             INTELLIGENCE
+        =================================================== -->
+
+        <div class="exl-intelligence">
+
+
+            <div class="exl-intelligence-left">
+
+
+                <div class="exl-intelligence-icon">
+                    ✦
+                </div>
+
+
+                <div>
+
+
+                    <div class="exl-intelligence-title">
+
+                        Expense integrity and approval tracking
+
+                    </div>
+
+
+                    <div class="exl-intelligence-text">
+
+                        EduFinance keeps voided expenses in financial
+                        history while active expenses remain available
+                        for operational and reporting totals.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="exl-intelligence-badge">
+
+                {{ active_count }}
+                active record{{ active_count|pluralize }}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             LEDGER
+        =================================================== -->
+
+        <section class="exl-panel">
+
+
+            <div class="exl-panel-head">
+
+
+                <div class="exl-panel-head-left">
+
+
+                    <div class="exl-panel-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M5 4h14v16H5z"></path>
+
+                            <path d="M8 8h8"></path>
+
+                            <path d="M8 12h6"></path>
+
+                            <path d="M8 16h4"></path>
+                        </svg>
+
+                    </div>
+
+
+
+                    <div>
+
+
+                        <h2 class="exl-panel-title">
+                            Expense Ledger
+                        </h2>
+
+
+                        <div class="exl-panel-subtitle">
+
+                            Search, filter and inspect school spending records.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="exl-count">
+
+                    {{ total_records }}
+
+                    record{{ total_records|pluralize }}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 FILTERS
+            =================================================== -->
+
+            <form
+                method="get"
+                class="exl-toolbar"
+                id="expenseFilterForm"
+            >
+
+
+                <!-- SEARCH -->
+
+                <div class="exl-search-wrap">
+
+
+                    <svg
+                        class="exl-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="11"
+                            cy="11"
+                            r="7"
+                        ></circle>
+
+                        <path d="m20 20-3.5-3.5"></path>
+                    </svg>
+
+
+                    <input
+                        type="text"
+                        name="search"
+                        id="expenseSearch"
+                        value="{{ search }}"
+                        class="exl-search"
+                        placeholder="Search expense, description, supplier, category or reference..."
+                        autocomplete="off"
+                    >
+
+
+                    <span
+                        class="exl-search-spinner"
+                        id="expenseSearchSpinner"
+                    ></span>
+
+                </div>
+
+
+
+                <!-- CATEGORY -->
+
+                <select
+                    name="category"
+                    id="expenseCategory"
+                    class="exl-select"
+                >
+
+                    <option value="">
+                        All categories
+                    </option>
+
+
+                    {% for category in categories %}
+
+                        {% with category_pk=category.pk|stringformat:"s" %}
+
+                            <option
+                                value="{{ category.pk }}"
+                                {% if selected_category == category_pk %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ category.name }}
+                            </option>
+
+                        {% endwith %}
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <!-- SUPPLIER -->
+
+                <select
+                    name="supplier"
+                    id="expenseSupplier"
+                    class="exl-select"
+                >
+
+                    <option value="">
+                        All suppliers
+                    </option>
+
+
+                    {% for supplier in suppliers %}
+
+                        {% with supplier_pk=supplier.pk|stringformat:"s" %}
+
+                            <option
+                                value="{{ supplier.pk }}"
+                                {% if selected_supplier == supplier_pk %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ supplier.name }}
+                            </option>
+
+                        {% endwith %}
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <!-- PAYMENT METHOD -->
+
+                <select
+                    name="payment_method"
+                    id="expensePaymentMethod"
+                    class="exl-select"
+                >
+
+                    <option value="">
+                        All methods
+                    </option>
+
+
+                    {% for value, label in payment_method_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_payment_method == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <!-- APPROVAL -->
+
+                <select
+                    name="approval_status"
+                    id="expenseApprovalStatus"
+                    class="exl-select"
+                >
+
+                    <option value="">
+                        All approvals
+                    </option>
+
+
+                    {% for value, label in approval_status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_approval_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <!-- RECORD STATUS -->
+
+                <select
+                    name="record_status"
+                    id="expenseRecordStatus"
+                    class="exl-select"
+                >
+
+                    <option value="">
+                        All records
+                    </option>
+
+
+                    {% for value, label in record_status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_record_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </form>
+
+
+
+            <!-- ==================================================
+                 TABLE
+            =================================================== -->
+
+            {% if expenses %}
+
+                <div class="exl-table-wrap">
+
+
+                    <table class="exl-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Expense
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Supplier
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Method
+                                </th>
+
+                                <th>
+                                    Approval
+                                </th>
+
+                                <th>
+                                    Record
+                                </th>
+
+                                <th style="text-align:right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+
+                        <tbody>
+
+
+                            {% for expense in expenses %}
+
+                                <tr>
+
+
+                                    <!-- EXPENSE -->
+
+                                    <td>
+
+                                        <div class="exl-expense">
+
+
+                                            <div class="exl-expense-icon">
+
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                >
+                                                    <path d="M5 4h14v16H5z"></path>
+
+                                                    <path d="M8 8h8"></path>
+
+                                                    <path d="M8 12h5"></path>
+                                                </svg>
+
+                                            </div>
+
+
+
+                                            <div>
+
+
+                                                <div class="exl-expense-number">
+
+                                                    {{ expense.expense_number }}
+
+                                                </div>
+
+
+                                                <div class="exl-expense-desc">
+
+                                                    {{ expense.description }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- CATEGORY -->
+
+                                    <td>
+
+                                        <span class="exl-category">
+
+                                            <span class="exl-category-dot"></span>
+
+                                            {{ expense.category.name }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- SUPPLIER -->
+
+                                    <td>
+
+                                        {% if expense.supplier %}
+
+                                            <div class="exl-supplier">
+
+
+                                                <div class="exl-supplier-avatar">
+
+                                                    {{ expense.supplier.name|slice:":1"|upper }}
+
+                                                </div>
+
+
+                                                <div class="exl-supplier-name">
+
+                                                    {{ expense.supplier.name }}
+
+                                                </div>
+
+                                            </div>
+
+                                        {% else %}
+
+                                            <span class="exl-no-supplier">
+                                                Direct expense
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <div class="exl-date">
+
+                                            {{ expense.expense_date|date:"M d, Y" }}
+
+                                        </div>
+
+
+                                        <div class="exl-date-note">
+                                            Expense date
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- AMOUNT -->
+
+                                    <td>
+
+                                        <div class="exl-money">
+
+                                            ${{ expense.amount|floatformat:2 }}
+
+                                        </div>
+
+
+                                        <div class="exl-money-note">
+
+                                            {% if expense.record_status == "voided" %}
+
+                                                Excluded from totals
+
+                                            {% else %}
+
+                                                Active expense
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- METHOD -->
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                exl-method
+                                                {{ expense.payment_method }}
+                                            "
+                                        >
+
+                                            <span class="exl-method-dot"></span>
+
+                                            {{ expense.get_payment_method_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- APPROVAL -->
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                exl-approval
+                                                {{ expense.approval_status }}
+                                            "
+                                        >
+
+                                            <span class="exl-approval-dot"></span>
+
+                                            {{ expense.get_approval_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- RECORD STATUS -->
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                exl-record
+                                                {{ expense.record_status }}
+                                            "
+                                        >
+
+                                            <span class="exl-record-dot"></span>
+
+                                            {{ expense.get_record_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- ACTIONS -->
+
+                                    <td>
+
+                                        <div class="exl-actions">
+
+
+                                            <a
+                                                href="{% url 'payables:expense_detail' expense.pk %}"
+                                                class="exl-action view"
+                                            >
+                                                View
+                                            </a>
+
+
+                                            {% if expense.record_status == "active" %}
+
+                                                <a
+                                                    href="{% url 'payables:expense_edit' expense.pk %}"
+                                                    class="exl-action edit"
+                                                >
+                                                    Edit
+                                                </a>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+            {% else %}
+
+
+                <!-- ==================================================
+                     EMPTY STATE
+                =================================================== -->
+
+                <div class="exl-empty">
+
+
+                    <div class="exl-empty-inner">
+
+
+                        <div class="exl-empty-art">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M5 4h14v16H5z"></path>
+
+                                <path d="M8 8h8"></path>
+
+                                <path d="M8 12h5"></path>
+
+                                <path d="M8 16h4"></path>
+                            </svg>
+
+                        </div>
+
+
+
+                        {% if search or selected_category or selected_supplier or selected_payment_method or selected_approval_status or selected_record_status %}
+
+                            <div class="exl-empty-kicker">
+                                Filter Results
+                            </div>
+
+
+                            <h3 class="exl-empty-title">
+                                No matching expenses
+                            </h3>
+
+
+                            <p class="exl-empty-text">
+
+                                No expense records match the current
+                                search and filter combination. Adjust
+                                the category, supplier, payment method,
+                                approval status or record status.
+
+                            </p>
+
+
+                        {% else %}
+
+                            <div class="exl-empty-kicker">
+                                Expense Management
+                            </div>
+
+
+                            <h3 class="exl-empty-title">
+                                Record your first school expense
+                            </h3>
+
+
+                            <p class="exl-empty-text">
+
+                                Track operational spending, supplier costs,
+                                payment methods, approvals and receipt
+                                documents in one financial workspace.
+
+                            </p>
+
+
+                            <a
+                                href="{% url 'payables:expense_create' %}"
+                                class="exl-empty-btn"
+                            >
+                                + Record First Expense
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ======================================================
+           GLOBAL STATE
+        ======================================================= */
+
+        const topProgress =
+            document.getElementById(
+                "expenseTopProgress"
+            );
+
+
+        let debounceTimer =
+            null;
+
+
+        let activeController =
+            null;
+
+
+
+        function startProgress() {
+
+            if (topProgress) {
+
+                topProgress.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        function stopProgress() {
+
+            if (topProgress) {
+
+                topProgress.classList.remove(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           FILTER
+        ======================================================= */
+
+        async function performExpenseFilter() {
+
+
+            const search =
+                document.getElementById(
+                    "expenseSearch"
+                );
+
+
+            const category =
+                document.getElementById(
+                    "expenseCategory"
+                );
+
+
+            const supplier =
+                document.getElementById(
+                    "expenseSupplier"
+                );
+
+
+            const paymentMethod =
+                document.getElementById(
+                    "expensePaymentMethod"
+                );
+
+
+            const approvalStatus =
+                document.getElementById(
+                    "expenseApprovalStatus"
+                );
+
+
+            const recordStatus =
+                document.getElementById(
+                    "expenseRecordStatus"
+                );
+
+
+            const currentArea =
+                document.getElementById(
+                    "expenseDynamicArea"
+                );
+
+
+            const spinner =
+                document.getElementById(
+                    "expenseSearchSpinner"
+                );
+
+
+            if (
+                !search
+                ||
+                !category
+                ||
+                !supplier
+                ||
+                !paymentMethod
+                ||
+                !approvalStatus
+                ||
+                !recordStatus
+                ||
+                !currentArea
+            ) {
+
+                return;
+
+            }
+
+
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+
+
+            /* SEARCH */
+
+            const searchValue =
+                search.value.trim();
+
+
+            if (searchValue) {
+
+                url.searchParams.set(
+                    "search",
+                    searchValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "search"
+                );
+
+            }
+
+
+
+            /* CATEGORY */
+
+            if (category.value) {
+
+                url.searchParams.set(
+                    "category",
+                    category.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "category"
+                );
+
+            }
+
+
+
+            /* SUPPLIER */
+
+            if (supplier.value) {
+
+                url.searchParams.set(
+                    "supplier",
+                    supplier.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "supplier"
+                );
+
+            }
+
+
+
+            /* METHOD */
+
+            if (paymentMethod.value) {
+
+                url.searchParams.set(
+                    "payment_method",
+                    paymentMethod.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "payment_method"
+                );
+
+            }
+
+
+
+            /* APPROVAL */
+
+            if (approvalStatus.value) {
+
+                url.searchParams.set(
+                    "approval_status",
+                    approvalStatus.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "approval_status"
+                );
+
+            }
+
+
+
+            /* RECORD STATUS */
+
+            if (recordStatus.value) {
+
+                url.searchParams.set(
+                    "record_status",
+                    recordStatus.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "record_status"
+                );
+
+            }
+
+
+
+            /*
+             * Cancel previous pending request.
+             */
+
+            if (activeController) {
+
+                activeController.abort();
+
+            }
+
+
+            activeController =
+                new AbortController();
+
+
+
+            if (spinner) {
+
+                spinner.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            currentArea.classList.add(
+                "loading"
+            );
+
+
+            startProgress();
+
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        url.toString(),
+                        {
+                            headers: {
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+
+                            },
+
+                            signal:
+                                activeController.signal
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to filter expenses."
+                    );
+
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                const parser =
+                    new DOMParser();
+
+
+                const parsed =
+                    parser.parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                const replacement =
+                    parsed.getElementById(
+                        "expenseDynamicArea"
+                    );
+
+
+                if (!replacement) {
+
+                    window.location.href =
+                        url.toString();
+
+                    return;
+
+                }
+
+
+                currentArea.innerHTML =
+                    replacement.innerHTML;
+
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    url.toString()
+                );
+
+
+                bindExpenseFilterEvents();
+
+            }
+
+
+            catch (error) {
+
+
+                if (
+                    error.name
+                    !== "AbortError"
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+
+            finally {
+
+
+                const updatedArea =
+                    document.getElementById(
+                        "expenseDynamicArea"
+                    );
+
+
+                const updatedSpinner =
+                    document.getElementById(
+                        "expenseSearchSpinner"
+                    );
+
+
+                if (updatedArea) {
+
+                    updatedArea.classList.remove(
+                        "loading"
+                    );
+
+                }
+
+
+                if (updatedSpinner) {
+
+                    updatedSpinner.classList.remove(
+                        "active"
+                    );
+
+                }
+
+
+                stopProgress();
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           EVENT BINDING
+        ======================================================= */
+
+        function bindExpenseFilterEvents() {
+
+
+            const form =
+                document.getElementById(
+                    "expenseFilterForm"
+                );
+
+
+            const search =
+                document.getElementById(
+                    "expenseSearch"
+                );
+
+
+            const category =
+                document.getElementById(
+                    "expenseCategory"
+                );
+
+
+            const supplier =
+                document.getElementById(
+                    "expenseSupplier"
+                );
+
+
+            const paymentMethod =
+                document.getElementById(
+                    "expensePaymentMethod"
+                );
+
+
+            const approvalStatus =
+                document.getElementById(
+                    "expenseApprovalStatus"
+                );
+
+
+            const recordStatus =
+                document.getElementById(
+                    "expenseRecordStatus"
+                );
+
+
+            if (
+                !form
+                ||
+                !search
+                ||
+                !category
+                ||
+                !supplier
+                ||
+                !paymentMethod
+                ||
+                !approvalStatus
+                ||
+                !recordStatus
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                form.dataset.bound
+                === "true"
+            ) {
+
+                return;
+
+            }
+
+
+            form.dataset.bound =
+                "true";
+
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    performExpenseFilter();
+
+                }
+            );
+
+
+            /*
+             * Search automatically after a short pause.
+             */
+
+            search.addEventListener(
+                "input",
+                function () {
+
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+
+                    debounceTimer =
+                        setTimeout(
+                            performExpenseFilter,
+                            320
+                        );
+
+                }
+            );
+
+
+            /*
+             * Dropdown filters apply immediately.
+             */
+
+            category.addEventListener(
+                "change",
+                performExpenseFilter
+            );
+
+
+            supplier.addEventListener(
+                "change",
+                performExpenseFilter
+            );
+
+
+            paymentMethod.addEventListener(
+                "change",
+                performExpenseFilter
+            );
+
+
+            approvalStatus.addEventListener(
+                "change",
+                performExpenseFilter
+            );
+
+
+            recordStatus.addEventListener(
+                "change",
+                performExpenseFilter
+            );
+
+        }
+
+
+
+        /* ======================================================
+           INITIALIZE
+        ======================================================= */
+
+        bindExpenseFilterEvents();
+
+    }
+);
+</script>
+
+{% endblock %}

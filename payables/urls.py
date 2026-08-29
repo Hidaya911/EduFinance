@@ -117,4 +117,38 @@ path(
 ),
 
 
+# ============================================================
+# EXPENSES
+# ============================================================
+
+path(
+    "expenses/",
+    views.expense_list,
+    name="expense_list",
+),
+
+path(
+    "expenses/create/",
+    views.expense_create,
+    name="expense_create",
+),
+
+path(
+    "expenses/<str:pk>/",
+    views.expense_detail,
+    name="expense_detail",
+),
+
+path(
+    "expenses/<str:pk>/edit/",
+    views.expense_edit,
+    name="expense_edit",
+),
+
+path(
+    "expenses/<str:pk>/void/",
+    views.expense_void,
+    name="expense_void",
+),
+
 ]

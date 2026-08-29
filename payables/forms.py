@@ -8,6 +8,7 @@ from .models import (
     Supplier,
     SupplierBill,
     SupplierPayment,
+    Expense,
 )
 
 
@@ -593,3 +594,295 @@ class SupplierPaymentForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+
+    # ============================================================
+# EXPENSE FORM
+# ============================================================
+
+class ExpenseForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Expense
+
+        fields = [
+            "category",
+            "supplier",
+            "description",
+            "amount",
+            "expense_date",
+            "payment_method",
+            "reference",
+            "receipt",
+            "approval_status",
+        ]
+
+        widgets = {
+
+            "category": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "supplier": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder":
+                        (
+                            "Describe the school expense, "
+                            "purpose, goods or services..."
+                        ),
+                }
+            ),
+
+            "amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "0.00",
+                    "min": "0.01",
+                    "step": "0.01",
+                }
+            ),
+
+            "expense_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "payment_method": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "reference": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder":
+                        (
+                            "Transaction reference, "
+                            "cheque number or receipt ID"
+                        ),
+                    "autocomplete": "off",
+                }
+            ),
+
+            "receipt": forms.FileInput(
+                attrs={
+                    "class": "form-control",
+                    "accept":
+                        ".pdf,.png,.jpg,.jpeg",
+                }
+            ),
+
+            "approval_status": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        # --------------------------------------------------------
+        # CATEGORY QUERYSET
+        # --------------------------------------------------------
+
+        active_categories = (
+            ExpenseCategory.objects
+            .filter(
+                is_active=True
+            )
+            .order_by(
+                "name"
+            )
+        )
+
+        # Preserve an existing inactive category
+        # while editing historical financial data.
+        if (
+            self.instance
+            and
+            self.instance.pk
+            and
+            self.instance.category_id
+        ):
+
+            current_category = (
+                ExpenseCategory.objects
+                .filter(
+                    pk=
+                        self.instance.category_id
+                )
+            )
+
+            self.fields[
+                "category"
+            ].queryset = (
+                active_categories
+                |
+                current_category
+            )
+
+        else:
+
+            self.fields[
+                "category"
+            ].queryset = (
+                active_categories
+            )
+
+        # --------------------------------------------------------
+        # SUPPLIER QUERYSET
+        # --------------------------------------------------------
+
+        active_suppliers = (
+            Supplier.objects
+            .filter(
+                is_active=True
+            )
+            .order_by(
+                "name"
+            )
+        )
+
+        if (
+            self.instance
+            and
+            self.instance.pk
+            and
+            self.instance.supplier_id
+        ):
+
+            current_supplier = (
+                Supplier.objects
+                .filter(
+                    pk=
+                        self.instance.supplier_id
+                )
+            )
+
+            self.fields[
+                "supplier"
+            ].queryset = (
+                active_suppliers
+                |
+                current_supplier
+            )
+
+        else:
+
+            self.fields[
+                "supplier"
+            ].queryset = (
+                active_suppliers
+            )
+
+        self.fields[
+            "supplier"
+        ].required = False
+
+        self.fields[
+            "supplier"
+        ].empty_label = (
+            "No supplier / direct expense"
+        )
+
+    def clean_amount(self):
+
+        amount = self.cleaned_data[
+            "amount"
+        ]
+
+        if amount <= 0:
+
+            raise forms.ValidationError(
+                "Expense amount must be greater than zero."
+            )
+
+        return amount
+
+    def clean_receipt(self):
+
+        receipt = self.cleaned_data.get(
+            "receipt"
+        )
+
+        if not receipt:
+
+            return receipt
+
+        # Existing stored FileField values may not
+        # expose uploaded-file size in the same way.
+        if hasattr(
+            receipt,
+            "size",
+        ):
+
+            max_size = (
+                5
+                *
+                1024
+                *
+                1024
+            )
+
+            if receipt.size > max_size:
+
+                raise forms.ValidationError(
+                    "Receipt file cannot exceed 5 MB."
+                )
+
+        filename = (
+            getattr(
+                receipt,
+                "name",
+                "",
+            )
+            .lower()
+        )
+
+        allowed_extensions = (
+            ".pdf",
+            ".png",
+            ".jpg",
+            ".jpeg",
+        )
+
+        if (
+            filename
+            and
+            not filename.endswith(
+                allowed_extensions
+            )
+        ):
+
+            raise forms.ValidationError(
+                (
+                    "Only PDF, PNG, JPG "
+                    "and JPEG files are allowed."
+                )
+            )
+
+        return receipt

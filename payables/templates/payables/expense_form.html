@@ -1,0 +1,2823 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — EXPENSE WORKSPACE
+       Scoped with exf-
+    ========================================================== */
+
+    .exf-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --blue-600: #2563eb;
+        --green-600: #059669;
+        --amber-600: #d97706;
+        --red-600: #dc2626;
+
+        --text-900: #12243d;
+        --text-700: #41536b;
+        --text-500: #7f8ea2;
+
+        min-height: 100vh;
+
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37,99,235,.11),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(16,185,129,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: var(--text-900);
+    }
+
+    .exf-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .exf-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .exf-breadcrumb a {
+        color: #7c8b9f;
+        text-decoration: none;
+    }
+
+    .exf-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+    .exf-breadcrumb-current {
+        color: #4b6380;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .exf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding: 28px 31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13,42,83,.17);
+    }
+
+    .exf-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border: 46px solid rgba(255,255,255,.055);
+        border-radius: 50%;
+    }
+
+    .exf-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 200px;
+        bottom: -130px;
+
+        border-radius: 50%;
+
+        background: rgba(54,135,255,.18);
+    }
+
+    .exf-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .exf-hero-icon {
+        width: 62px;
+        height: 62px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.14),
+                rgba(255,255,255,.06)
+            );
+
+        backdrop-filter: blur(12px);
+    }
+
+    .exf-hero-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .exf-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .exf-title {
+        margin: 0;
+
+        font-size: 30px;
+        line-height: 1.1;
+
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .exf-subtitle {
+        max-width: 680px;
+
+        margin: 8px 0 0;
+
+        color: rgba(228,238,252,.76);
+
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .exf-chip {
+        position: relative;
+        z-index: 2;
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 8px 12px;
+
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 999px;
+
+        background: rgba(255,255,255,.075);
+
+        color: rgba(255,255,255,.88);
+
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .exf-chip-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(94,234,212,.10);
+    }
+
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .exf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            335px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* ==========================================================
+       MAIN CARD
+    ========================================================== */
+
+    .exf-card {
+        overflow: hidden;
+
+        border: 1px solid #d8e2ed;
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .exf-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding: 20px 22px;
+
+        border-bottom: 1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcfe
+            );
+    }
+
+    .exf-card-head-left {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .exf-card-icon {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #edf4ff;
+        color: #2563eb;
+    }
+
+    .exf-card-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .exf-card-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .exf-card-subtitle {
+        margin-top: 4px;
+
+        color: #939eae;
+
+        font-size: 9.5px;
+    }
+
+    .exf-required-note {
+        color: #9ba6b4;
+
+        font-size: 9px;
+    }
+
+    .exf-body {
+        padding: 20px;
+    }
+
+
+    /* ==========================================================
+       SECTIONS
+    ========================================================== */
+
+    .exf-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding: 18px 18px 20px;
+
+        border: 1px solid #dce5ef;
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcff
+            );
+
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .exf-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .exf-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius: 0 4px 4px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #2563eb,
+                #60a5fa
+            );
+    }
+
+    .exf-section:focus-within {
+        border-color: #91b3ed;
+
+        box-shadow:
+            0 10px 26px
+            rgba(37,99,235,.07);
+
+        transform: translateY(-1px);
+    }
+
+    .exf-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .exf-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .exf-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .exf-section-desc {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.5px;
+    }
+
+
+    /* ==========================================================
+       GRID / FIELDS
+    ========================================================== */
+
+    .exf-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .exf-full {
+        grid-column: 1 / -1;
+    }
+
+    .exf-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10.5px;
+        font-weight: 780;
+    }
+
+    .exf-required {
+        color: #df4554;
+    }
+
+    .exf-optional {
+        margin-left: auto;
+
+        padding: 3px 7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .exf-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border: 1.5px solid #b8c8da;
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+        font-size: 12px;
+
+        outline: none;
+
+        transition: .2s ease;
+    }
+
+    .exf-field
+    input.form-control,
+    .exf-field
+    select.form-control {
+        height: 47px;
+
+        padding: 0 13px;
+    }
+
+    .exf-field
+    textarea.form-control {
+        min-height: 102px;
+
+        padding: 12px 13px;
+
+        line-height: 1.55;
+
+        resize: vertical;
+    }
+
+    .exf-field
+    .form-control:hover {
+        border-color: #8fa8c5;
+
+        background: white;
+    }
+
+    .exf-field
+    .form-control:focus {
+        border-color: #2563eb;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.10),
+            0 5px 14px
+            rgba(37,99,235,.06);
+
+        transform: translateY(-1px);
+    }
+
+    .exf-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 9px;
+        line-height: 1.45;
+    }
+
+
+    /* ==========================================================
+       MONEY
+    ========================================================== */
+
+    .exf-money {
+        position: relative;
+    }
+
+    .exf-money-symbol {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        z-index: 2;
+
+        transform: translateY(-50%);
+
+        color: #2563eb;
+
+        font-size: 13px;
+        font-weight: 850;
+
+        pointer-events: none;
+    }
+
+    .exf-money input.form-control {
+        padding-left: 31px;
+
+        color: #102f53;
+
+        font-weight: 750;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f4f8ff
+            );
+    }
+
+
+    /* ==========================================================
+       ERROR
+    ========================================================== */
+
+    .exf-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border: 1px solid #f0c8ce;
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9.5px;
+        line-height: 1.45;
+    }
+
+    .exf-error ul {
+        margin: 0;
+
+        padding-left: 15px;
+    }
+
+    .exf-global-error {
+        margin-bottom: 18px;
+    }
+
+
+    /* ==========================================================
+       CUSTOM RECEIPT UPLOAD
+    ========================================================== */
+
+    .exf-upload {
+        padding: 18px;
+
+        border: 1.5px dashed #b8cae0;
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #fbfdff,
+                #f3f8ff
+            );
+    }
+
+    .exf-upload-top {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .exf-upload-icon {
+        width: 43px;
+        height: 43px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border: 1px solid #e1e9f3;
+        border-radius: 12px;
+
+        background: white;
+
+        color: #2563eb;
+
+        box-shadow:
+            0 6px 15px
+            rgba(37,99,235,.08);
+    }
+
+    .exf-upload-title {
+        color: #183858;
+
+        font-size: 10.5px;
+        font-weight: 770;
+    }
+
+    .exf-upload-text {
+        margin-top: 3px;
+
+        color: #8896a9;
+
+        font-size: 8.8px;
+    }
+
+    .exf-native-file {
+        position: absolute;
+
+        width: 1px;
+        height: 1px;
+
+        overflow: hidden;
+
+        opacity: 0;
+    }
+
+    .exf-upload-control {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-top: 15px;
+
+        padding-top: 14px;
+
+        border-top: 1px solid #e4ebf4;
+    }
+
+    .exf-upload-button {
+        min-height: 39px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 14px;
+
+        border: 1px solid #c7d7ea;
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f6f9fd
+            );
+
+        color: #315273;
+
+        font-size: 9.5px;
+        font-weight: 750;
+
+        cursor: pointer;
+
+        transition: .2s ease;
+    }
+
+    .exf-upload-button:hover {
+        border-color: #8fb1e8;
+
+        color: #2563eb;
+
+        transform: translateY(-1px);
+    }
+
+    .exf-upload-name {
+        min-width: 0;
+        flex: 1;
+
+        overflow: hidden;
+
+        color: #8492a5;
+
+        font-size: 9.5px;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .exf-upload-name.selected {
+        color: #087b51;
+
+        font-weight: 700;
+    }
+
+    .exf-current-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-top: 12px;
+
+        padding: 10px 11px;
+
+        border: 1px solid #d9e5f1;
+        border-radius: 9px;
+
+        background: white;
+
+        font-size: 8.8px;
+    }
+
+    .exf-current-document a {
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+
+    .exf-footer {
+        position: sticky;
+        bottom: 0;
+
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 16px 21px;
+
+        border-top: 1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter: blur(14px);
+
+        box-shadow:
+            0 -8px 20px
+            rgba(20,40,70,.04);
+    }
+
+    .exf-footer-note {
+        color: #99a4b3;
+
+        font-size: 9px;
+    }
+
+    .exf-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .exf-cancel,
+    .exf-submit {
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 18px;
+
+        border-radius: 9px;
+
+        font-size: 11px;
+        font-weight: 720;
+
+        transition: .2s ease;
+    }
+
+    .exf-cancel {
+        border: 1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+
+        text-decoration: none;
+    }
+
+    .exf-submit {
+        min-width: 145px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 19px
+            rgba(37,99,235,.22);
+    }
+
+    .exf-submit:hover {
+        transform: translateY(-2px);
+    }
+
+    .exf-submit:disabled {
+        opacity: .8;
+
+        cursor: wait;
+
+        transform: none;
+    }
+
+    .exf-submit-normal,
+    .exf-submit-loading {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .exf-submit-loading {
+        display: none;
+    }
+
+    .exf-submit.loading
+    .exf-submit-normal {
+        display: none;
+    }
+
+    .exf-submit.loading
+    .exf-submit-loading {
+        display: inline-flex;
+    }
+
+    .exf-spinner {
+        width: 14px;
+        height: 14px;
+
+        border: 2px solid rgba(255,255,255,.4);
+        border-top-color: white;
+        border-radius: 50%;
+
+        animation:
+            exf-spin
+            .7s linear infinite;
+    }
+
+    @keyframes exf-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       SIDEBAR
+    ========================================================== */
+
+    .exf-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .exf-side-card {
+        overflow: hidden;
+
+        border: 1px solid #d9e3ee;
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .exf-side-head {
+        padding: 15px 16px;
+
+        border-bottom: 1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .exf-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .exf-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8.8px;
+        line-height: 1.45;
+    }
+
+    .exf-side-body {
+        padding: 16px;
+    }
+
+
+    /* ==========================================================
+       LIVE SUMMARY
+    ========================================================== */
+
+    .exf-summary {
+        background:
+            linear-gradient(
+                145deg,
+                #091e3b,
+                #123b70
+            );
+
+        color: white;
+
+        border-color: rgba(32,81,137,.5);
+    }
+
+    .exf-summary
+    .exf-side-head {
+        border-color: rgba(255,255,255,.09);
+
+        background: rgba(255,255,255,.02);
+    }
+
+    .exf-summary
+    .exf-side-title {
+        color: white;
+    }
+
+    .exf-summary
+    .exf-side-desc {
+        color: rgba(225,236,249,.6);
+    }
+
+    .exf-summary-label {
+        color: rgba(206,221,240,.62);
+
+        font-size: 8px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .exf-summary-money {
+        margin-top: 5px;
+
+        color: white;
+
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .exf-summary-divider {
+        height: 1px;
+
+        margin: 14px 0;
+
+        background: rgba(255,255,255,.09);
+    }
+
+    .exf-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-bottom: 11px;
+    }
+
+    .exf-summary-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .exf-summary-row-label {
+        color: rgba(218,230,245,.66);
+
+        font-size: 8.8px;
+    }
+
+    .exf-summary-row-value {
+        max-width: 170px;
+
+        overflow: hidden;
+
+        color: white;
+
+        text-align: right;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .exf-preview-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 5px 8px;
+
+        border-radius: 999px;
+
+        background: rgba(148,163,184,.14);
+
+        color: #d9e0e9;
+
+        font-size: 8.5px;
+        font-weight: 720;
+    }
+
+    .exf-preview-status.pending {
+        background: rgba(245,158,11,.13);
+
+        color: #ffd889;
+    }
+
+    .exf-preview-status.approved {
+        background: rgba(16,185,129,.14);
+
+        color: #9ff2cb;
+    }
+
+    .exf-preview-status.rejected {
+        background: rgba(239,68,68,.15);
+
+        color: #ffc0c4;
+    }
+
+    .exf-preview-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+
+    /* ==========================================================
+       RULE
+    ========================================================== */
+
+    .exf-rule {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 9px;
+
+        margin-bottom: 13px;
+    }
+
+    .exf-rule:last-child {
+        margin-bottom: 0;
+    }
+
+    .exf-rule-icon {
+        width: 23px;
+        height: 23px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #edf4ff;
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .exf-rule-title {
+        color: #40526b;
+
+        font-size: 9.5px;
+        font-weight: 720;
+    }
+
+    .exf-rule-text {
+        margin-top: 2px;
+
+        color: #98a3b2;
+
+        font-size: 8.4px;
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1050px) {
+
+        .exf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .exf-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .exf-summary {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media(max-width:720px) {
+
+        .exf-page {
+            padding: 22px 16px 45px;
+        }
+
+        .exf-breadcrumb {
+            display: none;
+        }
+
+        .exf-hero {
+            padding: 23px 20px;
+
+            border-radius: 18px;
+        }
+
+        .exf-hero-icon,
+        .exf-chip {
+            display: none;
+        }
+
+        .exf-title {
+            font-size: 26px;
+        }
+
+        .exf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .exf-full {
+            grid-column: auto;
+        }
+
+        .exf-section-desc {
+            display: none;
+        }
+
+        .exf-side {
+            display: flex;
+        }
+
+        .exf-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .exf-footer-note {
+            display: none;
+        }
+
+        .exf-actions {
+            flex-direction: column-reverse;
+        }
+
+        .exf-cancel,
+        .exf-submit {
+            width: 100%;
+        }
+
+        .exf-upload-control {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+    }
+</style>
+
+
+
+<div class="exf-page">
+
+<div class="exf-container">
+
+
+    <!-- BREADCRUMB -->
+
+    <div class="exf-breadcrumb">
+
+        <a href="{% url 'payables:expense_list' %}">
+            Expenses
+        </a>
+
+        <span>›</span>
+
+        <span class="exf-breadcrumb-current">
+            {{ page_title }}
+        </span>
+
+    </div>
+
+
+
+    <!-- HERO -->
+
+    <section class="exf-hero">
+
+
+        <div class="exf-hero-left">
+
+
+            <div class="exf-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M5 4h14v16H5z"></path>
+                    <path d="M8 8h8"></path>
+                    <path d="M8 12h5"></path>
+                    <path d="M8 16h4"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="exf-eyebrow">
+                    Financial Operations
+                </div>
+
+                <h1 class="exf-title">
+                    {{ page_title }}
+                </h1>
+
+                <p class="exf-subtitle">
+
+                    Capture school operational spending with category,
+                    supplier, payment method, approval state and supporting
+                    receipt documentation.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="exf-chip">
+
+            <span class="exf-chip-dot"></span>
+
+            {% if is_edit %}
+                Existing Financial Record
+            {% else %}
+                New Expense Record
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- FORM -->
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        id="expenseForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="exf-layout">
+
+
+            <!-- MAIN -->
+
+            <section class="exf-card">
+
+
+                <div class="exf-card-head">
+
+
+                    <div class="exf-card-head-left">
+
+
+                        <div class="exf-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M5 4h14v16H5z"></path>
+                                <path d="M8 8h8"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2 class="exf-card-title">
+                                Expense Information
+                            </h2>
+
+                            <div class="exf-card-subtitle">
+                                Complete the school spending record below.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="exf-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+
+                <div class="exf-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="exf-error exf-global-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+
+                    <!-- =================================================
+                         SECTION 01
+                    ================================================== -->
+
+                    <div class="exf-section">
+
+
+                        <div class="exf-section-head">
+
+                            <div class="exf-section-number">
+                                01
+                            </div>
+
+                            <div class="exf-section-title">
+                                Expense Classification
+                            </div>
+
+                            <div class="exf-section-desc">
+                                Category & supplier
+                            </div>
+
+                        </div>
+
+
+                        <div class="exf-grid">
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Expense Category
+
+                                    <span class="exf-required">*</span>
+
+                                </label>
+
+
+                                {{ form.category }}
+
+
+                                <div class="exf-help">
+
+                                    Categorizes the expense for reporting
+                                    and financial analysis.
+
+                                </div>
+
+
+                                {% if form.category.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.category.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Supplier
+
+                                    <span class="exf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.supplier }}
+
+
+                                <div class="exf-help">
+
+                                    Link a supplier when the expense
+                                    originates from a registered vendor.
+
+                                </div>
+
+
+                                {% if form.supplier.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.supplier.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 02
+                    ================================================== -->
+
+                    <div class="exf-section">
+
+
+                        <div class="exf-section-head">
+
+                            <div class="exf-section-number">
+                                02
+                            </div>
+
+                            <div class="exf-section-title">
+                                Financial Value
+                            </div>
+
+                            <div class="exf-section-desc">
+                                Amount & date
+                            </div>
+
+                        </div>
+
+
+                        <div class="exf-grid">
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Expense Amount
+
+                                    <span class="exf-required">*</span>
+
+                                </label>
+
+
+                                <div class="exf-money">
+
+                                    <span class="exf-money-symbol">
+                                        $
+                                    </span>
+
+                                    {{ form.amount }}
+
+                                </div>
+
+
+                                <div class="exf-help">
+
+                                    Enter the total value of the expense.
+
+                                </div>
+
+
+                                {% if form.amount.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.amount.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Expense Date
+
+                                    <span class="exf-required">*</span>
+
+                                </label>
+
+
+                                {{ form.expense_date }}
+
+
+                                <div class="exf-help">
+
+                                    Date the expense occurred or was paid.
+
+                                </div>
+
+
+                                {% if form.expense_date.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.expense_date.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 03
+                    ================================================== -->
+
+                    <div class="exf-section">
+
+
+                        <div class="exf-section-head">
+
+                            <div class="exf-section-number">
+                                03
+                            </div>
+
+                            <div class="exf-section-title">
+                                Payment & Approval
+                            </div>
+
+                            <div class="exf-section-desc">
+                                Transaction controls
+                            </div>
+
+                        </div>
+
+
+                        <div class="exf-grid">
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Payment Method
+
+                                    <span class="exf-required">*</span>
+
+                                </label>
+
+
+                                {{ form.payment_method }}
+
+
+                                {% if form.payment_method.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.payment_method.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="exf-field">
+
+                                <label class="exf-label">
+
+                                    Approval Status
+
+                                    <span class="exf-required">*</span>
+
+                                </label>
+
+
+                                {{ form.approval_status }}
+
+
+                                <div class="exf-help">
+
+                                    Approval workflow can be managed
+                                    further through EduFinance Approvals.
+
+                                </div>
+
+
+                                {% if form.approval_status.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.approval_status.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="exf-field exf-full">
+
+                                <label class="exf-label">
+
+                                    Transaction Reference
+
+                                    <span class="exf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.reference }}
+
+
+                                <div class="exf-help">
+
+                                    Bank reference, cheque number,
+                                    receipt ID or transaction reference.
+
+                                </div>
+
+
+                                {% if form.reference.errors %}
+
+                                    <div class="exf-error">
+                                        {{ form.reference.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 04
+                    ================================================== -->
+
+                    <div class="exf-section">
+
+
+                        <div class="exf-section-head">
+
+                            <div class="exf-section-number">
+                                04
+                            </div>
+
+                            <div class="exf-section-title">
+                                Expense Description
+                            </div>
+
+                            <div class="exf-section-desc">
+                                Spending purpose
+                            </div>
+
+                        </div>
+
+
+                        <div class="exf-field">
+
+                            <label class="exf-label">
+
+                                Description
+
+                                <span class="exf-required">*</span>
+
+                            </label>
+
+
+                            {{ form.description }}
+
+
+                            <div class="exf-help">
+
+                                Clearly describe what was purchased,
+                                serviced or paid for.
+
+                            </div>
+
+
+                            {% if form.description.errors %}
+
+                                <div class="exf-error">
+                                    {{ form.description.errors }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 05
+                    ================================================== -->
+
+                    <div class="exf-section">
+
+
+                        <div class="exf-section-head">
+
+                            <div class="exf-section-number">
+                                05
+                            </div>
+
+                            <div class="exf-section-title">
+                                Receipt / Invoice
+                            </div>
+
+                            <div class="exf-section-desc">
+                                Supporting evidence
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exf-upload">
+
+
+                            <div class="exf-upload-top">
+
+
+                                <div class="exf-upload-icon">
+                                    ↑
+                                </div>
+
+
+                                <div>
+
+                                    <div class="exf-upload-title">
+                                        Expense Supporting Document
+                                    </div>
+
+                                    <div class="exf-upload-text">
+
+                                        PDF, PNG, JPG or JPEG · maximum 5 MB.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <input
+                                type="file"
+                                name="receipt"
+                                id="id_receipt"
+                                class="exf-native-file"
+                                accept=".pdf,.png,.jpg,.jpeg"
+                            >
+
+
+
+                            <div class="exf-upload-control">
+
+
+                                <label
+                                    for="id_receipt"
+                                    class="exf-upload-button"
+                                >
+                                    ↑ Select Receipt
+                                </label>
+
+
+                                <span
+                                    class="exf-upload-name"
+                                    id="expenseReceiptName"
+                                >
+                                    No document selected
+                                </span>
+
+                            </div>
+
+
+
+                            {% if form.receipt.errors %}
+
+                                <div class="exf-error">
+                                    {{ form.receipt.errors }}
+                                </div>
+
+                            {% endif %}
+
+
+
+                            {% if is_edit and expense.receipt %}
+
+                                <div class="exf-current-document">
+
+                                    <span>
+                                        Current receipt attached
+                                    </span>
+
+
+                                    <a
+                                        href="{{ expense.receipt.url }}"
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        View Document ↗
+                                    </a>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- FOOTER -->
+
+                <div class="exf-footer">
+
+
+                    <div class="exf-footer-note">
+
+                        Financial records remain traceable and
+                        can be voided rather than permanently deleted.
+
+                    </div>
+
+
+                    <div class="exf-actions">
+
+
+                        {% if is_edit %}
+
+                            <a
+                                href="{% url 'payables:expense_detail' expense.pk %}"
+                                class="exf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'payables:expense_list' %}"
+                                class="exf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% endif %}
+
+
+                        <button
+                            type="submit"
+                            class="exf-submit"
+                            id="expenseSubmit"
+                        >
+
+
+                            <span class="exf-submit-normal">
+                                ✓ {{ submit_text }}
+                            </span>
+
+
+                            <span class="exf-submit-loading">
+
+                                <span class="exf-spinner"></span>
+
+                                {% if is_edit %}
+                                    Saving Changes...
+                                {% else %}
+                                    Recording Expense...
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SIDEBAR
+            ================================================== -->
+
+            <aside class="exf-side">
+
+
+                <!-- SUMMARY -->
+
+                <section class="exf-side-card exf-summary">
+
+
+                    <div class="exf-side-head">
+
+                        <div class="exf-side-title">
+                            Live Expense Summary
+                        </div>
+
+                        <div class="exf-side-desc">
+
+                            Preview the financial record while entering data.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="exf-side-body">
+
+
+                        <div class="exf-summary-label">
+                            Expense Value
+                        </div>
+
+
+                        <div
+                            class="exf-summary-money"
+                            id="previewExpenseAmount"
+                        >
+                            $0.00
+                        </div>
+
+
+                        <div class="exf-summary-divider"></div>
+
+
+
+                        <div class="exf-summary-row">
+
+                            <span class="exf-summary-row-label">
+                                Category
+                            </span>
+
+                            <span
+                                class="exf-summary-row-value"
+                                id="previewExpenseCategory"
+                            >
+                                Not selected
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="exf-summary-row">
+
+                            <span class="exf-summary-row-label">
+                                Supplier
+                            </span>
+
+                            <span
+                                class="exf-summary-row-value"
+                                id="previewExpenseSupplier"
+                            >
+                                Direct expense
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="exf-summary-row">
+
+                            <span class="exf-summary-row-label">
+                                Method
+                            </span>
+
+                            <span
+                                class="exf-summary-row-value"
+                                id="previewExpenseMethod"
+                            >
+                                Not selected
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="exf-summary-row">
+
+                            <span class="exf-summary-row-label">
+                                Date
+                            </span>
+
+                            <span
+                                class="exf-summary-row-value"
+                                id="previewExpenseDate"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="exf-summary-divider"></div>
+
+
+
+                        <div class="exf-summary-row">
+
+                            <span class="exf-summary-row-label">
+                                Approval
+                            </span>
+
+
+                            <span
+                                class="exf-preview-status"
+                                id="previewExpenseApproval"
+                            >
+
+                                <span class="exf-preview-dot"></span>
+
+                                <span id="previewExpenseApprovalText">
+                                    Not Required
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- CONTROLS -->
+
+                <section class="exf-side-card">
+
+
+                    <div class="exf-side-head">
+
+                        <div class="exf-side-title">
+                            Expense Controls
+                        </div>
+
+                        <div class="exf-side-desc">
+                            Financial integrity safeguards.
+                        </div>
+
+                    </div>
+
+
+                    <div class="exf-side-body">
+
+
+                        <div class="exf-rule">
+
+                            <div class="exf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="exf-rule-title">
+                                    Positive amount required
+                                </div>
+
+                                <div class="exf-rule-text">
+                                    Expense value must be greater than zero.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exf-rule">
+
+                            <div class="exf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="exf-rule-title">
+                                    Category controlled
+                                </div>
+
+                                <div class="exf-rule-text">
+                                    Expenses are linked to managed categories.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exf-rule">
+
+                            <div class="exf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="exf-rule-title">
+                                    Supplier optional
+                                </div>
+
+                                <div class="exf-rule-text">
+
+                                    Direct school expenses can exist without
+                                    a registered supplier.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exf-rule">
+
+                            <div class="exf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="exf-rule-title">
+                                    Historical protection
+                                </div>
+
+                                <div class="exf-rule-text">
+
+                                    Financial expenses are voided rather
+                                    than permanently removed.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const form =
+            document.getElementById(
+                "expenseForm"
+            );
+
+
+        const amount =
+            document.getElementById(
+                "id_amount"
+            );
+
+
+        const category =
+            document.getElementById(
+                "id_category"
+            );
+
+
+        const supplier =
+            document.getElementById(
+                "id_supplier"
+            );
+
+
+        const method =
+            document.getElementById(
+                "id_payment_method"
+            );
+
+
+        const expenseDate =
+            document.getElementById(
+                "id_expense_date"
+            );
+
+
+        const approval =
+            document.getElementById(
+                "id_approval_status"
+            );
+
+
+        const receipt =
+            document.getElementById(
+                "id_receipt"
+            );
+
+
+        const submit =
+            document.getElementById(
+                "expenseSubmit"
+            );
+
+
+        const previewAmount =
+            document.getElementById(
+                "previewExpenseAmount"
+            );
+
+
+        const previewCategory =
+            document.getElementById(
+                "previewExpenseCategory"
+            );
+
+
+        const previewSupplier =
+            document.getElementById(
+                "previewExpenseSupplier"
+            );
+
+
+        const previewMethod =
+            document.getElementById(
+                "previewExpenseMethod"
+            );
+
+
+        const previewDate =
+            document.getElementById(
+                "previewExpenseDate"
+            );
+
+
+        const previewApproval =
+            document.getElementById(
+                "previewExpenseApproval"
+            );
+
+
+        const previewApprovalText =
+            document.getElementById(
+                "previewExpenseApprovalText"
+            );
+
+
+        const receiptName =
+            document.getElementById(
+                "expenseReceiptName"
+            );
+
+
+
+        function money(value) {
+
+            let number =
+                parseFloat(value);
+
+
+            if (isNaN(number)) {
+                number = 0;
+            }
+
+
+            return (
+                "$"
+                +
+                number.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            );
+
+        }
+
+
+
+        function optionText(select) {
+
+            if (
+                !select
+                ||
+                !select.value
+            ) {
+                return "";
+            }
+
+
+            const option =
+                select.options[
+                    select.selectedIndex
+                ];
+
+
+            return option
+                ? option.text.trim()
+                : "";
+
+        }
+
+
+
+        function formatDate(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+
+            const date =
+                new Date(
+                    value
+                    + "T00:00:00"
+                );
+
+
+            if (
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+                return "—";
+            }
+
+
+            return date.toLocaleDateString(
+                undefined,
+                {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+
+        function updatePreview() {
+
+
+            if (previewAmount) {
+
+                previewAmount.textContent =
+                    money(
+                        amount
+                        ? amount.value
+                        : 0
+                    );
+
+            }
+
+
+
+            if (previewCategory) {
+
+                previewCategory.textContent =
+                    optionText(category)
+                    ||
+                    "Not selected";
+
+            }
+
+
+
+            if (previewSupplier) {
+
+                previewSupplier.textContent =
+                    optionText(supplier)
+                    ||
+                    "Direct expense";
+
+            }
+
+
+
+            if (previewMethod) {
+
+                previewMethod.textContent =
+                    optionText(method)
+                    ||
+                    "Not selected";
+
+            }
+
+
+
+            if (previewDate) {
+
+                previewDate.textContent =
+                    formatDate(
+                        expenseDate
+                        ? expenseDate.value
+                        : ""
+                    );
+
+            }
+
+
+
+            if (
+                previewApproval
+                &&
+                previewApprovalText
+            ) {
+
+                const status =
+                    approval
+                    ?
+                    approval.value
+                    :
+                    "not_required";
+
+
+                previewApproval.className =
+                    "exf-preview-status";
+
+
+                if (
+                    status
+                    === "pending"
+                ) {
+
+                    previewApproval
+                    .classList.add(
+                        "pending"
+                    );
+
+                }
+
+                else if (
+                    status
+                    === "approved"
+                ) {
+
+                    previewApproval
+                    .classList.add(
+                        "approved"
+                    );
+
+                }
+
+                else if (
+                    status
+                    === "rejected"
+                ) {
+
+                    previewApproval
+                    .classList.add(
+                        "rejected"
+                    );
+
+                }
+
+
+                previewApprovalText.textContent =
+                    optionText(approval)
+                    ||
+                    "Not Required";
+
+            }
+
+        }
+
+
+
+        [
+            amount,
+            category,
+            supplier,
+            method,
+            expenseDate,
+            approval
+        ].forEach(
+            function (element) {
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+
+        if (receipt) {
+
+            receipt.addEventListener(
+                "change",
+                function () {
+
+
+                    const file =
+                        receipt.files[0];
+
+
+                    if (!receiptName) {
+                        return;
+                    }
+
+
+                    if (file) {
+
+                        receiptName.textContent =
+                            file.name;
+
+
+                        receiptName.classList.add(
+                            "selected"
+                        );
+
+                    }
+
+                    else {
+
+                        receiptName.textContent =
+                            "No document selected";
+
+
+                        receiptName.classList.remove(
+                            "selected"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+
+
+        if (
+            form
+            &&
+            submit
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    if (
+                        !form.checkValidity()
+                    ) {
+                        return;
+                    }
+
+
+                    if (submit.disabled) {
+                        return;
+                    }
+
+
+                    submit.disabled =
+                        true;
+
+
+                    submit.classList.add(
+                        "loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        updatePreview();
+
+    }
+);
+</script>
+
+{% endblock %}

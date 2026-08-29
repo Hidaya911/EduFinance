@@ -6,8 +6,8 @@ from django.utils import timezone
 from .models import (
     SupplierBill,
     SupplierPayment,
+    Expense,
 )
-
 
 # ============================================================
 # CREATE / POST SUPPLIER PAYMENT
@@ -200,3 +200,51 @@ def void_supplier_payment(
         raise
 
     return payment
+
+
+
+# ============================================================
+# VOID EXPENSE
+# ============================================================
+
+def void_expense(
+    *,
+    expense,
+    user,
+    reason="",
+):
+
+    expense = Expense.objects.get(
+        pk=expense.pk
+    )
+
+    if (
+        expense.record_status
+        == Expense.RecordStatus.VOIDED
+    ):
+
+        raise ValidationError(
+            "This expense is already voided."
+        )
+
+    expense.record_status = (
+        Expense.RecordStatus.VOIDED
+    )
+
+    expense.void_reason = (
+        reason.strip()
+        if reason
+        else ""
+    )
+
+    expense.voided_at = (
+        timezone.now()
+    )
+
+    expense.voided_by = (
+        user
+    )
+
+    expense.save()
+
+    return expense

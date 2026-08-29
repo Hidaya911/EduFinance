@@ -1,0 +1,1609 @@
+{% extends "base.html" %}
+
+{% block title %}{{ expense.expense_number }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — EXPENSE DETAIL
+       Scoped with exd-
+    ========================================================== */
+
+    .exd-page {
+        min-height: 100vh;
+
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37,99,235,.11),
+                transparent 24%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .exd-container {
+        width: 100%;
+        max-width: 1450px;
+
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .exd-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .exd-breadcrumb a {
+        color: #7c8b9f;
+
+        text-decoration: none;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .exd-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 25px;
+
+        margin-bottom: 20px;
+
+        padding: 30px 32px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13,42,83,.17);
+    }
+
+    .exd-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 340px;
+        height: 340px;
+
+        right: -105px;
+        top: -205px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .exd-hero-left {
+        position: relative;
+        z-index: 2;
+    }
+
+    .exd-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .exd-title {
+        margin: 0;
+
+        font-size: 31px;
+        font-weight: 790;
+    }
+
+    .exd-meta {
+        margin-top: 8px;
+
+        color:
+            rgba(226,237,251,.74);
+
+        font-size: 10px;
+    }
+
+    .exd-status-row {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        margin-top: 12px;
+    }
+
+    .exd-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 9px;
+
+        border-radius: 999px;
+
+        font-size: 8.5px;
+        font-weight: 750;
+    }
+
+    .exd-status.active {
+        background:
+            rgba(59,130,246,.15);
+
+        color: #bdd7ff;
+    }
+
+    .exd-status.voided {
+        background:
+            rgba(239,68,68,.15);
+
+        color: #ffc0c4;
+    }
+
+    .exd-status.not_required {
+        background:
+            rgba(148,163,184,.15);
+
+        color: #d8dfe8;
+    }
+
+    .exd-status.pending {
+        background:
+            rgba(245,158,11,.15);
+
+        color: #ffd889;
+    }
+
+    .exd-status.approved {
+        background:
+            rgba(16,185,129,.15);
+
+        color: #9ff2cb;
+    }
+
+    .exd-status.rejected {
+        background:
+            rgba(239,68,68,.15);
+
+        color: #ffc0c4;
+    }
+
+    .exd-hero-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+
+        gap: 8px;
+    }
+
+    .exd-btn {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 15px;
+
+        border-radius: 9px;
+
+        font-size: 10px;
+        font-weight: 720;
+
+        text-decoration: none;
+
+        transition: .2s ease;
+    }
+
+    .exd-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .exd-btn.secondary {
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: white;
+    }
+
+    .exd-btn.primary {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+    }
+
+    .exd-btn.danger {
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        background:
+            rgba(239,68,68,.16);
+
+        color: #ffd3d6;
+
+        cursor: pointer;
+    }
+
+
+    /* ==========================================================
+       KPIs
+    ========================================================== */
+
+    .exd-kpis {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4,minmax(0,1fr));
+
+        gap: 16px;
+
+        margin-bottom: 19px;
+    }
+
+    .exd-kpi {
+        min-height: 112px;
+
+        padding: 18px;
+
+        border: 1px solid #dbe4ee;
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 23px
+            rgba(25,43,69,.05);
+    }
+
+    .exd-kpi-label {
+        color: #8794a7;
+
+        font-size: 8px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .exd-kpi-value {
+        margin-top: 13px;
+
+        color: #0b2344;
+
+        font-size: 19px;
+        font-weight: 790;
+    }
+
+    .exd-kpi-value.small {
+        font-size: 12px;
+    }
+
+    .exd-kpi-note {
+        margin-top: 5px;
+
+        color: #9aa5b4;
+
+        font-size: 8.5px;
+    }
+
+
+    /* ==========================================================
+       MAIN
+    ========================================================== */
+
+    .exd-main {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1.5fr)
+            minmax(300px,.8fr);
+
+        gap: 18px;
+
+        align-items: start;
+    }
+
+    .exd-column {
+        display: flex;
+        flex-direction: column;
+
+        gap: 16px;
+    }
+
+    .exd-card {
+        overflow: hidden;
+
+        border: 1px solid #dae4ef;
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 9px 27px
+            rgba(25,43,69,.05);
+    }
+
+    .exd-card-head {
+        padding: 16px 18px;
+
+        border-bottom: 1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .exd-card-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 770;
+    }
+
+    .exd-card-subtitle {
+        margin-top: 3px;
+
+        color: #929eae;
+
+        font-size: 8.5px;
+    }
+
+    .exd-card-body {
+        padding: 18px;
+    }
+
+
+    /* ==========================================================
+       DETAILS
+    ========================================================== */
+
+    .exd-info-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 11px;
+    }
+
+    .exd-info {
+        padding: 12px;
+
+        border: 1px solid #e1e8f0;
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fafcff
+            );
+    }
+
+    .exd-info-label {
+        margin-bottom: 6px;
+
+        color: #8b98aa;
+
+        font-size: 7.7px;
+        font-weight: 850;
+
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .exd-info-value {
+        color: #354a64;
+
+        font-size: 10px;
+        font-weight: 650;
+
+        line-height: 1.5;
+
+        word-break: break-word;
+    }
+
+    .exd-description {
+        color: #4f6178;
+
+        font-size: 10.5px;
+        line-height: 1.7;
+
+        white-space: pre-line;
+    }
+
+
+    /* ==========================================================
+       RECEIPT
+    ========================================================== */
+
+    .exd-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        padding: 13px;
+
+        border: 1px solid #dce6f1;
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #fbfdff,
+                #f5f9ff
+            );
+    }
+
+    .exd-document-title {
+        color: #344a64;
+
+        font-size: 9.5px;
+        font-weight: 700;
+    }
+
+    .exd-document-note {
+        margin-top: 3px;
+
+        color: #97a2b1;
+
+        font-size: 8px;
+    }
+
+    .exd-document a {
+        min-height: 34px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 11px;
+
+        border: 1px solid #d5e3f5;
+        border-radius: 8px;
+
+        background: white;
+
+        color: #2563eb;
+
+        text-decoration: none;
+
+        font-size: 8.8px;
+        font-weight: 720;
+    }
+
+
+    /* ==========================================================
+       VOID INFO
+    ========================================================== */
+
+    .exd-void-box {
+        padding: 14px;
+
+        border: 1px solid #f0cbd0;
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #fff5f6,
+                #fffafa
+            );
+    }
+
+    .exd-void-title {
+        color: #b93d48;
+
+        font-size: 10px;
+        font-weight: 760;
+    }
+
+    .exd-void-text {
+        margin-top: 5px;
+
+        color: #94636a;
+
+        font-size: 8.8px;
+        line-height: 1.5;
+    }
+
+
+    /* ==========================================================
+       MODAL
+    ========================================================== */
+
+    .exd-modal {
+        position: fixed;
+        inset: 0;
+
+        z-index: 99999;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        background:
+            rgba(5,20,40,.58);
+
+        backdrop-filter: blur(7px);
+    }
+
+    .exd-modal.open {
+        display: flex;
+    }
+
+    .exd-modal-card {
+        width: 100%;
+        max-width: 460px;
+
+        overflow: hidden;
+
+        border-radius: 17px;
+
+        background: white;
+
+        box-shadow:
+            0 30px 80px
+            rgba(5,21,45,.28);
+    }
+
+    .exd-modal-head {
+        padding: 20px;
+
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .exd-modal-title {
+        margin: 0;
+
+        color: #162b45;
+
+        font-size: 14px;
+        font-weight: 780;
+    }
+
+    .exd-modal-text {
+        margin: 6px 0 0;
+
+        color: #7d8ca0;
+
+        font-size: 9.5px;
+        line-height: 1.55;
+    }
+
+    .exd-modal-body {
+        padding: 18px 20px;
+    }
+
+    .exd-modal-textarea {
+        width: 100%;
+        min-height: 95px;
+
+        box-sizing: border-box;
+
+        padding: 11px 12px;
+
+        border: 1.5px solid #c6d3e1;
+        border-radius: 10px;
+
+        font-family: inherit;
+        font-size: 10px;
+
+        resize: vertical;
+        outline: none;
+    }
+
+    .exd-modal-textarea:focus {
+        border-color: #2563eb;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+    }
+
+    .exd-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+
+        gap: 8px;
+
+        padding: 15px 20px;
+
+        border-top: 1px solid #edf1f5;
+
+        background: #fafbfd;
+    }
+
+    .exd-modal-btn {
+        min-height: 40px;
+
+        padding: 0 15px;
+
+        border-radius: 9px;
+
+        font-size: 10px;
+        font-weight: 720;
+    }
+
+    .exd-modal-cancel {
+        border: 1px solid #d9e2ec;
+
+        background: white;
+
+        color: #66778c;
+
+        cursor: pointer;
+    }
+
+    .exd-modal-submit {
+        min-width: 120px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #e34852,
+                #c62834
+            );
+
+        color: white;
+
+        cursor: pointer;
+    }
+
+    .exd-modal-submit:disabled {
+        opacity: .75;
+
+        cursor: wait;
+    }
+
+    .exd-spinner {
+        display: inline-block;
+
+        width: 12px;
+        height: 12px;
+
+        margin-right: 6px;
+
+        border: 2px solid rgba(255,255,255,.4);
+        border-top-color: white;
+        border-radius: 50%;
+
+        vertical-align: middle;
+
+        animation:
+            exd-spin
+            .7s linear infinite;
+    }
+
+    @keyframes exd-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1000px) {
+
+        .exd-kpis {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .exd-main {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media(max-width:700px) {
+
+        .exd-page {
+            padding: 22px 16px 45px;
+        }
+
+        .exd-breadcrumb {
+            display: none;
+        }
+
+        .exd-hero {
+            flex-direction: column;
+
+            align-items: stretch;
+
+            padding: 24px 20px;
+        }
+
+        .exd-hero-actions {
+            flex-direction: column;
+        }
+
+        .exd-btn {
+            width: 100%;
+        }
+
+        .exd-kpis,
+        .exd-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+
+<div class="exd-page">
+
+<div class="exd-container">
+
+
+    <!-- BREADCRUMB -->
+
+    <div class="exd-breadcrumb">
+
+        <a href="{% url 'payables:expense_list' %}">
+            Expenses
+        </a>
+
+        <span>›</span>
+
+        <span>
+            {{ expense.expense_number }}
+        </span>
+
+    </div>
+
+
+
+    <!-- HERO -->
+
+    <section class="exd-hero">
+
+
+        <div class="exd-hero-left">
+
+
+            <div class="exd-eyebrow">
+                School Expense
+            </div>
+
+
+            <h1 class="exd-title">
+                {{ expense.expense_number }}
+            </h1>
+
+
+            <div class="exd-meta">
+
+                {{ expense.category.name }}
+                ·
+                {{ expense.expense_date|date:"M d, Y" }}
+
+                {% if expense.supplier %}
+                    · {{ expense.supplier.name }}
+                {% endif %}
+
+            </div>
+
+
+
+            <div class="exd-status-row">
+
+
+                <span
+                    class="exd-status {{ expense.record_status }}"
+                >
+                    {{ expense.get_record_status_display }}
+                </span>
+
+
+                <span
+                    class="exd-status {{ expense.approval_status }}"
+                >
+                    {{ expense.get_approval_status_display }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="exd-hero-actions">
+
+
+            <a
+                href="{% url 'payables:expense_list' %}"
+                class="exd-btn secondary"
+            >
+                ← Expenses
+            </a>
+
+
+            {% if expense.record_status == "active" %}
+
+                <a
+                    href="{% url 'payables:expense_edit' expense.pk %}"
+                    class="exd-btn primary"
+                >
+                    Edit Expense
+                </a>
+
+
+                <button
+                    type="button"
+                    class="exd-btn danger"
+                    id="openExpenseVoidModal"
+                >
+                    Void Expense
+                </button>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- KPIs -->
+
+    <section class="exd-kpis">
+
+
+        <article class="exd-kpi">
+
+            <div class="exd-kpi-label">
+                Expense Amount
+            </div>
+
+            <div class="exd-kpi-value">
+                ${{ expense.amount|floatformat:2 }}
+            </div>
+
+            <div class="exd-kpi-note">
+                Recorded spending value
+            </div>
+
+        </article>
+
+
+
+        <article class="exd-kpi">
+
+            <div class="exd-kpi-label">
+                Payment Method
+            </div>
+
+            <div class="exd-kpi-value small">
+                {{ expense.get_payment_method_display }}
+            </div>
+
+            <div class="exd-kpi-note">
+                Settlement channel
+            </div>
+
+        </article>
+
+
+
+        <article class="exd-kpi">
+
+            <div class="exd-kpi-label">
+                Approval
+            </div>
+
+            <div class="exd-kpi-value small">
+                {{ expense.get_approval_status_display }}
+            </div>
+
+            <div class="exd-kpi-note">
+                Current approval state
+            </div>
+
+        </article>
+
+
+
+        <article class="exd-kpi">
+
+            <div class="exd-kpi-label">
+                Created By
+            </div>
+
+            <div class="exd-kpi-value small">
+                {{ expense.created_by.username }}
+            </div>
+
+            <div class="exd-kpi-note">
+                Financial record owner
+            </div>
+
+        </article>
+
+    </section>
+
+
+
+    <!-- MAIN -->
+
+    <div class="exd-main">
+
+
+        <div class="exd-column">
+
+
+            <!-- DETAILS -->
+
+            <section class="exd-card">
+
+
+                <div class="exd-card-head">
+
+                    <div class="exd-card-title">
+                        Expense Information
+                    </div>
+
+                    <div class="exd-card-subtitle">
+                        Core transaction information
+                    </div>
+
+                </div>
+
+
+                <div class="exd-card-body">
+
+
+                    <div class="exd-info-grid">
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Expense Number
+                            </div>
+
+                            <div class="exd-info-value">
+                                {{ expense.expense_number }}
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Category
+                            </div>
+
+                            <div class="exd-info-value">
+                                {{ expense.category.name }}
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Supplier
+                            </div>
+
+                            <div class="exd-info-value">
+
+                                {% if expense.supplier %}
+                                    {{ expense.supplier.name }}
+                                {% else %}
+                                    Direct Expense
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Expense Date
+                            </div>
+
+                            <div class="exd-info-value">
+                                {{ expense.expense_date|date:"M d, Y" }}
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Payment Method
+                            </div>
+
+                            <div class="exd-info-value">
+                                {{ expense.get_payment_method_display }}
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="exd-info">
+
+                            <div class="exd-info-label">
+                                Reference
+                            </div>
+
+                            <div class="exd-info-value">
+
+                                {% if expense.reference %}
+                                    {{ expense.reference }}
+                                {% else %}
+                                    No reference
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- DESCRIPTION -->
+
+            <section class="exd-card">
+
+
+                <div class="exd-card-head">
+
+                    <div class="exd-card-title">
+                        Description
+                    </div>
+
+                    <div class="exd-card-subtitle">
+                        Purpose of the school expenditure
+                    </div>
+
+                </div>
+
+
+                <div class="exd-card-body">
+
+                    <div class="exd-description">
+                        {{ expense.description }}
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- DOCUMENT -->
+
+            <section class="exd-card">
+
+
+                <div class="exd-card-head">
+
+                    <div class="exd-card-title">
+                        Receipt / Invoice
+                    </div>
+
+                    <div class="exd-card-subtitle">
+                        Supporting financial evidence
+                    </div>
+
+                </div>
+
+
+                <div class="exd-card-body">
+
+
+                    {% if expense.receipt %}
+
+                        <div class="exd-document">
+
+
+                            <div>
+
+                                <div class="exd-document-title">
+                                    Expense Supporting Document
+                                </div>
+
+                                <div class="exd-document-note">
+                                    Attached receipt or invoice
+                                </div>
+
+                            </div>
+
+
+                            <a
+                                href="{{ expense.receipt.url }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                View Document
+                            </a>
+
+                        </div>
+
+
+                    {% else %}
+
+                        <div class="exd-description">
+                            No supporting receipt or invoice was attached.
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+
+        <!-- RIGHT -->
+
+        <aside class="exd-column">
+
+
+            <section class="exd-card">
+
+
+                <div class="exd-card-head">
+
+                    <div class="exd-card-title">
+                        Record Activity
+                    </div>
+
+                    <div class="exd-card-subtitle">
+                        Traceability information
+                    </div>
+
+                </div>
+
+
+                <div class="exd-card-body">
+
+
+                    <div class="exd-info" style="margin-bottom:10px;">
+
+                        <div class="exd-info-label">
+                            Created
+                        </div>
+
+                        <div class="exd-info-value">
+
+                            {{ expense.created_at|date:"M d, Y H:i" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="exd-info" style="margin-bottom:10px;">
+
+                        <div class="exd-info-label">
+                            Last Updated
+                        </div>
+
+                        <div class="exd-info-value">
+
+                            {{ expense.updated_at|date:"M d, Y H:i" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="exd-info">
+
+                        <div class="exd-info-label">
+                            Record Status
+                        </div>
+
+                        <div class="exd-info-value">
+
+                            {{ expense.get_record_status_display }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            {% if expense.record_status == "voided" %}
+
+                <section class="exd-card">
+
+
+                    <div class="exd-card-body">
+
+
+                        <div class="exd-void-box">
+
+
+                            <div class="exd-void-title">
+                                Expense Voided
+                            </div>
+
+
+                            <div class="exd-void-text">
+
+                                This financial record is preserved
+                                but excluded from active expense totals.
+
+                            </div>
+
+
+                            {% if expense.void_reason %}
+
+                                <div class="exd-void-text">
+
+                                    <strong>Reason:</strong>
+                                    {{ expense.void_reason }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if expense.voided_by %}
+
+                                <div class="exd-void-text">
+
+                                    <strong>Voided by:</strong>
+                                    {{ expense.voided_by.username }}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if expense.voided_at %}
+
+                                <div class="exd-void-text">
+
+                                    {{ expense.voided_at|date:"M d, Y H:i" }}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            {% endif %}
+
+        </aside>
+
+    </div>
+
+</div>
+</div>
+
+
+
+<!-- VOID MODAL -->
+
+<div
+    class="exd-modal"
+    id="expenseVoidModal"
+>
+
+
+    <div class="exd-modal-card">
+
+
+        <div class="exd-modal-head">
+
+            <h3 class="exd-modal-title">
+                Void Expense
+            </h3>
+
+
+            <p class="exd-modal-text">
+
+                This expense will remain in financial history,
+                but it will be excluded from active expense totals.
+
+            </p>
+
+        </div>
+
+
+
+        <form
+            method="post"
+            action="{% url 'payables:expense_void' expense.pk %}"
+            id="expenseVoidForm"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="exd-modal-body">
+
+
+                <textarea
+                    name="reason"
+                    class="exd-modal-textarea"
+                    placeholder="Reason for voiding this expense..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="exd-modal-footer">
+
+
+                <button
+                    type="button"
+                    class="exd-modal-btn exd-modal-cancel"
+                    id="closeExpenseVoidModal"
+                >
+                    Keep Expense
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="exd-modal-btn exd-modal-submit"
+                    id="expenseVoidSubmit"
+                >
+                    Void Expense
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const modal =
+            document.getElementById(
+                "expenseVoidModal"
+            );
+
+
+        const openButton =
+            document.getElementById(
+                "openExpenseVoidModal"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "closeExpenseVoidModal"
+            );
+
+
+        const form =
+            document.getElementById(
+                "expenseVoidForm"
+            );
+
+
+        const submit =
+            document.getElementById(
+                "expenseVoidSubmit"
+            );
+
+
+
+        function openModal() {
+
+            if (modal) {
+                modal.classList.add(
+                    "open"
+                );
+            }
+
+        }
+
+
+
+        function closeModal() {
+
+            if (modal) {
+                modal.classList.remove(
+                    "open"
+                );
+            }
+
+        }
+
+
+
+        if (openButton) {
+
+            openButton.addEventListener(
+                "click",
+                openModal
+            );
+
+        }
+
+
+        if (closeButton) {
+
+            closeButton.addEventListener(
+                "click",
+                closeModal
+            );
+
+        }
+
+
+        if (modal) {
+
+            modal.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target
+                        === modal
+                    ) {
+                        closeModal();
+                    }
+
+                }
+            );
+
+        }
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key
+                    === "Escape"
+                ) {
+                    closeModal();
+                }
+
+            }
+        );
+
+
+        if (
+            form
+            &&
+            submit
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    if (
+                        submit.disabled
+                    ) {
+                        return;
+                    }
+
+
+                    submit.disabled =
+                        true;
+
+
+                    submit.innerHTML =
+                        `
+                        <span class="exd-spinner"></span>
+                        Voiding...
+                        `;
+
+                }
+            );
+
+        }
+
+    }
+);
+</script>
+
+{% endblock %}
