@@ -62,4 +62,34 @@ path(
 ),
 
 
+path(
+    "supplier-bills/",
+    views.supplier_bill_list,
+    name="supplier_bill_list",
+),
+
+path(
+    "supplier-bills/create/",
+    views.supplier_bill_create,
+    name="supplier_bill_create",
+),
+
+path(
+    "supplier-bills/<str:pk>/",
+    views.supplier_bill_detail,
+    name="supplier_bill_detail",
+),
+
+path(
+    "supplier-bills/<str:pk>/edit/",
+    views.supplier_bill_edit,
+    name="supplier_bill_edit",
+),
+
+path(
+    "supplier-bills/<str:pk>/toggle-cancel/",
+    views.supplier_bill_toggle_cancel,
+    name="supplier_bill_toggle_cancel",
+),
+
 ]

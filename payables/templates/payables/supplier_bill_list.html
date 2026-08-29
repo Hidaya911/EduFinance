@@ -1,0 +1,3219 @@
+{% extends "base.html" %}
+
+{% block title %}Supplier Bills | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — SUPPLIER BILLS COMMAND CENTER
+       Scoped with sbl-
+    ========================================================== */
+
+    .sbl-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --navy-800: #12335d;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+
+        --green-600: #059669;
+        --amber-600: #d97706;
+        --red-600: #dc2626;
+
+        --text-900: #12243d;
+        --text-700: #43556d;
+        --text-500: #7e8da1;
+
+        min-height: 100vh;
+
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 92% 2%,
+                rgba(37, 99, 235, .12),
+                transparent 25%
+            ),
+            radial-gradient(
+                circle at 10% 12%,
+                rgba(34, 184, 207, .055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: var(--text-900);
+    }
+
+    .sbl-container {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       TOP LOADING PROGRESS
+    ========================================================== */
+
+    .sbl-progress {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 3px;
+
+        z-index: 9999;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        transition: opacity .15s ease;
+    }
+
+    .sbl-progress.active {
+        opacity: 1;
+    }
+
+    .sbl-progress::after {
+        content: "";
+
+        display: block;
+
+        width: 38%;
+        height: 100%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #60a5fa,
+                #22d3ee
+            );
+
+        box-shadow:
+            0 0 12px
+            rgba(37, 99, 235, .48);
+
+        animation:
+            sbl-progress-move
+            .8s ease-in-out infinite;
+    }
+
+    @keyframes sbl-progress-move {
+
+        from {
+            transform: translateX(-110%);
+        }
+
+        to {
+            transform: translateX(300%);
+        }
+    }
+
+
+    /* ==========================================================
+       CONTEXT / BREADCRUMBS
+    ========================================================== */
+
+    .sbl-context {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        margin-bottom: 16px;
+    }
+
+    .sbl-breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        color: #8d99aa;
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .sbl-breadcrumb-current {
+        color: #49617e;
+    }
+
+    .sbl-context-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sbl-context-link {
+        min-height: 32px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 11px;
+
+        border: 1px solid #d8e2ed;
+        border-radius: 8px;
+
+        background:
+            rgba(255, 255, 255, .8);
+
+        color: #66778c;
+
+        text-decoration: none;
+
+        font-size: 10.5px;
+        font-weight: 650;
+
+        transition: .2s ease;
+    }
+
+    .sbl-context-link:hover {
+        background: white;
+        color: #2563eb;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .sbl-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 30px;
+
+        padding: 30px 32px;
+
+        margin-bottom: 22px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39 0%,
+                #0d2d58 52%,
+                #174b8e 100%
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13, 42, 83, .17);
+    }
+
+    .sbl-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 350px;
+        height: 350px;
+
+        right: -105px;
+        top: -205px;
+
+        border-radius: 50%;
+
+        border:
+            48px solid
+            rgba(255, 255, 255, .055);
+    }
+
+    .sbl-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 180px;
+        height: 180px;
+
+        right: 205px;
+        bottom: -135px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(54, 135, 255, .18);
+    }
+
+    .sbl-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .sbl-hero-icon {
+        width: 64px;
+        height: 64px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .15);
+
+        border-radius: 18px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255, 255, 255, .15),
+                rgba(255, 255, 255, .06)
+            );
+
+        backdrop-filter: blur(12px);
+    }
+
+    .sbl-hero-icon svg {
+        width: 29px;
+        height: 29px;
+    }
+
+    .sbl-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .sbl-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 5px
+            rgba(94, 234, 212, .10);
+    }
+
+    .sbl-title {
+        margin: 0;
+
+        font-size: 32px;
+        line-height: 1.1;
+
+        font-weight: 780;
+
+        letter-spacing: -.025em;
+    }
+
+    .sbl-subtitle {
+        max-width: 690px;
+
+        margin: 8px 0 0;
+
+        color:
+            rgba(228, 238, 252, .76);
+
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+    .sbl-hero-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .sbl-hero-btn {
+        min-height: 45px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 8px;
+
+        padding: 0 16px;
+
+        border-radius: 10px;
+
+        text-decoration: none;
+
+        font-size: 11.5px;
+        font-weight: 730;
+
+        transition: .2s ease;
+    }
+
+    .sbl-hero-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    .sbl-hero-btn.secondary {
+        border:
+            1px solid
+            rgba(255, 255, 255, .18);
+
+        background:
+            rgba(255, 255, 255, .08);
+
+        color: white;
+    }
+
+    .sbl-hero-btn.primary {
+        border:
+            1px solid
+            rgba(255, 255, 255, .15);
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        box-shadow:
+            0 11px 23px
+            rgba(0, 44, 119, .29);
+    }
+
+    .sbl-hero-btn:hover {
+        color: white;
+
+        transform: translateY(-2px);
+    }
+
+
+    /* ==========================================================
+       MESSAGES
+    ========================================================== */
+
+    .sbl-message-wrap {
+        margin-bottom: 18px;
+    }
+
+    .sbl-message {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        padding: 13px 15px;
+
+        border: 1px solid #c4ead8;
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #eefcf5,
+                #f7fffb
+            );
+
+        color: #147650;
+
+        font-size: 11.5px;
+        font-weight: 650;
+    }
+
+
+    /* ==========================================================
+       KPI GRID
+    ========================================================== */
+
+    .sbl-kpi-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 16px;
+
+        margin-bottom: 22px;
+    }
+
+    .sbl-kpi {
+        position: relative;
+
+        overflow: hidden;
+
+        min-height: 141px;
+
+        padding: 20px;
+
+        border: 1px solid #dbe4ee;
+        border-radius: 17px;
+
+        background:
+            rgba(255, 255, 255, .97);
+
+        box-shadow:
+            0 7px 24px
+            rgba(25, 43, 69, .05);
+
+        transition: .23s ease;
+    }
+
+    .sbl-kpi:hover {
+        transform: translateY(-4px);
+
+        border-color: #cbd9e9;
+
+        box-shadow:
+            0 16px 34px
+            rgba(25, 43, 69, .09);
+    }
+
+    .sbl-kpi::after {
+        content: "";
+
+        position: absolute;
+
+        width: 110px;
+        height: 110px;
+
+        right: -42px;
+        top: -50px;
+
+        border-radius: 50%;
+    }
+
+    .sbl-kpi.blue::after {
+        background:
+            rgba(37, 99, 235, .05);
+    }
+
+    .sbl-kpi.green::after {
+        background:
+            rgba(5, 150, 105, .05);
+    }
+
+    .sbl-kpi.red::after {
+        background:
+            rgba(220, 38, 38, .045);
+    }
+
+    .sbl-kpi.amber::after {
+        background:
+            rgba(217, 119, 6, .05);
+    }
+
+    .sbl-kpi-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sbl-kpi-icon {
+        width: 42px;
+        height: 42px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 12px;
+    }
+
+    .sbl-kpi-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .sbl-kpi.blue
+    .sbl-kpi-icon {
+        background: #edf4ff;
+        color: #2563eb;
+    }
+
+    .sbl-kpi.green
+    .sbl-kpi-icon {
+        background: #eafaf3;
+        color: #059669;
+    }
+
+    .sbl-kpi.red
+    .sbl-kpi-icon {
+        background: #fff0f1;
+        color: #dc2626;
+    }
+
+    .sbl-kpi.amber
+    .sbl-kpi-icon {
+        background: #fff7e8;
+        color: #d97706;
+    }
+
+    .sbl-kpi-label {
+        color: #8794a7;
+
+        font-size: 8.7px;
+        font-weight: 850;
+
+        letter-spacing: .085em;
+        text-transform: uppercase;
+    }
+
+    .sbl-kpi-value {
+        margin-top: 15px;
+
+        color: #0b2344;
+
+        font-size: 24px;
+        font-weight: 790;
+    }
+
+    .sbl-kpi-value.money {
+        font-size: 21px;
+    }
+
+    .sbl-kpi-note {
+        margin-top: 7px;
+
+        color: #9aa5b4;
+
+        font-size: 9.5px;
+    }
+
+
+    /* ==========================================================
+       INTELLIGENCE STRIP
+    ========================================================== */
+
+    .sbl-intelligence {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding: 13px 17px;
+
+        margin-bottom: 18px;
+
+        border: 1px solid #dbe7f4;
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                100deg,
+                #f7fbff,
+                #eef6ff
+            );
+    }
+
+    .sbl-intel-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sbl-intel-icon {
+        width: 31px;
+        height: 31px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 9px;
+
+        background: white;
+
+        color: #2563eb;
+    }
+
+    .sbl-intel-title {
+        color: #183557;
+
+        font-size: 10.5px;
+        font-weight: 750;
+    }
+
+    .sbl-intel-text {
+        margin-top: 2px;
+
+        color: #8090a4;
+
+        font-size: 9px;
+    }
+
+    .sbl-intel-badge {
+        padding: 6px 9px;
+
+        border:
+            1px solid #d9e5f2;
+
+        border-radius: 999px;
+
+        background: white;
+
+        color: #64758b;
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================
+       PANEL
+    ========================================================== */
+
+    .sbl-panel {
+        overflow: hidden;
+
+        border: 1px solid #dae4ef;
+        border-radius: 19px;
+
+        background:
+            rgba(255, 255, 255, .98);
+
+        box-shadow:
+            0 12px 34px
+            rgba(25, 43, 69, .06);
+    }
+
+    .sbl-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        padding: 20px 21px 17px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .sbl-panel-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .sbl-panel-icon {
+        width: 39px;
+        height: 39px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .sbl-panel-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sbl-panel-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 15px;
+        font-weight: 770;
+    }
+
+    .sbl-panel-subtitle {
+        margin-top: 3px;
+
+        color: #929eae;
+
+        font-size: 10px;
+    }
+
+    .sbl-count {
+        padding: 7px 10px;
+
+        border: 1px solid #dce5ef;
+        border-radius: 999px;
+
+        background: #f8faff;
+
+        color: #6d7d91;
+
+        font-size: 9.5px;
+        font-weight: 750;
+    }
+
+
+    /* ==========================================================
+       LIVE FILTER TOOLBAR
+    ========================================================== */
+
+    .sbl-toolbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(260px, 1fr)
+            190px
+            210px;
+
+        gap: 10px;
+
+        padding: 15px 19px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #fbfcfe,
+                #f9fbfd
+            );
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .sbl-search-wrap {
+        position: relative;
+    }
+
+    .sbl-search-icon {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        width: 16px;
+        height: 16px;
+
+        transform:
+            translateY(-50%);
+
+        color: #9aa7b7;
+
+        pointer-events: none;
+    }
+
+    .sbl-search,
+    .sbl-select {
+        width: 100%;
+        height: 44px;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #c9d5e4;
+
+        border-radius: 10px;
+
+        background: white;
+
+        color: #34465e;
+
+        outline: none;
+
+        font-size: 11.5px;
+
+        transition: .2s ease;
+    }
+
+    .sbl-search {
+        padding:
+            0
+            46px
+            0
+            41px;
+    }
+
+    .sbl-select {
+        padding: 0 11px;
+    }
+
+    .sbl-search:hover,
+    .sbl-select:hover {
+        border-color: #aebfd2;
+    }
+
+    .sbl-search:focus,
+    .sbl-select:focus {
+        border-color: #2563eb;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37, 99, 235, .09);
+    }
+
+    .sbl-search-spinner {
+        position: absolute;
+
+        right: 15px;
+        top: 50%;
+
+        width: 15px;
+        height: 15px;
+
+        margin-top: -7.5px;
+
+        border:
+            2px solid #d6e1ed;
+
+        border-top-color: #2563eb;
+
+        border-radius: 50%;
+
+        opacity: 0;
+        visibility: hidden;
+
+        animation:
+            sbl-spin
+            .7s linear infinite;
+    }
+
+    .sbl-search-spinner.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @keyframes sbl-spin {
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       TABLE
+    ========================================================== */
+
+    .sbl-table-wrap {
+        overflow-x: auto;
+    }
+
+    .sbl-table {
+        width: 100%;
+
+        border-collapse: collapse;
+    }
+
+    .sbl-table thead {
+        background:
+            linear-gradient(
+                180deg,
+                #fafbfd,
+                #f7f9fc
+            );
+    }
+
+    .sbl-table th {
+        padding: 13px 17px;
+
+        border-bottom:
+            1px solid #e7ecf3;
+
+        color: #7d899c;
+
+        text-align: left;
+
+        font-size: 8.7px;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .sbl-table td {
+        padding: 16px 17px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        color: #42536b;
+
+        font-size: 10.8px;
+
+        vertical-align: middle;
+    }
+
+    .sbl-table tbody tr {
+        transition: background .18s ease;
+    }
+
+    .sbl-table tbody tr:hover {
+        background:
+            linear-gradient(
+                90deg,
+                #f8fbff,
+                white
+            );
+    }
+
+    .sbl-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* ==========================================================
+       BILL IDENTITY
+    ========================================================== */
+
+    .sbl-bill {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .sbl-bill-icon {
+        width: 39px;
+        height: 39px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border: 1px solid #dce7f8;
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #eef5ff,
+                #e6effd
+            );
+
+        color: #2563eb;
+    }
+
+    .sbl-bill-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+
+    .sbl-bill-number {
+        color: #0b2344;
+
+        font-size: 11.5px;
+        font-weight: 780;
+    }
+
+    .sbl-bill-description {
+        max-width: 210px;
+
+        margin-top: 3px;
+
+        overflow: hidden;
+
+        color: #929eae;
+
+        font-size: 9px;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================================
+       SUPPLIER
+    ========================================================== */
+
+    .sbl-supplier {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .sbl-supplier-avatar {
+        width: 29px;
+        height: 29px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 8px;
+
+        background: #f1f5fb;
+
+        color: #4f6d95;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .sbl-supplier-name {
+        color: #40536c;
+
+        font-size: 10.5px;
+        font-weight: 680;
+    }
+
+
+    /* ==========================================================
+       MONEY
+    ========================================================== */
+
+    .sbl-money {
+        color: #203b5d;
+
+        font-size: 11px;
+        font-weight: 730;
+
+        font-variant-numeric:
+            tabular-nums;
+    }
+
+    .sbl-money-muted {
+        margin-top: 3px;
+
+        color: #9aa5b4;
+
+        font-size: 8.8px;
+    }
+
+    .sbl-remaining {
+        color: #b45309;
+
+        font-size: 11px;
+        font-weight: 760;
+
+        font-variant-numeric:
+            tabular-nums;
+    }
+
+
+    /* ==========================================================
+       PAYMENT PROGRESS
+    ========================================================== */
+
+    .sbl-payment {
+        min-width: 115px;
+    }
+
+    .sbl-payment-head {
+        display: flex;
+        justify-content: space-between;
+
+        gap: 6px;
+
+        margin-bottom: 6px;
+    }
+
+    .sbl-payment-value {
+        color: #4a5e77;
+
+        font-size: 9px;
+        font-weight: 690;
+    }
+
+    .sbl-payment-percent {
+        color: #8b98aa;
+
+        font-size: 8.5px;
+    }
+
+    .sbl-payment-track {
+        width: 100%;
+        height: 5px;
+
+        overflow: hidden;
+
+        border-radius: 999px;
+
+        background: #edf1f5;
+    }
+
+    .sbl-payment-bar {
+        width: 0;
+        height: 100%;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #3b82f6
+            );
+
+        transition:
+            width .35s ease;
+    }
+
+
+    /* ==========================================================
+       DATE
+    ========================================================== */
+
+    .sbl-date {
+        color: #596b81;
+
+        font-size: 10px;
+        font-weight: 620;
+
+        white-space: nowrap;
+    }
+
+    .sbl-date-sub {
+        margin-top: 3px;
+
+        color: #9ca7b5;
+
+        font-size: 8.5px;
+    }
+
+
+    /* ==========================================================
+       STATUS
+    ========================================================== */
+
+    .sbl-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 9px;
+
+        border-radius: 999px;
+
+        font-size: 9px;
+        font-weight: 760;
+
+        white-space: nowrap;
+    }
+
+    .sbl-status-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+    }
+
+    .sbl-status.unpaid {
+        color: #b45309;
+        background: #fff7e8;
+    }
+
+    .sbl-status.unpaid
+    .sbl-status-dot {
+        background: #f59e0b;
+    }
+
+    .sbl-status.partially_paid {
+        color: #2563eb;
+        background: #edf4ff;
+    }
+
+    .sbl-status.partially_paid
+    .sbl-status-dot {
+        background: #3b82f6;
+    }
+
+    .sbl-status.paid {
+        color: #078152;
+        background: #eafaf3;
+    }
+
+    .sbl-status.paid
+    .sbl-status-dot {
+        background: #16a76a;
+    }
+
+    .sbl-status.overdue {
+        color: #c2414c;
+        background: #fff0f1;
+    }
+
+    .sbl-status.overdue
+    .sbl-status-dot {
+        background: #dc2626;
+    }
+
+    .sbl-status.cancelled {
+        color: #687486;
+        background: #f0f2f5;
+    }
+
+    .sbl-status.cancelled
+    .sbl-status-dot {
+        background: #98a2b3;
+    }
+
+
+    /* ==========================================================
+       ACTIONS
+    ========================================================== */
+
+    .sbl-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        gap: 6px;
+    }
+
+    .sbl-action {
+        min-height: 33px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 9px;
+
+        border-radius: 8px;
+
+        text-decoration: none;
+
+        font-size: 9.5px;
+        font-weight: 700;
+
+        transition: .18s ease;
+    }
+
+    .sbl-action:hover {
+        transform: translateY(-1px);
+    }
+
+    .sbl-view {
+        border: 1px solid #d7e5ff;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .sbl-edit {
+        border: 1px solid #dce3ec;
+
+        background: white;
+
+        color: #5e6f84;
+    }
+
+
+    /* ==========================================================
+       EMPTY STATE
+    ========================================================== */
+
+    .sbl-empty {
+        position: relative;
+
+        overflow: hidden;
+
+        min-height: 390px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 45px 25px;
+
+        text-align: center;
+
+        background:
+            radial-gradient(
+                circle at center,
+                rgba(37, 99, 235, .05),
+                transparent 43%
+            );
+    }
+
+    .sbl-empty::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+
+        opacity: .28;
+
+        background-image:
+            linear-gradient(
+                #e8eef6 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                #e8eef6 1px,
+                transparent 1px
+            );
+
+        background-size:
+            32px
+            32px;
+
+        mask-image:
+            radial-gradient(
+                circle at center,
+                black,
+                transparent 70%
+            );
+    }
+
+    .sbl-empty-inner {
+        position: relative;
+        z-index: 2;
+
+        max-width: 480px;
+    }
+
+    .sbl-empty-art {
+        width: 88px;
+        height: 88px;
+
+        display: grid;
+        place-items: center;
+
+        margin: 0 auto 20px;
+
+        border: 1px solid #d9e6f8;
+        border-radius: 24px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f7faff,
+                #eaf2ff
+            );
+
+        color: #2563eb;
+
+        box-shadow:
+            0 15px 35px
+            rgba(37, 99, 235, .09);
+    }
+
+    .sbl-empty-art svg {
+        width: 38px;
+        height: 38px;
+    }
+
+    .sbl-empty-kicker {
+        margin-bottom: 7px;
+
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .sbl-empty-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 20px;
+        font-weight: 780;
+    }
+
+    .sbl-empty-text {
+        max-width: 400px;
+
+        margin: 9px auto 20px;
+
+        color: #8290a4;
+
+        font-size: 11.5px;
+        line-height: 1.65;
+    }
+
+    .sbl-empty-btn {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 16px;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 11px;
+        font-weight: 720;
+
+        box-shadow:
+            0 8px 18px
+            rgba(37, 99, 235, .20);
+    }
+
+
+    /* ==========================================================
+       AJAX LOADING
+    ========================================================== */
+
+    .sbl-dynamic {
+        transition:
+            opacity .15s ease;
+    }
+
+    .sbl-dynamic.loading {
+        opacity: .56;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width: 1150px) {
+
+        .sbl-kpi-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .sbl-toolbar {
+            grid-template-columns:
+                1fr
+                190px;
+        }
+
+        .sbl-toolbar
+        .sbl-select:last-child {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width: 850px) {
+
+        .sbl-hero {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sbl-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .sbl-toolbar
+        .sbl-select:last-child {
+            grid-column: auto;
+        }
+
+        .sbl-intelligence {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media(max-width: 680px) {
+
+        .sbl-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .sbl-context {
+            display: none;
+        }
+
+        .sbl-hero {
+            padding:
+                24px
+                20px;
+
+            border-radius: 18px;
+        }
+
+        .sbl-hero-icon {
+            display: none;
+        }
+
+        .sbl-title {
+            font-size: 27px;
+        }
+
+        .sbl-hero-actions {
+            flex-direction: column;
+        }
+
+        .sbl-hero-btn {
+            width: 100%;
+        }
+
+        .sbl-kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sbl-count {
+            display: none;
+        }
+    }
+</style>
+
+
+<div
+    class="sbl-progress"
+    id="supplierBillProgress"
+></div>
+
+
+<div class="sbl-page">
+
+<div class="sbl-container">
+
+
+    <!-- ======================================================
+         CONTEXT
+    ======================================================= -->
+
+    <div class="sbl-context">
+
+        <div class="sbl-breadcrumbs">
+
+            <span>EduFinance</span>
+
+            <span>›</span>
+
+            <span>Payables</span>
+
+            <span>›</span>
+
+            <span class="sbl-breadcrumb-current">
+                Supplier Bills
+            </span>
+
+        </div>
+
+
+        <div class="sbl-context-actions">
+
+            <a
+                href="{% url 'payables:supplier_list' %}"
+                class="sbl-context-link"
+            >
+                Suppliers
+            </a>
+
+            <a
+                href="{% url 'payables:expense_category_list' %}"
+                class="sbl-context-link"
+            >
+                Expense Categories
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <section class="sbl-hero">
+
+        <div class="sbl-hero-left">
+
+            <div class="sbl-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M6 3h12v18H6z"></path>
+                    <path d="M9 7h6"></path>
+                    <path d="M9 11h6"></path>
+                    <path d="M9 15h4"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="sbl-eyebrow">
+
+                    <span class="sbl-eyebrow-dot"></span>
+
+                    Accounts Payable
+
+                </div>
+
+
+                <h1 class="sbl-title">
+                    Supplier Bills
+                </h1>
+
+
+                <p class="sbl-subtitle">
+
+                    Track vendor obligations, payment progress,
+                    due dates and outstanding balances from one
+                    centralized financial command center.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="sbl-hero-actions">
+
+            <a
+                href="{% url 'payables:supplier_list' %}"
+                class="sbl-hero-btn secondary"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M4 21V8l8-4 8 4v13"></path>
+                </svg>
+
+                Suppliers
+
+            </a>
+
+
+            <a
+                href="{% url 'payables:supplier_bill_create' %}"
+                class="sbl-hero-btn primary"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                >
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+
+                New Supplier Bill
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         MESSAGES
+    ======================================================= -->
+
+    {% if messages %}
+
+        <div class="sbl-message-wrap">
+
+            {% for message in messages %}
+
+                <div class="sbl-message">
+                    ✓ {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+
+    <!-- ======================================================
+         AJAX REPLACEABLE AREA
+    ======================================================= -->
+
+    <div
+        id="supplierBillDynamicArea"
+        class="sbl-dynamic"
+    >
+
+
+        <!-- ==================================================
+             KPI GRID
+        =================================================== -->
+
+        <section class="sbl-kpi-grid">
+
+
+            <!-- TOTAL -->
+
+            <article class="sbl-kpi blue">
+
+                <div class="sbl-kpi-top">
+
+                    <div class="sbl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M5 4h14v16H5z"></path>
+                            <path d="M8 8h8"></path>
+                            <path d="M8 12h5"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="sbl-kpi-label">
+                        Total Billed
+                    </div>
+
+                </div>
+
+
+                <div class="sbl-kpi-value money">
+                    ${{ total_billed|floatformat:2 }}
+                </div>
+
+
+                <div class="sbl-kpi-note">
+
+                    {{ total_bills }}
+                    recorded bill{{ total_bills|pluralize }}
+
+                </div>
+
+            </article>
+
+
+
+            <!-- OUTSTANDING -->
+
+            <article class="sbl-kpi amber">
+
+                <div class="sbl-kpi-top">
+
+                    <div class="sbl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path d="M12 7v5"></path>
+                            <path d="M12 16h.01"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="sbl-kpi-label">
+                        Outstanding
+                    </div>
+
+                </div>
+
+
+                <div class="sbl-kpi-value money">
+                    ${{ outstanding_amount|floatformat:2 }}
+                </div>
+
+
+                <div class="sbl-kpi-note">
+                    Remaining payable balance
+                </div>
+
+            </article>
+
+
+
+            <!-- OVERDUE -->
+
+            <article class="sbl-kpi red">
+
+                <div class="sbl-kpi-top">
+
+                    <div class="sbl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path d="M12 7v5l3 2"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="sbl-kpi-label">
+                        Overdue Bills
+                    </div>
+
+                </div>
+
+
+                <div class="sbl-kpi-value">
+                    {{ overdue_count }}
+                </div>
+
+
+                <div class="sbl-kpi-note">
+                    Past due with remaining balance
+                </div>
+
+            </article>
+
+
+
+            <!-- DUE SOON -->
+
+            <article class="sbl-kpi green">
+
+                <div class="sbl-kpi-top">
+
+                    <div class="sbl-kpi-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <rect
+                                x="4"
+                                y="5"
+                                width="16"
+                                height="15"
+                                rx="2"
+                            ></rect>
+
+                            <path d="M8 3v4"></path>
+                            <path d="M16 3v4"></path>
+                            <path d="M4 10h16"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div class="sbl-kpi-label">
+                        Due Within 7 Days
+                    </div>
+
+                </div>
+
+
+                <div class="sbl-kpi-value">
+                    {{ due_soon_count }}
+                </div>
+
+
+                <div class="sbl-kpi-note">
+                    Upcoming payable obligations
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             INTELLIGENCE
+        =================================================== -->
+
+        <div class="sbl-intelligence">
+
+            <div class="sbl-intel-left">
+
+                <div class="sbl-intel-icon">
+                    ✦
+                </div>
+
+
+                <div>
+
+                    <div class="sbl-intel-title">
+                        Automatic financial status tracking
+                    </div>
+
+
+                    <div class="sbl-intel-text">
+
+                        EduFinance determines whether each bill is
+                        unpaid, partially paid, paid or overdue from
+                        its current balance and due date.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="sbl-intel-badge">
+                Live balance monitoring
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             LEDGER
+        =================================================== -->
+
+        <section class="sbl-panel">
+
+
+            <div class="sbl-panel-head">
+
+                <div class="sbl-panel-title-wrap">
+
+                    <div class="sbl-panel-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M6 3h12v18H6z"></path>
+                            <path d="M9 8h6"></path>
+                            <path d="M9 12h6"></path>
+                            <path d="M9 16h4"></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2 class="sbl-panel-title">
+                            Bills Ledger
+                        </h2>
+
+                        <div class="sbl-panel-subtitle">
+                            Search, filter and review supplier obligations.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="sbl-count">
+
+                    {{ total_bills }}
+                    bill{{ total_bills|pluralize }}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 LIVE FILTERS
+            =================================================== -->
+
+            <form
+                method="get"
+                id="supplierBillFilterForm"
+                class="sbl-toolbar"
+            >
+
+
+                <!-- SEARCH -->
+
+                <div class="sbl-search-wrap">
+
+                    <svg
+                        class="sbl-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="11"
+                            cy="11"
+                            r="7"
+                        ></circle>
+
+                        <path
+                            d="m20 20-3.5-3.5"
+                        ></path>
+                    </svg>
+
+
+                    <input
+                        type="text"
+                        name="search"
+                        id="supplierBillSearch"
+                        value="{{ search }}"
+                        class="sbl-search"
+                        placeholder="Search bill number, description or supplier..."
+                        autocomplete="off"
+                    >
+
+
+                    <span
+                        class="sbl-search-spinner"
+                        id="supplierBillSearchSpinner"
+                    ></span>
+
+                </div>
+
+
+
+                <!-- STATUS -->
+
+                <select
+                    name="status"
+                    id="supplierBillStatus"
+                    class="sbl-select"
+                >
+
+                    <option value="">
+                        All bill statuses
+                    </option>
+
+
+                    {% for value, label in status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+
+                <!-- SUPPLIER -->
+
+                <select
+                    name="supplier"
+                    id="supplierBillSupplier"
+                    class="sbl-select"
+                >
+
+                    <option value="">
+                        All suppliers
+                    </option>
+
+
+                    {% for supplier in suppliers %}
+
+                        {% with supplier_pk=supplier.pk|stringformat:"s" %}
+
+                            <option
+                                value="{{ supplier.pk }}"
+                                {% if selected_supplier == supplier_pk %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ supplier.name }}
+                            </option>
+
+                        {% endwith %}
+
+                    {% endfor %}
+
+                </select>
+
+            </form>
+
+
+
+            <!-- ==================================================
+                 TABLE
+            =================================================== -->
+
+            {% if bills %}
+
+                <div class="sbl-table-wrap">
+
+                    <table class="sbl-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Bill
+                                </th>
+
+                                <th>
+                                    Supplier
+                                </th>
+
+                                <th>
+                                    Bill Date
+                                </th>
+
+                                <th>
+                                    Due Date
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <th>
+                                    Payment Progress
+                                </th>
+
+                                <th>
+                                    Remaining
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th style="text-align:right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for bill in bills %}
+
+                                <tr>
+
+
+                                    <!-- BILL -->
+
+                                    <td>
+
+                                        <div class="sbl-bill">
+
+                                            <div class="sbl-bill-icon">
+
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                >
+                                                    <path
+                                                        d="M6 3h12v18H6z"
+                                                    ></path>
+
+                                                    <path
+                                                        d="M9 8h6"
+                                                    ></path>
+
+                                                    <path
+                                                        d="M9 12h6"
+                                                    ></path>
+                                                </svg>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <div class="sbl-bill-number">
+                                                    {{ bill.bill_number }}
+                                                </div>
+
+
+                                                <div class="sbl-bill-description">
+
+                                                    {{ bill.description|default:"No description" }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- SUPPLIER -->
+
+                                    <td>
+
+                                        <div class="sbl-supplier">
+
+                                            <div class="sbl-supplier-avatar">
+
+                                                {{ bill.supplier.name|slice:":1"|upper }}
+
+                                            </div>
+
+
+                                            <div class="sbl-supplier-name">
+
+                                                {{ bill.supplier.name }}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- BILL DATE -->
+
+                                    <td>
+
+                                        <div class="sbl-date">
+
+                                            {{ bill.bill_date|date:"M d, Y" }}
+
+                                        </div>
+
+
+                                        <div class="sbl-date-sub">
+                                            Issued
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- DUE DATE -->
+
+                                    <td>
+
+                                        <div class="sbl-date">
+
+                                            {{ bill.due_date|date:"M d, Y" }}
+
+                                        </div>
+
+
+                                        <div class="sbl-date-sub">
+
+                                            {% if bill.status == "overdue" %}
+
+                                                Payment overdue
+
+                                            {% elif bill.status == "paid" %}
+
+                                                Settled
+
+                                            {% elif bill.status == "cancelled" %}
+
+                                                Cancelled
+
+                                            {% else %}
+
+                                                Payment deadline
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- TOTAL -->
+
+                                    <td>
+
+                                        <div class="sbl-money">
+
+                                            ${{ bill.total_amount|floatformat:2 }}
+
+                                        </div>
+
+
+                                        <div class="sbl-money-muted">
+                                            Bill value
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- PAYMENT PROGRESS -->
+
+                                    <td>
+
+                                        {% widthratio bill.amount_paid bill.total_amount 100 as paid_percent %}
+
+
+                                        <div class="sbl-payment">
+
+
+                                            <div class="sbl-payment-head">
+
+                                                <span class="sbl-payment-value">
+
+                                                    ${{ bill.amount_paid|floatformat:2 }}
+
+                                                </span>
+
+
+                                                <span class="sbl-payment-percent">
+
+                                                    {{ paid_percent }}%
+
+                                                </span>
+
+                                            </div>
+
+
+                                            <div class="sbl-payment-track">
+
+                                                <div
+                                                    class="sbl-payment-bar"
+                                                    data-progress="{{ paid_percent }}"
+                                                ></div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- REMAINING -->
+
+                                    <td>
+
+                                        {% if bill.remaining_amount > 0 %}
+
+                                            <div class="sbl-remaining">
+
+                                                ${{ bill.remaining_amount|floatformat:2 }}
+
+                                            </div>
+
+                                        {% else %}
+
+                                            <div
+                                                class="sbl-money"
+                                                style="color:#078152;"
+                                            >
+                                                $0.00
+                                            </div>
+
+                                        {% endif %}
+
+
+                                        <div class="sbl-money-muted">
+                                            Outstanding
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        <span
+                                            class="sbl-status {{ bill.status }}"
+                                        >
+
+                                            <span
+                                                class="sbl-status-dot"
+                                            ></span>
+
+                                            {{ bill.get_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- ACTIONS -->
+
+                                    <td>
+
+                                        <div class="sbl-actions">
+
+
+                                            <a
+                                                href="{% url 'payables:supplier_bill_detail' bill.pk %}"
+                                                class="sbl-action sbl-view"
+                                            >
+                                                View
+                                            </a>
+
+
+                                            {% if bill.status != "cancelled" %}
+
+                                                <a
+                                                    href="{% url 'payables:supplier_bill_edit' bill.pk %}"
+                                                    class="sbl-action sbl-edit"
+                                                >
+                                                    Edit
+                                                </a>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+
+                <!-- ==================================================
+                     EMPTY
+                =================================================== -->
+
+                <div class="sbl-empty">
+
+                    <div class="sbl-empty-inner">
+
+
+                        <div class="sbl-empty-art">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    d="M6 3h12v18H6z"
+                                ></path>
+
+                                <path
+                                    d="M9 8h6"
+                                ></path>
+
+                                <path
+                                    d="M9 12h6"
+                                ></path>
+
+                                <path
+                                    d="M9 16h4"
+                                ></path>
+                            </svg>
+
+                        </div>
+
+
+                        {% if search or status or selected_supplier %}
+
+                            <div class="sbl-empty-kicker">
+                                Filter Results
+                            </div>
+
+
+                            <h3 class="sbl-empty-title">
+                                No matching supplier bills
+                            </h3>
+
+
+                            <p class="sbl-empty-text">
+
+                                No bills match the current search
+                                and filters. Change the supplier,
+                                status or search keyword.
+
+                            </p>
+
+
+                        {% else %}
+
+                            <div class="sbl-empty-kicker">
+                                Accounts Payable
+                            </div>
+
+
+                            <h3 class="sbl-empty-title">
+                                Record your first supplier bill
+                            </h3>
+
+
+                            <p class="sbl-empty-text">
+
+                                Track what the school owes vendors,
+                                payment progress, outstanding balances
+                                and upcoming due dates.
+
+                            </p>
+
+
+                            <a
+                                href="{% url 'payables:supplier_bill_create' %}"
+                                class="sbl-empty-btn"
+                            >
+                                + Create First Bill
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const progress =
+            document.getElementById(
+                "supplierBillProgress"
+            );
+
+
+        let debounceTimer =
+            null;
+
+
+        let activeController =
+            null;
+
+
+
+        /* ==================================================
+           TOP PROGRESS
+        ================================================== */
+
+        function startProgress() {
+
+            if (progress) {
+
+                progress.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+        function stopProgress() {
+
+            if (progress) {
+
+                progress.classList.remove(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        /* ==================================================
+           PAYMENT PROGRESS BARS
+        ================================================== */
+
+        function applyPaymentProgress() {
+
+            const bars =
+                document.querySelectorAll(
+                    ".sbl-payment-bar[data-progress]"
+                );
+
+
+            bars.forEach(
+                function (bar) {
+
+                    let value =
+                        parseInt(
+                            bar.dataset.progress,
+                            10
+                        );
+
+
+                    if (isNaN(value)) {
+                        value = 0;
+                    }
+
+
+                    value =
+                        Math.max(
+                            0,
+                            Math.min(
+                                value,
+                                100
+                            )
+                        );
+
+
+                    bar.style.width =
+                        value + "%";
+
+                }
+            );
+
+        }
+
+
+
+        /* ==================================================
+           LIVE AJAX FILTER
+        ================================================== */
+
+        async function performBillFilter() {
+
+
+            const search =
+                document.getElementById(
+                    "supplierBillSearch"
+                );
+
+
+            const status =
+                document.getElementById(
+                    "supplierBillStatus"
+                );
+
+
+            const supplier =
+                document.getElementById(
+                    "supplierBillSupplier"
+                );
+
+
+            const currentArea =
+                document.getElementById(
+                    "supplierBillDynamicArea"
+                );
+
+
+            const spinner =
+                document.getElementById(
+                    "supplierBillSearchSpinner"
+                );
+
+
+            if (
+                !search
+                ||
+                !status
+                ||
+                !supplier
+                ||
+                !currentArea
+            ) {
+
+                return;
+
+            }
+
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+
+            const searchValue =
+                search.value.trim();
+
+
+            const statusValue =
+                status.value;
+
+
+            const supplierValue =
+                supplier.value;
+
+
+
+            /* SEARCH */
+
+            if (searchValue) {
+
+                url.searchParams.set(
+                    "search",
+                    searchValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "search"
+                );
+
+            }
+
+
+
+            /* STATUS */
+
+            if (statusValue) {
+
+                url.searchParams.set(
+                    "status",
+                    statusValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "status"
+                );
+
+            }
+
+
+
+            /* SUPPLIER */
+
+            if (supplierValue) {
+
+                url.searchParams.set(
+                    "supplier",
+                    supplierValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "supplier"
+                );
+
+            }
+
+
+
+            /* CANCEL OLD REQUEST */
+
+            if (activeController) {
+
+                activeController.abort();
+
+            }
+
+
+            activeController =
+                new AbortController();
+
+
+
+            /* START LOADING */
+
+            if (spinner) {
+
+                spinner.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            currentArea.classList.add(
+                "loading"
+            );
+
+
+            startProgress();
+
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        url.toString(),
+                        {
+                            headers: {
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+
+                            },
+
+                            signal:
+                                activeController.signal
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to filter supplier bills."
+                    );
+
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                const parser =
+                    new DOMParser();
+
+
+                const parsedDocument =
+                    parser.parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                const replacement =
+                    parsedDocument
+                    .getElementById(
+                        "supplierBillDynamicArea"
+                    );
+
+
+                if (!replacement) {
+
+                    window.location.href =
+                        url.toString();
+
+                    return;
+
+                }
+
+
+                /*
+                 * Replace only dynamic content.
+                 */
+
+                currentArea.innerHTML =
+                    replacement.innerHTML;
+
+
+
+                /*
+                 * Update browser URL without reload.
+                 */
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    url.toString()
+                );
+
+
+
+                /*
+                 * New HTML means new input elements.
+                 */
+
+                bindFilterEvents();
+
+                applyPaymentProgress();
+
+            }
+
+
+            catch (error) {
+
+
+                if (
+                    error.name
+                    !== "AbortError"
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+
+            finally {
+
+
+                const updatedArea =
+                    document.getElementById(
+                        "supplierBillDynamicArea"
+                    );
+
+
+                const updatedSpinner =
+                    document.getElementById(
+                        "supplierBillSearchSpinner"
+                    );
+
+
+                if (updatedArea) {
+
+                    updatedArea.classList.remove(
+                        "loading"
+                    );
+
+                }
+
+
+                if (updatedSpinner) {
+
+                    updatedSpinner.classList.remove(
+                        "active"
+                    );
+
+                }
+
+
+                stopProgress();
+
+            }
+
+        }
+
+
+
+        /* ==================================================
+           FILTER EVENT BINDING
+        ================================================== */
+
+        function bindFilterEvents() {
+
+
+            const form =
+                document.getElementById(
+                    "supplierBillFilterForm"
+                );
+
+
+            const search =
+                document.getElementById(
+                    "supplierBillSearch"
+                );
+
+
+            const status =
+                document.getElementById(
+                    "supplierBillStatus"
+                );
+
+
+            const supplier =
+                document.getElementById(
+                    "supplierBillSupplier"
+                );
+
+
+            if (
+                !form
+                ||
+                !search
+                ||
+                !status
+                ||
+                !supplier
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Avoid duplicate listeners.
+             */
+
+            if (
+                form.dataset.bound
+                === "true"
+            ) {
+
+                return;
+
+            }
+
+
+            form.dataset.bound =
+                "true";
+
+
+
+            /* PREVENT NORMAL SUBMIT */
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    performBillFilter();
+
+                }
+            );
+
+
+
+            /* LIVE SEARCH */
+
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+
+                    debounceTimer =
+                        setTimeout(
+                            performBillFilter,
+                            320
+                        );
+
+                }
+            );
+
+
+
+            /* IMMEDIATE STATUS FILTER */
+
+            status.addEventListener(
+                "change",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+                    performBillFilter();
+
+                }
+            );
+
+
+
+            /* IMMEDIATE SUPPLIER FILTER */
+
+            supplier.addEventListener(
+                "change",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+                    performBillFilter();
+
+                }
+            );
+
+        }
+
+
+
+        /* ==================================================
+           INITIALISE
+        ================================================== */
+
+        bindFilterEvents();
+
+        applyPaymentProgress();
+
+    }
+);
+</script>
+
+{% endblock %}

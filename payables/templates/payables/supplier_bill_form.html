@@ -1,0 +1,3864 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — ADVANCED SUPPLIER BILL WORKSPACE
+       Scoped with sbf-
+    ========================================================== */
+
+    .sbf-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --navy-800: #12335d;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+        --blue-100: #edf4ff;
+
+        --green-600: #059669;
+        --green-100: #eafaf3;
+
+        --amber-600: #d97706;
+        --amber-100: #fff7e8;
+
+        --red-600: #dc2626;
+
+        --text-900: #12243d;
+        --text-700: #41536b;
+        --text-500: #7f8ea2;
+        --text-400: #9aa5b4;
+
+        min-height: 100vh;
+
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37, 99, 235, .11),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(34, 184, 207, .055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: var(--text-900);
+    }
+
+    .sbf-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .sbf-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .sbf-breadcrumb a {
+        color: #7c8b9f;
+        text-decoration: none;
+
+        transition: color .2s ease;
+    }
+
+    .sbf-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+    .sbf-breadcrumb-current {
+        color: #4b6380;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .sbf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding: 28px 31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13, 42, 83, .17);
+    }
+
+    .sbf-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .sbf-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 200px;
+        bottom: -130px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(54,135,255,.18);
+    }
+
+    .sbf-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .sbf-hero-icon {
+        width: 62px;
+        height: 62px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.14),
+                rgba(255,255,255,.06)
+            );
+
+        backdrop-filter: blur(12px);
+
+        box-shadow:
+            inset 0 1px 0
+            rgba(255,255,255,.13);
+    }
+
+    .sbf-hero-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .sbf-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .sbf-title {
+        margin: 0;
+
+        font-size: 30px;
+        line-height: 1.1;
+
+        font-weight: 780;
+
+        letter-spacing: -.025em;
+    }
+
+    .sbf-subtitle {
+        max-width: 680px;
+
+        margin: 8px 0 0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .sbf-hero-chip {
+        position: relative;
+        z-index: 2;
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 8px 12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        color:
+            rgba(255,255,255,.88);
+
+        font-size: 10px;
+        font-weight: 700;
+
+        backdrop-filter: blur(10px);
+    }
+
+    .sbf-hero-chip-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(94,234,212,.10);
+    }
+
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .sbf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            325px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* ==========================================================
+       MAIN FORM CARD
+    ========================================================== */
+
+    .sbf-form-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .sbf-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding: 20px 22px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcfe
+            );
+    }
+
+    .sbf-form-header-left {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .sbf-form-header-icon {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #edf4ff;
+        color: #2563eb;
+    }
+
+    .sbf-form-header-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sbf-form-header h2 {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .sbf-form-header p {
+        margin: 4px 0 0;
+
+        color: #939eae;
+
+        font-size: 9.5px;
+    }
+
+    .sbf-required-note {
+        color: #9ba6b4;
+
+        font-size: 9px;
+    }
+
+    .sbf-form-body {
+        padding: 20px;
+    }
+
+
+    /* ==========================================================
+       SECTIONS
+    ========================================================== */
+
+    .sbf-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding: 18px 18px 20px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcff
+            );
+
+        box-shadow:
+            0 3px 12px
+            rgba(20,40,70,.025);
+
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .sbf-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .sbf-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius:
+            0 4px 4px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #2563eb,
+                #60a5fa
+            );
+    }
+
+    .sbf-section:focus-within {
+        transform: translateY(-1px);
+
+        border-color: #91b3ed;
+
+        box-shadow:
+            0 10px 26px
+            rgba(37,99,235,.07);
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #f8fbff
+            );
+    }
+
+    .sbf-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .sbf-section-number {
+        width: 30px;
+        height: 30px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        box-shadow:
+            0 5px 12px
+            rgba(37,99,235,.18);
+    }
+
+    .sbf-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .sbf-section-desc {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.5px;
+    }
+
+
+    /* ==========================================================
+       FORM GRID
+    ========================================================== */
+
+    .sbf-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .sbf-full {
+        grid-column:
+            1 / -1;
+    }
+
+
+    /* ==========================================================
+       LABELS / INPUTS
+    ========================================================== */
+
+    .sbf-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10.5px;
+        font-weight: 780;
+    }
+
+    .sbf-required {
+        color: #df4554;
+    }
+
+    .sbf-optional {
+        margin-left: auto;
+
+        padding: 3px 7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .sbf-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b8c8da;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+
+        font-size: 12px;
+        font-weight: 500;
+
+        outline: none;
+
+        box-shadow:
+            0 1px 3px
+            rgba(15,35,65,.03);
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease,
+            background .2s ease,
+            transform .2s ease;
+    }
+
+    .sbf-field input.form-control,
+    .sbf-field select.form-control {
+        height: 47px;
+
+        padding: 0 13px;
+    }
+
+    .sbf-field textarea.form-control {
+        min-height: 94px;
+
+        padding: 12px 13px;
+
+        line-height: 1.55;
+
+        resize: vertical;
+    }
+
+    .sbf-field
+    .form-control::placeholder {
+        color: #8190a4;
+
+        opacity: 1;
+    }
+
+    .sbf-field
+    .form-control:hover {
+        border-color: #8fa8c5;
+
+        background: white;
+    }
+
+    .sbf-field
+    .form-control:focus {
+        border-color: #2563eb;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.10),
+            0 5px 14px
+            rgba(37,99,235,.06);
+
+        transform: translateY(-1px);
+    }
+
+    .sbf-field:focus-within
+    .sbf-label {
+        color: #1d4ed8;
+    }
+
+    .sbf-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 9px;
+        line-height: 1.45;
+    }
+
+
+    /* ==========================================================
+       MONEY FIELD
+    ========================================================== */
+
+    .sbf-money-wrap {
+        position: relative;
+    }
+
+    .sbf-money-symbol {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        z-index: 2;
+
+        transform: translateY(-50%);
+
+        color: #2563eb;
+
+        font-size: 13px;
+        font-weight: 850;
+
+        pointer-events: none;
+    }
+
+    .sbf-money-wrap
+    input.form-control {
+        padding-left: 31px;
+
+        color: #102f53;
+
+        font-weight: 700;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f4f8ff
+            );
+    }
+
+    .sbf-money-wrap
+    input.form-control:focus {
+        background: white;
+    }
+
+
+    /* ==========================================================
+       SYSTEM-CONTROLLED FIELD
+    ========================================================== */
+
+    .sbf-system-field {
+        min-height: 47px;
+
+        box-sizing: border-box;
+
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        padding: 0 13px;
+
+        border:
+            1.5px solid #d3deea;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #f8fafc,
+                #f3f6f9
+            );
+
+        color: #64758b;
+
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+    .sbf-system-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #2563eb;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(37,99,235,.08);
+    }
+
+
+    /* ==========================================================
+       ERRORS
+    ========================================================== */
+
+    .sbf-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border:
+            1px solid #f0c8ce;
+
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9.5px;
+        line-height: 1.45;
+    }
+
+    .sbf-error ul {
+        margin: 0;
+        padding-left: 15px;
+    }
+
+    .sbf-global-error {
+        margin-bottom: 18px;
+    }
+
+
+    /* ==========================================================
+       CUSTOM DOCUMENT UPLOAD
+    ========================================================== */
+
+    .sbf-upload-shell {
+        position: relative;
+
+        overflow: hidden;
+
+        padding: 18px;
+
+        border:
+            1.5px dashed #b8cae0;
+
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #fbfdff,
+                #f3f8ff
+            );
+
+        transition:
+            border-color .2s ease,
+            background .2s ease,
+            box-shadow .2s ease,
+            transform .2s ease;
+    }
+
+    .sbf-upload-shell:hover,
+    .sbf-upload-shell:focus-within {
+        border-color: #78a4ec;
+
+        background: #f8fbff;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.06);
+
+        transform: translateY(-1px);
+    }
+
+    .sbf-upload-top {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .sbf-upload-icon {
+        width: 43px;
+        height: 43px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid #e1e9f3;
+
+        border-radius: 12px;
+
+        background: white;
+        color: #2563eb;
+
+        box-shadow:
+            0 6px 15px
+            rgba(37,99,235,.08);
+    }
+
+    .sbf-upload-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .sbf-upload-title {
+        color: #183858;
+
+        font-size: 10.5px;
+        font-weight: 770;
+    }
+
+    .sbf-upload-text {
+        margin-top: 3px;
+
+        color: #8896a9;
+
+        font-size: 8.8px;
+    }
+
+
+    /* Real browser input is hidden */
+
+    .sbf-native-file {
+        position: absolute;
+
+        width: 1px;
+        height: 1px;
+
+        opacity: 0;
+
+        overflow: hidden;
+
+        pointer-events: none;
+    }
+
+
+    /* Custom button */
+
+    .sbf-upload-control {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-top: 15px;
+
+        padding-top: 14px;
+
+        border-top:
+            1px solid #e4ebf4;
+    }
+
+    .sbf-upload-button {
+        min-height: 39px;
+
+        flex-shrink: 0;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 14px;
+
+        border:
+            1px solid #c7d7ea;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f6f9fd
+            );
+
+        color: #315273;
+
+        font-size: 9.5px;
+        font-weight: 750;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 2px 6px
+            rgba(25,43,69,.04);
+
+        transition:
+            .2s ease;
+    }
+
+    .sbf-upload-button:hover {
+        border-color: #8fb1e8;
+
+        color: #2563eb;
+
+        background: #f8fbff;
+
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 6px 14px
+            rgba(37,99,235,.08);
+    }
+
+    .sbf-upload-button svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .sbf-upload-filename {
+        min-width: 0;
+        flex: 1;
+
+        overflow: hidden;
+
+        color: #8492a5;
+
+        font-size: 9.5px;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sbf-upload-filename.has-file {
+        color: #087b51;
+
+        font-weight: 700;
+    }
+
+    .sbf-file-feedback {
+        display: none;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-top: 12px;
+
+        padding: 9px 11px;
+
+        border:
+            1px solid #cbe9da;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #edf9f3,
+                #f7fffb
+            );
+    }
+
+    .sbf-file-feedback.visible {
+        display: flex;
+    }
+
+    .sbf-file-feedback-left {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        min-width: 0;
+    }
+
+    .sbf-file-check {
+        width: 22px;
+        height: 22px;
+
+        flex-shrink: 0;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 7px;
+
+        background: #dff7eb;
+
+        color: #059669;
+
+        font-size: 10px;
+        font-weight: 850;
+    }
+
+    .sbf-file-feedback-name {
+        overflow: hidden;
+
+        color: #087b51;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sbf-file-feedback-size {
+        flex-shrink: 0;
+
+        color: #6d8b7c;
+
+        font-size: 8px;
+    }
+
+
+    /* Existing attachment */
+
+    .sbf-current-document {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-top: 12px;
+
+        padding: 10px 11px;
+
+        border:
+            1px solid #d9e5f1;
+
+        border-radius: 9px;
+
+        background: white;
+    }
+
+    .sbf-current-document-label {
+        color: #687a90;
+
+        font-size: 8.8px;
+        font-weight: 650;
+    }
+
+    .sbf-current-document a {
+        color: #2563eb;
+
+        font-size: 8.8px;
+        font-weight: 750;
+
+        text-decoration: none;
+    }
+
+    .sbf-current-document a:hover {
+        text-decoration: underline;
+    }
+
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+
+    .sbf-footer {
+        position: sticky;
+
+        bottom: 0;
+
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 16px 21px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter: blur(14px);
+
+        box-shadow:
+            0 -8px 20px
+            rgba(20,40,70,.04);
+    }
+
+    .sbf-footer-note {
+        color: #99a4b3;
+
+        font-size: 9px;
+    }
+
+    .sbf-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .sbf-cancel,
+    .sbf-submit {
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 18px;
+
+        border-radius: 9px;
+
+        font-size: 11px;
+        font-weight: 720;
+
+        transition: .2s ease;
+    }
+
+    .sbf-cancel {
+        border:
+            1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+
+        text-decoration: none;
+    }
+
+    .sbf-cancel:hover {
+        background: #f7f9fc;
+
+        transform: translateY(-1px);
+    }
+
+    .sbf-submit {
+        min-width: 135px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 19px
+            rgba(37,99,235,.22);
+    }
+
+    .sbf-submit:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 13px 25px
+            rgba(37,99,235,.28);
+    }
+
+    .sbf-submit:disabled {
+        cursor: wait;
+
+        opacity: .86;
+
+        transform: none;
+    }
+
+    .sbf-submit-normal,
+    .sbf-submit-loading {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .sbf-submit-loading {
+        display: none;
+    }
+
+    .sbf-submit.is-loading
+    .sbf-submit-normal {
+        display: none;
+    }
+
+    .sbf-submit.is-loading
+    .sbf-submit-loading {
+        display: inline-flex;
+    }
+
+    .sbf-spinner {
+        width: 14px;
+        height: 14px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            sbf-spin
+            .7s linear infinite;
+    }
+
+    @keyframes sbf-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       RIGHT SIDEBAR
+    ========================================================== */
+
+    .sbf-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .sbf-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .sbf-side-head {
+        padding: 15px 16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .sbf-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .sbf-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8.8px;
+        line-height: 1.45;
+    }
+
+    .sbf-side-body {
+        padding: 16px;
+    }
+
+
+    /* ==========================================================
+       LIVE BILL PREVIEW
+    ========================================================== */
+
+    .sbf-preview {
+        background:
+            linear-gradient(
+                145deg,
+                #091e3b,
+                #123b70
+            );
+
+        color: white;
+
+        border-color:
+            rgba(32,81,137,.5);
+    }
+
+    .sbf-preview
+    .sbf-side-head {
+        border-color:
+            rgba(255,255,255,.09);
+
+        background:
+            rgba(255,255,255,.02);
+    }
+
+    .sbf-preview
+    .sbf-side-title {
+        color: white;
+    }
+
+    .sbf-preview
+    .sbf-side-desc {
+        color:
+            rgba(225,236,249,.6);
+    }
+
+    .sbf-preview-value {
+        margin-bottom: 15px;
+    }
+
+    .sbf-preview-label {
+        color:
+            rgba(206,221,240,.62);
+
+        font-size: 8px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .sbf-preview-money {
+        margin-top: 5px;
+
+        color: white;
+
+        font-size: 26px;
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .sbf-preview-divider {
+        height: 1px;
+
+        margin: 13px 0;
+
+        background:
+            rgba(255,255,255,.09);
+    }
+
+    .sbf-preview-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-bottom: 11px;
+    }
+
+    .sbf-preview-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .sbf-preview-row-label {
+        color:
+            rgba(218,230,245,.66);
+
+        font-size: 8.8px;
+    }
+
+    .sbf-preview-row-value {
+        max-width: 165px;
+
+        overflow: hidden;
+
+        color: white;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        text-align: right;
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .sbf-preview-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 5px 8px;
+
+        border-radius: 999px;
+
+        background:
+            rgba(245,158,11,.13);
+
+        color: #ffd889;
+
+        font-size: 8.5px;
+        font-weight: 720;
+    }
+
+    .sbf-preview-status.paid {
+        background:
+            rgba(16,185,129,.14);
+
+        color: #9ff2cb;
+    }
+
+    .sbf-preview-status.partial {
+        background:
+            rgba(59,130,246,.16);
+
+        color: #b7d4ff;
+    }
+
+    .sbf-preview-status.overdue {
+        background:
+            rgba(239,68,68,.15);
+
+        color: #ffc0c4;
+    }
+
+    .sbf-preview-status.cancelled {
+        background:
+            rgba(148,163,184,.14);
+
+        color: #d7dee8;
+    }
+
+    .sbf-preview-status-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+
+    /* ==========================================================
+       DATE INTELLIGENCE
+    ========================================================== */
+
+    .sbf-date-card {
+        padding: 14px;
+
+        border:
+            1px solid #dbe7f4;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f8fbff,
+                #eff6ff
+            );
+    }
+
+    .sbf-date-icon {
+        width: 34px;
+        height: 34px;
+
+        display: grid;
+        place-items: center;
+
+        margin-bottom: 10px;
+
+        border-radius: 10px;
+
+        background: white;
+        color: #2563eb;
+
+        box-shadow:
+            0 4px 12px
+            rgba(37,99,235,.07);
+    }
+
+    .sbf-date-title {
+        color: #1c395a;
+
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .sbf-date-text {
+        margin-top: 4px;
+
+        color: #7e8fa4;
+
+        font-size: 8.8px;
+        line-height: 1.5;
+    }
+
+    .sbf-date-result {
+        margin-top: 10px;
+
+        padding: 7px 9px;
+
+        border-radius: 8px;
+
+        background: white;
+
+        color: #526a85;
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .sbf-date-result.warning {
+        background: #fff4f4;
+        color: #c2414c;
+    }
+
+
+    /* ==========================================================
+       FINANCIAL RULES
+    ========================================================== */
+
+    .sbf-rule {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 9px;
+
+        margin-bottom: 13px;
+    }
+
+    .sbf-rule:last-child {
+        margin-bottom: 0;
+    }
+
+    .sbf-rule-icon {
+        width: 23px;
+        height: 23px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #edf4ff;
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .sbf-rule-title {
+        color: #40526b;
+
+        font-size: 9.5px;
+        font-weight: 720;
+    }
+
+    .sbf-rule-text {
+        margin-top: 2px;
+
+        color: #98a3b2;
+
+        font-size: 8.4px;
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1050px) {
+
+        .sbf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sbf-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+        }
+
+        .sbf-preview {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width:720px) {
+
+        .sbf-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .sbf-breadcrumb {
+            display: none;
+        }
+
+        .sbf-hero {
+            padding:
+                23px
+                20px;
+
+            border-radius: 18px;
+        }
+
+        .sbf-hero-icon,
+        .sbf-hero-chip {
+            display: none;
+        }
+
+        .sbf-title {
+            font-size: 26px;
+        }
+
+        .sbf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sbf-full {
+            grid-column: auto;
+        }
+
+        .sbf-section-desc {
+            display: none;
+        }
+
+        .sbf-side {
+            display: flex;
+        }
+
+        .sbf-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .sbf-footer-note {
+            display: none;
+        }
+
+        .sbf-actions {
+            flex-direction:
+                column-reverse;
+        }
+
+        .sbf-cancel,
+        .sbf-submit {
+            width: 100%;
+        }
+
+        .sbf-upload-control {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .sbf-upload-button {
+            width: 100%;
+        }
+
+        .sbf-upload-filename {
+            text-align: center;
+        }
+    }
+</style>
+
+
+
+<div class="sbf-page">
+
+<div class="sbf-container">
+
+
+    <!-- ======================================================
+         BREADCRUMB
+    ======================================================= -->
+
+    <div class="sbf-breadcrumb">
+
+        <a
+            href="{% url 'payables:supplier_bill_list' %}"
+        >
+            Supplier Bills
+        </a>
+
+        <span>›</span>
+
+        <span class="sbf-breadcrumb-current">
+            {{ page_title }}
+        </span>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <section class="sbf-hero">
+
+        <div class="sbf-hero-left">
+
+            <div class="sbf-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M6 3h12v18H6z"></path>
+                    <path d="M9 8h6"></path>
+                    <path d="M9 12h6"></path>
+                    <path d="M9 16h4"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="sbf-eyebrow">
+                    Accounts Payable
+                </div>
+
+
+                <h1 class="sbf-title">
+                    {{ page_title }}
+                </h1>
+
+
+                <p class="sbf-subtitle">
+
+                    Register a vendor obligation and let
+                    EduFinance automatically manage its payment
+                    balance, due status and financial state.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="sbf-hero-chip">
+
+            <span class="sbf-hero-chip-dot"></span>
+
+            {% if is_edit %}
+                Existing Financial Record
+            {% else %}
+                New Payable Record
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         FORM
+    ======================================================= -->
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        id="supplierBillForm"
+        data-is-edit="{% if is_edit %}true{% else %}false{% endif %}"
+        data-amount-paid="{% if is_edit %}{{ bill.amount_paid }}{% else %}0{% endif %}"
+        data-current-status="{% if is_edit %}{{ bill.status }}{% else %}unpaid{% endif %}"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="sbf-layout">
+
+
+            <!-- =================================================
+                 MAIN FORM
+            ================================================== -->
+
+            <section class="sbf-form-card">
+
+
+                <div class="sbf-form-header">
+
+                    <div class="sbf-form-header-left">
+
+                        <div class="sbf-form-header-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <path d="M5 4h14v16H5z"></path>
+                                <path d="M8 8h8"></path>
+                                <path d="M8 12h5"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2>
+                                Bill Information
+                            </h2>
+
+                            <p>
+                                Complete the supplier invoice information below.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="sbf-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+
+                <div class="sbf-form-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="sbf-error sbf-global-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+
+                    <!-- =================================================
+                         SECTION 01
+                    ================================================== -->
+
+                    <div class="sbf-section">
+
+
+                        <div class="sbf-section-head">
+
+                            <div class="sbf-section-number">
+                                01
+                            </div>
+
+                            <div class="sbf-section-title">
+                                Bill Identity
+                            </div>
+
+                            <div class="sbf-section-desc">
+                                Reference & vendor
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-grid">
+
+
+                            <!-- BILL NUMBER -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+
+                                    Bill Number
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.bill_number }}
+
+
+                                <div class="sbf-help">
+                                    Unique supplier invoice or bill reference.
+                                </div>
+
+
+                                {% if form.bill_number.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.bill_number.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <!-- SUPPLIER -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+
+                                    Supplier
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.supplier }}
+
+
+                                <div class="sbf-help">
+                                    Select the vendor responsible for this bill.
+                                </div>
+
+
+                                {% if form.supplier.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.supplier.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 02
+                    ================================================== -->
+
+                    <div class="sbf-section">
+
+
+                        <div class="sbf-section-head">
+
+                            <div class="sbf-section-number">
+                                02
+                            </div>
+
+                            <div class="sbf-section-title">
+                                Billing Schedule
+                            </div>
+
+                            <div class="sbf-section-desc">
+                                Issue & payment deadline
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-grid">
+
+
+                            <!-- BILL DATE -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+
+                                    Bill Date
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.bill_date }}
+
+
+                                <div class="sbf-help">
+                                    Date the supplier bill was issued.
+                                </div>
+
+
+                                {% if form.bill_date.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.bill_date.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <!-- DUE DATE -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+
+                                    Due Date
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.due_date }}
+
+
+                                <div class="sbf-help">
+                                    Final date by which payment should be completed.
+                                </div>
+
+
+                                {% if form.due_date.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.due_date.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 03
+                    ================================================== -->
+
+                    <div class="sbf-section">
+
+
+                        <div class="sbf-section-head">
+
+                            <div class="sbf-section-number">
+                                03
+                            </div>
+
+                            <div class="sbf-section-title">
+                                Financial Value
+                            </div>
+
+                            <div class="sbf-section-desc">
+                                Payable amount
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-grid">
+
+
+                            <!-- TOTAL -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+
+                                    Total Bill Amount
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <div class="sbf-money-wrap">
+
+                                    <span class="sbf-money-symbol">
+                                        $
+                                    </span>
+
+                                    {{ form.total_amount }}
+
+                                </div>
+
+
+                                <div class="sbf-help">
+                                    Full value owed to the supplier.
+                                </div>
+
+
+                                {% if form.total_amount.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.total_amount.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <!-- SYSTEM STATE -->
+
+                            <div class="sbf-field">
+
+                                <label class="sbf-label">
+                                    Financial State
+                                </label>
+
+
+                                <div class="sbf-system-field">
+
+                                    <span class="sbf-system-dot"></span>
+
+                                    {% if is_edit %}
+
+                                        {{ bill.get_status_display }}
+
+                                    {% else %}
+
+                                        Automatically calculated after saving
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="sbf-help">
+
+                                    Paid amount, remaining balance and
+                                    status are controlled by EduFinance.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 04
+                    ================================================== -->
+
+                    <div class="sbf-section">
+
+
+                        <div class="sbf-section-head">
+
+                            <div class="sbf-section-number">
+                                04
+                            </div>
+
+                            <div class="sbf-section-title">
+                                Bill Description
+                            </div>
+
+                            <div class="sbf-section-desc">
+                                Items & purpose
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-grid">
+
+                            <div class="sbf-field sbf-full">
+
+                                <label class="sbf-label">
+
+                                    Items / Description
+
+                                    <span class="sbf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.description }}
+
+
+                                <div class="sbf-help">
+
+                                    Describe the goods, services,
+                                    invoice items or purpose of this bill.
+
+                                </div>
+
+
+                                {% if form.description.errors %}
+
+                                    <div class="sbf-error">
+                                        {{ form.description.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SECTION 05 — CUSTOM UPLOAD
+                    ================================================== -->
+
+                    <div class="sbf-section">
+
+
+                        <div class="sbf-section-head">
+
+                            <div class="sbf-section-number">
+                                05
+                            </div>
+
+                            <div class="sbf-section-title">
+                                Supporting Document
+                            </div>
+
+                            <div class="sbf-section-desc">
+                                Optional attachment
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-upload-shell">
+
+
+                            <div class="sbf-upload-top">
+
+                                <div class="sbf-upload-icon">
+
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M12 3v12"></path>
+                                        <path d="m7 8 5-5 5 5"></path>
+                                        <path d="M5 14v5h14v-5"></path>
+                                    </svg>
+
+                                </div>
+
+
+                                <div>
+
+                                    <div class="sbf-upload-title">
+                                        Supplier Invoice / Document
+                                    </div>
+
+                                    <div class="sbf-upload-text">
+
+                                        Attach the original supplier invoice
+                                        or supporting document.
+
+                                        PDF, PNG, JPG or JPEG · maximum 5 MB.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!--
+                                Custom file input.
+
+                                We intentionally don't render
+                                {{ form.document }} here because
+                                ClearableFileInput uses the browser's
+                                native visual UI.
+
+                                This still submits under the correct
+                                ModelForm field name: document.
+                            -->
+
+                            <input
+                                type="file"
+                                name="document"
+                                id="id_document"
+                                class="sbf-native-file"
+                                accept=".pdf,.png,.jpg,.jpeg"
+                            >
+
+
+
+                            <div class="sbf-upload-control">
+
+
+                                <label
+                                    for="id_document"
+                                    class="sbf-upload-button"
+                                >
+
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                    >
+                                        <path d="M12 4v10"></path>
+                                        <path d="m8 8 4-4 4 4"></path>
+                                        <path d="M5 14v5h14v-5"></path>
+                                    </svg>
+
+                                    Select Document
+
+                                </label>
+
+
+                                <span
+                                    class="sbf-upload-filename"
+                                    id="supplierBillUploadName"
+                                >
+                                    No document selected
+                                </span>
+
+                            </div>
+
+
+
+                            <div
+                                class="sbf-file-feedback"
+                                id="supplierBillFileFeedback"
+                            >
+
+                                <div class="sbf-file-feedback-left">
+
+                                    <div class="sbf-file-check">
+                                        ✓
+                                    </div>
+
+
+                                    <span
+                                        class="sbf-file-feedback-name"
+                                        id="supplierBillFileName"
+                                    >
+                                        Document selected
+                                    </span>
+
+                                </div>
+
+
+                                <span
+                                    class="sbf-file-feedback-size"
+                                    id="supplierBillFileSize"
+                                ></span>
+
+                            </div>
+
+
+
+                            {% if form.document.errors %}
+
+                                <div class="sbf-error">
+                                    {{ form.document.errors }}
+                                </div>
+
+                            {% endif %}
+
+
+
+                            {% if is_edit and bill.document %}
+
+                                <div class="sbf-current-document">
+
+                                    <span class="sbf-current-document-label">
+                                        Current attached document
+                                    </span>
+
+
+                                    <a
+                                        href="{{ bill.document.url }}"
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        View document ↗
+                                    </a>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="sbf-footer">
+
+
+                    <div class="sbf-footer-note">
+
+                        Financial state is recalculated automatically
+                        when this bill is saved.
+
+                    </div>
+
+
+                    <div class="sbf-actions">
+
+
+                        {% if is_edit %}
+
+                            <a
+                                href="{% url 'payables:supplier_bill_detail' bill.pk %}"
+                                class="sbf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'payables:supplier_bill_list' %}"
+                                class="sbf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% endif %}
+
+
+                        <button
+                            type="submit"
+                            class="sbf-submit"
+                            id="supplierBillSubmitButton"
+                        >
+
+
+                            <span class="sbf-submit-normal">
+
+                                ✓ {{ submit_text }}
+
+                            </span>
+
+
+                            <span class="sbf-submit-loading">
+
+                                <span class="sbf-spinner"></span>
+
+
+                                {% if is_edit %}
+
+                                    Saving Changes...
+
+                                {% else %}
+
+                                    Creating Bill...
+
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 RIGHT SIDEBAR
+            ================================================== -->
+
+            <aside class="sbf-side">
+
+
+                <!-- LIVE SUMMARY -->
+
+                <section class="sbf-side-card sbf-preview">
+
+
+                    <div class="sbf-side-head">
+
+                        <div class="sbf-side-title">
+                            Live Bill Summary
+                        </div>
+
+                        <div class="sbf-side-desc">
+                            Preview updates while you complete the bill.
+                        </div>
+
+                    </div>
+
+
+                    <div class="sbf-side-body">
+
+
+                        <div class="sbf-preview-value">
+
+                            <div class="sbf-preview-label">
+                                Bill Value
+                            </div>
+
+
+                            <div
+                                class="sbf-preview-money"
+                                id="billPreviewAmount"
+                            >
+                                $0.00
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-preview-divider"></div>
+
+
+                        <div class="sbf-preview-row">
+
+                            <span class="sbf-preview-row-label">
+                                Bill Number
+                            </span>
+
+                            <span
+                                class="sbf-preview-row-value"
+                                id="billPreviewNumber"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="sbf-preview-row">
+
+                            <span class="sbf-preview-row-label">
+                                Supplier
+                            </span>
+
+                            <span
+                                class="sbf-preview-row-value"
+                                id="billPreviewSupplier"
+                            >
+                                Not selected
+                            </span>
+
+                        </div>
+
+
+                        <div class="sbf-preview-row">
+
+                            <span class="sbf-preview-row-label">
+                                Due Date
+                            </span>
+
+                            <span
+                                class="sbf-preview-row-value"
+                                id="billPreviewDue"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="sbf-preview-divider"></div>
+
+
+
+                        {% if is_edit %}
+
+                            <div class="sbf-preview-row">
+
+                                <span class="sbf-preview-row-label">
+                                    Already Paid
+                                </span>
+
+                                <span
+                                    class="sbf-preview-row-value"
+                                    id="billPreviewPaid"
+                                >
+                                    ${{ bill.amount_paid|floatformat:2 }}
+                                </span>
+
+                            </div>
+
+                        {% endif %}
+
+
+
+                        <div class="sbf-preview-row">
+
+                            <span class="sbf-preview-row-label">
+
+                                {% if is_edit %}
+                                    Remaining Balance
+                                {% else %}
+                                    Initial Balance
+                                {% endif %}
+
+                            </span>
+
+                            <span
+                                class="sbf-preview-row-value"
+                                id="billPreviewBalance"
+                            >
+                                $0.00
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="sbf-preview-row">
+
+                            <span class="sbf-preview-row-label">
+                                Status
+                            </span>
+
+
+                            <span
+                                class="sbf-preview-status"
+                                id="billPreviewStatus"
+                            >
+
+                                <span
+                                    class="sbf-preview-status-dot"
+                                ></span>
+
+                                <span id="billPreviewStatusText">
+
+                                    {% if is_edit %}
+
+                                        {{ bill.get_status_display }}
+
+                                    {% else %}
+
+                                        Unpaid
+
+                                    {% endif %}
+
+                                </span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- DATE INTELLIGENCE -->
+
+                <section class="sbf-side-card">
+
+                    <div class="sbf-side-body">
+
+                        <div class="sbf-date-card">
+
+
+                            <div class="sbf-date-icon">
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    width="16"
+                                    height="16"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="9"
+                                    ></circle>
+
+                                    <path d="M12 7v5l3 2"></path>
+                                </svg>
+
+                            </div>
+
+
+                            <div class="sbf-date-title">
+                                Due Date Intelligence
+                            </div>
+
+
+                            <div class="sbf-date-text">
+
+                                EduFinance compares the bill
+                                date and due date to detect
+                                payment deadlines and overdue bills.
+
+                            </div>
+
+
+                            <div
+                                class="sbf-date-result"
+                                id="billDateInsight"
+                            >
+                                Select both dates to calculate payment terms.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- FINANCIAL CONTROLS -->
+
+                <section class="sbf-side-card">
+
+
+                    <div class="sbf-side-head">
+
+                        <div class="sbf-side-title">
+                            Financial Controls
+                        </div>
+
+                        <div class="sbf-side-desc">
+                            Built-in safeguards for supplier bills.
+                        </div>
+
+                    </div>
+
+
+                    <div class="sbf-side-body">
+
+
+                        <div class="sbf-rule">
+
+                            <div class="sbf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="sbf-rule-title">
+                                    Automatic balance
+                                </div>
+
+                                <div class="sbf-rule-text">
+                                    Remaining amount is calculated automatically.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-rule">
+
+                            <div class="sbf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="sbf-rule-title">
+                                    Automatic status
+                                </div>
+
+                                <div class="sbf-rule-text">
+
+                                    Unpaid, partially paid, paid and
+                                    overdue states are system controlled.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-rule">
+
+                            <div class="sbf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="sbf-rule-title">
+                                    Protected history
+                                </div>
+
+                                <div class="sbf-rule-text">
+
+                                    Financial bills are cancelled
+                                    rather than permanently deleted.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sbf-rule">
+
+                            <div class="sbf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="sbf-rule-title">
+                                    Payment ready
+                                </div>
+
+                                <div class="sbf-rule-text">
+
+                                    This bill will connect directly
+                                    to Supplier Payments.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ======================================================
+           ELEMENTS
+        ======================================================= */
+
+        const form =
+            document.getElementById(
+                "supplierBillForm"
+            );
+
+
+        const submitButton =
+            document.getElementById(
+                "supplierBillSubmitButton"
+            );
+
+
+        const billNumber =
+            document.getElementById(
+                "id_bill_number"
+            );
+
+
+        const supplier =
+            document.getElementById(
+                "id_supplier"
+            );
+
+
+        const billDate =
+            document.getElementById(
+                "id_bill_date"
+            );
+
+
+        const dueDate =
+            document.getElementById(
+                "id_due_date"
+            );
+
+
+        const totalAmount =
+            document.getElementById(
+                "id_total_amount"
+            );
+
+
+        const documentInput =
+            document.getElementById(
+                "id_document"
+            );
+
+
+        const previewNumber =
+            document.getElementById(
+                "billPreviewNumber"
+            );
+
+
+        const previewSupplier =
+            document.getElementById(
+                "billPreviewSupplier"
+            );
+
+
+        const previewDue =
+            document.getElementById(
+                "billPreviewDue"
+            );
+
+
+        const previewAmount =
+            document.getElementById(
+                "billPreviewAmount"
+            );
+
+
+        const previewBalance =
+            document.getElementById(
+                "billPreviewBalance"
+            );
+
+
+        const previewStatus =
+            document.getElementById(
+                "billPreviewStatus"
+            );
+
+
+        const previewStatusText =
+            document.getElementById(
+                "billPreviewStatusText"
+            );
+
+
+        const dateInsight =
+            document.getElementById(
+                "billDateInsight"
+            );
+
+
+        const uploadName =
+            document.getElementById(
+                "supplierBillUploadName"
+            );
+
+
+        const fileFeedback =
+            document.getElementById(
+                "supplierBillFileFeedback"
+            );
+
+
+        const fileName =
+            document.getElementById(
+                "supplierBillFileName"
+            );
+
+
+        const fileSize =
+            document.getElementById(
+                "supplierBillFileSize"
+            );
+
+
+
+        /* ======================================================
+           MODE / EXISTING FINANCIAL DATA
+        ======================================================= */
+
+        const isEdit =
+            form
+            &&
+            form.dataset.isEdit
+            === "true";
+
+
+        const amountAlreadyPaid =
+            form
+            ?
+            parseFloat(
+                form.dataset.amountPaid
+                || "0"
+            )
+            :
+            0;
+
+
+        const currentServerStatus =
+            form
+            ?
+            (
+                form.dataset.currentStatus
+                || "unpaid"
+            )
+            :
+            "unpaid";
+
+
+
+        /* ======================================================
+           MONEY FORMAT
+        ======================================================= */
+
+        function formatMoney(value) {
+
+            const number =
+                parseFloat(value);
+
+
+            if (isNaN(number)) {
+                return "$0.00";
+            }
+
+
+            return (
+                "$"
+                +
+                number.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            );
+
+        }
+
+
+
+        /* ======================================================
+           DATE FORMAT
+        ======================================================= */
+
+        function formatDate(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+
+            const date =
+                new Date(
+                    value
+                    + "T00:00:00"
+                );
+
+
+            if (
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+                return "—";
+            }
+
+
+            return date.toLocaleDateString(
+                undefined,
+                {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric"
+                }
+            );
+
+        }
+
+
+
+        /* ======================================================
+           PREVIEW STATUS
+        ======================================================= */
+
+        function updatePreviewStatus(
+            total,
+            remaining
+        ) {
+
+            if (
+                !previewStatus
+                ||
+                !previewStatusText
+            ) {
+                return;
+            }
+
+
+            previewStatus.className =
+                "sbf-preview-status";
+
+
+            /*
+             * Preserve cancellation while editing.
+             */
+            if (
+                isEdit
+                &&
+                currentServerStatus
+                === "cancelled"
+            ) {
+
+                previewStatus.classList.add(
+                    "cancelled"
+                );
+
+                previewStatusText.textContent =
+                    "Cancelled";
+
+                return;
+            }
+
+
+            if (
+                total > 0
+                &&
+                remaining <= 0
+            ) {
+
+                previewStatus.classList.add(
+                    "paid"
+                );
+
+                previewStatusText.textContent =
+                    "Paid";
+
+                return;
+            }
+
+
+            /*
+             * Check overdue against browser date.
+             * Django remains authoritative when saved.
+             */
+            if (dueDate && dueDate.value) {
+
+                const selectedDue =
+                    new Date(
+                        dueDate.value
+                        + "T00:00:00"
+                    );
+
+
+                const today =
+                    new Date();
+
+
+                today.setHours(
+                    0,
+                    0,
+                    0,
+                    0
+                );
+
+
+                if (
+                    remaining > 0
+                    &&
+                    selectedDue < today
+                ) {
+
+                    previewStatus.classList.add(
+                        "overdue"
+                    );
+
+                    previewStatusText.textContent =
+                        "Overdue";
+
+                    return;
+
+                }
+
+            }
+
+
+            if (
+                amountAlreadyPaid > 0
+                &&
+                remaining > 0
+            ) {
+
+                previewStatus.classList.add(
+                    "partial"
+                );
+
+                previewStatusText.textContent =
+                    "Partially Paid";
+
+                return;
+
+            }
+
+
+            previewStatusText.textContent =
+                "Unpaid";
+
+        }
+
+
+
+        /* ======================================================
+           LIVE PREVIEW
+        ======================================================= */
+
+        function updatePreview() {
+
+
+            /* BILL NUMBER */
+
+            if (
+                billNumber
+                &&
+                previewNumber
+            ) {
+
+                const value =
+                    billNumber.value.trim();
+
+
+                previewNumber.textContent =
+                    value || "—";
+
+            }
+
+
+
+            /* SUPPLIER */
+
+            if (
+                supplier
+                &&
+                previewSupplier
+            ) {
+
+                const selected =
+                    supplier.options[
+                        supplier.selectedIndex
+                    ];
+
+
+                if (
+                    supplier.value
+                    &&
+                    selected
+                ) {
+
+                    previewSupplier.textContent =
+                        selected.text.trim();
+
+                } else {
+
+                    previewSupplier.textContent =
+                        "Not selected";
+
+                }
+
+            }
+
+
+
+            /* DUE DATE */
+
+            if (
+                dueDate
+                &&
+                previewDue
+            ) {
+
+                previewDue.textContent =
+                    formatDate(
+                        dueDate.value
+                    );
+
+            }
+
+
+
+            /* MONEY */
+
+            let total =
+                totalAmount
+                ?
+                parseFloat(
+                    totalAmount.value
+                )
+                :
+                0;
+
+
+            if (isNaN(total)) {
+                total = 0;
+            }
+
+
+            if (previewAmount) {
+
+                previewAmount.textContent =
+                    formatMoney(
+                        total
+                    );
+
+            }
+
+
+
+            /*
+             * Create:
+             * remaining = full bill value.
+             *
+             * Edit:
+             * remaining = edited total - amount
+             * already paid.
+             */
+
+            let remaining =
+                total;
+
+
+            if (isEdit) {
+
+                remaining =
+                    total
+                    -
+                    amountAlreadyPaid;
+
+            }
+
+
+            if (remaining < 0) {
+                remaining = 0;
+            }
+
+
+            if (previewBalance) {
+
+                previewBalance.textContent =
+                    formatMoney(
+                        remaining
+                    );
+
+            }
+
+
+            updatePreviewStatus(
+                total,
+                remaining
+            );
+
+        }
+
+
+
+        /* ======================================================
+           DATE INTELLIGENCE
+        ======================================================= */
+
+        function updateDateInsight() {
+
+
+            if (
+                !billDate
+                ||
+                !dueDate
+                ||
+                !dateInsight
+            ) {
+                return;
+            }
+
+
+            dateInsight.classList.remove(
+                "warning"
+            );
+
+
+            if (
+                !billDate.value
+                ||
+                !dueDate.value
+            ) {
+
+                dateInsight.textContent =
+                    "Select both dates to calculate payment terms.";
+
+                return;
+
+            }
+
+
+            const start =
+                new Date(
+                    billDate.value
+                    + "T00:00:00"
+                );
+
+
+            const end =
+                new Date(
+                    dueDate.value
+                    + "T00:00:00"
+                );
+
+
+            const difference =
+                Math.round(
+                    (
+                        end - start
+                    )
+                    /
+                    (
+                        1000
+                        *
+                        60
+                        *
+                        60
+                        *
+                        24
+                    )
+                );
+
+
+            if (difference < 0) {
+
+                dateInsight.classList.add(
+                    "warning"
+                );
+
+                dateInsight.textContent =
+                    "⚠ Due date cannot be earlier than the bill date.";
+
+                return;
+
+            }
+
+
+            if (difference === 0) {
+
+                dateInsight.textContent =
+                    "Payment is due on the same day.";
+
+                return;
+
+            }
+
+
+            if (difference === 1) {
+
+                dateInsight.textContent =
+                    "Payment term: 1 day.";
+
+                return;
+
+            }
+
+
+            dateInsight.textContent =
+                "Payment term: "
+                +
+                difference
+                +
+                " days.";
+
+        }
+
+
+
+        /* ======================================================
+           FILE SIZE FORMAT
+        ======================================================= */
+
+        function formatFileSize(bytes) {
+
+            if (
+                bytes === 0
+                ||
+                !bytes
+            ) {
+                return "0 KB";
+            }
+
+
+            const kilobytes =
+                bytes / 1024;
+
+
+            if (kilobytes < 1024) {
+
+                return (
+                    kilobytes.toFixed(1)
+                    +
+                    " KB"
+                );
+
+            }
+
+
+            return (
+                (
+                    kilobytes
+                    /
+                    1024
+                ).toFixed(2)
+                +
+                " MB"
+            );
+
+        }
+
+
+
+        /* ======================================================
+           FILE FEEDBACK
+        ======================================================= */
+
+        function updateFileFeedback() {
+
+
+            if (!documentInput) {
+                return;
+            }
+
+
+            const file =
+                documentInput.files[0];
+
+
+            if (!file) {
+
+
+                if (uploadName) {
+
+                    uploadName.textContent =
+                        "No document selected";
+
+
+                    uploadName.classList.remove(
+                        "has-file"
+                    );
+
+                }
+
+
+                if (fileFeedback) {
+
+                    fileFeedback.classList.remove(
+                        "visible"
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+
+            /* Main text */
+
+            if (uploadName) {
+
+                uploadName.textContent =
+                    file.name;
+
+
+                uploadName.classList.add(
+                    "has-file"
+                );
+
+            }
+
+
+
+            /* Success feedback */
+
+            if (fileName) {
+
+                fileName.textContent =
+                    file.name;
+
+            }
+
+
+            if (fileSize) {
+
+                fileSize.textContent =
+                    formatFileSize(
+                        file.size
+                    );
+
+            }
+
+
+            if (fileFeedback) {
+
+                fileFeedback.classList.add(
+                    "visible"
+                );
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           INPUT LISTENERS
+        ======================================================= */
+
+        [
+            billNumber,
+            supplier,
+            billDate,
+            dueDate,
+            totalAmount
+        ].forEach(
+            function (element) {
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.addEventListener(
+                    "input",
+                    function () {
+
+                        updatePreview();
+
+                        updateDateInsight();
+
+                    }
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    function () {
+
+                        updatePreview();
+
+                        updateDateInsight();
+
+                    }
+                );
+
+            }
+        );
+
+
+        if (documentInput) {
+
+            documentInput.addEventListener(
+                "change",
+                updateFileFeedback
+            );
+
+        }
+
+
+
+        /* ======================================================
+           SUBMIT LOADER
+        ======================================================= */
+
+        if (
+            form
+            &&
+            submitButton
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    /*
+                     * Browser validation first.
+                     */
+                    if (
+                        !form.checkValidity()
+                    ) {
+                        return;
+                    }
+
+
+                    /*
+                     * Prevent double submission.
+                     */
+                    if (
+                        submitButton.disabled
+                    ) {
+                        return;
+                    }
+
+
+                    submitButton.classList.add(
+                        "is-loading"
+                    );
+
+
+                    submitButton.disabled =
+                        true;
+
+                }
+            );
+
+        }
+
+
+
+        /* ======================================================
+           INITIAL UI
+        ======================================================= */
+
+        updatePreview();
+
+        updateDateInsight();
+
+        updateFileFeedback();
+
+    }
+);
+</script>
+
+{% endblock %}
