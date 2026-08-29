@@ -1,0 +1,2367 @@
+{% extends "base.html" %}
+
+{% block title %}Suppliers | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — ADVANCED SUPPLIER DIRECTORY
+    ========================================================== */
+
+    .supx-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --navy-800: #12335d;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+        --blue-100: #eaf2ff;
+
+        --green-600: #059669;
+        --green-100: #e9fbf3;
+
+        --text-900: #10223d;
+        --text-700: #40526a;
+        --text-500: #7e8ca0;
+        --text-400: #9aa5b4;
+
+        --line: #dde5ef;
+
+        min-height: 100vh;
+
+        padding: 34px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 3%,
+                rgba(37, 99, 235, .12),
+                transparent 23%
+            ),
+            radial-gradient(
+                circle at 20% 8%,
+                rgba(34, 184, 207, .07),
+                transparent 19%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff 0%,
+                #f3f7fc 100%
+            );
+
+        color: var(--text-900);
+    }
+
+    .supx-container {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+
+    /* ==============================
+       BREADCRUMBS
+    ============================== */
+
+    .supx-context-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+
+        margin-bottom: 16px;
+    }
+
+    .supx-breadcrumbs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        color: #8d99aa;
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .supx-breadcrumbs span:last-child {
+        color: #47607e;
+    }
+
+    .supx-mini-link {
+        min-height: 32px;
+
+        display: inline-flex;
+        align-items: center;
+
+        padding: 0 11px;
+
+        border: 1px solid #d5dfeb;
+        border-radius: 8px;
+
+        background: rgba(255,255,255,.75);
+
+        color: #65758b;
+
+        text-decoration: none;
+
+        font-size: 11px;
+        font-weight: 650;
+
+        backdrop-filter: blur(10px);
+    }
+
+    .supx-mini-link:hover {
+        background: white;
+        color: var(--blue-600);
+    }
+
+
+    /* ==============================
+       HERO
+    ============================== */
+
+    .supx-hero {
+        position: relative;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 30px;
+
+        overflow: hidden;
+
+        padding: 30px 32px;
+
+        margin-bottom: 22px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39 0%,
+                #0d2d58 52%,
+                #174b8e 100%
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13,42,83,.17);
+    }
+
+    .supx-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 320px;
+        height: 320px;
+
+        right: -95px;
+        top: -170px;
+
+        border-radius: 50%;
+
+        border:
+            45px solid
+            rgba(255,255,255,.055);
+    }
+
+    .supx-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 170px;
+        bottom: -125px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(54,135,255,.18);
+    }
+
+    .supx-hero-main {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+        gap: 19px;
+    }
+
+    .supx-hero-icon {
+        width: 64px;
+        height: 64px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.14);
+
+        border-radius: 18px;
+
+        background:
+            rgba(255,255,255,.09);
+
+        backdrop-filter: blur(12px);
+    }
+
+    .supx-hero-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .supx-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        margin-bottom: 6px;
+
+        color: #78afff;
+
+        font-size: 10px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .supx-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 5px
+            rgba(94,234,212,.1);
+    }
+
+    .supx-hero-title {
+        margin: 0;
+
+        font-size: 32px;
+        font-weight: 780;
+
+        letter-spacing: -.025em;
+    }
+
+    .supx-hero-subtitle {
+        max-width: 650px;
+
+        margin: 8px 0 0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .supx-hero-actions {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        gap: 10px;
+    }
+
+    .supx-secondary-btn,
+    .supx-primary-btn {
+        min-height: 46px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 0 17px;
+
+        border-radius: 11px;
+
+        text-decoration: none;
+
+        font-size: 12px;
+        font-weight: 750;
+
+        transition: .2s ease;
+    }
+
+    .supx-secondary-btn {
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: white;
+    }
+
+    .supx-primary-btn {
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #2460df
+            );
+
+        color: white;
+
+        box-shadow:
+            0 12px 25px
+            rgba(0,44,119,.28);
+    }
+
+    .supx-secondary-btn:hover,
+    .supx-primary-btn:hover {
+        color: white;
+
+        transform:
+            translateY(-2px);
+    }
+
+    .supx-primary-btn svg,
+    .supx-secondary-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+
+
+    /* ==============================
+       AJAX LOADING BAR
+    ============================== */
+
+    .supx-progress {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 3px;
+
+        z-index: 9999;
+
+        pointer-events: none;
+
+        opacity: 0;
+
+        background: transparent;
+
+        transition: opacity .15s ease;
+    }
+
+    .supx-progress.active {
+        opacity: 1;
+    }
+
+    .supx-progress::after {
+        content: "";
+
+        display: block;
+
+        width: 38%;
+        height: 100%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #60a5fa,
+                #22d3ee
+            );
+
+        box-shadow:
+            0 0 10px
+            rgba(37,99,235,.55);
+
+        animation:
+            supx-progress-move
+            .8s ease-in-out infinite;
+    }
+
+    @keyframes supx-progress-move {
+        from {
+            transform:
+                translateX(-110%);
+        }
+
+        to {
+            transform:
+                translateX(300%);
+        }
+    }
+
+
+    /* ==============================
+       MESSAGES
+    ============================== */
+
+    .supx-message-wrap {
+        margin-bottom: 18px;
+    }
+
+    .supx-message {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        padding: 13px 15px;
+
+        border: 1px solid #c2e9d7;
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #eefcf5,
+                #f7fffb
+            );
+
+        color: #13764f;
+
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+
+    /* ==============================
+       KPI CARDS
+    ============================== */
+
+    .supx-kpi-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, minmax(0,1fr));
+
+        gap: 17px;
+
+        margin-bottom: 22px;
+    }
+
+    .supx-kpi {
+        position: relative;
+
+        min-height: 138px;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        gap: 17px;
+
+        padding: 21px;
+
+        border: 1px solid #dbe3ee;
+        border-radius: 17px;
+
+        background: rgba(255,255,255,.96);
+
+        box-shadow:
+            0 7px 24px
+            rgba(30,48,74,.05);
+
+        transition: .25s ease;
+    }
+
+    .supx-kpi:hover {
+        transform:
+            translateY(-4px);
+
+        box-shadow:
+            0 17px 35px
+            rgba(30,48,74,.09);
+    }
+
+    .supx-kpi::after {
+        content: "";
+
+        position: absolute;
+
+        width: 120px;
+        height: 120px;
+
+        right: -48px;
+        top: -53px;
+
+        border-radius: 50%;
+    }
+
+    .supx-kpi.blue::after {
+        background:
+            rgba(37,99,235,.045);
+    }
+
+    .supx-kpi.green::after {
+        background:
+            rgba(5,150,105,.045);
+    }
+
+    .supx-kpi.slate::after {
+        background:
+            rgba(100,116,139,.05);
+    }
+
+    .supx-kpi-icon {
+        width: 52px;
+        height: 52px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 14px;
+    }
+
+    .supx-kpi-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .supx-kpi.blue
+    .supx-kpi-icon {
+        color: #2563eb;
+
+        background: #edf4ff;
+    }
+
+    .supx-kpi.green
+    .supx-kpi-icon {
+        color: #059669;
+
+        background: #eafbf3;
+    }
+
+    .supx-kpi.slate
+    .supx-kpi-icon {
+        color: #667085;
+
+        background: #f2f4f7;
+    }
+
+    .supx-kpi-label {
+        color: #8290a4;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .supx-kpi-value {
+        margin-top: 6px;
+
+        color: #0b2344;
+
+        font-size: 31px;
+        font-weight: 780;
+    }
+
+    .supx-kpi-meta {
+        margin-top: 7px;
+
+        color: #98a3b2;
+
+        font-size: 10.5px;
+    }
+
+
+    /* ==============================
+       PANEL
+    ============================== */
+
+    .supx-panel {
+        overflow: hidden;
+
+        border: 1px solid #dae3ee;
+        border-radius: 19px;
+
+        background: rgba(255,255,255,.98);
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .supx-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 22px 22px 18px;
+
+        border-bottom:
+            1px solid #edf1f6;
+    }
+
+    .supx-panel-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .supx-panel-icon {
+        width: 38px;
+        height: 38px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 10px;
+
+        background: #eff5ff;
+        color: #2563eb;
+    }
+
+    .supx-panel-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 16px;
+        font-weight: 760;
+    }
+
+    .supx-panel-subtitle {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 11px;
+    }
+
+    .supx-count-chip {
+        padding: 7px 10px;
+
+        border: 1px solid #dce5f0;
+        border-radius: 999px;
+
+        background: #f8faff;
+
+        color: #697a90;
+
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+
+    /* ==============================
+       LIVE FILTER TOOLBAR
+    ============================== */
+
+    .supx-toolbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(260px,1fr)
+            215px;
+
+        gap: 11px;
+
+        padding: 15px 20px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #fbfcfe,
+                #f9fbfd
+            );
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .supx-search-wrap {
+        position: relative;
+    }
+
+    .supx-search-icon {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        transform:
+            translateY(-50%);
+
+        width: 17px;
+        height: 17px;
+
+        color: #9ca8b8;
+
+        pointer-events: none;
+    }
+
+    .supx-search,
+    .supx-select {
+        width: 100%;
+        height: 44px;
+
+        box-sizing: border-box;
+
+        border: 1.5px solid #c9d5e4;
+        border-radius: 10px;
+
+        background: white;
+
+        color: #34465f;
+
+        outline: none;
+
+        font-size: 12px;
+
+        transition: .2s ease;
+    }
+
+    .supx-search {
+        padding:
+            0 46px
+            0 42px;
+    }
+
+    .supx-select {
+        padding:
+            0 12px;
+    }
+
+    .supx-search:focus,
+    .supx-select:focus {
+        border-color: #2563eb;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+    }
+
+
+    /* SEARCH SPINNER */
+
+    .supx-search-spinner {
+        position: absolute;
+
+        right: 15px;
+        top: 50%;
+
+        width: 16px;
+        height: 16px;
+
+        margin-top: -8px;
+
+        border:
+            2px solid #d5e0ed;
+
+        border-top-color: #2563eb;
+
+        border-radius: 50%;
+
+        opacity: 0;
+        visibility: hidden;
+
+        animation:
+            supx-spin
+            .7s linear infinite;
+    }
+
+    .supx-search-spinner.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @keyframes supx-spin {
+        to {
+            transform:
+                rotate(360deg);
+        }
+    }
+
+
+    /* ==============================
+       TABLE
+    ============================== */
+
+    .supx-table-wrap {
+        overflow-x: auto;
+    }
+
+    .supx-table {
+        width: 100%;
+
+        border-collapse: collapse;
+    }
+
+    .supx-table thead {
+        background:
+            linear-gradient(
+                180deg,
+                #fafbfd,
+                #f7f9fc
+            );
+    }
+
+    .supx-table th {
+        padding: 13px 20px;
+
+        border-bottom:
+            1px solid #e7ecf3;
+
+        color: #7c899c;
+
+        text-align: left;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .supx-table td {
+        padding: 17px 20px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        color: #41536b;
+
+        font-size: 12px;
+
+        vertical-align: middle;
+    }
+
+    .supx-table tbody tr {
+        transition:
+            background .2s ease;
+    }
+
+    .supx-table tbody tr:hover {
+        background: #f9fbff;
+    }
+
+    .supx-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* ==============================
+       COMPANY
+    ============================== */
+
+    .supx-company {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .supx-company-avatar {
+        width: 42px;
+        height: 42px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid #dce7f8;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #eef5ff,
+                #e3edfd
+            );
+
+        color: #2563eb;
+
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    .supx-company-name {
+        color: #0b2344;
+
+        font-size: 12.5px;
+        font-weight: 760;
+    }
+
+    .supx-company-email {
+        margin-top: 3px;
+
+        color: #919dad;
+
+        font-size: 10.5px;
+    }
+
+    .supx-contact-name {
+        color: #40526b;
+
+        font-weight: 650;
+    }
+
+    .supx-muted {
+        color: #a2acb8;
+    }
+
+
+    /* ==============================
+       STATUS
+    ============================== */
+
+    .supx-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        padding: 6px 10px;
+
+        border-radius: 999px;
+
+        font-size: 10.5px;
+        font-weight: 750;
+    }
+
+    .supx-status-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+    }
+
+    .supx-status.active {
+        color: #078152;
+
+        background: #e9f9f1;
+    }
+
+    .supx-status.active
+    .supx-status-dot {
+        background: #16a76a;
+    }
+
+    .supx-status.inactive {
+        color: #697586;
+
+        background: #f1f3f6;
+    }
+
+    .supx-status.inactive
+    .supx-status-dot {
+        background: #98a2b3;
+    }
+
+
+    /* ==============================
+       ACTIONS
+    ============================== */
+
+    .supx-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 7px;
+    }
+
+    .supx-actions form {
+        margin: 0;
+    }
+
+    .supx-action {
+        min-height: 35px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+
+        padding: 0 11px;
+
+        border-radius: 8px;
+
+        text-decoration: none;
+
+        font-size: 10.5px;
+        font-weight: 700;
+
+        transition: .18s ease;
+    }
+
+    .supx-action:hover {
+        transform:
+            translateY(-1px);
+    }
+
+    .supx-view {
+        border: 1px solid #d6e5ff;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .supx-edit {
+        border: 1px solid #dce3ec;
+
+        background: white;
+
+        color: #5b6b80;
+    }
+
+    .supx-toggle {
+        border: 1px solid #dce3ec;
+
+        background: white;
+
+        color: #66768b;
+
+        cursor: pointer;
+    }
+
+    .supx-toggle:disabled {
+        cursor: wait;
+
+        opacity: .72;
+    }
+
+
+    /* BUTTON SPINNER */
+
+    .supx-button-spinner {
+        width: 12px;
+        height: 12px;
+
+        border:
+            2px solid #c7d3e1;
+
+        border-top-color: #2563eb;
+
+        border-radius: 50%;
+
+        animation:
+            supx-spin
+            .65s linear infinite;
+    }
+
+
+    /* ==============================
+       EMPTY STATE
+    ============================== */
+
+    .supx-empty {
+        min-height: 360px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 40px;
+
+        text-align: center;
+
+        background:
+            radial-gradient(
+                circle at center,
+                rgba(37,99,235,.05),
+                transparent 45%
+            );
+    }
+
+    .supx-empty-inner {
+        max-width: 460px;
+    }
+
+    .supx-empty-art {
+        width: 82px;
+        height: 82px;
+
+        display: grid;
+        place-items: center;
+
+        margin: 0 auto 18px;
+
+        border:
+            1px solid #d8e5f7;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f7faff,
+                #eaf2ff
+            );
+
+        color: #2563eb;
+
+        box-shadow:
+            0 15px 35px
+            rgba(37,99,235,.09);
+    }
+
+    .supx-empty-art svg {
+        width: 35px;
+        height: 35px;
+    }
+
+    .supx-empty-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 20px;
+        font-weight: 770;
+    }
+
+    .supx-empty-text {
+        margin: 9px auto 20px;
+
+        color: #8290a4;
+
+        font-size: 12.5px;
+        line-height: 1.6;
+    }
+
+    .supx-empty-primary {
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 0 16px;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+
+    @media(max-width: 900px) {
+
+        .supx-kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .supx-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .supx-hero {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    @media(max-width: 680px) {
+
+        .supx-page {
+            padding: 22px 16px 45px;
+        }
+
+        .supx-context-bar {
+            display: none;
+        }
+
+        .supx-hero {
+            padding: 24px 20px;
+            border-radius: 17px;
+        }
+
+        .supx-hero-icon {
+            display: none;
+        }
+
+        .supx-hero-title {
+            font-size: 27px;
+        }
+
+        .supx-hero-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<!-- GLOBAL AJAX PROGRESS -->
+<div
+    class="supx-progress"
+    id="supplierProgress"
+></div>
+
+
+<div class="supx-page">
+
+<div class="supx-container">
+
+
+    <!-- BREADCRUMB -->
+
+    <div class="supx-context-bar">
+
+        <div class="supx-breadcrumbs">
+
+            <span>EduFinance</span>
+
+            <span>›</span>
+
+            <span>Payables</span>
+
+            <span>›</span>
+
+            <span>Suppliers</span>
+
+        </div>
+
+
+        <a
+            href="{% url 'payables:expense_category_list' %}"
+            class="supx-mini-link"
+        >
+            Expense Categories
+        </a>
+
+    </div>
+
+
+
+    <!-- HERO -->
+
+    <section class="supx-hero">
+
+        <div class="supx-hero-main">
+
+            <div class="supx-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M3 21h18"></path>
+
+                    <path
+                        d="M5 21V8l7-4 7 4v13"
+                    ></path>
+
+                    <path d="M8 11h2"></path>
+                    <path d="M14 11h2"></path>
+                    <path d="M8 15h2"></path>
+                    <path d="M14 15h2"></path>
+
+                    <path
+                        d="M10 21v-3h4v3"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="supx-eyebrow">
+
+                    <span
+                        class="supx-eyebrow-dot"
+                    ></span>
+
+                    Vendor Network
+
+                </div>
+
+
+                <h1 class="supx-hero-title">
+                    Suppliers
+                </h1>
+
+
+                <p class="supx-hero-subtitle">
+
+                    Manage the school's vendor ecosystem,
+                    contact records and supplier availability
+                    from one centralized financial workspace.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="supx-hero-actions">
+
+            <a
+                href="{% url 'payables:expense_category_list' %}"
+                class="supx-secondary-btn"
+            >
+                Categories
+            </a>
+
+
+            <a
+                href="{% url 'payables:supplier_create' %}"
+                class="supx-primary-btn"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                >
+                    <path d="M12 5v14"></path>
+                    <path d="M5 12h14"></path>
+                </svg>
+
+                Add Supplier
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    {% if messages %}
+
+        <div class="supx-message-wrap">
+
+            {% for message in messages %}
+
+                <div class="supx-message">
+                    ✓ {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+
+    <!-- ==================================================
+         AJAX REPLACEABLE AREA
+    =================================================== -->
+
+    <div id="supplierDynamicArea">
+
+
+        <!-- KPI -->
+
+        <section class="supx-kpi-grid">
+
+            <article class="supx-kpi blue">
+
+                <div class="supx-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M4 21V8l8-4 8 4v13"></path>
+                        <path d="M8 11h1"></path>
+                        <path d="M15 11h1"></path>
+                        <path d="M8 15h1"></path>
+                        <path d="M15 15h1"></path>
+                    </svg>
+
+                </div>
+
+                <div>
+
+                    <div class="supx-kpi-label">
+                        Supplier Network
+                    </div>
+
+                    <div class="supx-kpi-value">
+                        {{ total_suppliers }}
+                    </div>
+
+                    <div class="supx-kpi-meta">
+                        Total registered vendors
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <article class="supx-kpi green">
+
+                <div class="supx-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                        ></circle>
+
+                        <path
+                            d="m8.5 12 2.2 2.2 4.8-5"
+                        ></path>
+                    </svg>
+
+                </div>
+
+                <div>
+
+                    <div class="supx-kpi-label">
+                        Active Vendors
+                    </div>
+
+                    <div class="supx-kpi-value">
+                        {{ active_suppliers }}
+                    </div>
+
+                    <div class="supx-kpi-meta">
+                        Ready for financial activity
+                    </div>
+
+                </div>
+
+            </article>
+
+
+            <article class="supx-kpi slate">
+
+                <div class="supx-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                        ></circle>
+
+                        <path d="M8.5 12h7"></path>
+                    </svg>
+
+                </div>
+
+                <div>
+
+                    <div class="supx-kpi-label">
+                        Inactive Vendors
+                    </div>
+
+                    <div class="supx-kpi-value">
+                        {{ inactive_suppliers }}
+                    </div>
+
+                    <div class="supx-kpi-meta">
+                        Restricted from new activity
+                    </div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- DIRECTORY -->
+
+        <section class="supx-panel">
+
+
+            <div class="supx-panel-head">
+
+                <div class="supx-panel-title-wrap">
+
+                    <div class="supx-panel-icon">
+                        ☰
+                    </div>
+
+                    <div>
+
+                        <h2 class="supx-panel-title">
+                            Supplier Directory
+                        </h2>
+
+                        <div class="supx-panel-subtitle">
+                            Live search and vendor management.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="supx-count-chip">
+
+                    {{ total_suppliers }}
+
+                    {% if total_suppliers == 1 %}
+                        supplier
+                    {% else %}
+                        suppliers
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- LIVE FILTER -->
+
+            <form
+                method="get"
+                class="supx-toolbar"
+                id="supplierFilterForm"
+            >
+
+                <div class="supx-search-wrap">
+
+                    <svg
+                        class="supx-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="11"
+                            cy="11"
+                            r="7"
+                        ></circle>
+
+                        <path
+                            d="m20 20-3.5-3.5"
+                        ></path>
+                    </svg>
+
+
+                    <input
+                        type="text"
+                        name="search"
+                        id="supplierSearch"
+                        value="{{ search }}"
+                        class="supx-search"
+                        placeholder="Start typing to search suppliers..."
+                        autocomplete="off"
+                    >
+
+
+                    <span
+                        class="supx-search-spinner"
+                        id="supplierSearchSpinner"
+                    ></span>
+
+                </div>
+
+
+                <select
+                    name="status"
+                    id="supplierStatus"
+                    class="supx-select"
+                >
+
+                    <option value="">
+                        All supplier statuses
+                    </option>
+
+
+                    <option
+                        value="active"
+                        {% if status == "active" %}
+                            selected
+                        {% endif %}
+                    >
+                        Active suppliers
+                    </option>
+
+
+                    <option
+                        value="inactive"
+                        {% if status == "inactive" %}
+                            selected
+                        {% endif %}
+                    >
+                        Inactive suppliers
+                    </option>
+
+                </select>
+
+            </form>
+
+
+
+            {% if suppliers %}
+
+                <div class="supx-table-wrap">
+
+                    <table class="supx-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Supplier</th>
+
+                                <th>Contact</th>
+
+                                <th>Phone</th>
+
+                                <th>Status</th>
+
+                                <th>Updated</th>
+
+                                <th style="text-align:right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for supplier in suppliers %}
+
+                            <tr>
+
+
+                                <td>
+
+                                    <div class="supx-company">
+
+                                        <div class="supx-company-avatar">
+                                            {{ supplier.name|slice:":1"|upper }}
+                                        </div>
+
+
+                                        <div>
+
+                                            <div class="supx-company-name">
+                                                {{ supplier.name }}
+                                            </div>
+
+
+                                            <div class="supx-company-email">
+
+                                                {% if supplier.email %}
+                                                    {{ supplier.email }}
+                                                {% else %}
+                                                    No email address
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+
+                                <td>
+
+                                    {% if supplier.contact_person %}
+
+                                        <span class="supx-contact-name">
+                                            {{ supplier.contact_person }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="supx-muted">
+                                            Not assigned
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+
+                                <td>
+
+                                    {% if supplier.phone %}
+
+                                        {{ supplier.phone }}
+
+                                    {% else %}
+
+                                        <span class="supx-muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+
+                                <td>
+
+                                    {% if supplier.is_active %}
+
+                                        <span class="supx-status active">
+
+                                            <span
+                                                class="supx-status-dot"
+                                            ></span>
+
+                                            Active
+
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="supx-status inactive">
+
+                                            <span
+                                                class="supx-status-dot"
+                                            ></span>
+
+                                            Inactive
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+
+                                <td>
+                                    {{ supplier.updated_at|date:"M d, Y" }}
+                                </td>
+
+
+
+                                <td>
+
+                                    <div class="supx-actions">
+
+                                        <a
+                                            href="{% url 'payables:supplier_detail' supplier.pk %}"
+                                            class="supx-action supx-view"
+                                        >
+                                            View
+                                        </a>
+
+
+                                        <a
+                                            href="{% url 'payables:supplier_edit' supplier.pk %}"
+                                            class="supx-action supx-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+
+                                        <form
+                                            method="post"
+                                            action="{% url 'payables:supplier_toggle' supplier.pk %}"
+                                            class="supplier-toggle-form"
+                                        >
+
+                                            {% csrf_token %}
+
+
+                                            <button
+                                                type="submit"
+                                                class="supx-action supx-toggle"
+                                                data-loading-text="{% if supplier.is_active %}Deactivating...{% else %}Activating...{% endif %}"
+                                            >
+
+                                                <span class="supx-toggle-text">
+
+                                                    {% if supplier.is_active %}
+                                                        Deactivate
+                                                    {% else %}
+                                                        Activate
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="supx-empty">
+
+                    <div class="supx-empty-inner">
+
+                        <div class="supx-empty-art">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    d="M4 21V8l8-4 8 4v13"
+                                ></path>
+
+                                <path d="M8 11h2"></path>
+                                <path d="M14 11h2"></path>
+                                <path d="M8 15h2"></path>
+                                <path d="M14 15h2"></path>
+
+                                <path
+                                    d="M10 21v-3h4v3"
+                                ></path>
+                            </svg>
+
+                        </div>
+
+
+                        {% if search or status %}
+
+                            <h3 class="supx-empty-title">
+                                No matching suppliers
+                            </h3>
+
+                            <p class="supx-empty-text">
+
+                                No suppliers match your
+                                current search or status filter.
+                                Try another keyword or clear
+                                the filter.
+
+                            </p>
+
+                        {% else %}
+
+                            <h3 class="supx-empty-title">
+                                Build your supplier network
+                            </h3>
+
+                            <p class="supx-empty-text">
+
+                                Register vendors that provide
+                                goods and services to the school.
+
+                            </p>
+
+                            <a
+                                href="{% url 'payables:supplier_create' %}"
+                                class="supx-empty-primary"
+                            >
+                                + Add First Supplier
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const progress =
+            document.getElementById(
+                "supplierProgress"
+            );
+
+        let debounceTimer = null;
+
+        let activeRequest = null;
+
+
+        /* ==============================================
+           LOADING HELPERS
+        ============================================== */
+
+        function startProgress() {
+
+            if (progress) {
+                progress.classList.add(
+                    "active"
+                );
+            }
+
+        }
+
+
+        function stopProgress() {
+
+            if (progress) {
+                progress.classList.remove(
+                    "active"
+                );
+            }
+
+        }
+
+
+
+        /* ==============================================
+           LIVE AJAX FILTER
+        ============================================== */
+
+        async function performSupplierFilter() {
+
+            const search =
+                document.getElementById(
+                    "supplierSearch"
+                );
+
+            const status =
+                document.getElementById(
+                    "supplierStatus"
+                );
+
+            const spinner =
+                document.getElementById(
+                    "supplierSearchSpinner"
+                );
+
+
+            if (!search || !status) {
+                return;
+            }
+
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+
+            const searchValue =
+                search.value.trim();
+
+
+            const statusValue =
+                status.value;
+
+
+            if (searchValue) {
+
+                url.searchParams.set(
+                    "search",
+                    searchValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "search"
+                );
+
+            }
+
+
+            if (statusValue) {
+
+                url.searchParams.set(
+                    "status",
+                    statusValue
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "status"
+                );
+
+            }
+
+
+            /*
+             * If another search request is still
+             * running, cancel it.
+             */
+            if (activeRequest) {
+                activeRequest.abort();
+            }
+
+
+            activeRequest =
+                new AbortController();
+
+
+            if (spinner) {
+                spinner.classList.add(
+                    "active"
+                );
+            }
+
+
+            startProgress();
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        url.toString(),
+                        {
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            },
+
+                            signal:
+                                activeRequest.signal
+                        }
+                    );
+
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Unable to load suppliers."
+                    );
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                const parser =
+                    new DOMParser();
+
+
+                const documentResult =
+                    parser.parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                const newArea =
+                    documentResult
+                    .getElementById(
+                        "supplierDynamicArea"
+                    );
+
+
+                const currentArea =
+                    document.getElementById(
+                        "supplierDynamicArea"
+                    );
+
+
+                if (!newArea || !currentArea) {
+
+                    window.location.href =
+                        url.toString();
+
+                    return;
+                }
+
+
+                currentArea.innerHTML =
+                    newArea.innerHTML;
+
+
+                /*
+                 * Update URL without refreshing.
+                 */
+                window.history.replaceState(
+                    {},
+                    "",
+                    url.toString()
+                );
+
+
+                /*
+                 * Re-bind listeners because
+                 * supplierDynamicArea was replaced.
+                 */
+                bindLiveFilter();
+
+                bindToggleForms();
+
+            }
+
+            catch (error) {
+
+                if (
+                    error.name !==
+                    "AbortError"
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+            finally {
+
+                const newSpinner =
+                    document.getElementById(
+                        "supplierSearchSpinner"
+                    );
+
+
+                if (newSpinner) {
+
+                    newSpinner.classList.remove(
+                        "active"
+                    );
+
+                }
+
+
+                stopProgress();
+
+            }
+
+        }
+
+
+
+        /* ==============================================
+           SEARCH / STATUS EVENT BINDING
+        ============================================== */
+
+        function bindLiveFilter() {
+
+            const search =
+                document.getElementById(
+                    "supplierSearch"
+                );
+
+            const status =
+                document.getElementById(
+                    "supplierStatus"
+                );
+
+            const form =
+                document.getElementById(
+                    "supplierFilterForm"
+                );
+
+
+            if (
+                !search ||
+                !status ||
+                !form
+            ) {
+                return;
+            }
+
+
+            /*
+             * Prevent standard form submission.
+             */
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    performSupplierFilter();
+
+                }
+            );
+
+
+            /*
+             * Search automatically after user
+             * pauses typing for 320ms.
+             */
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+
+                    debounceTimer =
+                        setTimeout(
+                            performSupplierFilter,
+                            320
+                        );
+
+                }
+            );
+
+
+            /*
+             * Status dropdown updates instantly.
+             */
+            status.addEventListener(
+                "change",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+                    performSupplierFilter();
+
+                }
+            );
+
+        }
+
+
+
+        /* ==============================================
+           ACTIVATE / DEACTIVATE LOADER
+        ============================================== */
+
+        function bindToggleForms() {
+
+            const forms =
+                document.querySelectorAll(
+                    ".supplier-toggle-form"
+                );
+
+
+            forms.forEach(
+                function (form) {
+
+                    form.addEventListener(
+                        "submit",
+                        function () {
+
+                            const button =
+                                form.querySelector(
+                                    ".supx-toggle"
+                                );
+
+
+                            const text =
+                                button.querySelector(
+                                    ".supx-toggle-text"
+                                );
+
+
+                            if (!button) {
+                                return;
+                            }
+
+
+                            button.disabled = true;
+
+
+                            const loadingText =
+                                button.dataset
+                                .loadingText ||
+                                "Processing...";
+
+
+                            button.innerHTML =
+                                `
+                                <span
+                                    class="supx-button-spinner"
+                                ></span>
+
+                                <span>
+                                    ${loadingText}
+                                </span>
+                                `;
+
+
+                            startProgress();
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        bindLiveFilter();
+
+        bindToggleForms();
+
+    }
+);
+</script>
+
+{% endblock %}

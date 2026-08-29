@@ -1,0 +1,1737 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    .svf-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+
+        --green-600: #059669;
+
+        --text-900: #13243d;
+        --text-700: #42546c;
+        --text-500: #7f8ea2;
+
+        min-height: 100vh;
+
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 92% 2%,
+                rgba(37,99,235,.11),
+                transparent 25%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+    }
+
+    .svf-container {
+        max-width: 1350px;
+        margin: 0 auto;
+    }
+
+
+    /* ==============================
+       BREADCRUMB
+    ============================== */
+
+    .svf-breadcrumb {
+        display: flex;
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8e9aac;
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .svf-breadcrumb a {
+        color: #7b899c;
+        text-decoration: none;
+    }
+
+    .svf-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+
+    /* ==============================
+       HERO
+    ============================== */
+
+    .svf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding: 27px 30px;
+
+        border-radius: 20px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0e2e59 55%,
+                #174c8d
+            );
+
+        color: white;
+
+        box-shadow:
+            0 20px 45px
+            rgba(13,42,83,.16);
+    }
+
+    .svf-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 300px;
+        height: 300px;
+
+        right: -90px;
+        top: -170px;
+
+        border:
+            42px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .svf-hero-main {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+        gap: 17px;
+    }
+
+    .svf-hero-icon {
+        width: 59px;
+        height: 59px;
+
+        display: grid;
+        place-items: center;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 16px;
+
+        background:
+            rgba(255,255,255,.09);
+    }
+
+    .svf-hero-icon svg {
+        width: 27px;
+        height: 27px;
+    }
+
+    .svf-eyebrow {
+        margin-bottom: 5px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .svf-title {
+        margin: 0;
+
+        font-size: 29px;
+        font-weight: 780;
+    }
+
+    .svf-subtitle {
+        max-width: 650px;
+
+        margin: 7px 0 0;
+
+        color:
+            rgba(226,237,251,.76);
+
+        font-size: 12.5px;
+        line-height: 1.55;
+    }
+
+    .svf-hero-badge {
+        position: relative;
+        z-index: 2;
+
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        padding: 9px 13px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        color: white;
+
+        font-size: 10.5px;
+        font-weight: 700;
+    }
+
+    .svf-hero-badge-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(94,234,212,.10);
+    }
+
+
+    /* ==============================
+       LAYOUT
+    ============================== */
+
+    .svf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            310px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* ==============================
+       FORM CARD
+    ============================== */
+
+    .svf-form-card {
+        overflow: hidden;
+
+        border: 1px solid #d8e2ee;
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .svf-form-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        padding: 21px 23px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .svf-form-head-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .svf-form-head-icon {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #edf4ff;
+        color: #2563eb;
+    }
+
+    .svf-form-head h2 {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 15px;
+        font-weight: 760;
+    }
+
+    .svf-form-head p {
+        margin: 4px 0 0;
+
+        color: #939eae;
+
+        font-size: 10.5px;
+    }
+
+    .svf-required-note {
+        color: #9aa5b4;
+        font-size: 10px;
+    }
+
+    .svf-form-body {
+        padding: 20px;
+    }
+
+
+    /* ==============================
+       SECTIONS
+    ============================== */
+
+    .svf-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding: 18px 18px 20px;
+
+        border: 1px solid #dce5ef;
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcff
+            );
+
+        transition: .22s ease;
+    }
+
+    .svf-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .svf-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius:
+            0 4px 4px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #2563eb,
+                #60a5fa
+            );
+    }
+
+    .svf-section:focus-within {
+        border-color: #8fb2ed;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f8fbff
+            );
+
+        box-shadow:
+            0 10px 26px
+            rgba(37,99,235,.07);
+
+        transform:
+            translateY(-1px);
+    }
+
+    .svf-section-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f6;
+    }
+
+    .svf-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 10px;
+        font-weight: 850;
+
+        box-shadow:
+            0 5px 12px
+            rgba(37,99,235,.18);
+    }
+
+    .svf-section-title {
+        color: #102b50;
+
+        font-size: 12.5px;
+        font-weight: 800;
+    }
+
+
+    /* ==============================
+       GRID
+    ============================== */
+
+    .svf-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px 19px;
+    }
+
+    .svf-full {
+        grid-column:
+            1 / -1;
+    }
+
+
+    /* ==============================
+       FIELDS
+    ============================== */
+
+    .svf-label {
+        display: flex;
+        align-items: center;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 11px;
+        font-weight: 780;
+    }
+
+    .svf-required {
+        margin-left: 4px;
+
+        color: #e04c59;
+    }
+
+    .svf-optional {
+        margin-left: auto;
+
+        padding: 3px 7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 8.5px;
+        font-weight: 700;
+    }
+
+    .svf-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b9c9dc;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 500;
+
+        outline: none;
+
+        transition: .2s ease;
+    }
+
+    .svf-field input.form-control {
+        height: 48px;
+
+        padding: 0 14px;
+    }
+
+    .svf-field textarea.form-control {
+        min-height: 80px;
+
+        padding: 13px 14px;
+
+        resize: vertical;
+
+        line-height: 1.55;
+    }
+
+    .svf-field
+    textarea[name="address"] {
+        min-height: 76px;
+    }
+
+    .svf-field
+    textarea[name="notes"] {
+        min-height: 80px;
+    }
+
+    .svf-field
+    .form-control::placeholder {
+        color: #7f8da1;
+
+        opacity: 1;
+    }
+
+    .svf-field
+    .form-control:hover {
+        border-color: #8fa8c5;
+
+        background: white;
+    }
+
+    .svf-field
+    .form-control:focus {
+        border-color: #2563eb;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.11),
+            0 5px 14px
+            rgba(37,99,235,.07);
+    }
+
+    .svf-field:focus-within
+    .svf-label {
+        color: #1d4ed8;
+    }
+
+    .svf-help {
+        margin-top: 7px;
+
+        color: #73849a;
+
+        font-size: 9.5px;
+    }
+
+
+    /* ==============================
+       ERRORS
+    ============================== */
+
+    .svf-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border: 1px solid #f2c9ce;
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c53b49;
+
+        font-size: 10px;
+    }
+
+
+    /* ==============================
+       STATUS
+    ============================== */
+
+    .svf-status-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        padding: 16px 17px;
+
+        border: 1px solid #cfe0f4;
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                100deg,
+                #f8fbff,
+                #eef6ff
+            );
+
+        box-shadow:
+            inset 3px 0 0
+            #2563eb;
+    }
+
+    .svf-status-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .svf-status-icon {
+        width: 39px;
+        height: 39px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #eafaf3;
+        color: #059669;
+    }
+
+    .svf-status-title {
+        color: #0b2344;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .svf-status-help {
+        margin-top: 3px;
+
+        color: #8e9aac;
+
+        font-size: 9.5px;
+    }
+
+    .svf-status-card
+    .form-check-input {
+        width: 19px;
+        height: 19px;
+
+        accent-color: #2563eb;
+    }
+
+
+    /* ==============================
+       FOOTER
+    ============================== */
+
+    .svf-footer {
+        position: sticky;
+
+        bottom: 0;
+
+        z-index: 20;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        padding: 17px 22px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter:
+            blur(14px);
+
+        box-shadow:
+            0 -8px 20px
+            rgba(20,40,70,.04);
+    }
+
+    .svf-footer-note {
+        color: #9ba6b4;
+
+        font-size: 9.5px;
+    }
+
+    .svf-actions {
+        display: flex;
+        gap: 9px;
+    }
+
+    .svf-cancel,
+    .svf-submit {
+        min-height: 44px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 0 19px;
+
+        border-radius: 9px;
+
+        font-size: 11.5px;
+        font-weight: 720;
+    }
+
+    .svf-cancel {
+        border: 1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5c6e84;
+
+        text-decoration: none;
+    }
+
+    .svf-submit {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 18px
+            rgba(37,99,235,.22);
+    }
+
+    .svf-submit:hover {
+        transform:
+            translateY(-2px);
+    }
+
+    .svf-submit:disabled {
+        cursor: wait;
+
+        opacity: .88;
+
+        transform: none;
+    }
+
+    .svf-submit-normal,
+    .svf-submit-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .svf-submit-loading {
+        display: none;
+    }
+
+    .svf-submit.is-loading
+    .svf-submit-normal {
+        display: none;
+    }
+
+    .svf-submit.is-loading
+    .svf-submit-loading {
+        display: inline-flex;
+    }
+
+    .svf-button-spinner {
+        width: 14px;
+        height: 14px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            svf-spin
+            .7s linear infinite;
+    }
+
+    @keyframes svf-spin {
+        to {
+            transform:
+                rotate(360deg);
+        }
+    }
+
+
+    /* ==============================
+       SIDEBAR
+    ============================== */
+
+    .svf-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .svf-side-card,
+    .svf-security {
+        border: 1px solid #d7e1ed;
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .svf-side-card {
+        overflow: hidden;
+    }
+
+    .svf-side-card-head {
+        padding: 16px 17px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .svf-side-card-head h3 {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 12px;
+    }
+
+    .svf-side-card-head p {
+        margin: 4px 0 0;
+
+        color: #929eae;
+
+        font-size: 9.5px;
+    }
+
+    .svf-side-card-body {
+        padding: 16px 17px;
+    }
+
+    .svf-check-item {
+        display: flex;
+        gap: 10px;
+
+        margin-bottom: 14px;
+    }
+
+    .svf-check-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .svf-check-icon {
+        width: 24px;
+        height: 24px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #edf4ff;
+        color: #2563eb;
+    }
+
+    .svf-check-title {
+        color: #40526b;
+
+        font-size: 10.5px;
+        font-weight: 700;
+    }
+
+    .svf-check-text {
+        margin-top: 2px;
+
+        color: #97a2b1;
+
+        font-size: 9px;
+    }
+
+    .svf-info-card {
+        background:
+            linear-gradient(
+                145deg,
+                #f7faff,
+                #edf4ff
+            );
+    }
+
+    .svf-info-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .svf-info-text {
+        margin-top: 6px;
+
+        color: #7f8fa4;
+
+        font-size: 9.5px;
+        line-height: 1.55;
+    }
+
+    .svf-security {
+        display: flex;
+        gap: 10px;
+
+        padding: 14px 15px;
+    }
+
+    .svf-security-title {
+        color: #40526a;
+
+        font-size: 10px;
+        font-weight: 720;
+    }
+
+    .svf-security-text {
+        margin-top: 3px;
+
+        color: #98a3b2;
+
+        font-size: 8.8px;
+    }
+
+
+    @media(max-width:1050px) {
+
+        .svf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .svf-side {
+            position: static;
+        }
+    }
+
+    @media(max-width:720px) {
+
+        .svf-page {
+            padding: 22px 16px 45px;
+        }
+
+        .svf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .svf-full {
+            grid-column: auto;
+        }
+
+        .svf-hero-badge,
+        .svf-hero-icon {
+            display: none;
+        }
+
+        .svf-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .svf-footer-note {
+            display: none;
+        }
+
+        .svf-actions {
+            flex-direction: column-reverse;
+        }
+
+        .svf-cancel,
+        .svf-submit {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="svf-page">
+
+<div class="svf-container">
+
+
+    <div class="svf-breadcrumb">
+
+        <a href="{% url 'payables:supplier_list' %}">
+            Suppliers
+        </a>
+
+        <span>›</span>
+
+        <span>
+            {{ page_title }}
+        </span>
+
+    </div>
+
+
+
+    <!-- HERO -->
+
+    <section class="svf-hero">
+
+        <div class="svf-hero-main">
+
+            <div class="svf-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path
+                        d="M4 21V8l8-4 8 4v13"
+                    ></path>
+
+                    <path d="M8 11h2"></path>
+                    <path d="M14 11h2"></path>
+
+                    <path
+                        d="M10 21v-3h4v3"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="svf-eyebrow">
+                    Vendor Management
+                </div>
+
+                <h1 class="svf-title">
+                    {{ page_title }}
+                </h1>
+
+                <p class="svf-subtitle">
+
+                    Capture supplier identity,
+                    business information and contact
+                    details for bills, payments
+                    and expense records.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="svf-hero-badge">
+
+            <span
+                class="svf-hero-badge-dot"
+            ></span>
+
+            {% if is_edit %}
+                Supplier Record
+            {% else %}
+                New Vendor Profile
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <form
+        method="post"
+        id="supplierForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="svf-layout">
+
+
+            <!-- MAIN CARD -->
+
+            <section class="svf-form-card">
+
+
+                <div class="svf-form-head">
+
+                    <div class="svf-form-head-left">
+
+                        <div class="svf-form-head-icon">
+                            ▣
+                        </div>
+
+
+                        <div>
+
+                            <h2>
+                                Supplier Profile
+                            </h2>
+
+                            <p>
+                                Complete the vendor information below.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="svf-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+
+                <div class="svf-form-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="svf-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+
+                    <!-- 01 -->
+
+                    <div class="svf-section">
+
+                        <div class="svf-section-head">
+
+                            <div class="svf-section-number">
+                                01
+                            </div>
+
+                            <div class="svf-section-title">
+                                Business Identity
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-grid">
+
+
+                            <div class="svf-field">
+
+                                <label class="svf-label">
+
+                                    Supplier Name
+
+                                    <span class="svf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.name }}
+
+                                <div class="svf-help">
+                                    • Legal or trading business name
+                                </div>
+
+                                {% if form.name.errors %}
+
+                                    <div class="svf-error">
+                                        {{ form.name.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="svf-field">
+
+                                <label class="svf-label">
+
+                                    Tax / Registration Number
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.tax_number }}
+
+                                <div class="svf-help">
+                                    • Government or registration ID
+                                </div>
+
+                                {% if form.tax_number.errors %}
+
+                                    <div class="svf-error">
+                                        {{ form.tax_number.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 02 -->
+
+                    <div class="svf-section">
+
+                        <div class="svf-section-head">
+
+                            <div class="svf-section-number">
+                                02
+                            </div>
+
+                            <div class="svf-section-title">
+                                Primary Contact
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-grid">
+
+
+                            <div class="svf-field">
+
+                                <label class="svf-label">
+
+                                    Contact Person
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.contact_person }}
+
+                                <div class="svf-help">
+                                    • Main representative for the school
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="svf-field">
+
+                                <label class="svf-label">
+
+                                    Phone Number
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.phone }}
+
+                                <div class="svf-help">
+                                    • Include country code when applicable
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="svf-field svf-full">
+
+                                <label class="svf-label">
+
+                                    Email Address
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.email }}
+
+                                {% if form.email.errors %}
+
+                                    <div class="svf-error">
+                                        {{ form.email.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                                <div class="svf-help">
+                                    • Used for financial correspondence
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 03 -->
+
+                    <div class="svf-section">
+
+                        <div class="svf-section-head">
+
+                            <div class="svf-section-number">
+                                03
+                            </div>
+
+                            <div class="svf-section-title">
+                                Location & Notes
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-grid">
+
+
+                            <div class="svf-field svf-full">
+
+                                <label class="svf-label">
+
+                                    Business Address
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.address }}
+
+                            </div>
+
+
+
+                            <div class="svf-field svf-full">
+
+                                <label class="svf-label">
+
+                                    Internal Notes
+
+                                    <span class="svf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.notes }}
+
+                                <div class="svf-help">
+
+                                    • Add products, terms or
+                                    arrangement information
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- 04 -->
+
+                    <div class="svf-section">
+
+                        <div class="svf-section-head">
+
+                            <div class="svf-section-number">
+                                04
+                            </div>
+
+                            <div class="svf-section-title">
+                                Availability
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-status-card">
+
+                            <div class="svf-status-content">
+
+                                <div class="svf-status-icon">
+                                    ✓
+                                </div>
+
+
+                                <div>
+
+                                    <div class="svf-status-title">
+                                        Active Supplier
+                                    </div>
+
+                                    <div class="svf-status-help">
+
+                                        Active suppliers can be
+                                        selected for bills,
+                                        payments and expenses.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{ form.is_active }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- FOOTER -->
+
+                <div class="svf-footer">
+
+                    <div class="svf-footer-note">
+                        Changes are saved only after submission.
+                    </div>
+
+
+                    <div class="svf-actions">
+
+                        <a
+                            href="{% url 'payables:supplier_list' %}"
+                            class="svf-cancel"
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            id="supplierSubmitButton"
+                            class="svf-submit"
+                        >
+
+                            <span class="svf-submit-normal">
+                                ✓ {{ submit_text }}
+                            </span>
+
+
+                            <span class="svf-submit-loading">
+
+                                <span
+                                    class="svf-button-spinner"
+                                ></span>
+
+
+                                {% if is_edit %}
+
+                                    Saving Changes...
+
+                                {% else %}
+
+                                    Creating Supplier...
+
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- RIGHT SIDE -->
+
+            <aside class="svf-side">
+
+
+                <section class="svf-side-card">
+
+                    <div class="svf-side-card-head">
+
+                        <h3>
+                            Supplier Checklist
+                        </h3>
+
+                        <p>
+                            Recommended data before
+                            financial activity begins.
+                        </p>
+
+                    </div>
+
+
+                    <div class="svf-side-card-body">
+
+
+                        <div class="svf-check-item">
+
+                            <div class="svf-check-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="svf-check-title">
+                                    Verify business name
+                                </div>
+
+                                <div class="svf-check-text">
+                                    Use the official supplier name.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-check-item">
+
+                            <div class="svf-check-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="svf-check-title">
+                                    Add contact details
+                                </div>
+
+                                <div class="svf-check-text">
+                                    Makes financial follow-up easier.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="svf-check-item">
+
+                            <div class="svf-check-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="svf-check-title">
+                                    Confirm vendor status
+                                </div>
+
+                                <div class="svf-check-text">
+                                    Keep historical vendors inactive,
+                                    not deleted.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <section class="svf-side-card svf-info-card">
+
+                    <div class="svf-side-card-body">
+
+                        <div class="svf-info-title">
+                            Financial Integration
+                        </div>
+
+
+                        <div class="svf-info-text">
+
+                            This supplier will later connect
+                            directly to Supplier Bills,
+                            Supplier Payments and Expenses.
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <div class="svf-security">
+
+                    <div>
+
+                        <div class="svf-security-title">
+                            Financial history protection
+                        </div>
+
+                        <div class="svf-security-text">
+
+                            Deactivate vendors instead of
+                            deleting them so historical
+                            financial records remain intact.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.getElementById(
+                "supplierForm"
+            );
+
+
+        const button =
+            document.getElementById(
+                "supplierSubmitButton"
+            );
+
+
+        if (!form || !button) {
+            return;
+        }
+
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                /*
+                 * If browser validation fails,
+                 * do not activate loading.
+                 */
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+
+                /*
+                 * Prevent double submissions.
+                 */
+                if (button.disabled) {
+                    return;
+                }
+
+
+                button.classList.add(
+                    "is-loading"
+                );
+
+
+                button.disabled = true;
+
+            }
+        );
+
+    }
+);
+</script>
+
+{% endblock %}
