@@ -1,0 +1,3391 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — SUPPLIER PAYMENT WORKSPACE
+       Scoped with spf-
+    ========================================================== */
+
+    .spf-page {
+        --navy-950: #071a33;
+        --navy-900: #0b2344;
+        --navy-800: #12335d;
+
+        --blue-600: #2563eb;
+        --blue-500: #3478f6;
+
+        --green-600: #059669;
+        --green-100: #eafaf3;
+
+        --amber-600: #d97706;
+        --amber-100: #fff7e8;
+
+        --red-600: #dc2626;
+        --red-100: #fff0f1;
+
+        --text-900: #12243d;
+        --text-700: #41536b;
+        --text-500: #7f8ea2;
+        --text-400: #9aa5b4;
+
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37,99,235,.11),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(34,184,207,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: var(--text-900);
+    }
+
+    .spf-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .spf-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .spf-breadcrumb a {
+        color: #7c8b9f;
+        text-decoration: none;
+    }
+
+    .spf-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+    .spf-breadcrumb-current {
+        color: #4b6380;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .spf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding:
+            28px
+            31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13,42,83,.17);
+    }
+
+    .spf-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .spf-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 200px;
+        bottom: -130px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(54,135,255,.18);
+    }
+
+    .spf-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .spf-hero-icon {
+        width: 62px;
+        height: 62px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.14),
+                rgba(255,255,255,.06)
+            );
+
+        backdrop-filter:
+            blur(12px);
+    }
+
+    .spf-hero-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .spf-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .spf-title {
+        margin: 0;
+
+        font-size: 30px;
+        line-height: 1.1;
+
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .spf-subtitle {
+        max-width: 690px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .spf-hero-chip {
+        position: relative;
+        z-index: 2;
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            8px
+            12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        color:
+            rgba(255,255,255,.88);
+
+        font-size: 10px;
+        font-weight: 700;
+
+        backdrop-filter:
+            blur(10px);
+    }
+
+    .spf-hero-chip-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(94,234,212,.10);
+    }
+
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .spf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            340px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* ==========================================================
+       MAIN FORM
+    ========================================================== */
+
+    .spf-form-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .spf-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding:
+            20px
+            22px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcfe
+            );
+    }
+
+    .spf-form-header-left {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .spf-form-header-icon {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #eafaf3;
+        color: #059669;
+    }
+
+    .spf-form-header-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .spf-form-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .spf-form-subtitle {
+        margin-top: 4px;
+
+        color: #939eae;
+
+        font-size: 9.5px;
+    }
+
+    .spf-required-note {
+        color: #9ba6b4;
+
+        font-size: 9px;
+    }
+
+    .spf-form-body {
+        padding: 20px;
+    }
+
+
+    /* ==========================================================
+       SECTION
+    ========================================================== */
+
+    .spf-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding:
+            18px
+            18px
+            20px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #fbfcff
+            );
+
+        box-shadow:
+            0 3px 12px
+            rgba(20,40,70,.025);
+
+        transition:
+            transform .2s ease,
+            border-color .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .spf-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .spf-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius:
+            0
+            4px
+            4px
+            0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #059669,
+                #34d399
+            );
+    }
+
+    .spf-section:focus-within {
+        transform:
+            translateY(-1px);
+
+        border-color:
+            #8ecfb9;
+
+        box-shadow:
+            0 10px 26px
+            rgba(5,150,105,.07);
+    }
+
+    .spf-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .spf-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #059669,
+                #047857
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        box-shadow:
+            0 5px 12px
+            rgba(5,150,105,.18);
+    }
+
+    .spf-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .spf-section-desc {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.5px;
+    }
+
+
+    /* ==========================================================
+       GRID
+    ========================================================== */
+
+    .spf-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .spf-full {
+        grid-column:
+            1 / -1;
+    }
+
+
+    /* ==========================================================
+       FIELDS
+    ========================================================== */
+
+    .spf-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10.5px;
+        font-weight: 780;
+    }
+
+    .spf-required {
+        color: #df4554;
+    }
+
+    .spf-optional {
+        margin-left: auto;
+
+        padding:
+            3px
+            7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .spf-field
+    .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b8c8da;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+        font-size: 12px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease,
+            background .2s ease,
+            transform .2s ease;
+    }
+
+    .spf-field
+    input.form-control,
+    .spf-field
+    select.form-control {
+        height: 47px;
+
+        padding:
+            0
+            13px;
+    }
+
+    .spf-field
+    textarea.form-control {
+        min-height: 100px;
+
+        padding:
+            12px
+            13px;
+
+        resize: vertical;
+
+        line-height: 1.55;
+    }
+
+    .spf-field
+    .form-control:hover {
+        border-color: #8fa8c5;
+
+        background: white;
+    }
+
+    .spf-field
+    .form-control:focus {
+        border-color: #059669;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(5,150,105,.09),
+            0 5px 14px
+            rgba(5,150,105,.05);
+
+        transform:
+            translateY(-1px);
+    }
+
+    .spf-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 9px;
+        line-height: 1.45;
+    }
+
+
+    /* ==========================================================
+       MONEY FIELD
+    ========================================================== */
+
+    .spf-money-wrap {
+        position: relative;
+    }
+
+    .spf-money-symbol {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        z-index: 2;
+
+        transform:
+            translateY(-50%);
+
+        color: #059669;
+
+        font-size: 13px;
+        font-weight: 850;
+
+        pointer-events: none;
+    }
+
+    .spf-money-wrap
+    input.form-control {
+        padding-left: 31px;
+
+        color: #073c2c;
+
+        font-weight: 750;
+
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff,
+                #f3fbf7
+            );
+    }
+
+
+    /* ==========================================================
+       ERRORS
+    ========================================================== */
+
+    .spf-error {
+        margin-top: 7px;
+
+        padding:
+            8px
+            10px;
+
+        border:
+            1px solid #f0c8ce;
+
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9.5px;
+        line-height: 1.45;
+    }
+
+    .spf-error ul {
+        margin: 0;
+        padding-left: 15px;
+    }
+
+    .spf-global-error {
+        margin-bottom: 18px;
+    }
+
+
+    /* ==========================================================
+       SELECTED BILL CARD
+    ========================================================== */
+
+    .spf-bill-preview {
+        display: none;
+
+        margin-top: 15px;
+
+        overflow: hidden;
+
+        border:
+            1px solid #d8e5f2;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f9fbff,
+                #f1f7ff
+            );
+    }
+
+    .spf-bill-preview.visible {
+        display: block;
+    }
+
+    .spf-bill-preview-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        padding:
+            13px
+            14px;
+
+        border-bottom:
+            1px solid #e2eaf3;
+    }
+
+    .spf-bill-preview-id {
+        color: #16395d;
+
+        font-size: 10.5px;
+        font-weight: 780;
+    }
+
+    .spf-bill-preview-supplier {
+        margin-top: 3px;
+
+        color: #8292a6;
+
+        font-size: 8.6px;
+    }
+
+    .spf-bill-preview-status {
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        background: #fff7e8;
+        color: #b45309;
+
+        font-size: 8px;
+        font-weight: 760;
+    }
+
+    .spf-bill-preview-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+
+        gap: 1px;
+
+        background: #e1e8f0;
+    }
+
+    .spf-bill-preview-stat {
+        padding:
+            13px;
+
+        background: white;
+    }
+
+    .spf-bill-preview-label {
+        color: #8b98aa;
+
+        font-size: 7.7px;
+        font-weight: 850;
+
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .spf-bill-preview-value {
+        margin-top: 5px;
+
+        color: #183a5c;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+
+    .spf-footer {
+        position: sticky;
+
+        bottom: 0;
+
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            16px
+            21px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter:
+            blur(14px);
+
+        box-shadow:
+            0 -8px 20px
+            rgba(20,40,70,.04);
+    }
+
+    .spf-footer-note {
+        color: #99a4b3;
+
+        font-size: 9px;
+    }
+
+    .spf-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .spf-cancel,
+    .spf-submit {
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            18px;
+
+        border-radius: 9px;
+
+        font-size: 11px;
+        font-weight: 720;
+
+        transition: .2s ease;
+    }
+
+    .spf-cancel {
+        border:
+            1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+
+        text-decoration: none;
+    }
+
+    .spf-cancel:hover {
+        background: #f7f9fc;
+
+        transform:
+            translateY(-1px);
+    }
+
+    .spf-submit {
+        min-width: 150px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #0aa56f,
+                #047857
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 19px
+            rgba(5,150,105,.22);
+    }
+
+    .spf-submit:hover {
+        transform:
+            translateY(-2px);
+
+        box-shadow:
+            0 13px 25px
+            rgba(5,150,105,.27);
+    }
+
+    .spf-submit:disabled {
+        cursor: wait;
+
+        opacity: .8;
+
+        transform: none;
+    }
+
+    .spf-submit-normal,
+    .spf-submit-loading {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .spf-submit-loading {
+        display: none;
+    }
+
+    .spf-submit.loading
+    .spf-submit-normal {
+        display: none;
+    }
+
+    .spf-submit.loading
+    .spf-submit-loading {
+        display: inline-flex;
+    }
+
+    .spf-spinner {
+        width: 14px;
+        height: 14px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            spf-spin
+            .7s linear infinite;
+    }
+
+    @keyframes spf-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       SIDEBAR
+    ========================================================== */
+
+    .spf-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .spf-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .spf-side-head {
+        padding:
+            15px
+            16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .spf-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .spf-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8.8px;
+        line-height: 1.45;
+    }
+
+    .spf-side-body {
+        padding: 16px;
+    }
+
+
+    /* ==========================================================
+       LIVE SETTLEMENT PREVIEW
+    ========================================================== */
+
+    .spf-settlement {
+        background:
+            linear-gradient(
+                145deg,
+                #071f34,
+                #0c513e
+            );
+
+        border-color:
+            rgba(22,101,75,.7);
+
+        color: white;
+    }
+
+    .spf-settlement
+    .spf-side-head {
+        border-color:
+            rgba(255,255,255,.09);
+
+        background:
+            rgba(255,255,255,.02);
+    }
+
+    .spf-settlement
+    .spf-side-title {
+        color: white;
+    }
+
+    .spf-settlement
+    .spf-side-desc {
+        color:
+            rgba(221,240,233,.64);
+    }
+
+    .spf-settlement-kicker {
+        color:
+            rgba(198,230,218,.59);
+
+        font-size: 7.7px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .spf-settlement-amount {
+        margin-top: 5px;
+
+        color: white;
+
+        font-size: 27px;
+        font-weight: 800;
+
+        letter-spacing: -.025em;
+    }
+
+    .spf-settlement-divider {
+        height: 1px;
+
+        margin:
+            14px
+            0;
+
+        background:
+            rgba(255,255,255,.10);
+    }
+
+    .spf-settlement-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-bottom: 11px;
+    }
+
+    .spf-settlement-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .spf-settlement-label {
+        color:
+            rgba(218,235,228,.67);
+
+        font-size: 8.8px;
+    }
+
+    .spf-settlement-value {
+        color: white;
+
+        text-align: right;
+
+        font-size: 9.2px;
+        font-weight: 720;
+    }
+
+    .spf-after {
+        padding:
+            10px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.10);
+
+        border-radius: 10px;
+
+        background:
+            rgba(255,255,255,.055);
+    }
+
+    .spf-after-value {
+        color: #a7f3d0;
+
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .spf-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 5px;
+
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        font-size: 8px;
+        font-weight: 760;
+    }
+
+    .spf-status.unpaid {
+        color: #ffd889;
+
+        background:
+            rgba(245,158,11,.13);
+    }
+
+    .spf-status.partial {
+        color: #b7d4ff;
+
+        background:
+            rgba(59,130,246,.15);
+    }
+
+    .spf-status.paid {
+        color: #9ff2cb;
+
+        background:
+            rgba(16,185,129,.14);
+    }
+
+    .spf-status.over {
+        color: #ffc0c4;
+
+        background:
+            rgba(239,68,68,.15);
+    }
+
+
+    /* ==========================================================
+       COVERAGE BAR
+    ========================================================== */
+
+    .spf-coverage {
+        margin-top: 15px;
+    }
+
+    .spf-coverage-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        margin-bottom: 7px;
+
+        color:
+            rgba(214,233,225,.65);
+
+        font-size: 8px;
+    }
+
+    .spf-coverage-track {
+        height: 6px;
+
+        overflow: hidden;
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.12);
+    }
+
+    .spf-coverage-bar {
+        width: 0;
+        height: 100%;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #34d399,
+                #6ee7b7
+            );
+
+        transition:
+            width .3s ease;
+    }
+
+
+    /* ==========================================================
+       PAYMENT RULES
+    ========================================================== */
+
+    .spf-rule {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 9px;
+
+        margin-bottom: 13px;
+    }
+
+    .spf-rule:last-child {
+        margin-bottom: 0;
+    }
+
+    .spf-rule-icon {
+        width: 23px;
+        height: 23px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #eafaf3;
+        color: #059669;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .spf-rule-title {
+        color: #40526b;
+
+        font-size: 9.3px;
+        font-weight: 720;
+    }
+
+    .spf-rule-text {
+        margin-top: 2px;
+
+        color: #98a3b2;
+
+        font-size: 8.3px;
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       PAYMENT WARNING
+    ========================================================== */
+
+    .spf-warning {
+        display: none;
+
+        margin-top: 10px;
+
+        padding:
+            9px
+            10px;
+
+        border:
+            1px solid #f1c9ce;
+
+        border-radius: 9px;
+
+        background: #fff5f6;
+
+        color: #c2414c;
+
+        font-size: 9px;
+        font-weight: 650;
+
+        line-height: 1.45;
+    }
+
+    .spf-warning.visible {
+        display: block;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1050px) {
+
+        .spf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .spf-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .spf-settlement {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width:720px) {
+
+        .spf-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .spf-breadcrumb {
+            display: none;
+        }
+
+        .spf-hero {
+            padding:
+                23px
+                20px;
+
+            border-radius: 18px;
+        }
+
+        .spf-hero-icon,
+        .spf-hero-chip {
+            display: none;
+        }
+
+        .spf-title {
+            font-size: 26px;
+        }
+
+        .spf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .spf-full {
+            grid-column: auto;
+        }
+
+        .spf-section-desc {
+            display: none;
+        }
+
+        .spf-side {
+            display: flex;
+        }
+
+        .spf-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .spf-footer-note {
+            display: none;
+        }
+
+        .spf-actions {
+            flex-direction:
+                column-reverse;
+        }
+
+        .spf-cancel,
+        .spf-submit {
+            width: 100%;
+        }
+
+        .spf-bill-preview-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+
+<div class="spf-page">
+
+<div class="spf-container">
+
+
+    <!-- ======================================================
+         BREADCRUMB
+    ======================================================= -->
+
+    <div class="spf-breadcrumb">
+
+        <a
+            href="{% url 'payables:supplier_payment_list' %}"
+        >
+            Supplier Payments
+        </a>
+
+        <span>›</span>
+
+        <span class="spf-breadcrumb-current">
+            Record Payment
+        </span>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <section class="spf-hero">
+
+
+        <div class="spf-hero-left">
+
+
+            <div class="spf-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <rect
+                        x="3"
+                        y="6"
+                        width="18"
+                        height="12"
+                        rx="2"
+                    ></rect>
+
+                    <path d="M3 10h18"></path>
+
+                    <path d="M16 14h2"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="spf-eyebrow">
+                    Accounts Payable
+                </div>
+
+
+                <h1 class="spf-title">
+                    Record Supplier Payment
+                </h1>
+
+
+                <p class="spf-subtitle">
+
+                    Apply a full or partial payment to a supplier bill.
+                    EduFinance will automatically recalculate the bill's
+                    amount paid, outstanding balance and settlement status.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="spf-hero-chip">
+
+            <span class="spf-hero-chip-dot"></span>
+
+            Financial Transaction
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ======================================================
+         BILL DATA FROM DJANGO
+    ======================================================= -->
+
+    {{ bill_data|json_script:"supplier-payment-bill-data" }}
+
+
+
+    <!-- ======================================================
+         FORM
+    ======================================================= -->
+
+    <form
+        method="post"
+        id="supplierPaymentForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="spf-layout">
+
+
+            <!-- =================================================
+                 FORM CONTENT
+            ================================================== -->
+
+            <section class="spf-form-card">
+
+
+                <div class="spf-form-header">
+
+
+                    <div class="spf-form-header-left">
+
+                        <div class="spf-form-header-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                ></circle>
+
+                                <path d="M8 12l2.5 2.5L16 9"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2 class="spf-form-title">
+                                Payment Information
+                            </h2>
+
+                            <div class="spf-form-subtitle">
+
+                                Enter the supplier payment details below.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="spf-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+
+                <div class="spf-form-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="spf-error spf-global-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+
+                    <!-- ===========================================
+                         01 BILL ALLOCATION
+                    ============================================ -->
+
+                    <div class="spf-section">
+
+
+                        <div class="spf-section-head">
+
+                            <div class="spf-section-number">
+                                01
+                            </div>
+
+                            <div class="spf-section-title">
+                                Bill Allocation
+                            </div>
+
+                            <div class="spf-section-desc">
+                                Select payable obligation
+                            </div>
+
+                        </div>
+
+
+                        <div class="spf-grid">
+
+
+                            <div class="spf-field spf-full">
+
+                                <label class="spf-label">
+
+                                    Supplier Bill
+
+                                    <span class="spf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.bill }}
+
+
+                                <div class="spf-help">
+
+                                    Only bills with an outstanding balance
+                                    can receive supplier payments.
+
+                                </div>
+
+
+                                {% if form.bill.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.bill.errors }}
+                                    </div>
+
+                                {% endif %}
+
+
+
+                                <!-- LIVE BILL PREVIEW -->
+
+                                <div
+                                    class="spf-bill-preview"
+                                    id="selectedBillPreview"
+                                >
+
+
+                                    <div class="spf-bill-preview-top">
+
+                                        <div>
+
+                                            <div
+                                                class="spf-bill-preview-id"
+                                                id="selectedBillNumber"
+                                            >
+                                                —
+                                            </div>
+
+                                            <div
+                                                class="spf-bill-preview-supplier"
+                                                id="selectedBillSupplier"
+                                            >
+                                                —
+                                            </div>
+
+                                        </div>
+
+
+                                        <div
+                                            class="spf-bill-preview-status"
+                                            id="selectedBillStatus"
+                                        >
+                                            Unpaid
+                                        </div>
+
+                                    </div>
+
+
+
+                                    <div class="spf-bill-preview-grid">
+
+
+                                        <div class="spf-bill-preview-stat">
+
+                                            <div class="spf-bill-preview-label">
+                                                Bill Total
+                                            </div>
+
+                                            <div
+                                                class="spf-bill-preview-value"
+                                                id="selectedBillTotal"
+                                            >
+                                                $0.00
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="spf-bill-preview-stat">
+
+                                            <div class="spf-bill-preview-label">
+                                                Already Paid
+                                            </div>
+
+                                            <div
+                                                class="spf-bill-preview-value"
+                                                id="selectedBillPaid"
+                                            >
+                                                $0.00
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="spf-bill-preview-stat">
+
+                                            <div class="spf-bill-preview-label">
+                                                Remaining
+                                            </div>
+
+                                            <div
+                                                class="spf-bill-preview-value"
+                                                id="selectedBillRemaining"
+                                            >
+                                                $0.00
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ===========================================
+                         02 PAYMENT DETAILS
+                    ============================================ -->
+
+                    <div class="spf-section">
+
+
+                        <div class="spf-section-head">
+
+                            <div class="spf-section-number">
+                                02
+                            </div>
+
+                            <div class="spf-section-title">
+                                Payment Details
+                            </div>
+
+                            <div class="spf-section-desc">
+                                Date & amount
+                            </div>
+
+                        </div>
+
+
+                        <div class="spf-grid">
+
+
+                            <!-- DATE -->
+
+                            <div class="spf-field">
+
+                                <label class="spf-label">
+
+                                    Payment Date
+
+                                    <span class="spf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.payment_date }}
+
+
+                                <div class="spf-help">
+                                    Date the school issued the payment.
+                                </div>
+
+
+                                {% if form.payment_date.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.payment_date.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <!-- AMOUNT -->
+
+                            <div class="spf-field">
+
+                                <label class="spf-label">
+
+                                    Payment Amount
+
+                                    <span class="spf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <div class="spf-money-wrap">
+
+                                    <span class="spf-money-symbol">
+                                        $
+                                    </span>
+
+                                    {{ form.amount }}
+
+                                </div>
+
+
+                                <div class="spf-help">
+
+                                    May be a full or partial payment,
+                                    but cannot exceed the bill balance.
+
+                                </div>
+
+
+                                <div
+                                    class="spf-warning"
+                                    id="paymentAmountWarning"
+                                >
+                                    Payment amount exceeds the remaining bill balance.
+                                </div>
+
+
+                                {% if form.amount.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.amount.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ===========================================
+                         03 METHOD
+                    ============================================ -->
+
+                    <div class="spf-section">
+
+
+                        <div class="spf-section-head">
+
+                            <div class="spf-section-number">
+                                03
+                            </div>
+
+                            <div class="spf-section-title">
+                                Payment Method
+                            </div>
+
+                            <div class="spf-section-desc">
+                                Settlement channel
+                            </div>
+
+                        </div>
+
+
+                        <div class="spf-grid">
+
+
+                            <div class="spf-field">
+
+                                <label class="spf-label">
+
+                                    Payment Method
+
+                                    <span class="spf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.payment_method }}
+
+
+                                <div class="spf-help">
+
+                                    Cash, bank transfer, cheque,
+                                    card or another payment channel.
+
+                                </div>
+
+
+                                {% if form.payment_method.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.payment_method.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+
+                            <div class="spf-field">
+
+                                <label class="spf-label">
+
+                                    Reference
+
+                                    <span class="spf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.reference }}
+
+
+                                <div class="spf-help">
+
+                                    Bank transaction ID, cheque number
+                                    or external payment reference.
+
+                                </div>
+
+
+                                {% if form.reference.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.reference.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ===========================================
+                         04 NOTES
+                    ============================================ -->
+
+                    <div class="spf-section">
+
+
+                        <div class="spf-section-head">
+
+                            <div class="spf-section-number">
+                                04
+                            </div>
+
+                            <div class="spf-section-title">
+                                Transaction Notes
+                            </div>
+
+                            <div class="spf-section-desc">
+                                Internal context
+                            </div>
+
+                        </div>
+
+
+                        <div class="spf-grid">
+
+
+                            <div class="spf-field spf-full">
+
+                                <label class="spf-label">
+
+                                    Notes
+
+                                    <span class="spf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                {{ form.notes }}
+
+
+                                <div class="spf-help">
+
+                                    Add useful internal information
+                                    about this supplier payment.
+
+                                </div>
+
+
+                                {% if form.notes.errors %}
+
+                                    <div class="spf-error">
+                                        {{ form.notes.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ===========================================
+                     FOOTER
+                ============================================ -->
+
+                <div class="spf-footer">
+
+
+                    <div class="spf-footer-note">
+
+                        Posting this payment immediately updates
+                        the linked supplier bill balance.
+
+                    </div>
+
+
+                    <div class="spf-actions">
+
+
+                        <a
+                            href="{% url 'payables:supplier_payment_list' %}"
+                            class="spf-cancel"
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="spf-submit"
+                            id="supplierPaymentSubmit"
+                        >
+
+
+                            <span class="spf-submit-normal">
+
+                                ✓ {{ submit_text }}
+
+                            </span>
+
+
+                            <span class="spf-submit-loading">
+
+                                <span class="spf-spinner"></span>
+
+                                Recording Payment...
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SIDEBAR
+            ================================================== -->
+
+            <aside class="spf-side">
+
+
+                <!-- ===========================================
+                     LIVE SETTLEMENT
+                ============================================ -->
+
+                <section class="spf-side-card spf-settlement">
+
+
+                    <div class="spf-side-head">
+
+                        <div class="spf-side-title">
+                            Settlement Preview
+                        </div>
+
+                        <div class="spf-side-desc">
+
+                            Preview the financial effect before posting.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="spf-side-body">
+
+
+                        <div class="spf-settlement-kicker">
+                            Payment Now
+                        </div>
+
+
+                        <div
+                            class="spf-settlement-amount"
+                            id="previewPaymentAmount"
+                        >
+                            $0.00
+                        </div>
+
+
+                        <div class="spf-settlement-divider"></div>
+
+
+
+                        <div class="spf-settlement-row">
+
+                            <span class="spf-settlement-label">
+                                Supplier
+                            </span>
+
+                            <span
+                                class="spf-settlement-value"
+                                id="previewSupplier"
+                            >
+                                Not selected
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="spf-settlement-row">
+
+                            <span class="spf-settlement-label">
+                                Bill
+                            </span>
+
+                            <span
+                                class="spf-settlement-value"
+                                id="previewBill"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="spf-settlement-row">
+
+                            <span class="spf-settlement-label">
+                                Current Remaining
+                            </span>
+
+                            <span
+                                class="spf-settlement-value"
+                                id="previewCurrentRemaining"
+                            >
+                                $0.00
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="spf-settlement-divider"></div>
+
+
+
+                        <div class="spf-after">
+
+
+                            <div class="spf-settlement-kicker">
+                                After Payment
+                            </div>
+
+
+                            <div
+                                class="spf-after-value"
+                                id="previewAfterPayment"
+                            >
+                                $0.00
+                            </div>
+
+
+                            <div
+                                style="
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:space-between;
+                                    gap:10px;
+                                    margin-top:9px;
+                                "
+                            >
+
+                                <span class="spf-settlement-label">
+                                    Projected Status
+                                </span>
+
+
+                                <span
+                                    class="spf-status unpaid"
+                                    id="previewStatus"
+                                >
+                                    Unpaid
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- COVERAGE -->
+
+                        <div class="spf-coverage">
+
+
+                            <div class="spf-coverage-head">
+
+                                <span>
+                                    Payment coverage
+                                </span>
+
+
+                                <span id="previewCoverage">
+                                    0%
+                                </span>
+
+                            </div>
+
+
+                            <div class="spf-coverage-track">
+
+                                <div
+                                    class="spf-coverage-bar"
+                                    id="previewCoverageBar"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- ===========================================
+                     CONTROLS
+                ============================================ -->
+
+                <section class="spf-side-card">
+
+
+                    <div class="spf-side-head">
+
+                        <div class="spf-side-title">
+                            Financial Controls
+                        </div>
+
+                        <div class="spf-side-desc">
+                            Safeguards applied to this transaction.
+                        </div>
+
+                    </div>
+
+
+                    <div class="spf-side-body">
+
+
+                        <div class="spf-rule">
+
+                            <div class="spf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="spf-rule-title">
+                                    No overpayment
+                                </div>
+
+                                <div class="spf-rule-text">
+
+                                    Payment cannot exceed the
+                                    remaining bill balance.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="spf-rule">
+
+                            <div class="spf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="spf-rule-title">
+                                    Partial payments
+                                </div>
+
+                                <div class="spf-rule-text">
+
+                                    Smaller payments automatically
+                                    create a partially paid balance.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="spf-rule">
+
+                            <div class="spf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="spf-rule-title">
+                                    Automatic settlement
+                                </div>
+
+                                <div class="spf-rule-text">
+
+                                    Paying the final outstanding amount
+                                    automatically marks the bill as Paid.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="spf-rule">
+
+                            <div class="spf-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="spf-rule-title">
+                                    Reversible history
+                                </div>
+
+                                <div class="spf-rule-text">
+
+                                    Mistaken payments are voided,
+                                    not physically deleted.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ======================================================
+           ELEMENTS
+        ======================================================= */
+
+        const form =
+            document.getElementById(
+                "supplierPaymentForm"
+            );
+
+
+        const billSelect =
+            document.getElementById(
+                "id_bill"
+            );
+
+
+        const amountInput =
+            document.getElementById(
+                "id_amount"
+            );
+
+
+        const submitButton =
+            document.getElementById(
+                "supplierPaymentSubmit"
+            );
+
+
+        const billDataElement =
+            document.getElementById(
+                "supplier-payment-bill-data"
+            );
+
+
+        const selectedBillPreview =
+            document.getElementById(
+                "selectedBillPreview"
+            );
+
+
+        const selectedBillNumber =
+            document.getElementById(
+                "selectedBillNumber"
+            );
+
+
+        const selectedBillSupplier =
+            document.getElementById(
+                "selectedBillSupplier"
+            );
+
+
+        const selectedBillStatus =
+            document.getElementById(
+                "selectedBillStatus"
+            );
+
+
+        const selectedBillTotal =
+            document.getElementById(
+                "selectedBillTotal"
+            );
+
+
+        const selectedBillPaid =
+            document.getElementById(
+                "selectedBillPaid"
+            );
+
+
+        const selectedBillRemaining =
+            document.getElementById(
+                "selectedBillRemaining"
+            );
+
+
+        const previewPaymentAmount =
+            document.getElementById(
+                "previewPaymentAmount"
+            );
+
+
+        const previewSupplier =
+            document.getElementById(
+                "previewSupplier"
+            );
+
+
+        const previewBill =
+            document.getElementById(
+                "previewBill"
+            );
+
+
+        const previewCurrentRemaining =
+            document.getElementById(
+                "previewCurrentRemaining"
+            );
+
+
+        const previewAfterPayment =
+            document.getElementById(
+                "previewAfterPayment"
+            );
+
+
+        const previewStatus =
+            document.getElementById(
+                "previewStatus"
+            );
+
+
+        const previewCoverage =
+            document.getElementById(
+                "previewCoverage"
+            );
+
+
+        const previewCoverageBar =
+            document.getElementById(
+                "previewCoverageBar"
+            );
+
+
+        const amountWarning =
+            document.getElementById(
+                "paymentAmountWarning"
+            );
+
+
+
+        /* ======================================================
+           BILL DATA
+        ======================================================= */
+
+        let billData = {};
+
+
+        if (billDataElement) {
+
+            try {
+
+                billData =
+                    JSON.parse(
+                        billDataElement.textContent
+                    );
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to read supplier bill data.",
+                    error
+                );
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           FORMAT MONEY
+        ======================================================= */
+
+        function formatMoney(value) {
+
+            let number =
+                parseFloat(value);
+
+
+            if (isNaN(number)) {
+                number = 0;
+            }
+
+
+            return (
+                "$"
+                +
+                number.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            );
+
+        }
+
+
+
+        /* ======================================================
+           CURRENT BILL
+        ======================================================= */
+
+        function getCurrentBill() {
+
+
+            if (
+                !billSelect
+                ||
+                !billSelect.value
+            ) {
+
+                return null;
+
+            }
+
+
+            return (
+                billData[
+                    billSelect.value
+                ]
+                ||
+                null
+            );
+
+        }
+
+
+
+        /* ======================================================
+           UPDATE BILL INFORMATION
+        ======================================================= */
+
+        function updateSelectedBill() {
+
+
+            const bill =
+                getCurrentBill();
+
+
+            if (!bill) {
+
+
+                if (selectedBillPreview) {
+
+                    selectedBillPreview
+                    .classList.remove(
+                        "visible"
+                    );
+
+                }
+
+
+                if (previewSupplier) {
+                    previewSupplier.textContent =
+                        "Not selected";
+                }
+
+
+                if (previewBill) {
+                    previewBill.textContent =
+                        "—";
+                }
+
+
+                if (previewCurrentRemaining) {
+
+                    previewCurrentRemaining.textContent =
+                        "$0.00";
+
+                }
+
+
+                return;
+
+            }
+
+
+
+            if (selectedBillPreview) {
+
+                selectedBillPreview
+                .classList.add(
+                    "visible"
+                );
+
+            }
+
+
+
+            if (selectedBillNumber) {
+
+                selectedBillNumber.textContent =
+                    bill.bill_number;
+
+            }
+
+
+            if (selectedBillSupplier) {
+
+                selectedBillSupplier.textContent =
+                    bill.supplier;
+
+            }
+
+
+            if (selectedBillStatus) {
+
+                selectedBillStatus.textContent =
+                    bill.status_label;
+
+            }
+
+
+            if (selectedBillTotal) {
+
+                selectedBillTotal.textContent =
+                    formatMoney(
+                        bill.total_amount
+                    );
+
+            }
+
+
+            if (selectedBillPaid) {
+
+                selectedBillPaid.textContent =
+                    formatMoney(
+                        bill.amount_paid
+                    );
+
+            }
+
+
+            if (selectedBillRemaining) {
+
+                selectedBillRemaining.textContent =
+                    formatMoney(
+                        bill.remaining_amount
+                    );
+
+            }
+
+
+            if (previewSupplier) {
+
+                previewSupplier.textContent =
+                    bill.supplier;
+
+            }
+
+
+            if (previewBill) {
+
+                previewBill.textContent =
+                    bill.bill_number;
+
+            }
+
+
+            if (previewCurrentRemaining) {
+
+                previewCurrentRemaining.textContent =
+                    formatMoney(
+                        bill.remaining_amount
+                    );
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           SET STATUS
+        ======================================================= */
+
+        function setStatus(
+            status,
+            label
+        ) {
+
+
+            if (!previewStatus) {
+                return;
+            }
+
+
+            previewStatus.className =
+                "spf-status "
+                +
+                status;
+
+
+            previewStatus.textContent =
+                label;
+
+        }
+
+
+
+        /* ======================================================
+           PAYMENT PROJECTION
+        ======================================================= */
+
+        function updateSettlementPreview() {
+
+
+            updateSelectedBill();
+
+
+            const bill =
+                getCurrentBill();
+
+
+            let payment =
+                amountInput
+                ?
+                parseFloat(
+                    amountInput.value
+                )
+                :
+                0;
+
+
+            if (isNaN(payment)) {
+                payment = 0;
+            }
+
+
+            if (payment < 0) {
+                payment = 0;
+            }
+
+
+
+            if (previewPaymentAmount) {
+
+                previewPaymentAmount.textContent =
+                    formatMoney(
+                        payment
+                    );
+
+            }
+
+
+
+            if (!bill) {
+
+
+                if (previewAfterPayment) {
+
+                    previewAfterPayment.textContent =
+                        "$0.00";
+
+                }
+
+
+                if (previewCoverage) {
+
+                    previewCoverage.textContent =
+                        "0%";
+
+                }
+
+
+                if (previewCoverageBar) {
+
+                    previewCoverageBar.style.width =
+                        "0%";
+
+                }
+
+
+                setStatus(
+                    "unpaid",
+                    "Select bill"
+                );
+
+
+                if (amountWarning) {
+
+                    amountWarning.classList.remove(
+                        "visible"
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+
+            let remaining =
+                parseFloat(
+                    bill.remaining_amount
+                );
+
+
+            let total =
+                parseFloat(
+                    bill.total_amount
+                );
+
+
+            let alreadyPaid =
+                parseFloat(
+                    bill.amount_paid
+                );
+
+
+            if (isNaN(remaining)) {
+                remaining = 0;
+            }
+
+
+            if (isNaN(total)) {
+                total = 0;
+            }
+
+
+            if (isNaN(alreadyPaid)) {
+                alreadyPaid = 0;
+            }
+
+
+
+            const isOverpayment =
+                payment
+                >
+                remaining;
+
+
+            if (amountWarning) {
+
+                amountWarning.classList.toggle(
+                    "visible",
+                    isOverpayment
+                );
+
+            }
+
+
+
+            let after =
+                remaining
+                -
+                payment;
+
+
+            if (after < 0) {
+                after = 0;
+            }
+
+
+
+            if (previewAfterPayment) {
+
+                previewAfterPayment.textContent =
+                    formatMoney(
+                        after
+                    );
+
+            }
+
+
+
+            /*
+             * Coverage means total settlement progress
+             * after this new payment.
+             */
+
+            const projectedPaid =
+                alreadyPaid
+                +
+                Math.min(
+                    payment,
+                    remaining
+                );
+
+
+            let coverage =
+                total > 0
+                ?
+                (
+                    projectedPaid
+                    /
+                    total
+                )
+                *
+                100
+                :
+                0;
+
+
+            coverage =
+                Math.max(
+                    0,
+                    Math.min(
+                        coverage,
+                        100
+                    )
+                );
+
+
+            const roundedCoverage =
+                Math.round(
+                    coverage
+                );
+
+
+            if (previewCoverage) {
+
+                previewCoverage.textContent =
+                    roundedCoverage
+                    +
+                    "%";
+
+            }
+
+
+            if (previewCoverageBar) {
+
+                previewCoverageBar.style.width =
+                    roundedCoverage
+                    +
+                    "%";
+
+            }
+
+
+
+            /* STATUS */
+
+            if (isOverpayment) {
+
+                setStatus(
+                    "over",
+                    "Overpayment"
+                );
+
+            }
+
+            else if (
+                payment > 0
+                &&
+                after <= 0
+            ) {
+
+                setStatus(
+                    "paid",
+                    "Paid"
+                );
+
+            }
+
+            else if (
+                projectedPaid > 0
+            ) {
+
+                setStatus(
+                    "partial",
+                    "Partially Paid"
+                );
+
+            }
+
+            else {
+
+                setStatus(
+                    "unpaid",
+                    "Unpaid"
+                );
+
+            }
+
+        }
+
+
+
+        /* ======================================================
+           BILL CHANGE
+        ======================================================= */
+
+        if (billSelect) {
+
+            billSelect.addEventListener(
+                "change",
+                function () {
+
+
+                    const bill =
+                        getCurrentBill();
+
+
+                    if (
+                        bill
+                        &&
+                        amountInput
+                    ) {
+
+                        /*
+                         * Give browser-level validation
+                         * an exact maximum.
+                         */
+
+                        amountInput.max =
+                            bill.remaining_amount;
+
+                    }
+
+
+                    updateSettlementPreview();
+
+                }
+            );
+
+        }
+
+
+
+        /* ======================================================
+           AMOUNT CHANGE
+        ======================================================= */
+
+        if (amountInput) {
+
+            amountInput.addEventListener(
+                "input",
+                updateSettlementPreview
+            );
+
+
+            amountInput.addEventListener(
+                "change",
+                updateSettlementPreview
+            );
+
+        }
+
+
+
+        /* ======================================================
+           SUBMIT LOADER
+        ======================================================= */
+
+        if (
+            form
+            &&
+            submitButton
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    if (
+                        !form.checkValidity()
+                    ) {
+                        return;
+                    }
+
+
+                    const bill =
+                        getCurrentBill();
+
+
+                    const payment =
+                        amountInput
+                        ?
+                        parseFloat(
+                            amountInput.value
+                        )
+                        :
+                        0;
+
+
+                    if (
+                        bill
+                        &&
+                        payment
+                        >
+                        parseFloat(
+                            bill.remaining_amount
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    if (
+                        submitButton.disabled
+                    ) {
+                        return;
+                    }
+
+
+                    submitButton.disabled =
+                        true;
+
+
+                    submitButton.classList.add(
+                        "loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ======================================================
+           INITIALIZE
+        ======================================================= */
+
+        if (
+            billSelect
+            &&
+            billSelect.value
+            &&
+            amountInput
+        ) {
+
+            const currentBill =
+                getCurrentBill();
+
+
+            if (currentBill) {
+
+                amountInput.max =
+                    currentBill.remaining_amount;
+
+            }
+
+        }
+
+
+        updateSettlementPreview();
+
+    }
+);
+</script>
+
+{% endblock %}

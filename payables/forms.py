@@ -7,6 +7,7 @@ from .models import (
     ExpenseCategory,
     Supplier,
     SupplierBill,
+    SupplierPayment,
 )
 
 
@@ -393,6 +394,202 @@ class SupplierBillForm(forms.ModelForm):
             self.add_error(
                 "due_date",
                 "Due date cannot be earlier than the bill date.",
+            )
+
+        return cleaned_data
+
+    
+
+
+
+
+
+# ============================================================
+# SUPPLIER PAYMENT FORM
+# ============================================================
+
+class SupplierPaymentForm(forms.ModelForm):
+
+    class Meta:
+
+        model = SupplierPayment
+
+        fields = [
+            "bill",
+            "payment_date",
+            "amount",
+            "payment_method",
+            "reference",
+            "notes",
+        ]
+
+        widgets = {
+
+            "bill": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "payment_date": forms.DateInput(
+                attrs={
+                    "class": "form-control",
+                    "type": "date",
+                }
+            ),
+
+            "amount": forms.NumberInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "0.00",
+                    "min": "0.01",
+                    "step": "0.01",
+                }
+            ),
+
+            "payment_method": forms.Select(
+                attrs={
+                    "class": "form-control",
+                }
+            ),
+
+            "reference": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder":
+                        (
+                            "Bank reference, cheque number "
+                            "or transaction reference"
+                        ),
+                    "autocomplete": "off",
+                }
+            ),
+
+            "notes": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder":
+                        (
+                            "Optional notes about "
+                            "this supplier payment..."
+                        ),
+                }
+            ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        self.fields[
+            "bill"
+        ].queryset = (
+            SupplierBill.objects
+            .filter(
+                remaining_amount__gt=0,
+            )
+            .exclude(
+                status=
+                    SupplierBill.Status.CANCELLED
+            )
+            .order_by(
+                "-bill_date"
+            )
+        )
+
+        self.fields[
+            "bill"
+        ].empty_label = (
+            "Select unpaid supplier bill"
+        )
+        self.fields[
+          "bill"
+            ].label_from_instance = (
+                lambda bill:
+                (
+                    f"{bill.bill_number} — "
+                    f"{bill.supplier.name} — "
+                    f"${bill.remaining_amount:.2f} remaining"
+                )
+             )
+    def clean_amount(self):
+
+        amount = self.cleaned_data[
+            "amount"
+        ]
+
+        if amount <= 0:
+
+            raise forms.ValidationError(
+                "Payment amount must be greater than zero."
+            )
+
+        return amount
+
+    def clean(self):
+
+        cleaned_data = (
+            super().clean()
+        )
+
+        bill = cleaned_data.get(
+            "bill"
+        )
+
+        amount = cleaned_data.get(
+            "amount"
+        )
+
+        if not bill or amount is None:
+            return cleaned_data
+
+        if (
+            bill.status
+            == SupplierBill.Status.CANCELLED
+        ):
+
+            self.add_error(
+                "bill",
+                (
+                    "Payments cannot be recorded "
+                    "against a cancelled bill."
+                ),
+            )
+
+            return cleaned_data
+
+        if (
+            bill.remaining_amount
+            <= 0
+        ):
+
+            self.add_error(
+                "bill",
+                "This supplier bill is already fully paid.",
+            )
+
+            return cleaned_data
+
+        if (
+            amount
+            > bill.remaining_amount
+        ):
+
+            self.add_error(
+                "amount",
+                (
+                    "Payment amount cannot be greater "
+                    "than the remaining bill balance "
+                    f"of ${bill.remaining_amount:.2f}."
+                ),
             )
 
         return cleaned_data

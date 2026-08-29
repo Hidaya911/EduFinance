@@ -1,8 +1,39 @@
+import uuid
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+
+
+
+
+
+
+def generate_supplier_payment_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"SPAY-{date_part}-{random_part}"
+    )
+
+
+
+
+
+
+
 
 
 # ============================================================
@@ -378,3 +409,212 @@ class SupplierBill(models.Model):
             *args,
             **kwargs,
         )
+
+
+
+# ============================================================
+# SUPPLIER PAYMENT
+# ============================================================
+
+class SupplierPayment(models.Model):
+
+    class PaymentMethod(models.TextChoices):
+
+        CASH = (
+            "cash",
+            "Cash",
+        )
+
+        BANK_TRANSFER = (
+            "bank_transfer",
+            "Bank Transfer",
+        )
+
+        CHEQUE = (
+            "cheque",
+            "Cheque",
+        )
+
+        CARD = (
+            "card",
+            "Card",
+        )
+
+        OTHER = (
+            "other",
+            "Other",
+        )
+
+    class Status(models.TextChoices):
+
+        POSTED = (
+            "posted",
+            "Posted",
+        )
+
+        VOIDED = (
+            "voided",
+            "Voided",
+        )
+
+    payment_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_supplier_payment_number,
+        editable=False,
+    )
+
+    bill = models.ForeignKey(
+        SupplierBill,
+        on_delete=models.PROTECT,
+        related_name="payments",
+    )
+
+    supplier = models.ForeignKey(
+        Supplier,
+        on_delete=models.PROTECT,
+        related_name="payments",
+        editable=False,
+    )
+
+    payment_date = models.DateField()
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    payment_method = models.CharField(
+        max_length=30,
+        choices=PaymentMethod.choices,
+    )
+
+    reference = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    notes = models.TextField(
+        blank=True,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.POSTED,
+        editable=False,
+    )
+
+    void_reason = models.TextField(
+        blank=True,
+    )
+
+    voided_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+
+        db_table = "supplier_payments"
+
+        ordering = [
+            "-payment_date",
+            "-created_at",
+        ]
+
+        verbose_name = "Supplier Payment"
+
+        verbose_name_plural = "Supplier Payments"
+
+    def __str__(self):
+
+        return (
+            f"{self.payment_number} - "
+            f"{self.supplier.name}"
+        )
+
+    def clean(self):
+
+        super().clean()
+
+        if (
+            self.amount is None
+            or self.amount <= 0
+        ):
+
+            raise ValidationError(
+                {
+                    "amount":
+                        (
+                            "Payment amount must "
+                            "be greater than zero."
+                        )
+                }
+            )
+
+        if not self.bill_id:
+            return
+
+        # Only validate the bill balance
+        # when creating a new posted payment.
+        if (
+            self._state.adding
+            and self.status
+            == self.Status.POSTED
+        ):
+
+            if (
+                self.bill.status
+                == SupplierBill.Status.CANCELLED
+            ):
+
+                raise ValidationError(
+                    {
+                        "bill":
+                            (
+                                "Payments cannot be "
+                                "recorded against a "
+                                "cancelled bill."
+                            )
+                    }
+                )
+
+            if (
+                self.bill.remaining_amount
+                <= Decimal("0.00")
+            ):
+
+                raise ValidationError(
+                    {
+                        "bill":
+                            (
+                                "This supplier bill "
+                                "is already fully paid."
+                            )
+                    }
+                )
+
+            if (
+                self.amount
+                > self.bill.remaining_amount
+            ):
+
+                raise ValidationError(
+                    {
+                        "amount":
+                            (
+                                "Payment amount cannot "
+                                "be greater than the "
+                                "bill's remaining balance."
+                            )
+                    }
+                )

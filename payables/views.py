@@ -1,6 +1,9 @@
 from datetime import timedelta
 from decimal import Decimal
 
+
+from django.core.exceptions import ValidationError
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -16,13 +19,21 @@ from .forms import (
     ExpenseCategoryForm,
     SupplierForm,
     SupplierBillForm,
+    SupplierPaymentForm,
 )
 
 from .models import (
     ExpenseCategory,
     Supplier,
     SupplierBill,
+    SupplierPayment,
 )
+
+from .services import (
+    create_supplier_payment,
+    void_supplier_payment,
+)
+
 @login_required
 def expense_category_list(request):
     search = request.GET.get(
@@ -843,4 +854,505 @@ def supplier_bill_toggle_cancel(
     return redirect(
         "payables:supplier_bill_detail",
         pk=bill.pk,
+    )
+
+
+
+
+# ============================================================
+# SUPPLIER PAYMENT LIST
+# ============================================================
+
+@login_required
+def supplier_payment_list(request):
+
+    search = (
+        request.GET.get(
+            "search",
+            ""
+        )
+        .strip()
+    )
+
+    method = (
+        request.GET.get(
+            "method",
+            ""
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET.get(
+            "status",
+            ""
+        )
+        .strip()
+    )
+
+    supplier_id = (
+        request.GET.get(
+            "supplier",
+            ""
+        )
+        .strip()
+    )
+
+    payments = (
+        SupplierPayment.objects.all()
+    )
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        supplier_ids = list(
+            Supplier.objects.filter(
+                name__icontains=search
+            ).values_list(
+                "pk",
+                flat=True,
+            )
+        )
+
+        matching_bill_ids = list(
+            SupplierBill.objects.filter(
+                Q(
+                    bill_number__icontains=
+                        search
+                )
+                |
+                Q(
+                    supplier_id__in=
+                        supplier_ids
+                )
+            ).values_list(
+                "pk",
+                flat=True,
+            )
+        )
+
+        payments = payments.filter(
+            Q(
+                payment_number__icontains=
+                    search
+            )
+            |
+            Q(
+                reference__icontains=
+                    search
+            )
+            |
+            Q(
+                bill_id__in=
+                    matching_bill_ids
+            )
+        )
+
+    # --------------------------------------------------------
+    # PAYMENT METHOD
+    # --------------------------------------------------------
+
+    if method:
+
+        payments = payments.filter(
+            payment_method=method
+        )
+
+    # --------------------------------------------------------
+    # STATUS
+    # --------------------------------------------------------
+
+    if status:
+
+        payments = payments.filter(
+            status=status
+        )
+
+    # --------------------------------------------------------
+    # SUPPLIER
+    # --------------------------------------------------------
+
+    if supplier_id:
+
+        payments = payments.filter(
+            supplier_id=supplier_id
+        )
+
+    payments = payments.order_by(
+        "-payment_date",
+        "-created_at",
+    )
+
+    # --------------------------------------------------------
+    # KPI VALUES
+    # --------------------------------------------------------
+
+    all_payments = list(
+        SupplierPayment.objects.all()
+    )
+
+    posted_payments = [
+        payment
+        for payment in all_payments
+        if payment.status
+        == SupplierPayment.Status.POSTED
+    ]
+
+    total_paid = sum(
+        (
+            payment.amount
+            for payment
+            in posted_payments
+        ),
+        Decimal("0.00"),
+    )
+
+    current_month = (
+        timezone.localdate().month
+    )
+
+    current_year = (
+        timezone.localdate().year
+    )
+
+    month_paid = sum(
+        (
+            payment.amount
+            for payment
+            in posted_payments
+            if (
+                payment.payment_date.month
+                == current_month
+                and
+                payment.payment_date.year
+                == current_year
+            )
+        ),
+        Decimal("0.00"),
+    )
+
+    voided_count = sum(
+        1
+        for payment in all_payments
+        if payment.status
+        == SupplierPayment.Status.VOIDED
+    )
+
+    context = {
+
+        "payments":
+            payments,
+
+        "suppliers":
+            Supplier.objects.order_by(
+                "name"
+            ),
+
+        "search":
+            search,
+
+        "method":
+            method,
+
+        "status":
+            status,
+
+        "selected_supplier":
+            supplier_id,
+
+        "method_choices":
+            SupplierPayment
+            .PaymentMethod
+            .choices,
+
+        "status_choices":
+            SupplierPayment
+            .Status
+            .choices,
+
+        "total_records":
+            len(all_payments),
+
+        "posted_count":
+            len(posted_payments),
+
+        "voided_count":
+            voided_count,
+
+        "total_paid":
+            total_paid,
+
+        "month_paid":
+            month_paid,
+    }
+
+    return render(
+        request,
+        "payables/supplier_payment_list.html",
+        context,
+    )
+
+
+# ============================================================
+# RECORD SUPPLIER PAYMENT
+# ============================================================
+
+@login_required
+def supplier_payment_create(request):
+
+    selected_bill_id = (
+        request.GET.get(
+            "bill",
+            ""
+        )
+        .strip()
+    )
+
+    available_bills = (
+        SupplierBill.objects
+        .filter(
+            remaining_amount__gt=0,
+        )
+        .exclude(
+            status=
+                SupplierBill.Status.CANCELLED
+        )
+        .order_by(
+            "-bill_date"
+        )
+    )
+
+    if request.method == "POST":
+
+        form = SupplierPaymentForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            try:
+
+                payment = (
+                    create_supplier_payment(
+                        bill=
+                            form.cleaned_data[
+                                "bill"
+                            ],
+
+                        payment_date=
+                            form.cleaned_data[
+                                "payment_date"
+                            ],
+
+                        amount=
+                            form.cleaned_data[
+                                "amount"
+                            ],
+
+                        payment_method=
+                            form.cleaned_data[
+                                "payment_method"
+                            ],
+
+                        reference=
+                            form.cleaned_data[
+                                "reference"
+                            ],
+
+                        notes=
+                            form.cleaned_data[
+                                "notes"
+                            ],
+                    )
+                )
+
+            except ValidationError as error:
+
+                message = (
+                    error.messages[0]
+                    if error.messages
+                    else
+                    "Unable to record this payment."
+                )
+
+                form.add_error(
+                    None,
+                    message,
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        f"Supplier payment "
+                        f"{payment.payment_number} "
+                        f"was recorded successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:supplier_payment_list"
+                )
+
+    else:
+
+        initial = {
+            "payment_date":
+                timezone.localdate(),
+        }
+
+        if selected_bill_id:
+
+            initial[
+                "bill"
+            ] = selected_bill_id
+
+        form = SupplierPaymentForm(
+            initial=initial
+        )
+
+    # --------------------------------------------------------
+    # Bill data used by the live frontend preview.
+    # Strings are used intentionally so JSON serialization
+    # stays simple and predictable.
+    # --------------------------------------------------------
+
+    bill_data = {}
+
+    for bill in available_bills:
+
+        bill_data[
+            str(bill.pk)
+        ] = {
+
+            "bill_number":
+                bill.bill_number,
+
+            "supplier":
+                bill.supplier.name,
+
+            "supplier_id":
+                str(
+                    bill.supplier.pk
+                ),
+
+            "total_amount":
+                str(
+                    bill.total_amount
+                ),
+
+            "amount_paid":
+                str(
+                    bill.amount_paid
+                ),
+
+            "remaining_amount":
+                str(
+                    bill.remaining_amount
+                ),
+
+            "status":
+                bill.status,
+
+            "status_label":
+                bill.get_status_display(),
+
+            "bill_date":
+                (
+                    bill.bill_date.isoformat()
+                    if bill.bill_date
+                    else ""
+                ),
+
+            "due_date":
+                (
+                    bill.due_date.isoformat()
+                    if bill.due_date
+                    else ""
+                ),
+        }
+
+    context = {
+
+        "form":
+            form,
+
+        "page_title":
+            "Record Supplier Payment",
+
+        "submit_text":
+            "Record Payment",
+
+        "bill_data":
+            bill_data,
+    }
+
+    return render(
+        request,
+        "payables/supplier_payment_form.html",
+        context,
+    )
+
+# ============================================================
+# VOID SUPPLIER PAYMENT
+# ============================================================
+
+@login_required
+@require_POST
+def supplier_payment_void(
+    request,
+    pk,
+):
+
+    payment = get_object_or_404(
+        SupplierPayment,
+        pk=pk,
+    )
+
+    reason = (
+        request.POST.get(
+            "reason",
+            ""
+        )
+        .strip()
+    )
+
+    try:
+
+        void_supplier_payment(
+            payment=payment,
+            reason=reason,
+        )
+
+    except ValidationError as error:
+
+        message = (
+            error.messages[0]
+            if error.messages
+            else
+            "Unable to void this payment."
+        )
+
+        messages.error(
+            request,
+            message,
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                f"Supplier payment "
+                f"{payment.payment_number} "
+                f"was voided successfully."
+            ),
+        )
+
+    return redirect(
+        "payables:supplier_payment_list"
     )

@@ -92,4 +92,29 @@ path(
     name="supplier_bill_toggle_cancel",
 ),
 
+
+
+# ============================================================
+# SUPPLIER PAYMENTS
+# ============================================================
+
+path(
+    "supplier-payments/",
+    views.supplier_payment_list,
+    name="supplier_payment_list",
+),
+
+path(
+    "supplier-payments/create/",
+    views.supplier_payment_create,
+    name="supplier_payment_create",
+),
+
+path(
+    "supplier-payments/<str:pk>/void/",
+    views.supplier_payment_void,
+    name="supplier_payment_void",
+),
+
+
 ]
