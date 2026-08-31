@@ -1,13 +1,11 @@
 import uuid
+
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-
-
-
-
 
 
 
@@ -1217,6 +1215,242 @@ class EmployeeFinancialTransaction(models.Model):
                             "New financial transactions "
                             "cannot be recorded for an "
                             "inactive employee."
+                        )
+                }
+            )
+
+
+
+def generate_approval_request_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"APR-{date_part}-{random_part}"
+    )
+
+
+class ApprovalRequest(models.Model):
+
+    class OperationType(models.TextChoices):
+
+        DISCOUNT = (
+            "discount",
+            "Discount",
+        )
+
+        SCHOLARSHIP = (
+            "scholarship",
+            "Scholarship",
+        )
+
+        REFUND = (
+            "refund",
+            "Refund",
+        )
+
+        FINANCIAL_ASSISTANCE = (
+            "financial_assistance",
+            "Financial Assistance",
+        )
+
+        INVOICE_CANCELLATION = (
+            "invoice_cancellation",
+            "Invoice Cancellation",
+        )
+
+        PAYMENT_VOIDING = (
+            "payment_voiding",
+            "Payment Voiding",
+        )
+
+        HIGH_VALUE_EXPENSE = (
+            "high_value_expense",
+            "High-Value Expense",
+        )
+
+        OTHER = (
+            "other",
+            "Other Sensitive Adjustment",
+        )
+
+
+    class Status(models.TextChoices):
+
+        REQUESTED = (
+            "requested",
+            "Requested",
+        )
+
+        PENDING = (
+            "pending",
+            "Pending Approval",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+        PROCESSED = (
+            "processed",
+            "Processed",
+        )
+
+
+    request_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_approval_request_number,
+        editable=False,
+    )
+
+    operation_type = models.CharField(
+        max_length=40,
+        choices=OperationType.choices,
+    )
+
+    title = models.CharField(
+        max_length=180,
+    )
+
+    description = models.TextField(
+        blank=True,
+    )
+
+    related_entity_type = models.CharField(
+        max_length=80,
+        blank=True,
+    )
+
+    related_entity_id = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+
+    requester = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_approvals",
+    )
+
+    approver = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="decided_approvals",
+        blank=True,
+        null=True,
+    )
+
+    processed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="processed_approvals",
+        blank=True,
+        null=True,
+    )
+
+    status = models.CharField(
+        max_length=25,
+        choices=Status.choices,
+        default=Status.REQUESTED,
+        editable=False,
+    )
+
+    request_reason = models.TextField(
+        blank=True,
+    )
+
+    decision_comments = models.TextField(
+        blank=True,
+    )
+
+    submitted_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    decided_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    processed_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    class Meta:
+
+        db_table = "approval_requests"
+
+        ordering = [
+            "-created_at",
+        ]
+
+        verbose_name = (
+            "Approval Request"
+        )
+
+        verbose_name_plural = (
+            "Approval Requests"
+        )
+
+
+    def __str__(self):
+
+        return (
+            f"{self.request_number} - "
+            f"{self.title}"
+        )
+
+
+    def clean(self):
+
+        super().clean()
+
+        if (
+            self.amount is not None
+            and
+            self.amount < 0
+        ):
+
+            raise ValidationError(
+                {
+                    "amount":
+                        (
+                            "Approval request amount "
+                            "cannot be negative."
                         )
                 }
             )

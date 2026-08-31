@@ -1,0 +1,2944 @@
+{% extends "base.html" %}
+
+{% block title %}{{ approval.request_number }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — APPROVAL REQUEST DETAIL
+       Scoped with apd-
+    ========================================================== */
+
+    .apd-page {
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37,99,235,.11),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(124,58,237,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .apd-container {
+        width: 100%;
+        max-width: 1450px;
+
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .apd-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .apd-breadcrumb a {
+        color: #7c8b9f;
+
+        text-decoration: none;
+    }
+
+    .apd-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+    .apd-breadcrumb-current {
+        color: #4b6380;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .apd-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 20px;
+
+        padding:
+            29px
+            31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13,42,83,.17);
+    }
+
+    .apd-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .apd-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 200px;
+        bottom: -130px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(139,92,246,.16);
+    }
+
+    .apd-hero-left,
+    .apd-hero-right {
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .apd-hero-left {
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .apd-hero-icon {
+        width: 62px;
+        height: 62px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 17px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,.14),
+                rgba(255,255,255,.06)
+            );
+
+        backdrop-filter:
+            blur(12px);
+    }
+
+    .apd-hero-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .apd-eyebrow {
+        margin-bottom: 6px;
+
+        color: #8bbcff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apd-title {
+        margin: 0;
+
+        color: white;
+
+        font-size: 29px;
+        line-height: 1.15;
+
+        font-weight: 790;
+
+        letter-spacing:
+            -.025em;
+    }
+
+    .apd-request-number {
+        margin-top: 7px;
+
+        color:
+            rgba(225,236,249,.68);
+
+        font-size: 9.5px;
+        font-weight: 680;
+    }
+
+    .apd-hero-right {
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+
+    /* ==========================================================
+       STATUS
+    ========================================================== */
+
+    .apd-status {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            9px
+            12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.14);
+
+        border-radius: 999px;
+
+        font-size: 8.7px;
+        font-weight: 770;
+    }
+
+    .apd-status.requested {
+        background:
+            rgba(148,163,184,.12);
+
+        color: #e2e8f0;
+    }
+
+    .apd-status.pending {
+        background:
+            rgba(245,158,11,.13);
+
+        color: #ffd889;
+    }
+
+    .apd-status.approved {
+        background:
+            rgba(16,185,129,.14);
+
+        color: #9ff2cb;
+    }
+
+    .apd-status.rejected {
+        background:
+            rgba(239,68,68,.15);
+
+        color: #ffc0c4;
+    }
+
+    .apd-status.processed {
+        background:
+            rgba(96,165,250,.14);
+
+        color: #bfdbfe;
+    }
+
+    .apd-status-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background:
+            currentColor;
+    }
+
+    .apd-edit-btn {
+        min-height: 40px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            13px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.18);
+
+        border-radius: 9px;
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 8.8px;
+        font-weight: 720;
+
+        transition: .2s ease;
+    }
+
+    .apd-edit-btn:hover {
+        color: white;
+
+        transform:
+            translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       MESSAGES
+    ========================================================== */
+
+    .apd-message {
+        margin-bottom: 10px;
+
+        padding:
+            11px
+            13px;
+
+        border-radius: 10px;
+
+        font-size: 9.5px;
+        font-weight: 650;
+    }
+
+    .apd-message.success {
+        border:
+            1px solid #c4ead8;
+
+        background: #eefcf5;
+
+        color: #147650;
+    }
+
+    .apd-message.error {
+        border:
+            1px solid #f2cbd0;
+
+        background: #fff3f4;
+
+        color: #c2414c;
+    }
+
+
+    /* ==========================================================
+       WORKFLOW TIMELINE
+    ========================================================== */
+
+    .apd-flow-card {
+        margin-bottom: 20px;
+
+        padding:
+            18px
+            19px;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 17px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .apd-flow-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 14px;
+
+        margin-bottom: 16px;
+    }
+
+    .apd-flow-title {
+        color: #0b2344;
+
+        font-size: 11.5px;
+        font-weight: 780;
+    }
+
+    .apd-flow-note {
+        color: #8f9cad;
+
+        font-size: 8px;
+    }
+
+    .apd-flow {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0,1fr)
+            );
+
+        gap: 10px;
+    }
+
+    .apd-step {
+        position: relative;
+
+        min-height: 90px;
+
+        padding:
+            13px
+            12px
+            13px
+            41px;
+
+        border:
+            1px solid #e0e7ef;
+
+        border-radius: 12px;
+
+        background: #fbfcfe;
+    }
+
+    .apd-step-number {
+        position: absolute;
+
+        left: 11px;
+        top: 13px;
+
+        width: 22px;
+        height: 22px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 7px;
+
+        background: #edf1f5;
+
+        color: #8694a6;
+
+        font-size: 8px;
+        font-weight: 850;
+    }
+
+    .apd-step.active {
+        border-color: #c8d7f8;
+
+        background: #f6f9ff;
+    }
+
+    .apd-step.active
+    .apd-step-number {
+        background: #2563eb;
+
+        color: white;
+    }
+
+    .apd-step.complete {
+        border-color: #cce8dc;
+
+        background: #f3fbf7;
+    }
+
+    .apd-step.complete
+    .apd-step-number {
+        background: #059669;
+
+        color: white;
+    }
+
+    .apd-step.rejected {
+        border-color: #f2cbd0;
+
+        background: #fff6f7;
+    }
+
+    .apd-step.rejected
+    .apd-step-number {
+        background: #dc2626;
+
+        color: white;
+    }
+
+    .apd-step-title {
+        color: #29415e;
+
+        font-size: 9px;
+        font-weight: 760;
+    }
+
+    .apd-step-text {
+        margin-top: 5px;
+
+        color: #8f9cad;
+
+        font-size: 7.8px;
+
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       PAGE LAYOUT
+    ========================================================== */
+
+    .apd-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            355px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+    .apd-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 17px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .apd-card + .apd-card {
+        margin-top: 17px;
+    }
+
+    .apd-card-head {
+        padding:
+            16px
+            18px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .apd-card-title {
+        color: #0b2344;
+
+        font-size: 11.5px;
+        font-weight: 770;
+    }
+
+    .apd-card-subtitle {
+        margin-top: 3px;
+
+        color: #939eae;
+
+        font-size: 8.2px;
+    }
+
+    .apd-card-body {
+        padding: 18px;
+    }
+
+
+    /* ==========================================================
+       SUMMARY
+    ========================================================== */
+
+    .apd-summary-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0,1fr)
+            );
+
+        gap: 12px;
+    }
+
+    .apd-summary-item {
+        min-height: 84px;
+
+        padding: 13px;
+
+        border:
+            1px solid #e0e7ef;
+
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fafcff
+            );
+    }
+
+    .apd-summary-label {
+        color: #8794a7;
+
+        font-size: 7.2px;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apd-summary-value {
+        margin-top: 8px;
+
+        color: #1f3b5d;
+
+        font-size: 9.5px;
+        font-weight: 740;
+
+        line-height: 1.45;
+
+        word-break:
+            break-word;
+    }
+
+    .apd-summary-value.money {
+        color: #153b5f;
+
+        font-size: 14px;
+        font-weight: 810;
+    }
+
+    .apd-pill {
+        display: inline-flex;
+
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        background: #f2efff;
+
+        color: #6d4de0;
+
+        font-size: 7.8px;
+        font-weight: 750;
+    }
+
+
+    /* ==========================================================
+       BUSINESS CONTEXT
+    ========================================================== */
+
+    .apd-text-block {
+        margin-bottom: 16px;
+    }
+
+    .apd-text-block:last-child {
+        margin-bottom: 0;
+    }
+
+    .apd-text-label {
+        margin-bottom: 7px;
+
+        color: #7f8da0;
+
+        font-size: 7.4px;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apd-text-content {
+        padding:
+            13px
+            14px;
+
+        border:
+            1px solid #e0e7ef;
+
+        border-radius: 11px;
+
+        background: #fbfcfe;
+
+        color: #42536b;
+
+        font-size: 9px;
+
+        line-height: 1.65;
+
+        white-space: pre-wrap;
+    }
+
+
+    /* ==========================================================
+       SIDEBAR
+    ========================================================== */
+
+    .apd-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .apd-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .apd-side-head {
+        padding:
+            15px
+            16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apd-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .apd-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8px;
+
+        line-height: 1.45;
+    }
+
+    .apd-side-body {
+        padding: 16px;
+    }
+
+
+    /* ==========================================================
+       WORKFLOW ACTIONS
+    ========================================================== */
+
+    .apd-action-btn {
+        width: 100%;
+        min-height: 42px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        margin-bottom: 9px;
+
+        padding:
+            0
+            13px;
+
+        box-sizing:
+            border-box;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: 9px;
+        font-weight: 740;
+
+        cursor: pointer;
+
+        transition: .2s ease;
+    }
+
+    .apd-action-btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .apd-action-btn:hover {
+        transform:
+            translateY(-1px);
+    }
+
+    .apd-action-btn.primary {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+    }
+
+    .apd-action-btn.success {
+        border:
+            1px solid #bfe7d4;
+
+        background: #effbf5;
+
+        color: #087b51;
+    }
+
+    .apd-action-btn.danger {
+        border:
+            1px solid #f0c8ce;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+    }
+
+    .apd-action-btn.secondary {
+        border:
+            1px solid #dce3eb;
+
+        background: #f8fafc;
+
+        color: #53657a;
+    }
+
+    .apd-final-state {
+        margin-bottom: 10px;
+
+        padding: 13px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 10px;
+
+        background: #f8fafc;
+
+        color: #6d7d91;
+
+        font-size: 8.5px;
+
+        line-height: 1.5;
+    }
+
+
+    /* ==========================================================
+       ACCOUNTABILITY
+    ========================================================== */
+
+    .apd-audit-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        padding:
+            10px
+            0;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apd-audit-row:last-child {
+        border-bottom: none;
+    }
+
+    .apd-audit-label {
+        color: #8b98aa;
+
+        font-size: 7.8px;
+    }
+
+    .apd-audit-value {
+        max-width: 205px;
+
+        color: #40526b;
+
+        text-align: right;
+
+        font-size: 8.3px;
+        font-weight: 680;
+
+        word-break:
+            break-word;
+    }
+
+
+    /* ==========================================================
+       MODALS
+    ========================================================== */
+
+    .apd-modal-backdrop {
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 100000;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        background:
+            rgba(4,18,36,.58);
+
+        backdrop-filter:
+            blur(7px);
+    }
+
+    .apd-modal-backdrop.open {
+        display: flex;
+    }
+
+    .apd-modal {
+        width: 100%;
+        max-width: 520px;
+
+        overflow: hidden;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 30px 80px
+            rgba(3,15,31,.28);
+
+        animation:
+            apdModalIn
+            .18s ease-out;
+    }
+
+    @keyframes apdModalIn {
+
+        from {
+            opacity: 0;
+
+            transform:
+                translateY(10px)
+                scale(.985);
+        }
+
+        to {
+            opacity: 1;
+
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+    }
+
+    .apd-modal-head {
+        padding:
+            20px
+            21px
+            16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apd-modal-eyebrow {
+        color: #6d4de0;
+
+        font-size: 7.4px;
+        font-weight: 850;
+
+        letter-spacing: .09em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apd-modal-title {
+        margin-top: 5px;
+
+        color: #0b2344;
+
+        font-size: 17px;
+        font-weight: 790;
+    }
+
+    .apd-modal-text {
+        margin-top: 6px;
+
+        color: #7f8da0;
+
+        font-size: 9px;
+
+        line-height: 1.55;
+    }
+
+    .apd-modal-body {
+        padding:
+            18px
+            21px;
+    }
+
+    .apd-modal-label {
+        display: block;
+
+        margin-bottom: 7px;
+
+        color: #324b68;
+
+        font-size: 8.8px;
+        font-weight: 760;
+    }
+
+    .apd-modal-textarea {
+        width: 100%;
+        min-height: 105px;
+
+        box-sizing:
+            border-box;
+
+        padding:
+            11px
+            12px;
+
+        border:
+            1.5px solid #c5d2e1;
+
+        border-radius: 10px;
+
+        color: #263c58;
+
+        font: inherit;
+
+        font-size: 9.5px;
+
+        outline: none;
+
+        resize: vertical;
+    }
+
+    .apd-modal-textarea:focus {
+        border-color: #6d4de0;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(109,77,224,.09);
+    }
+
+    .apd-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+
+        gap: 8px;
+
+        padding:
+            15px
+            21px
+            19px;
+
+        border-top:
+            1px solid #edf1f5;
+
+        background: #fbfcfe;
+    }
+
+    .apd-modal-btn {
+        min-height: 40px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            14px;
+
+        border-radius: 9px;
+
+        font-size: 8.8px;
+        font-weight: 730;
+
+        cursor: pointer;
+    }
+
+    .apd-modal-btn.cancel {
+        border:
+            1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+    }
+
+    .apd-modal-btn.confirm {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+    }
+
+    .apd-modal-btn.success {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #10b981,
+                #059669
+            );
+
+        color: white;
+    }
+
+    .apd-modal-btn.danger {
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #ef4444,
+                #dc2626
+            );
+
+        color: white;
+    }
+
+    .apd-modal-btn:disabled {
+        opacity: .78;
+
+        cursor: wait;
+    }
+
+    .apd-modal-spinner {
+        display: none;
+
+        width: 13px;
+        height: 13px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.42);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            apdSpin
+            .7s linear infinite;
+    }
+
+    .apd-modal-btn.loading
+    .apd-modal-spinner {
+        display: inline-block;
+    }
+
+    @keyframes apdSpin {
+
+        to {
+            transform:
+                rotate(360deg);
+        }
+
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1050px) {
+
+        .apd-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .apd-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .apd-flow {
+            grid-template-columns:
+                repeat(2,1fr);
+        }
+
+    }
+
+    @media(max-width:760px) {
+
+        .apd-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .apd-breadcrumb {
+            display: none;
+        }
+
+        .apd-hero {
+            flex-direction: column;
+
+            align-items: stretch;
+
+            padding:
+                23px
+                20px;
+        }
+
+        .apd-hero-icon {
+            display: none;
+        }
+
+        .apd-hero-right {
+            align-items: stretch;
+
+            flex-direction: column;
+        }
+
+        .apd-summary-grid,
+        .apd-flow {
+            grid-template-columns: 1fr;
+        }
+
+        .apd-side {
+            display: flex;
+        }
+
+        .apd-modal-actions {
+            flex-direction:
+                column-reverse;
+        }
+
+        .apd-modal-btn {
+            width: 100%;
+        }
+
+    }
+</style>
+
+
+<div class="apd-page">
+
+<div class="apd-container">
+
+
+    <!-- =====================================================
+         BREADCRUMB
+    ====================================================== -->
+
+    <div class="apd-breadcrumb">
+
+        <a
+            href="{% url 'payables:approval_list' %}"
+        >
+            Approvals
+        </a>
+
+        <span>›</span>
+
+        <span class="apd-breadcrumb-current">
+
+            {{ approval.request_number }}
+
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="apd-hero">
+
+
+        <div class="apd-hero-left">
+
+
+            <div class="apd-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path
+                        d="M12 3l7 4v5c0 4.6-2.7 7.4-7 9-4.3-1.6-7-4.4-7-9V7l7-4z"
+                    ></path>
+
+                    <path
+                        d="M9 12l2 2 4-4"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="apd-eyebrow">
+                    Approval Request
+                </div>
+
+                <h1 class="apd-title">
+
+                    {{ approval.title }}
+
+                </h1>
+
+                <div class="apd-request-number">
+
+                    {{ approval.request_number }}
+
+                    ·
+
+                    {{ approval.get_operation_type_display }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="apd-hero-right">
+
+
+            <span
+                class="
+                    apd-status
+                    {{ approval.status }}
+                "
+            >
+
+                <span class="apd-status-dot"></span>
+
+                {{ approval.get_status_display }}
+
+            </span>
+
+
+            {% if approval.status == "requested" %}
+
+                <a
+                    href="{% url 'payables:approval_edit' approval.pk %}"
+                    class="apd-edit-btn"
+                >
+                    Edit Draft
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MESSAGES
+    ====================================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="
+                    apd-message
+                    {% if message.tags %}
+                        {{ message.tags }}
+                    {% endif %}
+                "
+            >
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         WORKFLOW TIMELINE
+    ====================================================== -->
+
+    <section class="apd-flow-card">
+
+
+        <div class="apd-flow-head">
+
+            <div class="apd-flow-title">
+                Approval Lifecycle
+            </div>
+
+            <div class="apd-flow-note">
+
+                Requested →
+                Pending →
+                Decision →
+                Processed
+
+            </div>
+
+        </div>
+
+
+        <div class="apd-flow">
+
+
+            <!-- REQUESTED -->
+
+            <div
+                class="
+                    apd-step
+
+                    {% if approval.status == 'requested' %}
+                        active
+                    {% else %}
+                        complete
+                    {% endif %}
+                "
+            >
+
+                <div class="apd-step-number">
+                    1
+                </div>
+
+                <div class="apd-step-title">
+                    Requested
+                </div>
+
+                <div class="apd-step-text">
+
+                    Created
+
+                    {{ approval.created_at|date:"M d, Y · H:i" }}
+
+                </div>
+
+            </div>
+
+
+            <!-- PENDING -->
+
+            <div
+                class="
+                    apd-step
+
+                    {% if approval.status == 'pending' %}
+
+                        active
+
+                    {% elif approval.status == 'approved' or approval.status == 'rejected' or approval.status == 'processed' %}
+
+                        complete
+
+                    {% endif %}
+                "
+            >
+
+                <div class="apd-step-number">
+                    2
+                </div>
+
+                <div class="apd-step-title">
+                    Pending Approval
+                </div>
+
+                <div class="apd-step-text">
+
+                    {% if approval.submitted_at %}
+
+                        Submitted
+
+                        {{ approval.submitted_at|date:"M d, Y · H:i" }}
+
+                    {% else %}
+
+                        Not submitted yet
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- DECISION -->
+
+            <div
+                class="
+                    apd-step
+
+                    {% if approval.status == 'approved' %}
+
+                        active
+
+                    {% elif approval.status == 'rejected' %}
+
+                        rejected
+
+                    {% elif approval.status == 'processed' %}
+
+                        complete
+
+                    {% endif %}
+                "
+            >
+
+                <div class="apd-step-number">
+                    3
+                </div>
+
+                <div class="apd-step-title">
+
+                    {% if approval.status == "rejected" %}
+
+                        Rejected
+
+                    {% elif approval.status == "approved" or approval.status == "processed" %}
+
+                        Approved
+
+                    {% else %}
+
+                        Decision
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="apd-step-text">
+
+                    {% if approval.decided_at %}
+
+                        {% if approval.status == "rejected" %}
+
+                            Rejected
+
+                        {% else %}
+
+                            Approved
+
+                        {% endif %}
+
+                        {{ approval.decided_at|date:"M d, Y · H:i" }}
+
+                    {% else %}
+
+                        Awaiting decision
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- PROCESSED -->
+
+            <div
+                class="
+                    apd-step
+
+                    {% if approval.status == 'processed' %}
+                        complete
+                    {% endif %}
+                "
+            >
+
+                <div class="apd-step-number">
+                    4
+                </div>
+
+                <div class="apd-step-title">
+                    Processed
+                </div>
+
+                <div class="apd-step-text">
+
+                    {% if approval.processed_at %}
+
+                        Completed
+
+                        {{ approval.processed_at|date:"M d, Y · H:i" }}
+
+                    {% elif approval.status == "rejected" %}
+
+                        Not applicable after rejection
+
+                    {% else %}
+
+                        Waiting for approved operation
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN LAYOUT
+    ====================================================== -->
+
+    <div class="apd-layout">
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <main>
+
+
+            <!-- REQUEST SUMMARY -->
+
+            <section class="apd-card">
+
+
+                <div class="apd-card-head">
+
+                    <div class="apd-card-title">
+                        Request Summary
+                    </div>
+
+                    <div class="apd-card-subtitle">
+
+                        Financial classification and
+                        linked record context
+
+                    </div>
+
+                </div>
+
+
+                <div class="apd-card-body">
+
+
+                    <div class="apd-summary-grid">
+
+
+                        <!-- OPERATION -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Operation Type
+                            </div>
+
+                            <div class="apd-summary-value">
+
+                                <span class="apd-pill">
+
+                                    {{ approval.get_operation_type_display }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- AMOUNT -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Requested Amount
+                            </div>
+
+                            <div class="apd-summary-value money">
+
+                                {% if approval.amount is not None %}
+
+                                    {{ currency_code }}
+
+                                    {{ approval.amount|floatformat:2 }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Current Status
+                            </div>
+
+                            <div class="apd-summary-value">
+
+                                {{ approval.get_status_display }}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ENTITY -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Related Entity
+                            </div>
+
+                            <div class="apd-summary-value">
+
+                                {% if approval.related_entity_type %}
+
+                                    {{ approval.related_entity_type }}
+
+                                {% else %}
+
+                                    Not linked
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ENTITY ID -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Related Record ID
+                            </div>
+
+                            <div class="apd-summary-value">
+
+                                {% if approval.related_entity_id %}
+
+                                    {{ approval.related_entity_id }}
+
+                                {% else %}
+
+                                    Not linked
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CURRENCY -->
+
+                        <div class="apd-summary-item">
+
+                            <div class="apd-summary-label">
+                                Currency Context
+                            </div>
+
+                            <div class="apd-summary-value">
+
+                                {{ currency_code }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- BUSINESS CONTEXT -->
+
+            <section class="apd-card">
+
+
+                <div class="apd-card-head">
+
+                    <div class="apd-card-title">
+                        Business Context
+                    </div>
+
+                    <div class="apd-card-subtitle">
+
+                        Description and
+                        approval justification
+
+                    </div>
+
+                </div>
+
+
+                <div class="apd-card-body">
+
+
+                    <div class="apd-text-block">
+
+                        <div class="apd-text-label">
+                            Description
+                        </div>
+
+                        <div class="apd-text-content">
+
+                            {% if approval.description %}
+
+                                {{ approval.description }}
+
+                            {% else %}
+
+                                No additional description was provided.
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="apd-text-block">
+
+                        <div class="apd-text-label">
+                            Request Reason
+                        </div>
+
+                        <div class="apd-text-content">
+
+                            {{ approval.request_reason }}
+
+                        </div>
+
+                    </div>
+
+
+                    {% if approval.decision_comments %}
+
+                        <div class="apd-text-block">
+
+                            <div class="apd-text-label">
+                                Decision Comments
+                            </div>
+
+                            <div class="apd-text-content">
+
+                                {{ approval.decision_comments }}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="apd-side">
+
+
+            <!-- WORKFLOW ACTIONS -->
+
+            <section class="apd-side-card">
+
+
+                <div class="apd-side-head">
+
+                    <div class="apd-side-title">
+                        Workflow Actions
+                    </div>
+
+                    <div class="apd-side-desc">
+
+                        Only valid state transitions are
+                        available for this approval request.
+
+                    </div>
+
+                </div>
+
+
+                <div class="apd-side-body">
+
+
+                    <!-- REQUESTED -->
+
+                    {% if approval.status == "requested" %}
+
+
+                        <a
+                            href="{% url 'payables:approval_edit' approval.pk %}"
+                            class="apd-action-btn secondary"
+                        >
+                            Edit Draft
+                        </a>
+
+
+                        <button
+                            type="button"
+                            class="apd-action-btn primary"
+                            data-open-modal="submitApprovalModal"
+                        >
+                            Submit for Approval
+                        </button>
+
+
+                    <!-- PENDING -->
+
+                    {% elif approval.status == "pending" %}
+
+
+                        <button
+                            type="button"
+                            class="apd-action-btn success"
+                            data-open-modal="approveApprovalModal"
+                        >
+                            Approve Request
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="apd-action-btn danger"
+                            data-open-modal="rejectApprovalModal"
+                        >
+                            Reject Request
+                        </button>
+
+
+                    <!-- APPROVED -->
+
+                    {% elif approval.status == "approved" %}
+
+
+                        <button
+                            type="button"
+                            class="apd-action-btn primary"
+                            data-open-modal="processApprovalModal"
+                        >
+                            Mark as Processed
+                        </button>
+
+
+                    <!-- REJECTED -->
+
+                    {% elif approval.status == "rejected" %}
+
+
+                        <div class="apd-final-state">
+
+                            This request was rejected.
+                            The decision remains preserved
+                            as part of the financial
+                            approval history.
+
+                        </div>
+
+
+                    <!-- PROCESSED -->
+
+                    {% elif approval.status == "processed" %}
+
+
+                        <div class="apd-final-state">
+
+                            This approval request is complete
+                            and has been marked as processed.
+
+                        </div>
+
+
+                    {% endif %}
+
+
+                    <a
+                        href="{% url 'payables:approval_list' %}"
+                        class="apd-action-btn secondary"
+                    >
+                        Back to Approval Ledger
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACCOUNTABILITY -->
+
+            <section class="apd-side-card">
+
+
+                <div class="apd-side-head">
+
+                    <div class="apd-side-title">
+                        Accountability
+                    </div>
+
+                    <div class="apd-side-desc">
+
+                        Users and timestamps recorded
+                        through the workflow.
+
+                    </div>
+
+                </div>
+
+
+                <div class="apd-side-body">
+
+
+                    <!-- REQUESTER -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Requester
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.requester.get_full_name %}
+
+                                {{ approval.requester.get_full_name }}
+
+                            {% else %}
+
+                                {{ approval.requester.username }}
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CREATED -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Created
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {{ approval.created_at|date:"M d, Y · H:i" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SUBMITTED -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Submitted
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.submitted_at %}
+
+                                {{ approval.submitted_at|date:"M d, Y · H:i" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- APPROVER -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Approver
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.approver %}
+
+                                {% if approval.approver.get_full_name %}
+
+                                    {{ approval.approver.get_full_name }}
+
+                                {% else %}
+
+                                    {{ approval.approver.username }}
+
+                                {% endif %}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DECISION TIME -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Decision Time
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.decided_at %}
+
+                                {{ approval.decided_at|date:"M d, Y · H:i" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PROCESSED BY -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Processed By
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.processed_by %}
+
+                                {% if approval.processed_by.get_full_name %}
+
+                                    {{ approval.processed_by.get_full_name }}
+
+                                {% else %}
+
+                                    {{ approval.processed_by.username }}
+
+                                {% endif %}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PROCESS TIME -->
+
+                    <div class="apd-audit-row">
+
+                        <div class="apd-audit-label">
+                            Processed Time
+                        </div>
+
+                        <div class="apd-audit-value">
+
+                            {% if approval.processed_at %}
+
+                                {{ approval.processed_at|date:"M d, Y · H:i" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+</div>
+
+
+<!-- ==========================================================
+     SUBMIT CONFIRMATION
+========================================================== -->
+
+{% if approval.status == "requested" %}
+
+<div
+    class="apd-modal-backdrop"
+    id="submitApprovalModal"
+>
+
+    <div class="apd-modal">
+
+
+        <div class="apd-modal-head">
+
+            <div class="apd-modal-eyebrow">
+                Workflow Transition
+            </div>
+
+            <div class="apd-modal-title">
+
+                Submit approval request?
+
+            </div>
+
+            <div class="apd-modal-text">
+
+                After submission, this request moves
+                to Pending Approval and can no longer
+                be edited.
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'payables:approval_submit' approval.pk %}"
+            class="apd-workflow-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="apd-modal-actions">
+
+
+                <button
+                    type="button"
+                    class="apd-modal-btn cancel"
+                    data-close-modal
+                >
+                    Keep as Draft
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="apd-modal-btn confirm"
+                >
+
+                    <span class="apd-modal-spinner"></span>
+
+                    Submit Request
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- ==========================================================
+     APPROVE
+========================================================== -->
+
+{% if approval.status == "pending" %}
+
+<div
+    class="apd-modal-backdrop"
+    id="approveApprovalModal"
+>
+
+    <div class="apd-modal">
+
+
+        <div class="apd-modal-head">
+
+            <div class="apd-modal-eyebrow">
+                Approval Decision
+            </div>
+
+            <div class="apd-modal-title">
+
+                Approve this request?
+
+            </div>
+
+            <div class="apd-modal-text">
+
+                The request will move to Approved status.
+                Decision comments are optional.
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'payables:approval_approve' approval.pk %}"
+            class="apd-workflow-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="apd-modal-body">
+
+                <label class="apd-modal-label">
+
+                    Decision Comments
+
+                </label>
+
+                <textarea
+                    name="comments"
+                    class="apd-modal-textarea"
+                    placeholder="Optional approval comments..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="apd-modal-actions">
+
+
+                <button
+                    type="button"
+                    class="apd-modal-btn cancel"
+                    data-close-modal
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="apd-modal-btn success"
+                >
+
+                    <span class="apd-modal-spinner"></span>
+
+                    Approve Request
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     REJECT
+========================================================== -->
+
+<div
+    class="apd-modal-backdrop"
+    id="rejectApprovalModal"
+>
+
+    <div class="apd-modal">
+
+
+        <div class="apd-modal-head">
+
+            <div class="apd-modal-eyebrow">
+                Approval Decision
+            </div>
+
+            <div class="apd-modal-title">
+
+                Reject this request?
+
+            </div>
+
+            <div class="apd-modal-text">
+
+                A rejection reason is required.
+                The reason and decision will remain
+                preserved in the approval history.
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'payables:approval_reject' approval.pk %}"
+            class="apd-workflow-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="apd-modal-body">
+
+                <label class="apd-modal-label">
+
+                    Rejection Reason *
+
+                </label>
+
+                <textarea
+                    name="comments"
+                    class="apd-modal-textarea"
+                    placeholder="Explain why this request is being rejected..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <div class="apd-modal-actions">
+
+
+                <button
+                    type="button"
+                    class="apd-modal-btn cancel"
+                    data-close-modal
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="apd-modal-btn danger"
+                >
+
+                    <span class="apd-modal-spinner"></span>
+
+                    Reject Request
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- ==========================================================
+     PROCESS
+========================================================== -->
+
+{% if approval.status == "approved" %}
+
+<div
+    class="apd-modal-backdrop"
+    id="processApprovalModal"
+>
+
+    <div class="apd-modal">
+
+
+        <div class="apd-modal-head">
+
+            <div class="apd-modal-eyebrow">
+                Final Workflow Step
+            </div>
+
+            <div class="apd-modal-title">
+
+                Mark request as processed?
+
+            </div>
+
+            <div class="apd-modal-text">
+
+                Use this action only after the approved
+                financial operation has actually been
+                carried out.
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'payables:approval_process' approval.pk %}"
+            class="apd-workflow-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="apd-modal-actions">
+
+
+                <button
+                    type="button"
+                    class="apd-modal-btn cancel"
+                    data-close-modal
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="apd-modal-btn confirm"
+                >
+
+                    <span class="apd-modal-spinner"></span>
+
+                    Mark as Processed
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* =====================================================
+           CLOSE MODAL
+        ====================================================== */
+
+        function closeModal(
+            modal
+        ) {
+
+
+            if (
+                !modal
+            ) {
+
+                return;
+
+            }
+
+
+            modal.classList.remove(
+                "open"
+            );
+
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+
+        /* =====================================================
+           OPEN MODAL
+        ====================================================== */
+
+        document.querySelectorAll(
+            "[data-open-modal]"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        const modalId =
+                            button.getAttribute(
+                                "data-open-modal"
+                            );
+
+
+                        const modal =
+                            document.getElementById(
+                                modalId
+                            );
+
+
+                        if (
+                            !modal
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        modal.classList.add(
+                            "open"
+                        );
+
+
+                        document.body.style.overflow =
+                            "hidden";
+
+
+                        const textarea =
+                            modal.querySelector(
+                                "textarea"
+                            );
+
+
+                        if (
+                            textarea
+                        ) {
+
+                            setTimeout(
+                                function () {
+
+                                    textarea.focus();
+
+                                },
+                                100
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           CLOSE BUTTON
+        ====================================================== */
+
+        document.querySelectorAll(
+            "[data-close-modal]"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+
+                        closeModal(
+                            button.closest(
+                                ".apd-modal-backdrop"
+                            )
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           BACKDROP CLOSE
+        ====================================================== */
+
+        document.querySelectorAll(
+            ".apd-modal-backdrop"
+        )
+        .forEach(
+            function (
+                modal
+            ) {
+
+
+                modal.addEventListener(
+                    "click",
+                    function (
+                        event
+                    ) {
+
+
+                        if (
+                            event.target
+                            === modal
+                        ) {
+
+                            closeModal(
+                                modal
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        /* =====================================================
+           ESCAPE CLOSE
+        ====================================================== */
+
+        document.addEventListener(
+            "keydown",
+            function (
+                event
+            ) {
+
+
+                if (
+                    event.key
+                    !== "Escape"
+                ) {
+
+                    return;
+
+                }
+
+
+                const openModal =
+                    document.querySelector(
+                        ".apd-modal-backdrop.open"
+                    );
+
+
+                if (
+                    openModal
+                ) {
+
+                    closeModal(
+                        openModal
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           LOADING / DOUBLE SUBMIT PROTECTION
+        ====================================================== */
+
+        document.querySelectorAll(
+            ".apd-workflow-form"
+        )
+        .forEach(
+            function (
+                form
+            ) {
+
+
+                form.addEventListener(
+                    "submit",
+                    function () {
+
+
+                        if (
+                            !form.checkValidity()
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const button =
+                            form.querySelector(
+                                "button[type='submit']"
+                            );
+
+
+                        if (
+                            !button
+                            ||
+                            button.disabled
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        button.disabled =
+                            true;
+
+
+                        button.classList.add(
+                            "loading"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+</script>
+
+{% endblock %}

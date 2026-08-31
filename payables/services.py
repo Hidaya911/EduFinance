@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+from .models import ApprovalRequest
+
 from .models import (
     SupplierBill,
     SupplierPayment,
@@ -310,3 +312,215 @@ def void_employee_financial_transaction(
     transaction.save()
 
     return transaction
+
+
+
+def submit_approval_request(
+    approval_request,
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    if (
+        approval_request.status
+        !=
+        ApprovalRequest.Status.REQUESTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only requested approval records "
+                "can be submitted."
+            )
+        )
+
+    approval_request.status = (
+        ApprovalRequest.Status.PENDING
+    )
+
+    approval_request.submitted_at = (
+        timezone.now()
+    )
+
+    approval_request.save(
+        update_fields=[
+            "status",
+            "submitted_at",
+            "updated_at",
+        ]
+    )
+
+    return approval_request
+
+
+def approve_approval_request(
+    approval_request,
+    approver,
+    comments="",
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    if (
+        approval_request.status
+        !=
+        ApprovalRequest.Status.PENDING
+    ):
+
+        raise ValidationError(
+            (
+                "Only pending approval requests "
+                "can be approved."
+            )
+        )
+
+    approval_request.status = (
+        ApprovalRequest.Status.APPROVED
+    )
+
+    approval_request.approver = (
+        approver
+    )
+
+    approval_request.decision_comments = (
+        comments.strip()
+    )
+
+    approval_request.decided_at = (
+        timezone.now()
+    )
+
+    approval_request.save(
+        update_fields=[
+            "status",
+            "approver",
+            "decision_comments",
+            "decided_at",
+            "updated_at",
+        ]
+    )
+
+    return approval_request
+
+
+def reject_approval_request(
+    approval_request,
+    approver,
+    comments,
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    if (
+        approval_request.status
+        !=
+        ApprovalRequest.Status.PENDING
+    ):
+
+        raise ValidationError(
+            (
+                "Only pending approval requests "
+                "can be rejected."
+            )
+        )
+
+    comments = (
+        comments
+        .strip()
+    )
+
+    if not comments:
+
+        raise ValidationError(
+            (
+                "A rejection reason is required."
+            )
+        )
+
+    approval_request.status = (
+        ApprovalRequest.Status.REJECTED
+    )
+
+    approval_request.approver = (
+        approver
+    )
+
+    approval_request.decision_comments = (
+        comments
+    )
+
+    approval_request.decided_at = (
+        timezone.now()
+    )
+
+    approval_request.save(
+        update_fields=[
+            "status",
+            "approver",
+            "decision_comments",
+            "decided_at",
+            "updated_at",
+        ]
+    )
+
+    return approval_request
+
+
+def process_approval_request(
+    approval_request,
+    user,
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    if (
+        approval_request.status
+        !=
+        ApprovalRequest.Status.APPROVED
+    ):
+
+        raise ValidationError(
+            (
+                "Only approved requests "
+                "can be marked as processed."
+            )
+        )
+
+    approval_request.status = (
+        ApprovalRequest.Status.PROCESSED
+    )
+
+    approval_request.processed_by = (
+        user
+    )
+
+    approval_request.processed_at = (
+        timezone.now()
+    )
+
+    approval_request.save(
+        update_fields=[
+            "status",
+            "processed_by",
+            "processed_at",
+            "updated_at",
+        ]
+    )
+
+    return approval_request

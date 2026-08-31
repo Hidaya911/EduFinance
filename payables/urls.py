@@ -196,4 +196,57 @@ path(
 ),
 
 
+
+# ============================================================
+# APPROVAL WORKFLOW
+# ============================================================
+
+path(
+    "approvals/",
+    views.approval_list,
+    name="approval_list",
+),
+
+path(
+    "approvals/create/",
+    views.approval_create,
+    name="approval_create",
+),
+
+path(
+    "approvals/<str:pk>/",
+    views.approval_detail,
+    name="approval_detail",
+),
+
+path(
+    "approvals/<str:pk>/edit/",
+    views.approval_edit,
+    name="approval_edit",
+),
+
+path(
+    "approvals/<str:pk>/submit/",
+    views.approval_submit,
+    name="approval_submit",
+),
+
+path(
+    "approvals/<str:pk>/approve/",
+    views.approval_approve,
+    name="approval_approve",
+),
+
+path(
+    "approvals/<str:pk>/reject/",
+    views.approval_reject,
+    name="approval_reject",
+),
+
+path(
+    "approvals/<str:pk>/process/",
+    views.approval_process,
+    name="approval_process",
+),
+
 ]

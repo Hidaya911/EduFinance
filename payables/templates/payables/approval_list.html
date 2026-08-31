@@ -1,0 +1,2196 @@
+{% extends "base.html" %}
+
+{% block title %}Approvals | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — APPROVAL OPERATIONS CENTER
+       Scoped with apl-
+    ========================================================== */
+
+    .apl-page {
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 92% 2%,
+                rgba(37,99,235,.12),
+                transparent 25%
+            ),
+            radial-gradient(
+                circle at 8% 15%,
+                rgba(124,58,237,.05),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .apl-container {
+        width: 100%;
+        max-width: 1500px;
+
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       LOADING
+    ========================================================== */
+
+    .apl-progress {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        z-index: 99999;
+
+        width: 100%;
+        height: 3px;
+
+        overflow: hidden;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        transition:
+            opacity .15s ease;
+    }
+
+    .apl-progress.active {
+        opacity: 1;
+    }
+
+    .apl-progress::after {
+        content: "";
+
+        display: block;
+
+        width: 38%;
+        height: 100%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #60a5fa,
+                #8b5cf6
+            );
+
+        animation:
+            aplLoading
+            .8s ease infinite;
+    }
+
+    @keyframes aplLoading {
+
+        from {
+            transform:
+                translateX(-110%);
+        }
+
+        to {
+            transform:
+                translateX(300%);
+        }
+
+    }
+
+
+    /* ==========================================================
+       CONTEXT
+    ========================================================== */
+
+    .apl-context {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 16px;
+
+        margin-bottom: 16px;
+    }
+
+    .apl-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .apl-breadcrumb-current {
+        color: #49617e;
+    }
+
+    .apl-context-actions {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .apl-context-link {
+        min-height: 32px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            11px;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 8px;
+
+        background: white;
+
+        color: #66778c;
+
+        text-decoration: none;
+
+        font-size: 9px;
+        font-weight: 700;
+
+        transition: .2s ease;
+    }
+
+    .apl-context-link:hover {
+        border-color: #9cb8da;
+
+        color: #2563eb;
+
+        transform:
+            translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .apl-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding:
+            30px
+            32px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 52%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13,42,83,.17);
+    }
+
+    .apl-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 350px;
+        height: 350px;
+
+        right: -105px;
+        top: -205px;
+
+        border:
+            48px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .apl-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 180px;
+        height: 180px;
+
+        right: 205px;
+        bottom: -135px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(139,92,246,.16);
+    }
+
+    .apl-hero-left {
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .apl-eyebrow {
+        margin-bottom: 6px;
+
+        color: #8bbcff;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apl-title {
+        margin: 0;
+
+        font-size: 32px;
+        line-height: 1.1;
+
+        font-weight: 790;
+
+        letter-spacing:
+            -.025em;
+    }
+
+    .apl-subtitle {
+        max-width: 760px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 11.5px;
+
+        line-height: 1.55;
+    }
+
+    .apl-hero-actions {
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .apl-primary-btn {
+        min-height: 44px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            16px;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 9.5px;
+        font-weight: 730;
+
+        box-shadow:
+            0 10px 22px
+            rgba(0,44,119,.28);
+
+        transition: .2s ease;
+    }
+
+    .apl-primary-btn:hover {
+        transform:
+            translateY(-2px);
+    }
+
+
+    /* ==========================================================
+       MESSAGES
+    ========================================================== */
+
+    .apl-message {
+        margin-bottom: 10px;
+
+        padding:
+            11px
+            13px;
+
+        border-radius: 10px;
+
+        font-size: 9.5px;
+        font-weight: 650;
+    }
+
+    .apl-message.success {
+        border:
+            1px solid #c9eadc;
+
+        background: #effbf5;
+
+        color: #087b51;
+    }
+
+    .apl-message.error {
+        border:
+            1px solid #f0c8ce;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+    }
+
+
+    /* ==========================================================
+       DYNAMIC AREA
+    ========================================================== */
+
+    .apl-dynamic {
+        transition:
+            opacity .15s ease;
+    }
+
+    .apl-dynamic.loading {
+        opacity: .55;
+    }
+
+
+    /* ==========================================================
+       KPI GRID
+    ========================================================== */
+
+    .apl-kpis {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                5,
+                minmax(0,1fr)
+            );
+
+        gap: 15px;
+
+        margin-bottom: 18px;
+    }
+
+    .apl-kpi {
+        min-height: 126px;
+
+        padding: 18px;
+
+        border:
+            1px solid #dbe4ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(25,43,69,.05);
+    }
+
+    .apl-kpi.requested {
+        border-top:
+            3px solid #64748b;
+    }
+
+    .apl-kpi.pending {
+        border-top:
+            3px solid #d97706;
+    }
+
+    .apl-kpi.approved {
+        border-top:
+            3px solid #059669;
+    }
+
+    .apl-kpi.rejected {
+        border-top:
+            3px solid #dc2626;
+    }
+
+    .apl-kpi.processed {
+        border-top:
+            3px solid #2563eb;
+    }
+
+    .apl-kpi-label {
+        color: #8794a7;
+
+        font-size: 7.8px;
+        font-weight: 850;
+
+        letter-spacing: .08em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apl-kpi-value {
+        margin-top: 16px;
+
+        color: #0b2344;
+
+        font-size: 24px;
+        font-weight: 790;
+    }
+
+    .apl-kpi-note {
+        margin-top: 6px;
+
+        color: #9aa5b4;
+
+        font-size: 8px;
+    }
+
+
+    /* ==========================================================
+       WORKFLOW STRIP
+    ========================================================== */
+
+    .apl-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 18px;
+
+        padding:
+            13px
+            16px;
+
+        border:
+            1px solid #dbe7f4;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                100deg,
+                #f7fbff,
+                #f3f0ff
+            );
+    }
+
+    .apl-strip-title {
+        color: #183557;
+
+        font-size: 9.5px;
+        font-weight: 760;
+    }
+
+    .apl-strip-text {
+        margin-top: 2px;
+
+        color: #8090a4;
+
+        font-size: 8.3px;
+    }
+
+    .apl-strip-badge {
+        padding:
+            6px
+            9px;
+
+        border:
+            1px solid #d9e5f2;
+
+        border-radius: 999px;
+
+        background: white;
+
+        color: #64758b;
+
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================
+       PANEL
+    ========================================================== */
+
+    .apl-panel {
+        overflow: hidden;
+
+        border:
+            1px solid #dae4ef;
+
+        border-radius: 19px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .apl-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            19px
+            20px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apl-panel-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .apl-panel-subtitle {
+        margin-top: 3px;
+
+        color: #929eae;
+
+        font-size: 8.8px;
+    }
+
+    .apl-count {
+        padding:
+            6px
+            9px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 999px;
+
+        background: #f8faff;
+
+        color: #6d7d91;
+
+        font-size: 8px;
+        font-weight: 750;
+    }
+
+
+    /* ==========================================================
+       FILTERS
+    ========================================================== */
+
+    .apl-toolbar {
+        display: grid;
+
+        grid-template-columns:
+            minmax(300px,1.4fr)
+            170px
+            210px
+            180px;
+
+        gap: 9px;
+
+        padding:
+            14px
+            17px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background: #fbfcfe;
+    }
+
+    .apl-search-wrap {
+        position: relative;
+    }
+
+    .apl-search,
+    .apl-select {
+        width: 100%;
+        height: 42px;
+
+        box-sizing:
+            border-box;
+
+        border:
+            1.5px solid #c9d5e4;
+
+        border-radius: 10px;
+
+        background: white;
+
+        color: #34465e;
+
+        outline: none;
+
+        font-size: 9.5px;
+    }
+
+    .apl-search {
+        padding:
+            0
+            40px
+            0
+            12px;
+    }
+
+    .apl-select {
+        padding:
+            0
+            9px;
+    }
+
+    .apl-search:focus,
+    .apl-select:focus {
+        border-color: #2563eb;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+    }
+
+    .apl-search-spinner {
+        position: absolute;
+
+        right: 13px;
+        top: 50%;
+
+        width: 13px;
+        height: 13px;
+
+        margin-top: -7px;
+
+        border:
+            2px solid #d6e1ed;
+
+        border-top-color: #2563eb;
+
+        border-radius: 50%;
+
+        opacity: 0;
+
+        animation:
+            aplSpin
+            .7s linear infinite;
+    }
+
+    .apl-search-spinner.active {
+        opacity: 1;
+    }
+
+    @keyframes aplSpin {
+
+        to {
+            transform:
+                rotate(360deg);
+        }
+
+    }
+
+
+    /* ==========================================================
+       TABLE
+    ========================================================== */
+
+    .apl-table-wrap {
+        overflow-x: auto;
+    }
+
+    .apl-table {
+        width: 100%;
+
+        border-collapse:
+            collapse;
+    }
+
+    .apl-table th {
+        padding:
+            12px
+            13px;
+
+        border-bottom:
+            1px solid #e7ecf3;
+
+        background: #f8fafc;
+
+        color: #7d899c;
+
+        text-align: left;
+
+        font-size: 7px;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-transform:
+            uppercase;
+
+        white-space: nowrap;
+    }
+
+    .apl-table td {
+        padding:
+            14px
+            13px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        color: #42536b;
+
+        font-size: 8.5px;
+
+        vertical-align: middle;
+    }
+
+    .apl-table tbody tr:hover {
+        background: #f9fbff;
+    }
+
+    .apl-request-number {
+        color: #0b2344;
+
+        font-size: 9.2px;
+        font-weight: 790;
+    }
+
+    .apl-record-title {
+        margin-top: 3px;
+
+        color: #29415e;
+
+        font-size: 8.8px;
+        font-weight: 720;
+    }
+
+    .apl-meta {
+        max-width: 260px;
+
+        margin-top: 3px;
+
+        overflow: hidden;
+
+        color: #98a4b4;
+
+        font-size: 7.4px;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+    }
+
+    .apl-operation {
+        display: inline-flex;
+
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        background: #f2efff;
+
+        color: #6d4de0;
+
+        font-size: 7.2px;
+        font-weight: 750;
+
+        white-space: nowrap;
+    }
+
+    .apl-user {
+        font-weight: 650;
+    }
+
+    .apl-amount {
+        color: #153b5f;
+
+        font-weight: 790;
+
+        white-space: nowrap;
+    }
+
+    .apl-date {
+        color: #66768b;
+
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================================
+       STATUS
+    ========================================================== */
+
+    .apl-badge {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 5px;
+
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        font-size: 7.2px;
+        font-weight: 750;
+
+        white-space: nowrap;
+    }
+
+    .apl-dot {
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+    .apl-badge.requested {
+        color: #64748b;
+
+        background: #f1f5f9;
+    }
+
+    .apl-badge.pending {
+        color: #b45309;
+
+        background: #fff7e8;
+    }
+
+    .apl-badge.approved {
+        color: #078152;
+
+        background: #eafaf3;
+    }
+
+    .apl-badge.rejected {
+        color: #c2414c;
+
+        background: #fff0f1;
+    }
+
+    .apl-badge.processed {
+        color: #2563eb;
+
+        background: #edf4ff;
+    }
+
+
+    /* ==========================================================
+       ACTIONS
+    ========================================================== */
+
+    .apl-actions {
+        display: flex;
+        justify-content: flex-end;
+
+        gap: 6px;
+    }
+
+    .apl-action {
+        min-height: 30px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            9px;
+
+        border-radius: 8px;
+
+        text-decoration: none;
+
+        font-size: 7.8px;
+        font-weight: 720;
+    }
+
+    .apl-action.view {
+        border:
+            1px solid #d7e5ff;
+
+        background: #eff5ff;
+
+        color: #2563eb;
+    }
+
+    .apl-action.edit {
+        border:
+            1px solid #ddd6fe;
+
+        background: #f5f3ff;
+
+        color: #6d4de0;
+    }
+
+
+    /* ==========================================================
+       EMPTY STATE
+    ========================================================== */
+
+    .apl-empty {
+        min-height: 360px;
+
+        display: grid;
+        place-items: center;
+
+        padding: 40px;
+
+        text-align: center;
+    }
+
+    .apl-empty-title {
+        color: #0b2344;
+
+        font-size: 18px;
+        font-weight: 780;
+    }
+
+    .apl-empty-text {
+        max-width: 430px;
+
+        margin:
+            8px
+            auto
+            18px;
+
+        color: #8290a4;
+
+        font-size: 9.5px;
+
+        line-height: 1.6;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1250px) {
+
+        .apl-kpis {
+            grid-template-columns:
+                repeat(3,1fr);
+        }
+
+        .apl-toolbar {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .apl-search-wrap {
+            grid-column:
+                1 / -1;
+        }
+
+    }
+
+    @media(max-width:760px) {
+
+        .apl-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .apl-context {
+            display: none;
+        }
+
+        .apl-hero {
+            flex-direction: column;
+
+            align-items: stretch;
+
+            padding:
+                24px
+                20px;
+        }
+
+        .apl-kpis,
+        .apl-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .apl-search-wrap {
+            grid-column: auto;
+        }
+
+        .apl-strip {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .apl-primary-btn {
+            width: 100%;
+
+            box-sizing: border-box;
+        }
+
+    }
+</style>
+
+
+<div
+    class="apl-progress"
+    id="approvalProgress"
+></div>
+
+
+<div class="apl-page">
+
+<div class="apl-container">
+
+
+    <!-- CONTEXT -->
+
+    <div class="apl-context">
+
+        <div class="apl-breadcrumb">
+
+            <span>
+                EduFinance
+            </span>
+
+            <span>›</span>
+
+            <span>
+                Financial Operations
+            </span>
+
+            <span>›</span>
+
+            <span class="apl-breadcrumb-current">
+                Approvals
+            </span>
+
+        </div>
+
+
+        <div class="apl-context-actions">
+
+            <a
+                href="{% url 'payables:expense_list' %}"
+                class="apl-context-link"
+            >
+                Expenses
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- HERO -->
+
+    <section class="apl-hero">
+
+        <div class="apl-hero-left">
+
+            <div class="apl-eyebrow">
+                Financial Governance
+            </div>
+
+            <h1 class="apl-title">
+                Approval Operations Center
+            </h1>
+
+            <p class="apl-subtitle">
+
+                Control sensitive financial actions through a
+                traceable workflow from request creation and
+                submission to decision and final processing.
+
+            </p>
+
+        </div>
+
+
+        <div class="apl-hero-actions">
+
+            <a
+                href="{% url 'payables:approval_create' %}"
+                class="apl-primary-btn"
+            >
+                + New Approval Request
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- MESSAGES -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="
+                    apl-message
+                    {% if message.tags %}
+                        {{ message.tags }}
+                    {% endif %}
+                "
+            >
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- DYNAMIC AREA -->
+
+    <div
+        class="apl-dynamic"
+        id="approvalDynamicArea"
+    >
+
+
+        <!-- KPI -->
+
+        <section class="apl-kpis">
+
+
+            <article class="apl-kpi requested">
+
+                <div class="apl-kpi-label">
+                    Total Requests
+                </div>
+
+                <div class="apl-kpi-value">
+                    {{ total_count }}
+                </div>
+
+                <div class="apl-kpi-note">
+
+                    {{ requested_count }}
+                    editable draft{{ requested_count|pluralize }}
+
+                </div>
+
+            </article>
+
+
+            <article class="apl-kpi pending">
+
+                <div class="apl-kpi-label">
+                    Pending Decision
+                </div>
+
+                <div class="apl-kpi-value">
+                    {{ pending_count }}
+                </div>
+
+                <div class="apl-kpi-note">
+                    Waiting for approval
+                </div>
+
+            </article>
+
+
+            <article class="apl-kpi approved">
+
+                <div class="apl-kpi-label">
+                    Approved
+                </div>
+
+                <div class="apl-kpi-value">
+                    {{ approved_count }}
+                </div>
+
+                <div class="apl-kpi-note">
+                    Awaiting processing
+                </div>
+
+            </article>
+
+
+            <article class="apl-kpi rejected">
+
+                <div class="apl-kpi-label">
+                    Rejected
+                </div>
+
+                <div class="apl-kpi-value">
+                    {{ rejected_count }}
+                </div>
+
+                <div class="apl-kpi-note">
+                    Preserved decisions
+                </div>
+
+            </article>
+
+
+            <article class="apl-kpi processed">
+
+                <div class="apl-kpi-label">
+                    Processed
+                </div>
+
+                <div class="apl-kpi-value">
+                    {{ processed_count }}
+                </div>
+
+                <div class="apl-kpi-note">
+                    Completed workflows
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- WORKFLOW STRIP -->
+
+        <section class="apl-strip">
+
+            <div>
+
+                <div class="apl-strip-title">
+                    Controlled Approval Lifecycle
+                </div>
+
+                <div class="apl-strip-text">
+
+                    Requested →
+                    Pending Approval →
+                    Approved / Rejected →
+                    Processed
+
+                </div>
+
+            </div>
+
+
+            <div class="apl-strip-badge">
+
+                Currency:
+                {{ currency_code }}
+
+            </div>
+
+        </section>
+
+
+        <!-- LEDGER -->
+
+        <section class="apl-panel">
+
+
+            <div class="apl-panel-head">
+
+                <div>
+
+                    <h2 class="apl-panel-title">
+                        Approval Request Ledger
+                    </h2>
+
+                    <div class="apl-panel-subtitle">
+
+                        Search, filter and review
+                        sensitive financial decisions.
+
+                    </div>
+
+                </div>
+
+
+                <div class="apl-count">
+
+                    {{ approvals|length }}
+                    visible
+
+                </div>
+
+            </div>
+
+
+            <!-- FILTERS -->
+
+            <form
+                method="get"
+                class="apl-toolbar"
+                id="approvalFilterForm"
+            >
+
+
+                <div class="apl-search-wrap">
+
+                    <input
+                        type="text"
+                        name="search"
+                        id="approvalSearch"
+                        class="apl-search"
+                        value="{{ search }}"
+                        placeholder="Search request number, title, reason or related record..."
+                        autocomplete="off"
+                    >
+
+                    <span
+                        class="apl-search-spinner"
+                        id="approvalSearchSpinner"
+                    ></span>
+
+                </div>
+
+
+                <select
+                    name="status"
+                    id="approvalStatusFilter"
+                    class="apl-select"
+                >
+
+                    <option value="">
+                        All statuses
+                    </option>
+
+                    {% for value, label in status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <select
+                    name="operation_type"
+                    id="approvalOperationFilter"
+                    class="apl-select"
+                >
+
+                    <option value="">
+                        All operation types
+                    </option>
+
+                    {% for value, label in operation_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_operation == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <select
+                    name="requester"
+                    id="approvalRequesterFilter"
+                    class="apl-select"
+                >
+
+                    <option value="">
+                        All requesters
+                    </option>
+
+                    {% for requester in requesters %}
+
+                        <option
+                            value="{{ requester.pk }}"
+                            {% if selected_requester == requester.pk|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {% if requester.get_full_name %}
+
+                                {{ requester.get_full_name }}
+
+                            {% else %}
+
+                                {{ requester.username }}
+
+                            {% endif %}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </form>
+
+
+            <!-- TABLE -->
+
+            {% if approvals %}
+
+                <div class="apl-table-wrap">
+
+                    <table class="apl-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Request
+                                </th>
+
+                                <th>
+                                    Operation
+                                </th>
+
+                                <th>
+                                    Requester
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Created
+                                </th>
+
+                                <th style="text-align:right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for approval in approvals %}
+
+                                <tr>
+
+
+                                    <td>
+
+                                        <div class="apl-request-number">
+
+                                            {{ approval.request_number }}
+
+                                        </div>
+
+
+                                        <div class="apl-record-title">
+
+                                            {{ approval.title }}
+
+                                        </div>
+
+
+                                        <div class="apl-meta">
+
+                                            {% if approval.related_entity_type %}
+
+                                                {{ approval.related_entity_type }}
+
+                                                {% if approval.related_entity_id %}
+
+                                                    ·
+                                                    {{ approval.related_entity_id }}
+
+                                                {% endif %}
+
+                                            {% else %}
+
+                                                No linked record
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="apl-operation">
+
+                                            {{ approval.get_operation_type_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td class="apl-user">
+
+                                        {% if approval.requester.get_full_name %}
+
+                                            {{ approval.requester.get_full_name }}
+
+                                        {% else %}
+
+                                            {{ approval.requester.username }}
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if approval.amount is not None %}
+
+                                            <span class="apl-amount">
+
+                                                {{ currency_code }}
+                                                {{ approval.amount|floatformat:2 }}
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="apl-meta">
+
+                                                Not specified
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                apl-badge
+                                                {{ approval.status }}
+                                            "
+                                        >
+
+                                            <span class="apl-dot"></span>
+
+                                            {{ approval.get_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td class="apl-date">
+
+                                        {{ approval.created_at|date:"M d, Y" }}
+
+                                        <div class="apl-meta">
+
+                                            {{ approval.created_at|date:"H:i" }}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="apl-actions">
+
+
+                                            <a
+                                                href="{% url 'payables:approval_detail' approval.pk %}"
+                                                class="apl-action view"
+                                            >
+                                                View
+                                            </a>
+
+
+                                            {% if approval.status == "requested" %}
+
+                                                <a
+                                                    href="{% url 'payables:approval_edit' approval.pk %}"
+                                                    class="apl-action edit"
+                                                >
+                                                    Edit
+                                                </a>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="apl-empty">
+
+
+                    <div>
+
+                        <div class="apl-empty-title">
+
+                            {% if search or selected_status or selected_operation or selected_requester %}
+
+                                No matching approval requests
+
+                            {% else %}
+
+                                Start the approval workflow
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="apl-empty-text">
+
+                            {% if search or selected_status or selected_operation or selected_requester %}
+
+                                No approval request matches
+                                the current search and filters.
+
+                            {% else %}
+
+                                Create the first approval request
+                                for a sensitive financial action.
+
+                            {% endif %}
+
+                        </div>
+
+
+                        {% if not search and not selected_status and not selected_operation and not selected_requester %}
+
+                            <a
+                                href="{% url 'payables:approval_create' %}"
+                                class="apl-primary-btn"
+                            >
+                                + Create First Request
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+</div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        let approvalTimer =
+            null;
+
+
+        let approvalController =
+            null;
+
+
+        const progress =
+            document.getElementById(
+                "approvalProgress"
+            );
+
+
+        function bindApprovalFilters() {
+
+
+            const form =
+                document.getElementById(
+                    "approvalFilterForm"
+                );
+
+
+            const search =
+                document.getElementById(
+                    "approvalSearch"
+                );
+
+
+            const status =
+                document.getElementById(
+                    "approvalStatusFilter"
+                );
+
+
+            const operation =
+                document.getElementById(
+                    "approvalOperationFilter"
+                );
+
+
+            const requester =
+                document.getElementById(
+                    "approvalRequesterFilter"
+                );
+
+
+            if (
+                !form
+                ||
+                !search
+                ||
+                !status
+                ||
+                !operation
+                ||
+                !requester
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                form.dataset.bound
+                === "true"
+            ) {
+
+                return;
+
+            }
+
+
+            form.dataset.bound =
+                "true";
+
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    applyApprovalFilters();
+
+                }
+            );
+
+
+            search.addEventListener(
+                "input",
+                function () {
+
+
+                    clearTimeout(
+                        approvalTimer
+                    );
+
+
+                    approvalTimer =
+                        setTimeout(
+                            applyApprovalFilters,
+                            320
+                        );
+
+                }
+            );
+
+
+            [
+                status,
+                operation,
+                requester
+            ]
+            .forEach(
+                function (element) {
+
+
+                    element.addEventListener(
+                        "change",
+                        applyApprovalFilters
+                    );
+
+                }
+            );
+
+        }
+
+
+        async function applyApprovalFilters() {
+
+
+            const search =
+                document.getElementById(
+                    "approvalSearch"
+                );
+
+
+            const status =
+                document.getElementById(
+                    "approvalStatusFilter"
+                );
+
+
+            const operation =
+                document.getElementById(
+                    "approvalOperationFilter"
+                );
+
+
+            const requester =
+                document.getElementById(
+                    "approvalRequesterFilter"
+                );
+
+
+            const area =
+                document.getElementById(
+                    "approvalDynamicArea"
+                );
+
+
+            const spinner =
+                document.getElementById(
+                    "approvalSearchSpinner"
+                );
+
+
+            if (
+                !search
+                ||
+                !status
+                ||
+                !operation
+                ||
+                !requester
+                ||
+                !area
+            ) {
+
+                return;
+
+            }
+
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+
+            const values = {
+
+                search:
+                    search.value.trim(),
+
+                status:
+                    status.value,
+
+                operation_type:
+                    operation.value,
+
+                requester:
+                    requester.value
+
+            };
+
+
+            Object.entries(
+                values
+            )
+            .forEach(
+                function (
+                    [key, value]
+                ) {
+
+
+                    if (value) {
+
+                        url.searchParams.set(
+                            key,
+                            value
+                        );
+
+                    }
+
+                    else {
+
+                        url.searchParams.delete(
+                            key
+                        );
+
+                    }
+
+                }
+            );
+
+
+            if (
+                approvalController
+            ) {
+
+                approvalController.abort();
+
+            }
+
+
+            approvalController =
+                new AbortController();
+
+
+            area.classList.add(
+                "loading"
+            );
+
+
+            if (spinner) {
+
+                spinner.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            if (progress) {
+
+                progress.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        url.toString(),
+                        {
+
+                            headers: {
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+
+                            },
+
+                            signal:
+                                approvalController.signal
+
+                        }
+                    );
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    throw new Error(
+                        "Unable to load approval requests."
+                    );
+
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                const parsed =
+                    new DOMParser()
+                    .parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                const replacement =
+                    parsed.getElementById(
+                        "approvalDynamicArea"
+                    );
+
+
+                if (
+                    !replacement
+                ) {
+
+                    window.location.href =
+                        url.toString();
+
+                    return;
+
+                }
+
+
+                area.innerHTML =
+                    replacement.innerHTML;
+
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    url.toString()
+                );
+
+
+                bindApprovalFilters();
+
+            }
+
+
+            catch (error) {
+
+
+                if (
+                    error.name
+                    !== "AbortError"
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+
+            finally {
+
+
+                const newArea =
+                    document.getElementById(
+                        "approvalDynamicArea"
+                    );
+
+
+                const newSpinner =
+                    document.getElementById(
+                        "approvalSearchSpinner"
+                    );
+
+
+                if (newArea) {
+
+                    newArea.classList.remove(
+                        "loading"
+                    );
+
+                }
+
+
+                if (newSpinner) {
+
+                    newSpinner.classList.remove(
+                        "active"
+                    );
+
+                }
+
+
+                if (progress) {
+
+                    progress.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        bindApprovalFilters();
+
+    }
+);
+</script>
+
+{% endblock %}

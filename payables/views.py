@@ -2,6 +2,8 @@ from datetime import timedelta
 from decimal import Decimal
 
 
+from django.contrib.auth import get_user_model
+
 from school_config.models import School
 
 from django.core.exceptions import ValidationError
@@ -42,6 +44,16 @@ from .services import (
     void_supplier_payment,
     void_expense,
     void_employee_financial_transaction,
+)
+
+
+from .forms import ApprovalRequestForm
+from .models import ApprovalRequest
+from .services import (
+    approve_approval_request,
+    process_approval_request,
+    reject_approval_request,
+    submit_approval_request,
 )
 
 
@@ -2803,4 +2815,774 @@ def employee_financial_transaction_void(
             "employee_financial_detail"
         ),
         pk=employee_pk,
+    )
+
+
+# ============================================================
+# APPROVAL WORKFLOW
+# ============================================================
+
+
+def _approval_validation_message(
+    error,
+):
+
+    if (
+        hasattr(
+            error,
+            "messages",
+        )
+        and
+        error.messages
+    ):
+
+        return " ".join(
+            error.messages
+        )
+
+    return str(
+        error
+    )
+
+
+@login_required
+def approval_list(
+    request,
+):
+
+    approvals = (
+        ApprovalRequest.objects
+        .all()
+        .order_by(
+            "-created_at"
+        )
+    )
+
+    search = (
+        request.GET
+        .get(
+            "search",
+            "",
+        )
+        .strip()
+    )
+
+    selected_status = (
+        request.GET
+        .get(
+            "status",
+            "",
+        )
+        .strip()
+    )
+
+    selected_operation = (
+        request.GET
+        .get(
+            "operation_type",
+            "",
+        )
+        .strip()
+    )
+
+    selected_requester = (
+        request.GET
+        .get(
+            "requester",
+            "",
+        )
+        .strip()
+    )
+
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        approvals = (
+            approvals.filter(
+
+                Q(
+                    request_number__icontains=
+                    search
+                )
+
+                |
+
+                Q(
+                    title__icontains=
+                    search
+                )
+
+                |
+
+                Q(
+                    description__icontains=
+                    search
+                )
+
+                |
+
+                Q(
+                    request_reason__icontains=
+                    search
+                )
+
+                |
+
+                Q(
+                    related_entity_type__icontains=
+                    search
+                )
+
+                |
+
+                Q(
+                    related_entity_id__icontains=
+                    search
+                )
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS FILTER
+    # --------------------------------------------------------
+
+    if selected_status:
+
+        approvals = (
+            approvals.filter(
+                status=
+                    selected_status
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # OPERATION FILTER
+    # --------------------------------------------------------
+
+    if selected_operation:
+
+        approvals = (
+            approvals.filter(
+                operation_type=
+                    selected_operation
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # REQUESTER FILTER
+    # --------------------------------------------------------
+
+    if selected_requester:
+
+        approvals = (
+            approvals.filter(
+                requester_id=
+                    selected_requester
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # GLOBAL KPI COUNTS
+    # --------------------------------------------------------
+
+    all_approvals = (
+        ApprovalRequest.objects
+        .all()
+    )
+
+
+    total_count = (
+        all_approvals.count()
+    )
+
+
+    requested_count = (
+        all_approvals.filter(
+            status=
+                ApprovalRequest
+                .Status
+                .REQUESTED
+        )
+        .count()
+    )
+
+
+    pending_count = (
+        all_approvals.filter(
+            status=
+                ApprovalRequest
+                .Status
+                .PENDING
+        )
+        .count()
+    )
+
+
+    approved_count = (
+        all_approvals.filter(
+            status=
+                ApprovalRequest
+                .Status
+                .APPROVED
+        )
+        .count()
+    )
+
+
+    rejected_count = (
+        all_approvals.filter(
+            status=
+                ApprovalRequest
+                .Status
+                .REJECTED
+        )
+        .count()
+    )
+
+
+    processed_count = (
+        all_approvals.filter(
+            status=
+                ApprovalRequest
+                .Status
+                .PROCESSED
+        )
+        .count()
+    )
+
+
+    User = (
+        get_user_model()
+    )
+
+
+    requesters = (
+        User.objects
+        .filter(
+            requested_approvals__isnull=False
+        )
+        .distinct()
+        .order_by(
+            "username"
+        )
+    )
+
+
+    context = {
+
+        "approvals":
+            approvals,
+
+        "search":
+            search,
+
+        "selected_status":
+            selected_status,
+
+        "selected_operation":
+            selected_operation,
+
+        "selected_requester":
+            selected_requester,
+
+        "status_choices":
+            ApprovalRequest
+            .Status
+            .choices,
+
+        "operation_choices":
+            ApprovalRequest
+            .OperationType
+            .choices,
+
+        "requesters":
+            requesters,
+
+        "total_count":
+            total_count,
+
+        "requested_count":
+            requested_count,
+
+        "pending_count":
+            pending_count,
+
+        "approved_count":
+            approved_count,
+
+        "rejected_count":
+            rejected_count,
+
+        "processed_count":
+            processed_count,
+
+        "currency_code":
+            get_school_currency(),
+    }
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "approval_list.html"
+        ),
+        context,
+    )
+
+
+@login_required
+def approval_create(
+    request,
+):
+
+    if request.method == "POST":
+
+        form = (
+            ApprovalRequestForm(
+                request.POST
+            )
+        )
+
+
+        if form.is_valid():
+
+            approval = (
+                form.save(
+                    commit=False
+                )
+            )
+
+
+            approval.requester = (
+                request.user
+            )
+
+
+            approval.status = (
+                ApprovalRequest
+                .Status
+                .REQUESTED
+            )
+
+
+            approval.full_clean()
+
+            approval.save()
+
+
+            messages.success(
+                request,
+                (
+                    "Approval request "
+                    f"{approval.request_number} "
+                    "was created successfully."
+                ),
+            )
+
+
+            return redirect(
+                "payables:approval_detail",
+                pk=approval.pk,
+            )
+
+
+    else:
+
+        form = (
+            ApprovalRequestForm()
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "approval_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                "Create Approval Request",
+
+            "submit_text":
+                "Create Request",
+
+            "is_edit":
+                False,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+@login_required
+def approval_edit(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    if (
+        approval.status
+        !=
+        ApprovalRequest
+        .Status
+        .REQUESTED
+    ):
+
+        messages.error(
+            request,
+            (
+                "Only approval requests "
+                "in Requested status "
+                "can be edited."
+            ),
+        )
+
+        return redirect(
+            "payables:approval_detail",
+            pk=approval.pk,
+        )
+
+
+    if request.method == "POST":
+
+        form = (
+            ApprovalRequestForm(
+                request.POST,
+                instance=approval,
+            )
+        )
+
+
+        if form.is_valid():
+
+            approval = (
+                form.save(
+                    commit=False
+                )
+            )
+
+            approval.full_clean()
+
+            approval.save()
+
+
+            messages.success(
+                request,
+                (
+                    "Approval request "
+                    "was updated successfully."
+                ),
+            )
+
+
+            return redirect(
+                "payables:approval_detail",
+                pk=approval.pk,
+            )
+
+
+    else:
+
+        form = (
+            ApprovalRequestForm(
+                instance=approval
+            )
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "approval_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "approval":
+                approval,
+
+            "page_title":
+                "Edit Approval Request",
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+@login_required
+def approval_detail(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "approval_detail.html"
+        ),
+        {
+            "approval":
+                approval,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+@login_required
+@require_POST
+def approval_submit(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    try:
+
+        approval = (
+            submit_approval_request(
+                approval
+            )
+        )
+
+
+        messages.success(
+            request,
+            (
+                f"{approval.request_number} "
+                "was submitted for approval."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _approval_validation_message(
+                error
+            ),
+        )
+
+
+    return redirect(
+        "payables:approval_detail",
+        pk=approval.pk,
+    )
+
+
+@login_required
+@require_POST
+def approval_approve(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    comments = (
+        request.POST
+        .get(
+            "comments",
+            "",
+        )
+    )
+
+
+    try:
+
+        approval = (
+            approve_approval_request(
+                approval,
+                request.user,
+                comments,
+            )
+        )
+
+
+        messages.success(
+            request,
+            (
+                f"{approval.request_number} "
+                "was approved."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _approval_validation_message(
+                error
+            ),
+        )
+
+
+    return redirect(
+        "payables:approval_detail",
+        pk=approval.pk,
+    )
+
+
+@login_required
+@require_POST
+def approval_reject(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    comments = (
+        request.POST
+        .get(
+            "comments",
+            "",
+        )
+    )
+
+
+    try:
+
+        approval = (
+            reject_approval_request(
+                approval,
+                request.user,
+                comments,
+            )
+        )
+
+
+        messages.success(
+            request,
+            (
+                f"{approval.request_number} "
+                "was rejected."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _approval_validation_message(
+                error
+            ),
+        )
+
+
+    return redirect(
+        "payables:approval_detail",
+        pk=approval.pk,
+    )
+
+
+@login_required
+@require_POST
+def approval_process(
+    request,
+    pk,
+):
+
+    approval = (
+        get_object_or_404(
+            ApprovalRequest,
+            pk=pk,
+        )
+    )
+
+
+    try:
+
+        approval = (
+            process_approval_request(
+                approval,
+                request.user,
+            )
+        )
+
+
+        messages.success(
+            request,
+            (
+                f"{approval.request_number} "
+                "was marked as processed."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _approval_validation_message(
+                error
+            ),
+        )
+
+
+    return redirect(
+        "payables:approval_detail",
+        pk=approval.pk,
     )

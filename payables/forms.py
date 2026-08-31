@@ -11,6 +11,7 @@ from .models import (
     Expense,
     EmployeeFinancialProfile,
     EmployeeFinancialTransaction,
+    ApprovalRequest,
 )
 
 
@@ -1209,3 +1210,230 @@ class EmployeeFinancialTransactionForm(
             )
 
         return amount
+
+
+
+class ApprovalRequestForm(forms.ModelForm):
+
+    class Meta:
+
+        model = ApprovalRequest
+
+        fields = [
+            "operation_type",
+            "title",
+            "description",
+            "amount",
+            "related_entity_type",
+            "related_entity_id",
+            "request_reason",
+        ]
+
+        widgets = {
+
+            "operation_type":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "title":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Short approval request title",
+                    }
+                ),
+
+            "description":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 4,
+                        "placeholder":
+                            "Describe the financial operation...",
+                    }
+                ),
+
+            "amount":
+                forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "step": "0.01",
+                        "min": "0",
+                        "placeholder": "0.00",
+                    }
+                ),
+
+            "related_entity_type":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: Expense, Refund, Scholarship",
+                    }
+                ),
+
+            "related_entity_id":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Related record ID",
+                    }
+                ),
+
+            "request_reason":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 4,
+                        "placeholder":
+                            "Explain why approval is required...",
+                    }
+                ),
+        }
+
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        self.fields[
+            "request_reason"
+        ].required = True
+
+
+    def clean_title(self):
+
+        title = (
+            self.cleaned_data
+            .get(
+                "title",
+                "",
+            )
+            .strip()
+        )
+
+        if not title:
+
+            raise forms.ValidationError(
+                "Approval request title is required."
+            )
+
+        return title
+
+
+    def clean_request_reason(self):
+
+        reason = (
+            self.cleaned_data
+            .get(
+                "request_reason",
+                "",
+            )
+            .strip()
+        )
+
+        if not reason:
+
+            raise forms.ValidationError(
+                (
+                    "Please provide a reason "
+                    "for this approval request."
+                )
+            )
+
+        return reason
+
+
+    def clean(self):
+
+        cleaned_data = (
+            super().clean()
+        )
+
+        amount = (
+            cleaned_data.get(
+                "amount"
+            )
+        )
+
+        entity_type = (
+            cleaned_data.get(
+                "related_entity_type",
+                "",
+            )
+            or ""
+        ).strip()
+
+        entity_id = (
+            cleaned_data.get(
+                "related_entity_id",
+                "",
+            )
+            or ""
+        ).strip()
+
+        if (
+            amount is not None
+            and
+            amount < 0
+        ):
+
+            self.add_error(
+                "amount",
+                (
+                    "Approval amount cannot "
+                    "be negative."
+                ),
+            )
+
+        # If a related record is specified,
+        # both parts must be supplied.
+        if (
+            entity_type
+            and
+            not entity_id
+        ):
+
+            self.add_error(
+                "related_entity_id",
+                (
+                    "Enter the related record ID "
+                    "when an entity type is provided."
+                ),
+            )
+
+        if (
+            entity_id
+            and
+            not entity_type
+        ):
+
+            self.add_error(
+                "related_entity_type",
+                (
+                    "Enter the related entity type "
+                    "when a record ID is provided."
+                ),
+            )
+
+        cleaned_data[
+            "related_entity_type"
+        ] = entity_type
+
+        cleaned_data[
+            "related_entity_id"
+        ] = entity_id
+
+        return cleaned_data

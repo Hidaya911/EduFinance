@@ -1,0 +1,1829 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .apf-page {
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 2%,
+                rgba(37,99,235,.11),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(124,58,237,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .apf-container {
+        max-width: 1400px;
+
+        margin: auto;
+    }
+
+
+    .apf-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10.5px;
+        font-weight: 650;
+    }
+
+    .apf-breadcrumb a {
+        color: #7c8b9f;
+
+        text-decoration: none;
+    }
+
+
+    .apf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding:
+            28px
+            31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13,42,83,.17);
+    }
+
+    .apf-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .apf-hero-left,
+    .apf-chip {
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .apf-eyebrow {
+        margin-bottom: 6px;
+
+        color: #8bbcff;
+
+        font-size: 9.5px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apf-title {
+        margin: 0;
+
+        font-size: 30px;
+
+        font-weight: 790;
+
+        letter-spacing:
+            -.025em;
+    }
+
+    .apf-subtitle {
+        max-width: 700px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 11.5px;
+
+        line-height: 1.55;
+    }
+
+    .apf-chip {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            8px
+            12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .apf-chip-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #c4b5fd;
+    }
+
+
+    .apf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            340px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    .apf-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .apf-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        padding:
+            20px
+            22px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apf-card-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .apf-card-subtitle {
+        margin-top: 4px;
+
+        color: #939eae;
+
+        font-size: 9px;
+    }
+
+    .apf-required-note {
+        color: #9ba6b4;
+
+        font-size: 8.5px;
+    }
+
+    .apf-body {
+        padding: 20px;
+    }
+
+
+    .apf-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding:
+            18px
+            18px
+            20px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcff
+            );
+    }
+
+    .apf-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #6d4de0,
+                #60a5fa
+            );
+    }
+
+    .apf-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apf-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #6d4de0,
+                #2563eb
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .apf-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .apf-section-desc {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.3px;
+    }
+
+
+    .apf-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .apf-full {
+        grid-column:
+            1 / -1;
+    }
+
+    .apf-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10px;
+        font-weight: 780;
+    }
+
+    .apf-required {
+        color: #df4554;
+    }
+
+    .apf-optional {
+        margin-left: auto;
+
+        padding:
+            3px
+            7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 7.5px;
+        font-weight: 700;
+    }
+
+    .apf-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b8c8da;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+
+        font-size: 11.5px;
+
+        outline: none;
+    }
+
+    .apf-field
+    input.form-control,
+    .apf-field
+    select.form-control {
+        height: 47px;
+
+        padding:
+            0
+            13px;
+    }
+
+    .apf-field
+    textarea.form-control {
+        min-height: 108px;
+
+        padding:
+            12px
+            13px;
+
+        resize: vertical;
+    }
+
+    .apf-field
+    .form-control:focus {
+        border-color: #6d4de0;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(109,77,224,.09);
+    }
+
+    .apf-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 8.5px;
+
+        line-height: 1.45;
+    }
+
+
+    .apf-money {
+        position: relative;
+    }
+
+    .apf-money-code {
+        position: absolute;
+
+        left: 13px;
+        top: 50%;
+
+        z-index: 2;
+
+        transform:
+            translateY(-50%);
+
+        min-width: 38px;
+
+        color: #6d4de0;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .apf-money
+    input.form-control {
+        padding-left: 64px;
+    }
+
+
+    .apf-error {
+        margin-top: 7px;
+
+        padding:
+            8px
+            10px;
+
+        border:
+            1px solid #f0c8ce;
+
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9px;
+    }
+
+
+    .apf-footer {
+        position: sticky;
+
+        bottom: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            16px
+            21px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter:
+            blur(14px);
+    }
+
+    .apf-footer-note {
+        color: #99a4b3;
+
+        font-size: 8.3px;
+    }
+
+    .apf-actions {
+        display: flex;
+
+        gap: 9px;
+    }
+
+    .apf-cancel,
+    .apf-submit {
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            18px;
+
+        border-radius: 9px;
+
+        font-size: 9.5px;
+        font-weight: 720;
+    }
+
+    .apf-cancel {
+        border:
+            1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+
+        text-decoration: none;
+    }
+
+    .apf-submit {
+        min-width: 165px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #6d4de0,
+                #2563eb
+            );
+
+        color: white;
+
+        cursor: pointer;
+    }
+
+    .apf-submit-loading {
+        display: none;
+    }
+
+    .apf-submit.loading
+    .apf-submit-normal {
+        display: none;
+    }
+
+    .apf-submit.loading
+    .apf-submit-loading {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .apf-spinner {
+        width: 14px;
+        height: 14px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            apfSpin
+            .7s linear infinite;
+    }
+
+    @keyframes apfSpin {
+
+        to {
+            transform:
+                rotate(360deg);
+        }
+
+    }
+
+
+    .apf-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .apf-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .apf-side-head {
+        padding:
+            15px
+            16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .apf-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .apf-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8px;
+    }
+
+    .apf-side-body {
+        padding: 16px;
+    }
+
+    .apf-summary {
+        background:
+            linear-gradient(
+                145deg,
+                #091e3b,
+                #123b70
+            );
+
+        color: white;
+    }
+
+    .apf-summary
+    .apf-side-title {
+        color: white;
+    }
+
+    .apf-summary-label {
+        color:
+            rgba(206,221,240,.62);
+
+        font-size: 7.3px;
+
+        text-transform:
+            uppercase;
+    }
+
+    .apf-summary-title {
+        margin-top: 5px;
+
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .apf-summary-money {
+        margin-top: 6px;
+
+        color: #d8d0ff;
+
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .apf-divider {
+        height: 1px;
+
+        margin:
+            14px
+            0;
+
+        background:
+            rgba(255,255,255,.09);
+    }
+
+    .apf-row {
+        display: flex;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-bottom: 11px;
+    }
+
+    .apf-row-label {
+        color:
+            rgba(218,230,245,.66);
+
+        font-size: 8px;
+    }
+
+    .apf-row-value {
+        color: white;
+
+        font-size: 8.3px;
+        font-weight: 700;
+
+        text-align: right;
+    }
+
+
+    @media(max-width:1050px) {
+
+        .apf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .apf-side {
+            position: static;
+        }
+
+    }
+
+    @media(max-width:720px) {
+
+        .apf-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .apf-breadcrumb {
+            display: none;
+        }
+
+        .apf-chip {
+            display: none;
+        }
+
+        .apf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .apf-full {
+            grid-column: auto;
+        }
+
+        .apf-section-desc {
+            display: none;
+        }
+
+        .apf-footer {
+            flex-direction: column;
+        }
+
+        .apf-actions {
+            width: 100%;
+
+            flex-direction:
+                column-reverse;
+        }
+
+        .apf-cancel,
+        .apf-submit {
+            width: 100%;
+
+            box-sizing:
+                border-box;
+        }
+
+    }
+
+</style>
+
+
+<div class="apf-page">
+
+<div class="apf-container">
+
+
+    <div class="apf-breadcrumb">
+
+        <a href="{% url 'payables:approval_list' %}">
+            Approvals
+        </a>
+
+        <span>›</span>
+
+        <span>
+            {{ page_title }}
+        </span>
+
+    </div>
+
+
+    <section class="apf-hero">
+
+
+        <div class="apf-hero-left">
+
+            <div class="apf-eyebrow">
+                Approval Workflow
+            </div>
+
+            <h1 class="apf-title">
+                {{ page_title }}
+            </h1>
+
+            <p class="apf-subtitle">
+
+                Define the sensitive financial operation,
+                value, linked record and business justification
+                requiring approval.
+
+            </p>
+
+        </div>
+
+
+        <div class="apf-chip">
+
+            <span class="apf-chip-dot"></span>
+
+            {% if is_edit %}
+
+                Requested Draft
+
+            {% else %}
+
+                New Request Draft
+
+            {% endif %}
+
+            · {{ currency_code }}
+
+        </div>
+
+    </section>
+
+
+    <form
+        method="post"
+        id="approvalRequestForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="apf-layout">
+
+
+            <section class="apf-card">
+
+
+                <div class="apf-card-head">
+
+                    <div>
+
+                        <h2 class="apf-card-title">
+
+                            Approval Request Information
+
+                        </h2>
+
+                        <div class="apf-card-subtitle">
+
+                            Draft requests remain editable
+                            until submission.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="apf-required-note">
+
+                        * Required field
+
+                    </div>
+
+                </div>
+
+
+                <div class="apf-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="apf-error">
+
+                            {{ form.non_field_errors }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- CLASSIFICATION -->
+
+                    <div class="apf-section">
+
+
+                        <div class="apf-section-head">
+
+                            <div class="apf-section-number">
+                                01
+                            </div>
+
+                            <div class="apf-section-title">
+
+                                Approval Classification
+
+                            </div>
+
+                            <div class="apf-section-desc">
+
+                                Operation & value
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="apf-grid">
+
+
+                            <div class="apf-field">
+
+                                <label class="apf-label">
+
+                                    Operation Type
+
+                                    <span class="apf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.operation_type }}
+
+                                {% if form.operation_type.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.operation_type.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="apf-field">
+
+                                <label class="apf-label">
+
+                                    Amount
+
+                                    <span class="apf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                <div class="apf-money">
+
+                                    <span class="apf-money-code">
+
+                                        {{ currency_code }}
+
+                                    </span>
+
+                                    {{ form.amount }}
+
+                                </div>
+
+
+                                {% if form.amount.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.amount.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="apf-field apf-full">
+
+                                <label class="apf-label">
+
+                                    Request Title
+
+                                    <span class="apf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.title }}
+
+                                {% if form.title.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.title.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RELATED RECORD -->
+
+                    <div class="apf-section">
+
+
+                        <div class="apf-section-head">
+
+                            <div class="apf-section-number">
+                                02
+                            </div>
+
+                            <div class="apf-section-title">
+
+                                Related Financial Record
+
+                            </div>
+
+                            <div class="apf-section-desc">
+
+                                Optional linkage
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="apf-grid">
+
+
+                            <div class="apf-field">
+
+                                <label class="apf-label">
+
+                                    Entity Type
+
+                                    <span class="apf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.related_entity_type }}
+
+                                {% if form.related_entity_type.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.related_entity_type.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="apf-field">
+
+                                <label class="apf-label">
+
+                                    Record ID
+
+                                    <span class="apf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.related_entity_id }}
+
+                                {% if form.related_entity_id.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.related_entity_id.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONTEXT -->
+
+                    <div class="apf-section">
+
+
+                        <div class="apf-section-head">
+
+                            <div class="apf-section-number">
+                                03
+                            </div>
+
+                            <div class="apf-section-title">
+
+                                Business Context
+
+                            </div>
+
+                            <div class="apf-section-desc">
+
+                                Description & reason
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="apf-grid">
+
+
+                            <div class="apf-field apf-full">
+
+                                <label class="apf-label">
+
+                                    Description
+
+                                    <span class="apf-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.description }}
+
+                                {% if form.description.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.description.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="apf-field apf-full">
+
+                                <label class="apf-label">
+
+                                    Request Reason
+
+                                    <span class="apf-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.request_reason }}
+
+                                {% if form.request_reason.errors %}
+
+                                    <div class="apf-error">
+
+                                        {{ form.request_reason.errors }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="apf-footer">
+
+
+                    <div class="apf-footer-note">
+
+                        Saving keeps this request in
+                        Requested status.
+                        Submission is a separate action.
+
+                    </div>
+
+
+                    <div class="apf-actions">
+
+
+                        {% if is_edit %}
+
+                            <a
+                                href="{% url 'payables:approval_detail' approval.pk %}"
+                                class="apf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'payables:approval_list' %}"
+                                class="apf-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% endif %}
+
+
+                        <button
+                            type="submit"
+                            class="apf-submit"
+                            id="approvalSubmit"
+                        >
+
+                            <span class="apf-submit-normal">
+
+                                ✓ {{ submit_text }}
+
+                            </span>
+
+
+                            <span class="apf-submit-loading">
+
+                                <span class="apf-spinner"></span>
+
+                                {% if is_edit %}
+
+                                    Saving Changes...
+
+                                {% else %}
+
+                                    Creating Request...
+
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SIDEBAR -->
+
+            <aside class="apf-side">
+
+
+                <section class="apf-side-card apf-summary">
+
+
+                    <div class="apf-side-head">
+
+                        <div class="apf-side-title">
+
+                            Live Request Preview
+
+                        </div>
+
+                        <div class="apf-side-desc">
+
+                            Review the request before saving.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="apf-side-body">
+
+
+                        <div class="apf-summary-label">
+
+                            Request Title
+
+                        </div>
+
+
+                        <div
+                            class="apf-summary-title"
+                            id="previewApprovalTitle"
+                        >
+
+                            Untitled approval request
+
+                        </div>
+
+
+                        <div
+                            class="apf-summary-money"
+                            id="previewApprovalAmount"
+                        >
+
+                            No amount specified
+
+                        </div>
+
+
+                        <div class="apf-divider"></div>
+
+
+                        <div class="apf-row">
+
+                            <span class="apf-row-label">
+                                Operation
+                            </span>
+
+                            <span
+                                class="apf-row-value"
+                                id="previewApprovalOperation"
+                            >
+                                Not selected
+                            </span>
+
+                        </div>
+
+
+                        <div class="apf-row">
+
+                            <span class="apf-row-label">
+                                Related Record
+                            </span>
+
+                            <span
+                                class="apf-row-value"
+                                id="previewApprovalEntity"
+                            >
+                                Not linked
+                            </span>
+
+                        </div>
+
+
+                        <div class="apf-row">
+
+                            <span class="apf-row-label">
+                                Currency
+                            </span>
+
+                            <span class="apf-row-value">
+
+                                {{ currency_code }}
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="apf-row">
+
+                            <span class="apf-row-label">
+                                Initial Status
+                            </span>
+
+                            <span class="apf-row-value">
+
+                                Requested
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const currency =
+            "{{ currency_code|escapejs }}";
+
+
+        const form =
+            document.getElementById(
+                "approvalRequestForm"
+            );
+
+
+        const submit =
+            document.getElementById(
+                "approvalSubmit"
+            );
+
+
+        const title =
+            document.getElementById(
+                "id_title"
+            );
+
+
+        const operation =
+            document.getElementById(
+                "id_operation_type"
+            );
+
+
+        const amount =
+            document.getElementById(
+                "id_amount"
+            );
+
+
+        const entityType =
+            document.getElementById(
+                "id_related_entity_type"
+            );
+
+
+        const entityId =
+            document.getElementById(
+                "id_related_entity_id"
+            );
+
+
+        function optionText(
+            select
+        ) {
+
+
+            if (
+                !select
+                ||
+                !select.value
+            ) {
+
+                return "";
+
+            }
+
+
+            const option =
+                select.options[
+                    select.selectedIndex
+                ];
+
+
+            return (
+                option
+                ?
+                option.text.trim()
+                :
+                ""
+            );
+
+        }
+
+
+        function money(
+            value
+        ) {
+
+
+            if (
+                value === null
+                ||
+                value === undefined
+                ||
+                String(value).trim()
+                === ""
+            ) {
+
+                return (
+                    "No amount specified"
+                );
+
+            }
+
+
+            const number =
+                parseFloat(
+                    value
+                );
+
+
+            if (
+                isNaN(number)
+            ) {
+
+                return (
+                    "No amount specified"
+                );
+
+            }
+
+
+            return (
+                currency
+                +
+                " "
+                +
+                number.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            );
+
+        }
+
+
+        function updatePreview() {
+
+
+            const titleOutput =
+                document.getElementById(
+                    "previewApprovalTitle"
+                );
+
+
+            const amountOutput =
+                document.getElementById(
+                    "previewApprovalAmount"
+                );
+
+
+            const operationOutput =
+                document.getElementById(
+                    "previewApprovalOperation"
+                );
+
+
+            const entityOutput =
+                document.getElementById(
+                    "previewApprovalEntity"
+                );
+
+
+            if (titleOutput) {
+
+                titleOutput.textContent =
+                    (
+                        title
+                        &&
+                        title.value.trim()
+                    )
+                    ?
+                    title.value.trim()
+                    :
+                    "Untitled approval request";
+
+            }
+
+
+            if (amountOutput) {
+
+                amountOutput.textContent =
+                    money(
+                        amount
+                        ?
+                        amount.value
+                        :
+                        ""
+                    );
+
+            }
+
+
+            if (operationOutput) {
+
+                operationOutput.textContent =
+                    optionText(
+                        operation
+                    )
+                    ||
+                    "Not selected";
+
+            }
+
+
+            if (entityOutput) {
+
+
+                const entityTypeValue =
+                    (
+                        entityType
+                        &&
+                        entityType.value.trim()
+                    )
+                    ?
+                    entityType.value.trim()
+                    :
+                    "";
+
+
+                const entityIdValue =
+                    (
+                        entityId
+                        &&
+                        entityId.value.trim()
+                    )
+                    ?
+                    entityId.value.trim()
+                    :
+                    "";
+
+
+                if (
+                    entityTypeValue
+                    &&
+                    entityIdValue
+                ) {
+
+                    entityOutput.textContent =
+                        entityTypeValue
+                        +
+                        " · "
+                        +
+                        entityIdValue;
+
+                }
+
+                else {
+
+                    entityOutput.textContent =
+                        "Not linked";
+
+                }
+
+            }
+
+        }
+
+
+        [
+            title,
+            operation,
+            amount,
+            entityType,
+            entityId
+        ]
+        .forEach(
+            function (
+                element
+            ) {
+
+
+                if (
+                    !element
+                ) {
+
+                    return;
+
+                }
+
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+        if (
+            form
+            &&
+            submit
+        ) {
+
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    if (
+                        !form.checkValidity()
+                        ||
+                        submit.disabled
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    submit.disabled =
+                        true;
+
+
+                    submit.classList.add(
+                        "loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+        updatePreview();
+
+    }
+);
+</script>
+
+{% endblock %}
