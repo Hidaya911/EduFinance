@@ -1,0 +1,3080 @@
+{% extends "base.html" %}
+
+{% block title %}School Configuration | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================================
+       EDUFINANCE — SCHOOL CONFIGURATION CONSOLE
+       Scoped using sc-
+    ========================================================== */
+
+    .sc-page {
+        min-height: 100vh;
+
+        padding:
+            32px
+            34px
+            70px;
+
+        background:
+            radial-gradient(
+                circle at 93% 3%,
+                rgba(37,99,235,.12),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 8% 10%,
+                rgba(16,185,129,.055),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .sc-container {
+        width: 100%;
+        max-width: 1450px;
+
+        margin: 0 auto;
+    }
+
+
+    /* ==========================================================
+       BREADCRUMB
+    ========================================================== */
+
+    .sc-breadcrumb {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+    .sc-breadcrumb-current {
+        color: #52677f;
+    }
+
+
+    /* ==========================================================
+       HERO
+    ========================================================== */
+
+    .sc-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        margin-bottom: 22px;
+
+        padding:
+            30px
+            32px;
+
+        border-radius: 22px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #071c38,
+                #0d2d58 53%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 22px 50px
+            rgba(13,42,83,.17);
+    }
+
+    .sc-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 355px;
+        height: 355px;
+
+        right: -110px;
+        top: -205px;
+
+        border:
+            48px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .sc-hero::after {
+        content: "";
+
+        position: absolute;
+
+        width: 170px;
+        height: 170px;
+
+        right: 215px;
+        bottom: -130px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(61,139,255,.16);
+    }
+
+    .sc-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .sc-hero-icon {
+        width: 64px;
+        height: 64px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 18px;
+
+        background:
+            rgba(255,255,255,.08);
+
+        backdrop-filter:
+            blur(12px);
+    }
+
+    .sc-hero-icon svg {
+        width: 29px;
+        height: 29px;
+    }
+
+    .sc-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .sc-title {
+        margin: 0;
+
+        font-size: 31px;
+        line-height: 1.1;
+
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .sc-subtitle {
+        max-width: 720px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 11.5px;
+        line-height: 1.55;
+    }
+
+    .sc-hero-state {
+        position: relative;
+        z-index: 2;
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            8px
+            12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        color:
+            rgba(255,255,255,.9);
+
+        font-size: 8.8px;
+        font-weight: 730;
+    }
+
+    .sc-state-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #5eead4;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(94,234,212,.10);
+    }
+
+
+    /* ==========================================================
+       MESSAGES
+    ========================================================== */
+
+    .sc-messages {
+        margin-bottom: 18px;
+    }
+
+    .sc-message {
+        margin-bottom: 9px;
+
+        padding:
+            11px
+            13px;
+
+        border-radius: 10px;
+
+        font-size: 9.5px;
+        font-weight: 650;
+    }
+
+    .sc-message.success {
+        border:
+            1px solid #c9eadc;
+
+        background: #effbf5;
+
+        color: #087b51;
+    }
+
+    .sc-message.error {
+        border:
+            1px solid #f0c8ce;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+    }
+
+
+    /* ==========================================================
+       LAYOUT
+    ========================================================== */
+
+    .sc-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            350px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+
+    /* ==========================================================
+       MAIN SETTINGS CARD
+    ========================================================== */
+
+    .sc-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .sc-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            20px
+            22px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .sc-card-head-left {
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .sc-card-icon {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+        place-items: center;
+
+        border-radius: 11px;
+
+        background: #edf4ff;
+
+        color: #2563eb;
+    }
+
+    .sc-card-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sc-card-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .sc-card-subtitle {
+        margin-top: 4px;
+
+        color: #939eae;
+
+        font-size: 9px;
+    }
+
+    .sc-required-note {
+        color: #9ba6b4;
+
+        font-size: 8.5px;
+    }
+
+    .sc-body {
+        padding: 20px;
+    }
+
+
+    /* ==========================================================
+       SECTION
+    ========================================================== */
+
+    .sc-section {
+        position: relative;
+
+        margin-bottom: 20px;
+
+        padding:
+            18px
+            18px
+            20px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcff
+            );
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease,
+            transform .2s ease;
+    }
+
+    .sc-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .sc-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius:
+            0 4px 4px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #2563eb,
+                #60a5fa
+            );
+    }
+
+    .sc-section:focus-within {
+        border-color: #91b3ed;
+
+        box-shadow:
+            0 10px 26px
+            rgba(37,99,235,.07);
+
+        transform:
+            translateY(-1px);
+    }
+
+    .sc-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .sc-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .sc-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .sc-section-description {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.3px;
+    }
+
+
+    /* ==========================================================
+       FIELDS
+    ========================================================== */
+
+    .sc-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .sc-full {
+        grid-column:
+            1 / -1;
+    }
+
+    .sc-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10px;
+        font-weight: 780;
+    }
+
+    .sc-required {
+        color: #df4554;
+    }
+
+    .sc-optional {
+        margin-left: auto;
+
+        padding:
+            3px
+            7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 7.5px;
+        font-weight: 700;
+    }
+
+    .sc-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b8c8da;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font:
+            inherit;
+
+        font-size: 11.5px;
+
+        outline: none;
+
+        transition:
+            border-color .2s ease,
+            box-shadow .2s ease,
+            transform .2s ease;
+    }
+
+    .sc-field
+    input.form-control,
+    .sc-field
+    select.form-control {
+        height: 47px;
+
+        padding:
+            0
+            13px;
+    }
+
+    .sc-field
+    textarea.form-control {
+        min-height: 100px;
+
+        padding:
+            12px
+            13px;
+
+        resize: vertical;
+
+        line-height: 1.55;
+    }
+
+    .sc-field
+    .form-control:hover {
+        border-color: #8fa8c5;
+
+        background: white;
+    }
+
+    .sc-field
+    .form-control:focus {
+        border-color: #2563eb;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+
+        transform:
+            translateY(-1px);
+    }
+
+    .sc-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 8.5px;
+        line-height: 1.45;
+    }
+
+    .sc-error {
+        margin-top: 7px;
+
+        padding:
+            8px
+            10px;
+
+        border:
+            1px solid #f0c8ce;
+
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9px;
+        line-height: 1.45;
+    }
+
+    .sc-error ul {
+        margin: 0;
+
+        padding-left: 15px;
+    }
+
+    .sc-global-error {
+        margin-bottom: 18px;
+    }
+
+
+    /* ==========================================================
+       LOGO UPLOAD
+    ========================================================== */
+
+    .sc-upload {
+        padding: 17px;
+
+        border:
+            1.5px dashed #b9cade;
+
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #fbfdff,
+                #f3f8ff
+            );
+    }
+
+    .sc-upload-layout {
+        display: flex;
+        align-items: center;
+
+        gap: 15px;
+    }
+
+    .sc-logo-preview {
+        width: 82px;
+        height: 82px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        overflow: hidden;
+
+        border:
+            1px solid #d9e4f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 22px
+            rgba(25,43,69,.07);
+    }
+
+    .sc-logo-preview img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+
+        padding: 8px;
+
+        box-sizing: border-box;
+    }
+
+    .sc-logo-placeholder {
+        color: #2563eb;
+
+        font-size: 24px;
+        font-weight: 850;
+    }
+
+    .sc-upload-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .sc-upload-title {
+        color: #183858;
+
+        font-size: 10.5px;
+        font-weight: 770;
+    }
+
+    .sc-upload-text {
+        margin-top: 4px;
+
+        color: #8796a9;
+
+        font-size: 8.5px;
+        line-height: 1.45;
+    }
+
+    .sc-native-file {
+        position: absolute;
+
+        width: 1px;
+        height: 1px;
+
+        overflow: hidden;
+
+        opacity: 0;
+    }
+
+    .sc-upload-controls {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-top: 12px;
+    }
+
+    .sc-upload-button {
+        min-height: 37px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        padding:
+            0
+            13px;
+
+        border:
+            1px solid #c6d7eb;
+
+        border-radius: 9px;
+
+        background: white;
+
+        color: #315273;
+
+        font-size: 8.8px;
+        font-weight: 750;
+
+        cursor: pointer;
+
+        transition: .2s ease;
+    }
+
+    .sc-upload-button:hover {
+        border-color: #8fb1e8;
+
+        color: #2563eb;
+
+        transform:
+            translateY(-1px);
+    }
+
+    .sc-upload-name {
+        min-width: 0;
+
+        overflow: hidden;
+
+        color: #8492a5;
+
+        font-size: 8.7px;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sc-upload-name.selected {
+        color: #087b51;
+
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================
+       FINANCIAL CONFIG
+    ========================================================== */
+
+    .sc-prefix-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+
+        gap: 14px;
+    }
+
+    .sc-prefix-card {
+        padding: 14px;
+
+        border:
+            1px solid #dde6f0;
+
+        border-radius: 11px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fafcff
+            );
+    }
+
+    .sc-prefix-label {
+        margin-bottom: 7px;
+
+        color: #8090a4;
+
+        font-size: 7.5px;
+        font-weight: 850;
+
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+
+    /* ==========================================================
+       FOOTER
+    ========================================================== */
+
+    .sc-footer {
+        position: sticky;
+
+        bottom: 0;
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            16px
+            21px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter:
+            blur(14px);
+
+        box-shadow:
+            0 -8px 20px
+            rgba(20,40,70,.04);
+    }
+
+    .sc-footer-note {
+        color: #99a4b3;
+
+        font-size: 8.7px;
+    }
+
+    .sc-submit {
+        min-width: 170px;
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            18px;
+
+        border: none;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 10px;
+        font-weight: 720;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 19px
+            rgba(37,99,235,.22);
+    }
+
+    .sc-submit:hover {
+        transform:
+            translateY(-1px);
+    }
+
+    .sc-submit:disabled {
+        opacity: .8;
+
+        cursor: wait;
+
+        transform: none;
+    }
+
+    .sc-submit-loading {
+        display: none;
+    }
+
+    .sc-submit.loading
+    .sc-submit-normal {
+        display: none;
+    }
+
+    .sc-submit.loading
+    .sc-submit-loading {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+    }
+
+    .sc-spinner {
+        width: 13px;
+        height: 13px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            scSpin
+            .7s linear infinite;
+    }
+
+    @keyframes scSpin {
+        to {
+            transform:
+                rotate(360deg);
+        }
+    }
+
+
+    /* ==========================================================
+       SIDEBAR
+    ========================================================== */
+
+    .sc-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .sc-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .sc-side-head {
+        padding:
+            15px
+            16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .sc-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .sc-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8px;
+        line-height: 1.45;
+    }
+
+    .sc-side-body {
+        padding: 16px;
+    }
+
+
+    /* ==========================================================
+       LIVE SCHOOL PREVIEW
+    ========================================================== */
+
+    .sc-preview {
+        background:
+            linear-gradient(
+                145deg,
+                #091e3b,
+                #123b70
+            );
+
+        color: white;
+    }
+
+    .sc-preview
+    .sc-side-head {
+        border-color:
+            rgba(255,255,255,.09);
+    }
+
+    .sc-preview
+    .sc-side-title {
+        color: white;
+    }
+
+    .sc-preview
+    .sc-side-desc {
+        color:
+            rgba(225,236,249,.62);
+    }
+
+    .sc-preview-school {
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .sc-preview-logo {
+        width: 50px;
+        height: 50px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            rgba(255,255,255,.12);
+
+        border-radius: 14px;
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: #bed7ff;
+
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    .sc-preview-logo img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+
+        padding: 5px;
+
+        box-sizing: border-box;
+    }
+
+    .sc-preview-name {
+        color: white;
+
+        font-size: 13px;
+        font-weight: 780;
+    }
+
+    .sc-preview-location {
+        margin-top: 4px;
+
+        color:
+            rgba(216,230,247,.60);
+
+        font-size: 7.8px;
+    }
+
+    .sc-divider {
+        height: 1px;
+
+        margin:
+            14px
+            0;
+
+        background:
+            rgba(255,255,255,.09);
+    }
+
+    .sc-preview-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-bottom: 10px;
+    }
+
+    .sc-preview-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .sc-preview-label {
+        color:
+            rgba(216,230,247,.64);
+
+        font-size: 8px;
+    }
+
+    .sc-preview-value {
+        max-width: 185px;
+
+        overflow: hidden;
+
+        color: white;
+
+        text-align: right;
+
+        font-size: 8.5px;
+        font-weight: 720;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================================
+       DOCUMENT PREFIX PREVIEW
+    ========================================================== */
+
+    .sc-document-preview {
+        margin-bottom: 10px;
+
+        padding:
+            11px
+            12px;
+
+        border:
+            1px solid #e0e7ef;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fafcff
+            );
+    }
+
+    .sc-document-preview:last-child {
+        margin-bottom: 0;
+    }
+
+    .sc-document-type {
+        color: #8997aa;
+
+        font-size: 7px;
+        font-weight: 850;
+
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+
+    .sc-document-number {
+        margin-top: 5px;
+
+        color: #173a5f;
+
+        font-size: 10px;
+        font-weight: 770;
+    }
+
+
+    /* ==========================================================
+       CONFIGURATION RULES
+    ========================================================== */
+
+    .sc-rule {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 9px;
+
+        margin-bottom: 13px;
+    }
+
+    .sc-rule:last-child {
+        margin-bottom: 0;
+    }
+
+    .sc-rule-icon {
+        width: 23px;
+        height: 23px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #edf4ff;
+
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .sc-rule-title {
+        color: #40526b;
+
+        font-size: 9px;
+        font-weight: 720;
+    }
+
+    .sc-rule-text {
+        margin-top: 2px;
+
+        color: #98a3b2;
+
+        font-size: 8px;
+        line-height: 1.4;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media(max-width:1080px) {
+
+        .sc-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .sc-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
+
+        .sc-preview {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width:760px) {
+
+        .sc-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .sc-breadcrumb {
+            display: none;
+        }
+
+        .sc-hero {
+            padding:
+                24px
+                20px;
+        }
+
+        .sc-hero-icon,
+        .sc-hero-state {
+            display: none;
+        }
+
+        .sc-title {
+            font-size: 26px;
+        }
+
+        .sc-grid,
+        .sc-prefix-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sc-full {
+            grid-column: auto;
+        }
+
+        .sc-section-description {
+            display: none;
+        }
+
+        .sc-side {
+            display: flex;
+        }
+
+        .sc-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .sc-footer-note {
+            display: none;
+        }
+
+        .sc-submit {
+            width: 100%;
+        }
+
+        .sc-upload-layout {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .sc-logo-preview {
+            margin: auto;
+        }
+
+        .sc-upload-controls {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .sc-upload-button {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="sc-page">
+
+<div class="sc-container">
+
+
+    <!-- BREADCRUMB -->
+
+    <div class="sc-breadcrumb">
+
+        <span>
+            EduFinance
+        </span>
+
+        <span>›</span>
+
+        <span>
+            System Configuration
+        </span>
+
+        <span>›</span>
+
+        <span class="sc-breadcrumb-current">
+            School
+        </span>
+
+    </div>
+
+
+    <!-- HERO -->
+
+    <section class="sc-hero">
+
+
+        <div class="sc-hero-left">
+
+
+            <div class="sc-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path d="M3 21h18"></path>
+                    <path d="M5 21V9l7-5 7 5v12"></path>
+                    <path d="M9 21v-6h6v6"></path>
+                    <path d="M9 10h.01"></path>
+                    <path d="M15 10h.01"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="sc-eyebrow">
+                    Institutional Configuration
+                </div>
+
+                <h1 class="sc-title">
+                    School Configuration
+                </h1>
+
+                <p class="sc-subtitle">
+
+                    Configure the school's identity, contact information,
+                    financial defaults, document numbering prefixes,
+                    currency and academic context used across EduFinance.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="sc-hero-state">
+
+            <span class="sc-state-dot"></span>
+
+            {% if is_configured %}
+                School Configured
+            {% else %}
+                Initial Configuration
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- MESSAGES -->
+
+    {% if messages %}
+
+        <div class="sc-messages">
+
+            {% for message in messages %}
+
+                <div
+                    class="
+                        sc-message
+                        {% if message.tags %}
+                            {{ message.tags }}
+                        {% endif %}
+                    "
+                >
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        id="schoolConfigurationForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="sc-layout">
+
+
+            <!-- =================================================
+                 MAIN SETTINGS
+            ================================================== -->
+
+            <section class="sc-card">
+
+
+                <div class="sc-card-head">
+
+
+                    <div class="sc-card-head-left">
+
+
+                        <div class="sc-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.55V20h-3v-.09a1.7 1.7 0 0 0-1.03-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.55-1.03H5v-3h.45A1.7 1.7 0 0 0 7 9.94a1.7 1.7 0 0 0-.34-1.88L6.6 8l2.12-2.12.06.06A1.7 1.7 0 0 0 10.66 6a1.7 1.7 0 0 0 1.03-1.55V4h3v.45A1.7 1.7 0 0 0 15.72 6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.12 2.12-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.55 1.03H21v3h-.05A1.7 1.7 0 0 0 19.4 15z"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2 class="sc-card-title">
+                                School Settings
+                            </h2>
+
+                            <div class="sc-card-subtitle">
+
+                                Primary institutional configuration
+                                for the EduFinance installation.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="sc-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+                <div class="sc-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="sc-error sc-global-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- =================================================
+                         01 SCHOOL IDENTITY
+                    ================================================== -->
+
+                    <div class="sc-section">
+
+
+                        <div class="sc-section-head">
+
+                            <div class="sc-section-number">
+                                01
+                            </div>
+
+                            <div class="sc-section-title">
+                                School Identity
+                            </div>
+
+                            <div class="sc-section-description">
+                                Name & visual identity
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-grid">
+
+
+                            <div class="sc-field sc-full">
+
+                                <label class="sc-label">
+
+                                    School Name
+
+                                    <span class="sc-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.name }}
+
+                                <div class="sc-help">
+
+                                    Official school name displayed
+                                    throughout EduFinance and future
+                                    financial documents.
+
+                                </div>
+
+                                {% if form.name.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.name.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sc-field sc-full">
+
+
+                                <label class="sc-label">
+
+                                    School Logo
+
+                                    <span class="sc-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+
+                                <div class="sc-upload">
+
+
+                                    <div class="sc-upload-layout">
+
+
+                                        <div
+                                            class="sc-logo-preview"
+                                            id="schoolLogoPreview"
+                                        >
+
+                                            {% if school and school.logo %}
+
+                                                <img
+                                                    src="{{ school.logo.url }}"
+                                                    alt="{{ school.name }}"
+                                                    id="schoolLogoPreviewImage"
+                                                >
+
+                                            {% else %}
+
+                                                <span
+                                                    class="sc-logo-placeholder"
+                                                    id="schoolLogoPlaceholder"
+                                                >
+                                                    S
+                                                </span>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div class="sc-upload-info">
+
+
+                                            <div class="sc-upload-title">
+                                                School Brand Mark
+                                            </div>
+
+                                            <div class="sc-upload-text">
+
+                                                Upload PNG, JPG, JPEG or WEBP.
+                                                Maximum file size 5 MB.
+
+                                            </div>
+
+
+                                            <input
+                                                type="file"
+                                                name="logo"
+                                                id="id_logo"
+                                                class="sc-native-file"
+                                                accept=".png,.jpg,.jpeg,.webp"
+                                            >
+
+
+                                            <div class="sc-upload-controls">
+
+                                                <label
+                                                    for="id_logo"
+                                                    class="sc-upload-button"
+                                                >
+                                                    ↑ Choose Logo
+                                                </label>
+
+                                                <span
+                                                    class="sc-upload-name"
+                                                    id="schoolLogoFileName"
+                                                >
+
+                                                    {% if school and school.logo %}
+                                                        Current logo retained
+                                                    {% else %}
+                                                        No logo selected
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if form.logo.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.logo.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         02 CONTACT INFORMATION
+                    ================================================== -->
+
+                    <div class="sc-section">
+
+
+                        <div class="sc-section-head">
+
+                            <div class="sc-section-number">
+                                02
+                            </div>
+
+                            <div class="sc-section-title">
+                                Contact Information
+                            </div>
+
+                            <div class="sc-section-description">
+                                Public school contact
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-grid">
+
+
+                            <div class="sc-field sc-full">
+
+                                <label class="sc-label">
+
+                                    Address
+
+                                    <span class="sc-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.address }}
+
+                                {% if form.address.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.address.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sc-field">
+
+                                <label class="sc-label">
+
+                                    Phone
+
+                                    <span class="sc-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.phone }}
+
+                                {% if form.phone.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.phone.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sc-field">
+
+                                <label class="sc-label">
+
+                                    Email
+
+                                    <span class="sc-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.email }}
+
+                                {% if form.email.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.email.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sc-field sc-full">
+
+                                <label class="sc-label">
+
+                                    Website
+
+                                    <span class="sc-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.website }}
+
+                                {% if form.website.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.website.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         03 FINANCIAL SETTINGS
+                    ================================================== -->
+
+                    <div class="sc-section">
+
+
+                        <div class="sc-section-head">
+
+                            <div class="sc-section-number">
+                                03
+                            </div>
+
+                            <div class="sc-section-title">
+                                Financial Defaults
+                            </div>
+
+                            <div class="sc-section-description">
+                                Currency & timezone
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-grid">
+
+
+                            <div class="sc-field">
+
+                                <label class="sc-label">
+
+                                    Default Currency
+
+                                    <span class="sc-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.default_currency }}
+
+                                <div class="sc-help">
+
+                                    Primary currency used by the school
+                                    for financial presentation.
+
+                                </div>
+
+                                {% if form.default_currency.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.default_currency.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sc-field">
+
+                                <label class="sc-label">
+
+                                    Time Zone
+
+                                    <span class="sc-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.time_zone }}
+
+                                <div class="sc-help">
+
+                                    Lebanon should normally use
+                                    Asia/Beirut.
+
+                                </div>
+
+                                {% if form.time_zone.errors %}
+
+                                    <div class="sc-error">
+                                        {{ form.time_zone.errors }}
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         04 NUMBERING PREFIXES
+                    ================================================== -->
+
+                    <div class="sc-section">
+
+
+                        <div class="sc-section-head">
+
+                            <div class="sc-section-number">
+                                04
+                            </div>
+
+                            <div class="sc-section-title">
+                                Financial Document Prefixes
+                            </div>
+
+                            <div class="sc-section-description">
+                                Document numbering
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-prefix-grid">
+
+
+                            <div class="sc-prefix-card">
+
+                                <div class="sc-prefix-label">
+                                    Invoice Prefix
+                                </div>
+
+                                <div class="sc-field">
+
+                                    {{ form.invoice_prefix }}
+
+                                    {% if form.invoice_prefix.errors %}
+
+                                        <div class="sc-error">
+                                            {{ form.invoice_prefix.errors }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="sc-prefix-card">
+
+                                <div class="sc-prefix-label">
+                                    Receipt Prefix
+                                </div>
+
+                                <div class="sc-field">
+
+                                    {{ form.receipt_prefix }}
+
+                                    {% if form.receipt_prefix.errors %}
+
+                                        <div class="sc-error">
+                                            {{ form.receipt_prefix.errors }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="sc-prefix-card">
+
+                                <div class="sc-prefix-label">
+                                    Expense Prefix
+                                </div>
+
+                                <div class="sc-field">
+
+                                    {{ form.expense_prefix }}
+
+                                    {% if form.expense_prefix.errors %}
+
+                                        <div class="sc-error">
+                                            {{ form.expense_prefix.errors }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-help">
+
+                            Prefixes are normalized to uppercase.
+                            Letters, numbers, hyphens and underscores
+                            are supported.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         05 ACADEMIC CONTEXT
+                    ================================================== -->
+
+                    <div class="sc-section">
+
+
+                        <div class="sc-section-head">
+
+                            <div class="sc-section-number">
+                                05
+                            </div>
+
+                            <div class="sc-section-title">
+                                Academic Context
+                            </div>
+
+                            <div class="sc-section-description">
+                                Current academic year
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-field">
+
+                            <label class="sc-label">
+
+                                Current Academic Year
+
+                                <span class="sc-optional">
+                                    Temporary configuration
+                                </span>
+
+                            </label>
+
+                            {{ form.current_academic_year }}
+
+                            <div class="sc-help">
+
+                                Example: 2026–2027.
+                                This text field will later be linked to
+                                the shared Academic Year model when that
+                                module is available.
+
+                            </div>
+
+                            {% if form.current_academic_year.errors %}
+
+                                <div class="sc-error">
+                                    {{ form.current_academic_year.errors }}
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="sc-footer">
+
+
+                    <div class="sc-footer-note">
+
+                        School configuration becomes the shared source
+                        for institutional and financial defaults.
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="sc-submit"
+                        id="schoolConfigurationSubmit"
+                    >
+
+                        <span class="sc-submit-normal">
+
+                            {% if is_configured %}
+                                ✓ Save Configuration
+                            {% else %}
+                                ✓ Configure School
+                            {% endif %}
+
+                        </span>
+
+
+                        <span class="sc-submit-loading">
+
+                            <span class="sc-spinner"></span>
+
+                            Saving Configuration...
+
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SIDEBAR
+            ================================================== -->
+
+            <aside class="sc-side">
+
+
+                <!-- SCHOOL PREVIEW -->
+
+                <section class="sc-side-card sc-preview">
+
+
+                    <div class="sc-side-head">
+
+                        <div class="sc-side-title">
+                            School Identity Preview
+                        </div>
+
+                        <div class="sc-side-desc">
+
+                            Live institutional identity based on the
+                            configuration being entered.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="sc-side-body">
+
+
+                        <div class="sc-preview-school">
+
+
+                            <div
+                                class="sc-preview-logo"
+                                id="schoolSidebarLogo"
+                            >
+
+                                {% if school and school.logo %}
+
+                                    <img
+                                        src="{{ school.logo.url }}"
+                                        alt=""
+                                        id="schoolSidebarLogoImage"
+                                    >
+
+                                {% else %}
+
+                                    <span
+                                        id="schoolSidebarLogoLetter"
+                                    >
+                                        S
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div>
+
+                                <div
+                                    class="sc-preview-name"
+                                    id="schoolPreviewName"
+                                >
+                                    {% if school %}
+                                        {{ school.name }}
+                                    {% else %}
+                                        School Name
+                                    {% endif %}
+                                </div>
+
+                                <div
+                                    class="sc-preview-location"
+                                    id="schoolPreviewAddress"
+                                >
+                                    {% if school and school.address %}
+                                        {{ school.address|truncatechars:45 }}
+                                    {% else %}
+                                        Lebanon
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-divider"></div>
+
+
+                        <div class="sc-preview-row">
+
+                            <span class="sc-preview-label">
+                                Currency
+                            </span>
+
+                            <span
+                                class="sc-preview-value"
+                                id="schoolPreviewCurrency"
+                            >
+                                USD
+                            </span>
+
+                        </div>
+
+
+                        <div class="sc-preview-row">
+
+                            <span class="sc-preview-label">
+                                Time Zone
+                            </span>
+
+                            <span
+                                class="sc-preview-value"
+                                id="schoolPreviewTimezone"
+                            >
+                                Asia/Beirut
+                            </span>
+
+                        </div>
+
+
+                        <div class="sc-preview-row">
+
+                            <span class="sc-preview-label">
+                                Academic Year
+                            </span>
+
+                            <span
+                                class="sc-preview-value"
+                                id="schoolPreviewAcademicYear"
+                            >
+                                Not configured
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- DOCUMENT NUMBER PREVIEW -->
+
+                <section class="sc-side-card">
+
+
+                    <div class="sc-side-head">
+
+                        <div class="sc-side-title">
+                            Numbering Preview
+                        </div>
+
+                        <div class="sc-side-desc">
+
+                            Example document identifiers using the
+                            configured financial prefixes.
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="sc-side-body">
+
+
+                        <div class="sc-document-preview">
+
+                            <div class="sc-document-type">
+                                Invoice
+                            </div>
+
+                            <div
+                                class="sc-document-number"
+                                id="schoolInvoicePreview"
+                            >
+                                INV-2026-0001
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-document-preview">
+
+                            <div class="sc-document-type">
+                                Receipt
+                            </div>
+
+                            <div
+                                class="sc-document-number"
+                                id="schoolReceiptPreview"
+                            >
+                                REC-2026-0001
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-document-preview">
+
+                            <div class="sc-document-type">
+                                Expense
+                            </div>
+
+                            <div
+                                class="sc-document-number"
+                                id="schoolExpensePreview"
+                            >
+                                EXP-2026-0001
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- RULES -->
+
+                <section class="sc-side-card">
+
+
+                    <div class="sc-side-head">
+
+                        <div class="sc-side-title">
+                            Configuration Controls
+                        </div>
+
+                        <div class="sc-side-desc">
+                            System-wide safeguards
+                        </div>
+
+                    </div>
+
+
+                    <div class="sc-side-body">
+
+
+                        <div class="sc-rule">
+
+                            <div class="sc-rule-icon">
+                                1
+                            </div>
+
+                            <div>
+
+                                <div class="sc-rule-title">
+                                    Single school configuration
+                                </div>
+
+                                <div class="sc-rule-text">
+
+                                    This EduFinance installation maintains
+                                    one institutional configuration.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-rule">
+
+                            <div class="sc-rule-icon">
+                                $
+                            </div>
+
+                            <div>
+
+                                <div class="sc-rule-title">
+                                    Shared financial currency
+                                </div>
+
+                                <div class="sc-rule-text">
+
+                                    The configured currency can later be
+                                    consumed by expenses, suppliers,
+                                    employee finance, dashboards and reports.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-rule">
+
+                            <div class="sc-rule-icon">
+                                #
+                            </div>
+
+                            <div>
+
+                                <div class="sc-rule-title">
+                                    Configurable numbering
+                                </div>
+
+                                <div class="sc-rule-text">
+
+                                    Financial identifiers should rely on
+                                    school configuration rather than
+                                    permanent hardcoded prefixes.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="sc-rule">
+
+                            <div class="sc-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="sc-rule-title">
+                                    Historical compatibility
+                                </div>
+
+                                <div class="sc-rule-text">
+
+                                    Changing configuration affects future
+                                    behavior without erasing previous
+                                    financial records.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const form =
+            document.getElementById(
+                "schoolConfigurationForm"
+            );
+
+
+        const name =
+            document.getElementById(
+                "id_name"
+            );
+
+
+        const address =
+            document.getElementById(
+                "id_address"
+            );
+
+
+        const currency =
+            document.getElementById(
+                "id_default_currency"
+            );
+
+
+        const timezone =
+            document.getElementById(
+                "id_time_zone"
+            );
+
+
+        const academicYear =
+            document.getElementById(
+                "id_current_academic_year"
+            );
+
+
+        const invoicePrefix =
+            document.getElementById(
+                "id_invoice_prefix"
+            );
+
+
+        const receiptPrefix =
+            document.getElementById(
+                "id_receipt_prefix"
+            );
+
+
+        const expensePrefix =
+            document.getElementById(
+                "id_expense_prefix"
+            );
+
+
+        const logo =
+            document.getElementById(
+                "id_logo"
+            );
+
+
+        const submit =
+            document.getElementById(
+                "schoolConfigurationSubmit"
+            );
+
+
+        function normalizePrefix(
+            value,
+            fallback
+        ) {
+
+            const normalized =
+                (
+                    value
+                    || ""
+                )
+                .trim()
+                .toUpperCase();
+
+            return (
+                normalized
+                ||
+                fallback
+            );
+
+        }
+
+
+        function updatePreview() {
+
+
+            const schoolName =
+                (
+                    name
+                    &&
+                    name.value.trim()
+                )
+                ?
+                name.value.trim()
+                :
+                "School Name";
+
+
+            const schoolAddress =
+                (
+                    address
+                    &&
+                    address.value.trim()
+                )
+                ?
+                address.value.trim()
+                :
+                "Lebanon";
+
+
+            const schoolCurrency =
+                (
+                    currency
+                    &&
+                    currency.value
+                )
+                ?
+                currency.value
+                :
+                "USD";
+
+
+            const schoolTimezone =
+                (
+                    timezone
+                    &&
+                    timezone.value.trim()
+                )
+                ?
+                timezone.value.trim()
+                :
+                "Asia/Beirut";
+
+
+            const schoolAcademicYear =
+                (
+                    academicYear
+                    &&
+                    academicYear.value.trim()
+                )
+                ?
+                academicYear.value.trim()
+                :
+                "Not configured";
+
+
+            const inv =
+                normalizePrefix(
+                    invoicePrefix
+                    ? invoicePrefix.value
+                    : "",
+                    "INV"
+                );
+
+
+            const rec =
+                normalizePrefix(
+                    receiptPrefix
+                    ? receiptPrefix.value
+                    : "",
+                    "REC"
+                );
+
+
+            const exp =
+                normalizePrefix(
+                    expensePrefix
+                    ? expensePrefix.value
+                    : "",
+                    "EXP"
+                );
+
+
+            document.getElementById(
+                "schoolPreviewName"
+            ).textContent =
+                schoolName;
+
+
+            document.getElementById(
+                "schoolPreviewAddress"
+            ).textContent =
+                schoolAddress.length > 45
+                ?
+                schoolAddress.substring(
+                    0,
+                    45
+                )
+                + "..."
+                :
+                schoolAddress;
+
+
+            document.getElementById(
+                "schoolPreviewCurrency"
+            ).textContent =
+                schoolCurrency;
+
+
+            document.getElementById(
+                "schoolPreviewTimezone"
+            ).textContent =
+                schoolTimezone;
+
+
+            document.getElementById(
+                "schoolPreviewAcademicYear"
+            ).textContent =
+                schoolAcademicYear;
+
+
+            document.getElementById(
+                "schoolInvoicePreview"
+            ).textContent =
+                inv
+                + "-2026-0001";
+
+
+            document.getElementById(
+                "schoolReceiptPreview"
+            ).textContent =
+                rec
+                + "-2026-0001";
+
+
+            document.getElementById(
+                "schoolExpensePreview"
+            ).textContent =
+                exp
+                + "-2026-0001";
+
+
+            const letter =
+                schoolName
+                .charAt(0)
+                .toUpperCase();
+
+
+            const logoPlaceholder =
+                document.getElementById(
+                    "schoolLogoPlaceholder"
+                );
+
+
+            const sidebarLetter =
+                document.getElementById(
+                    "schoolSidebarLogoLetter"
+                );
+
+
+            if (logoPlaceholder) {
+                logoPlaceholder.textContent =
+                    letter;
+            }
+
+
+            if (sidebarLetter) {
+                sidebarLetter.textContent =
+                    letter;
+            }
+
+        }
+
+
+        [
+            name,
+            address,
+            currency,
+            timezone,
+            academicYear,
+            invoicePrefix,
+            receiptPrefix,
+            expensePrefix
+        ]
+        .forEach(
+            function (element) {
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+        if (logo) {
+
+            logo.addEventListener(
+                "change",
+                function () {
+
+
+                    const file =
+                        logo.files[0];
+
+
+                    const fileName =
+                        document.getElementById(
+                            "schoolLogoFileName"
+                        );
+
+
+                    if (!file) {
+                        return;
+                    }
+
+
+                    if (fileName) {
+
+                        fileName.textContent =
+                            file.name;
+
+                        fileName.classList.add(
+                            "selected"
+                        );
+
+                    }
+
+
+                    if (
+                        !file.type
+                        .startsWith(
+                            "image/"
+                        )
+                    ) {
+                        return;
+                    }
+
+
+                    const reader =
+                        new FileReader();
+
+
+                    reader.onload =
+                        function (event) {
+
+
+                            const logoPreview =
+                                document.getElementById(
+                                    "schoolLogoPreview"
+                                );
+
+
+                            const sidebarLogo =
+                                document.getElementById(
+                                    "schoolSidebarLogo"
+                                );
+
+
+                            if (logoPreview) {
+
+                                logoPreview.innerHTML =
+                                    `
+                                    <img
+                                        src="${event.target.result}"
+                                        alt="School logo preview"
+                                    >
+                                    `;
+
+                            }
+
+
+                            if (sidebarLogo) {
+
+                                sidebarLogo.innerHTML =
+                                    `
+                                    <img
+                                        src="${event.target.result}"
+                                        alt="School logo preview"
+                                    >
+                                    `;
+
+                            }
+
+                        };
+
+
+                    reader.readAsDataURL(
+                        file
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (
+            form
+            &&
+            submit
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+
+                    if (
+                        !form.checkValidity()
+                    ) {
+                        return;
+                    }
+
+
+                    if (submit.disabled) {
+                        return;
+                    }
+
+
+                    submit.disabled =
+                        true;
+
+
+                    submit.classList.add(
+                        "loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+        updatePreview();
+
+    }
+);
+</script>
+
+{% endblock %}

@@ -9,6 +9,8 @@ from .models import (
     SupplierBill,
     SupplierPayment,
     Expense,
+    EmployeeFinancialProfile,
+    EmployeeFinancialTransaction,
 )
 
 
@@ -886,3 +888,324 @@ class ExpenseForm(forms.ModelForm):
             )
 
         return receipt
+
+
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL PROFILE FORM
+# ============================================================
+
+class EmployeeFinancialProfileForm(
+    forms.ModelForm
+):
+
+    class Meta:
+
+        model = (
+            EmployeeFinancialProfile
+        )
+
+        fields = [
+            "employee_id",
+            "full_name",
+            "department",
+            "position",
+            "base_salary_reference",
+            "status",
+            "notes",
+        ]
+
+        widgets = {
+
+            "employee_id":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: EMP-001",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "full_name":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Employee full name",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "department":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: Administration",
+                    }
+                ),
+
+            "position":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: Accountant",
+                    }
+                ),
+
+            "base_salary_reference":
+                forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "0.00",
+                        "min": "0",
+                        "step": "0.01",
+                    }
+                ),
+
+            "status":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "notes":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 4,
+                        "placeholder":
+                            (
+                                "Optional internal "
+                                "financial notes..."
+                            ),
+                    }
+                ),
+        }
+
+    def clean_employee_id(self):
+
+        employee_id = (
+            self.cleaned_data[
+                "employee_id"
+            ]
+            .strip()
+        )
+
+        query = (
+            EmployeeFinancialProfile
+            .objects
+            .filter(
+                employee_id__iexact=
+                    employee_id
+            )
+        )
+
+        if self.instance.pk:
+
+            query = query.exclude(
+                pk=self.instance.pk
+            )
+
+        if query.exists():
+
+            raise forms.ValidationError(
+                (
+                    "An employee financial "
+                    "profile with this Employee "
+                    "ID already exists."
+                )
+            )
+
+        return employee_id
+
+    def clean_base_salary_reference(
+        self
+    ):
+
+        amount = (
+            self.cleaned_data.get(
+                "base_salary_reference"
+            )
+        )
+
+        if (
+            amount is not None
+            and
+            amount < 0
+        ):
+
+            raise forms.ValidationError(
+                (
+                    "Base salary reference "
+                    "cannot be negative."
+                )
+            )
+
+        return amount
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL TRANSACTION FORM
+# ============================================================
+
+class EmployeeFinancialTransactionForm(
+    forms.ModelForm
+):
+
+    class Meta:
+
+        model = (
+            EmployeeFinancialTransaction
+        )
+
+        fields = [
+            "employee",
+            "transaction_type",
+            "amount",
+            "transaction_date",
+            "payment_method",
+            "reference",
+            "notes",
+        ]
+
+        widgets = {
+
+            "employee":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "transaction_type":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "amount":
+                forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "0.00",
+                        "min": "0.01",
+                        "step": "0.01",
+                    }
+                ),
+
+            "transaction_date":
+                forms.DateInput(
+                    attrs={
+                        "class": "form-control",
+                        "type": "date",
+                    }
+                ),
+
+            "payment_method":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "reference":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            (
+                                "Payment, bank or "
+                                "document reference"
+                            ),
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "notes":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 4,
+                        "placeholder":
+                            (
+                                "Describe the financial "
+                                "transaction..."
+                            ),
+                    }
+                ),
+        }
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        self.fields[
+            "employee"
+        ].queryset = (
+            EmployeeFinancialProfile
+            .objects
+            .filter(
+                status=
+                    EmployeeFinancialProfile
+                    .Status
+                    .ACTIVE
+            )
+            .order_by(
+                "full_name"
+            )
+        )
+
+        self.fields[
+            "employee"
+        ].empty_label = (
+            "Select active employee"
+        )
+
+        self.fields[
+            "payment_method"
+        ].required = False
+
+        self.fields[
+            "payment_method"
+        ].choices = [
+            (
+                "",
+                "Not applicable / not specified",
+            ),
+            *
+            EmployeeFinancialTransaction
+            .PaymentMethod
+            .choices,
+        ]
+
+    def clean_amount(self):
+
+        amount = (
+            self.cleaned_data[
+                "amount"
+            ]
+        )
+
+        if amount <= 0:
+
+            raise forms.ValidationError(
+                (
+                    "Transaction amount must "
+                    "be greater than zero."
+                )
+            )
+
+        return amount

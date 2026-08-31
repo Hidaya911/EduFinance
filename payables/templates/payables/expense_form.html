@@ -625,16 +625,18 @@
 
         transform: translateY(-50%);
 
+        min-width: 38px;
+
         color: #2563eb;
 
-        font-size: 13px;
+        font-size: 10px;
         font-weight: 850;
 
         pointer-events: none;
     }
 
     .exf-money input.form-control {
-        padding-left: 31px;
+        padding-left: 64px;
 
         color: #102f53;
 
@@ -1651,7 +1653,7 @@
                                 <div class="exf-money">
 
                                     <span class="exf-money-symbol">
-                                        $
+                                        {{ currency_code }}
                                     </span>
 
                                     {{ form.amount }}
@@ -1661,7 +1663,7 @@
 
                                 <div class="exf-help">
 
-                                    Enter the total value of the expense.
+                                    Enter the total value of the expense in {{ currency_code }}.
 
                                 </div>
 
@@ -2137,7 +2139,7 @@
                             class="exf-summary-money"
                             id="previewExpenseAmount"
                         >
-                            $0.00
+                            {{ currency_code }} 0.00
                         </div>
 
 
@@ -2482,6 +2484,10 @@ document.addEventListener(
 
 
 
+        const expenseCurrency =
+            "{{ currency_code|escapejs }}";
+
+
         function money(value) {
 
             let number =
@@ -2494,7 +2500,9 @@ document.addEventListener(
 
 
             return (
-                "$"
+                expenseCurrency
+                +
+                " "
                 +
                 number.toLocaleString(
                     undefined,

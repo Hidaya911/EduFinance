@@ -627,6 +627,27 @@ class SupplierPayment(models.Model):
 
 def generate_expense_number():
 
+    from school_config.models import School
+
+    school = (
+        School.objects
+        .first()
+    )
+
+    prefix = "EXP"
+
+    if (
+        school
+        and
+        school.expense_prefix
+    ):
+
+        prefix = (
+            school.expense_prefix
+            .strip()
+            .upper()
+        )
+
     date_part = (
         timezone.localdate()
         .strftime("%Y%m%d")
@@ -639,7 +660,9 @@ def generate_expense_number():
     )
 
     return (
-        f"EXP-{date_part}-{random_part}"
+        f"{prefix}-"
+        f"{date_part}-"
+        f"{random_part}"
     )
 
 
@@ -867,6 +890,333 @@ class Expense(models.Model):
                         (
                             "Inactive suppliers cannot "
                             "be used for new expenses."
+                        )
+                }
+            )
+
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL TRANSACTION NUMBER
+# ============================================================
+
+def generate_employee_financial_transaction_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"EFT-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL PROFILE
+# ============================================================
+
+class EmployeeFinancialProfile(models.Model):
+
+    class Status(models.TextChoices):
+
+        ACTIVE = (
+            "active",
+            "Active",
+        )
+
+        INACTIVE = (
+            "inactive",
+            "Inactive",
+        )
+
+    employee_id = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+
+    full_name = models.CharField(
+        max_length=160,
+    )
+
+    department = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    position = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    base_salary_reference = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+
+    notes = models.TextField(
+        blank=True,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.ACTIVE,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+
+        db_table = "employee_financial_profiles"
+
+        ordering = [
+            "full_name",
+        ]
+
+        verbose_name = (
+            "Employee Financial Profile"
+        )
+
+        verbose_name_plural = (
+            "Employee Financial Profiles"
+        )
+
+    def __str__(self):
+
+        return (
+            f"{self.employee_id} - "
+            f"{self.full_name}"
+        )
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL TRANSACTION
+# ============================================================
+
+class EmployeeFinancialTransaction(models.Model):
+
+    class TransactionType(models.TextChoices):
+
+        ADVANCE = (
+            "advance",
+            "Financial Advance",
+        )
+
+        REIMBURSEMENT = (
+            "reimbursement",
+            "Reimbursement",
+        )
+
+        ALLOWANCE = (
+            "allowance",
+            "Allowance",
+        )
+
+        DEDUCTION = (
+            "deduction",
+            "Deduction",
+        )
+
+        PAYMENT = (
+            "payment",
+            "Payment",
+        )
+
+    class PaymentMethod(models.TextChoices):
+
+        CASH = (
+            "cash",
+            "Cash",
+        )
+
+        BANK_TRANSFER = (
+            "bank_transfer",
+            "Bank Transfer",
+        )
+
+        CHEQUE = (
+            "cheque",
+            "Cheque",
+        )
+
+        CARD = (
+            "card",
+            "Card",
+        )
+
+        OTHER = (
+            "other",
+            "Other",
+        )
+
+    class Status(models.TextChoices):
+
+        POSTED = (
+            "posted",
+            "Posted",
+        )
+
+        VOIDED = (
+            "voided",
+            "Voided",
+        )
+
+    transaction_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=
+            generate_employee_financial_transaction_number,
+        editable=False,
+    )
+
+    employee = models.ForeignKey(
+        EmployeeFinancialProfile,
+        on_delete=models.PROTECT,
+        related_name="financial_transactions",
+    )
+
+    transaction_type = models.CharField(
+        max_length=30,
+        choices=TransactionType.choices,
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    transaction_date = models.DateField()
+
+    payment_method = models.CharField(
+        max_length=30,
+        choices=PaymentMethod.choices,
+        blank=True,
+    )
+
+    reference = models.CharField(
+        max_length=120,
+        blank=True,
+    )
+
+    notes = models.TextField(
+        blank=True,
+    )
+
+    created_by = models.ForeignKey(
+        "auth.User",
+        on_delete=models.PROTECT,
+        related_name=
+            "created_employee_financial_transactions",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.POSTED,
+        editable=False,
+    )
+
+    void_reason = models.TextField(
+        blank=True,
+    )
+
+    voided_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    voided_by = models.ForeignKey(
+        "auth.User",
+        on_delete=models.PROTECT,
+        related_name=
+            "voided_employee_financial_transactions",
+        blank=True,
+        null=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+
+        db_table = (
+            "employee_financial_transactions"
+        )
+
+        ordering = [
+            "-transaction_date",
+            "-created_at",
+        ]
+
+        verbose_name = (
+            "Employee Financial Transaction"
+        )
+
+        verbose_name_plural = (
+            "Employee Financial Transactions"
+        )
+
+    def __str__(self):
+
+        return (
+            f"{self.transaction_number} - "
+            f"{self.employee.full_name}"
+        )
+
+    def clean(self):
+
+        super().clean()
+
+        if (
+            self.amount is None
+            or self.amount <= 0
+        ):
+
+            raise ValidationError(
+                {
+                    "amount":
+                        (
+                            "Transaction amount must "
+                            "be greater than zero."
+                        )
+                }
+            )
+
+        if (
+            self.employee_id
+            and
+            self.employee.status
+            !=
+            EmployeeFinancialProfile.Status.ACTIVE
+        ):
+
+            raise ValidationError(
+                {
+                    "employee":
+                        (
+                            "New financial transactions "
+                            "cannot be recorded for an "
+                            "inactive employee."
                         )
                 }
             )

@@ -2090,7 +2090,7 @@
 
                 <div class="exl-kpi-value money">
 
-                    ${{ total_expenses|floatformat:2 }}
+                    {{ currency_code }} {{ total_expenses|floatformat:2 }}
 
                 </div>
 
@@ -2148,7 +2148,7 @@
 
                 <div class="exl-kpi-value money">
 
-                    ${{ month_expenses|floatformat:2 }}
+                    {{ currency_code }} {{ month_expenses|floatformat:2 }}
 
                 </div>
 
@@ -2793,7 +2793,7 @@
 
                                         <div class="exl-money">
 
-                                            ${{ expense.amount|floatformat:2 }}
+                                            {{ currency_code }} {{ expense.amount|floatformat:2 }}
 
                                         </div>
 

@@ -24,4 +24,12 @@ urlpatterns = [
         "finance/",
         include("payables.urls"),
     ),
+
+    path(
+    "school/",
+    include(
+        "school_config.urls"
+    ),
+),
+
 ]

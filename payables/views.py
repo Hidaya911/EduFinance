@@ -2,6 +2,8 @@ from datetime import timedelta
 from decimal import Decimal
 
 
+from school_config.models import School
+
 from django.core.exceptions import ValidationError
 
 from django.contrib import messages
@@ -21,6 +23,8 @@ from .forms import (
     SupplierBillForm,
     SupplierPaymentForm,
     ExpenseForm,
+    EmployeeFinancialProfileForm,
+    EmployeeFinancialTransactionForm,
 )
 
 from .models import (
@@ -29,13 +33,39 @@ from .models import (
     SupplierBill,
     SupplierPayment,
     Expense,
+    EmployeeFinancialProfile,
+    EmployeeFinancialTransaction,
 )
 
 from .services import (
     create_supplier_payment,
     void_supplier_payment,
     void_expense,
+    void_employee_financial_transaction,
 )
+
+
+def get_school_currency():
+
+    school = (
+        School.objects
+        .first()
+    )
+
+    if (
+        school
+        and
+        school.default_currency
+    ):
+
+        return (
+            school.default_currency
+        )
+
+    return "USD"
+
+
+
 
 @login_required
 def expense_category_list(request):
@@ -1650,6 +1680,10 @@ def expense_list(request):
 
         "voided_count":
             voided_count,
+
+        "currency_code": 
+            get_school_currency(),
+
     }
 
     return render(
@@ -1726,10 +1760,25 @@ def expense_create(request):
     }
 
     return render(
-        request,
-        "payables/expense_form.html",
-        context,
-    )
+     request,
+    "payables/expense_form.html",
+    {
+        "form":
+            form,
+
+        "page_title":
+            "Record Expense",
+
+        "submit_text":
+            "Record Expense",
+
+        "is_edit":
+            False,
+
+        "currency_code":
+            get_school_currency(),
+    },
+)
 
 
 # ============================================================
@@ -1816,10 +1865,28 @@ def expense_edit(
     }
 
     return render(
-        request,
-        "payables/expense_form.html",
-        context,
-    )
+    request,
+    "payables/expense_form.html",
+    {
+        "form":
+            form,
+
+        "expense":
+            expense,
+
+        "page_title":
+            "Edit Expense",
+
+        "submit_text":
+            "Save Changes",
+
+        "is_edit":
+            True,
+
+        "currency_code":
+            get_school_currency(),
+    },
+)
 
 
 # ============================================================
@@ -1843,10 +1910,16 @@ def expense_detail(
     }
 
     return render(
-        request,
-        "payables/expense_detail.html",
-        context,
-    )
+    request,
+    "payables/expense_detail.html",
+    {
+        "expense":
+            expense,
+
+        "currency_code":
+            get_school_currency(),
+    },
+)
 
 
 # ============================================================
@@ -1909,4 +1982,825 @@ def expense_void(
     return redirect(
         "payables:expense_detail",
         pk=expense.pk,
+    )
+
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL PROFILE LIST
+# ============================================================
+
+@login_required
+def employee_financial_list(request):
+
+    search = (
+        request.GET.get(
+            "search",
+            ""
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET.get(
+            "status",
+            ""
+        )
+        .strip()
+    )
+
+    department = (
+        request.GET.get(
+            "department",
+            ""
+        )
+        .strip()
+    )
+
+    employees = (
+        EmployeeFinancialProfile
+        .objects
+        .all()
+    )
+
+    if search:
+
+        employees = (
+            employees.filter(
+                Q(
+                    employee_id__icontains=
+                        search
+                )
+                |
+                Q(
+                    full_name__icontains=
+                        search
+                )
+                |
+                Q(
+                    department__icontains=
+                        search
+                )
+                |
+                Q(
+                    position__icontains=
+                        search
+                )
+            )
+        )
+
+    if status:
+
+        employees = (
+            employees.filter(
+                status=status
+            )
+        )
+
+    if department:
+
+        employees = (
+            employees.filter(
+                department=department
+            )
+        )
+
+    employees = (
+        employees.order_by(
+            "full_name"
+        )
+    )
+
+    all_employees = list(
+        EmployeeFinancialProfile
+        .objects
+        .all()
+    )
+
+    active_count = sum(
+        1
+        for employee
+        in all_employees
+        if (
+            employee.status
+            ==
+            EmployeeFinancialProfile
+            .Status
+            .ACTIVE
+        )
+    )
+
+    all_transactions = list(
+        EmployeeFinancialTransaction
+        .objects
+        .all()
+    )
+
+    posted_transactions = [
+        transaction
+        for transaction
+        in all_transactions
+        if (
+            transaction.status
+            ==
+            EmployeeFinancialTransaction
+            .Status
+            .POSTED
+        )
+    ]
+
+    total_activity = sum(
+        (
+            transaction.amount
+            for transaction
+            in posted_transactions
+        ),
+        Decimal("0.00"),
+    )
+
+    today = timezone.localdate()
+
+    month_activity = sum(
+        (
+            transaction.amount
+            for transaction
+            in posted_transactions
+            if (
+                transaction.transaction_date.year
+                == today.year
+                and
+                transaction.transaction_date.month
+                == today.month
+            )
+        ),
+        Decimal("0.00"),
+    )
+
+    departments = sorted(
+        {
+            employee.department
+            for employee
+            in all_employees
+            if employee.department
+        }
+    )
+
+    context = {
+
+        "employees":
+            employees,
+
+        "search":
+            search,
+
+        "selected_status":
+            status,
+
+        "selected_department":
+            department,
+
+        "status_choices":
+            EmployeeFinancialProfile
+            .Status
+            .choices,
+
+        "departments":
+            departments,
+
+        "employee_count":
+            len(all_employees),
+
+        "active_count":
+            active_count,
+
+        "transaction_count":
+            len(posted_transactions),
+
+        "total_activity":
+            total_activity,
+
+        "month_activity":
+            month_activity,
+    }
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_list.html"
+        ),
+        context,
+    )
+
+
+# ============================================================
+# CREATE EMPLOYEE FINANCIAL PROFILE
+# ============================================================
+
+@login_required
+def employee_financial_create(request):
+
+    if request.method == "POST":
+
+        form = (
+            EmployeeFinancialProfileForm(
+                request.POST
+            )
+        )
+
+        if form.is_valid():
+
+            employee = form.save()
+
+            messages.success(
+                request,
+                (
+                    f"Employee financial profile "
+                    f"{employee.employee_id} "
+                    f"was created successfully."
+                ),
+            )
+
+            return redirect(
+                (
+                    "payables:"
+                    "employee_financial_detail"
+                ),
+                pk=employee.pk,
+            )
+
+    else:
+
+        form = (
+            EmployeeFinancialProfileForm()
+        )
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_form.html"
+        ),
+        {
+            "form": form,
+            "page_title":
+                "Create Employee Financial Profile",
+            "submit_text":
+                "Create Profile",
+            "is_edit":
+                False,
+        },
+    )
+
+
+# ============================================================
+# EDIT EMPLOYEE FINANCIAL PROFILE
+# ============================================================
+
+@login_required
+def employee_financial_edit(
+    request,
+    pk,
+):
+
+    employee = get_object_or_404(
+        EmployeeFinancialProfile,
+        pk=pk,
+    )
+
+    if request.method == "POST":
+
+        form = (
+            EmployeeFinancialProfileForm(
+                request.POST,
+                instance=employee,
+            )
+        )
+
+        if form.is_valid():
+
+            employee = form.save()
+
+            messages.success(
+                request,
+                (
+                    f"Employee financial profile "
+                    f"{employee.employee_id} "
+                    f"was updated successfully."
+                ),
+            )
+
+            return redirect(
+                (
+                    "payables:"
+                    "employee_financial_detail"
+                ),
+                pk=employee.pk,
+            )
+
+    else:
+
+        form = (
+            EmployeeFinancialProfileForm(
+                instance=employee
+            )
+        )
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "employee":
+                employee,
+
+            "page_title":
+                "Edit Employee Financial Profile",
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+        },
+    )
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL DETAIL
+# ============================================================
+
+@login_required
+def employee_financial_detail(
+    request,
+    pk,
+):
+
+    employee = get_object_or_404(
+        EmployeeFinancialProfile,
+        pk=pk,
+    )
+
+    transactions = list(
+        employee
+        .financial_transactions
+        .all()
+        .order_by(
+            "-transaction_date",
+            "-created_at",
+        )
+    )
+
+    posted = [
+        transaction
+        for transaction
+        in transactions
+        if (
+            transaction.status
+            ==
+            EmployeeFinancialTransaction
+            .Status
+            .POSTED
+        )
+    ]
+
+    def total_for(
+        transaction_type
+    ):
+
+        return sum(
+            (
+                transaction.amount
+                for transaction
+                in posted
+                if (
+                    transaction.transaction_type
+                    ==
+                    transaction_type
+                )
+            ),
+            Decimal("0.00"),
+        )
+
+    context = {
+
+        "employee":
+            employee,
+
+        "transactions":
+            transactions,
+
+        "advance_total":
+            total_for(
+                EmployeeFinancialTransaction
+                .TransactionType
+                .ADVANCE
+            ),
+
+        "reimbursement_total":
+            total_for(
+                EmployeeFinancialTransaction
+                .TransactionType
+                .REIMBURSEMENT
+            ),
+
+        "allowance_total":
+            total_for(
+                EmployeeFinancialTransaction
+                .TransactionType
+                .ALLOWANCE
+            ),
+
+        "deduction_total":
+            total_for(
+                EmployeeFinancialTransaction
+                .TransactionType
+                .DEDUCTION
+            ),
+
+        "payment_total":
+            total_for(
+                EmployeeFinancialTransaction
+                .TransactionType
+                .PAYMENT
+            ),
+
+        "posted_transaction_count":
+            len(posted),
+    }
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_detail.html"
+        ),
+        context,
+    )
+
+
+# ============================================================
+# CREATE EMPLOYEE FINANCIAL TRANSACTION
+# ============================================================
+
+@login_required
+def employee_financial_transaction_create(
+    request,
+):
+
+    employee_id = (
+        request.GET.get(
+            "employee",
+            ""
+        )
+        .strip()
+    )
+
+    available_employees = (
+        EmployeeFinancialProfile
+        .objects
+        .filter(
+            status=
+                EmployeeFinancialProfile
+                .Status
+                .ACTIVE
+        )
+        .order_by(
+            "full_name"
+        )
+    )
+
+    if request.method == "POST":
+
+        form = (
+            EmployeeFinancialTransactionForm(
+                request.POST
+            )
+        )
+
+        if form.is_valid():
+
+            transaction = (
+                form.save(
+                    commit=False
+                )
+            )
+
+            transaction.created_by = (
+                request.user
+            )
+
+            transaction.save()
+
+            messages.success(
+                request,
+                (
+                    f"Financial transaction "
+                    f"{transaction.transaction_number} "
+                    f"was recorded successfully."
+                ),
+            )
+
+            return redirect(
+                (
+                    "payables:"
+                    "employee_financial_detail"
+                ),
+                pk=
+                    transaction.employee.pk,
+            )
+
+    else:
+
+        initial = {
+            "transaction_date":
+                timezone.localdate(),
+        }
+
+        if employee_id:
+
+            initial[
+                "employee"
+            ] = employee_id
+
+        form = (
+            EmployeeFinancialTransactionForm(
+                initial=initial
+            )
+        )
+
+    employee_data = {}
+
+    for employee in available_employees:
+
+        posted_transactions = list(
+            employee
+            .financial_transactions
+            .filter(
+                status=
+                    EmployeeFinancialTransaction
+                    .Status
+                    .POSTED
+            )
+        )
+
+        advance_total = sum(
+            (
+                transaction.amount
+                for transaction
+                in posted_transactions
+                if (
+                    transaction.transaction_type
+                    ==
+                    EmployeeFinancialTransaction
+                    .TransactionType
+                    .ADVANCE
+                )
+            ),
+            Decimal("0.00"),
+        )
+
+        deduction_total = sum(
+            (
+                transaction.amount
+                for transaction
+                in posted_transactions
+                if (
+                    transaction.transaction_type
+                    ==
+                    EmployeeFinancialTransaction
+                    .TransactionType
+                    .DEDUCTION
+                )
+            ),
+            Decimal("0.00"),
+        )
+
+        employee_data[
+            str(employee.pk)
+        ] = {
+
+            "employee_id":
+                employee.employee_id,
+
+            "name":
+                employee.full_name,
+
+            "department":
+                employee.department,
+
+            "position":
+                employee.position,
+
+            "salary":
+                (
+                    str(
+                        employee
+                        .base_salary_reference
+                    )
+                    if (
+                        employee
+                        .base_salary_reference
+                        is not None
+                    )
+                    else "0"
+                ),
+
+            "advance_total":
+                str(advance_total),
+
+            "deduction_total":
+                str(deduction_total),
+
+            "transaction_count":
+                len(
+                    posted_transactions
+                ),
+        }
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_transaction_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                (
+                    "Record Employee "
+                    "Financial Transaction"
+                ),
+
+            "submit_text":
+                "Record Transaction",
+
+            "employee_data":
+                employee_data,
+        },
+    )
+
+    employee_id = (
+        request.GET.get(
+            "employee",
+            ""
+        )
+        .strip()
+    )
+
+    if request.method == "POST":
+
+        form = (
+            EmployeeFinancialTransactionForm(
+                request.POST
+            )
+        )
+
+        if form.is_valid():
+
+            transaction = (
+                form.save(
+                    commit=False
+                )
+            )
+
+            transaction.created_by = (
+                request.user
+            )
+
+            transaction.save()
+
+            messages.success(
+                request,
+                (
+                    f"Financial transaction "
+                    f"{transaction.transaction_number} "
+                    f"was recorded successfully."
+                ),
+            )
+
+            return redirect(
+                (
+                    "payables:"
+                    "employee_financial_detail"
+                ),
+                pk=
+                    transaction.employee.pk,
+            )
+
+    else:
+
+        initial = {
+            "transaction_date":
+                timezone.localdate(),
+        }
+
+        if employee_id:
+
+            initial[
+                "employee"
+            ] = employee_id
+
+        form = (
+            EmployeeFinancialTransactionForm(
+                initial=initial
+            )
+        )
+
+    return render(
+        request,
+        (
+            "payables/"
+            "employee_financial_transaction_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                "Record Employee Financial Transaction",
+
+            "submit_text":
+                "Record Transaction",
+        },
+    )
+
+
+# ============================================================
+# VOID EMPLOYEE FINANCIAL TRANSACTION
+# ============================================================
+
+@login_required
+@require_POST
+def employee_financial_transaction_void(
+    request,
+    pk,
+):
+
+    transaction = get_object_or_404(
+        EmployeeFinancialTransaction,
+        pk=pk,
+    )
+
+    employee_pk = (
+        transaction.employee.pk
+    )
+
+    reason = (
+        request.POST.get(
+            "reason",
+            ""
+        )
+        .strip()
+    )
+
+    try:
+
+        void_employee_financial_transaction(
+            transaction=transaction,
+            user=request.user,
+            reason=reason,
+        )
+
+    except ValidationError as error:
+
+        message = (
+            error.messages[0]
+            if error.messages
+            else
+            (
+                "Unable to void this "
+                "financial transaction."
+            )
+        )
+
+        messages.error(
+            request,
+            message,
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                f"Transaction "
+                f"{transaction.transaction_number} "
+                f"was voided successfully."
+            ),
+        )
+
+    return redirect(
+        (
+            "payables:"
+            "employee_financial_detail"
+        ),
+        pk=employee_pk,
     )

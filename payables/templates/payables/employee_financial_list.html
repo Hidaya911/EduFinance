@@ -1,0 +1,1474 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Finance | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+.efl-page {
+    min-height:100vh;
+    padding:32px 34px 70px;
+    background:
+        radial-gradient(circle at 93% 3%,rgba(37,99,235,.12),transparent 25%),
+        radial-gradient(circle at 8% 15%,rgba(16,185,129,.055),transparent 20%),
+        linear-gradient(180deg,#f8faff,#f3f7fc);
+    color:#12243d;
+}
+
+.efl-container {
+    max-width:1500px;
+    margin:auto;
+}
+
+.efl-progress {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:3px;
+    z-index:99999;
+    opacity:0;
+    pointer-events:none;
+}
+
+.efl-progress.active {
+    opacity:1;
+}
+
+.efl-progress::after {
+    content:"";
+    display:block;
+    width:38%;
+    height:100%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa,#22d3ee);
+    animation:eflLoad .8s ease infinite;
+}
+
+@keyframes eflLoad {
+    from { transform:translateX(-110%); }
+    to { transform:translateX(300%); }
+}
+
+.efl-context {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:16px;
+}
+
+.efl-breadcrumb {
+    display:flex;
+    gap:8px;
+    color:#8d99aa;
+    font-size:10px;
+    font-weight:650;
+}
+
+.efl-context-links {
+    display:flex;
+    gap:8px;
+}
+
+.efl-context-link {
+    min-height:32px;
+    display:inline-flex;
+    align-items:center;
+    padding:0 11px;
+    border:1px solid #d8e2ed;
+    border-radius:8px;
+    background:white;
+    color:#64758b;
+    text-decoration:none;
+    font-size:9px;
+    font-weight:700;
+}
+
+.efl-hero {
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:25px;
+    padding:30px 32px;
+    margin-bottom:22px;
+    border-radius:22px;
+    background:
+        linear-gradient(128deg,#071c38,#0d2d58 53%,#174b8e);
+    color:white;
+    box-shadow:0 22px 50px rgba(13,42,83,.17);
+}
+
+.efl-hero::before {
+    content:"";
+    position:absolute;
+    width:350px;
+    height:350px;
+    right:-105px;
+    top:-205px;
+    border:48px solid rgba(255,255,255,.055);
+    border-radius:50%;
+}
+
+.efl-hero-left {
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.efl-hero-icon {
+    width:64px;
+    height:64px;
+    display:grid;
+    place-items:center;
+    flex-shrink:0;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:18px;
+    background:rgba(255,255,255,.08);
+}
+
+.efl-hero-icon svg {
+    width:29px;
+    height:29px;
+}
+
+.efl-eyebrow {
+    margin-bottom:6px;
+    color:#79b2ff;
+    font-size:9px;
+    font-weight:850;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+}
+
+.efl-title {
+    margin:0;
+    font-size:32px;
+    font-weight:790;
+    letter-spacing:-.025em;
+}
+
+.efl-subtitle {
+    max-width:710px;
+    margin:8px 0 0;
+    color:rgba(228,238,252,.76);
+    font-size:12px;
+    line-height:1.55;
+}
+
+.efl-hero-actions {
+    position:relative;
+    z-index:2;
+    display:flex;
+    gap:9px;
+}
+
+.efl-btn {
+    min-height:44px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    padding:0 16px;
+    border-radius:10px;
+    font-size:10px;
+    font-weight:730;
+    text-decoration:none;
+    transition:.2s;
+}
+
+.efl-btn.secondary {
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);
+    color:white;
+}
+
+.efl-btn.primary {
+    background:linear-gradient(135deg,#3478f6,#1d4ed8);
+    color:white;
+    box-shadow:0 10px 22px rgba(0,44,119,.28);
+}
+
+.efl-btn:hover {
+    transform:translateY(-2px);
+}
+
+.efl-kpis {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.efl-kpi {
+    min-height:137px;
+    padding:20px;
+    border:1px solid #dbe4ee;
+    border-radius:17px;
+    background:white;
+    box-shadow:0 7px 24px rgba(25,43,69,.05);
+    transition:.2s;
+}
+
+.efl-kpi:hover {
+    transform:translateY(-3px);
+    box-shadow:0 15px 32px rgba(25,43,69,.09);
+}
+
+.efl-kpi-label {
+    color:#8794a7;
+    font-size:8px;
+    font-weight:850;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.efl-kpi-value {
+    margin-top:17px;
+    color:#0b2344;
+    font-size:24px;
+    font-weight:790;
+}
+
+.efl-kpi-value.money {
+    font-size:20px;
+}
+
+.efl-kpi-note {
+    margin-top:6px;
+    color:#9aa5b4;
+    font-size:8.7px;
+}
+
+.efl-kpi-line {
+    width:37px;
+    height:3px;
+    margin-top:14px;
+    border-radius:99px;
+}
+
+.efl-kpi:nth-child(1) .efl-kpi-line {
+    background:#2563eb;
+}
+
+.efl-kpi:nth-child(2) .efl-kpi-line {
+    background:#059669;
+}
+
+.efl-kpi:nth-child(3) .efl-kpi-line {
+    background:#7c3aed;
+}
+
+.efl-kpi:nth-child(4) .efl-kpi-line {
+    background:#d97706;
+}
+
+.efl-panel {
+    overflow:hidden;
+    border:1px solid #dae4ef;
+    border-radius:19px;
+    background:white;
+    box-shadow:0 12px 34px rgba(25,43,69,.06);
+}
+
+.efl-panel-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    padding:20px 21px 17px;
+    border-bottom:1px solid #edf1f5;
+}
+
+.efl-panel-title {
+    margin:0;
+    color:#0b2344;
+    font-size:15px;
+    font-weight:770;
+}
+
+.efl-panel-subtitle {
+    margin-top:3px;
+    color:#929eae;
+    font-size:9px;
+}
+
+.efl-count {
+    padding:7px 10px;
+    border:1px solid #dce5ef;
+    border-radius:999px;
+    background:#f8faff;
+    color:#6d7d91;
+    font-size:8px;
+    font-weight:750;
+}
+
+.efl-toolbar {
+    display:grid;
+    grid-template-columns:minmax(280px,1fr) 210px 180px;
+    gap:10px;
+    padding:15px 19px;
+    border-bottom:1px solid #edf1f5;
+    background:#fbfcfe;
+}
+
+.efl-search-wrap {
+    position:relative;
+}
+
+.efl-search,
+.efl-select {
+    width:100%;
+    height:44px;
+    box-sizing:border-box;
+    border:1.5px solid #c9d5e4;
+    border-radius:10px;
+    background:white;
+    color:#34465e;
+    outline:none;
+    font-size:10px;
+}
+
+.efl-search {
+    padding:0 43px 0 14px;
+}
+
+.efl-select {
+    padding:0 10px;
+}
+
+.efl-search:focus,
+.efl-select:focus {
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.09);
+}
+
+.efl-spinner {
+    position:absolute;
+    right:15px;
+    top:50%;
+    width:14px;
+    height:14px;
+    margin-top:-7px;
+    border:2px solid #d6e1ed;
+    border-top-color:#2563eb;
+    border-radius:50%;
+    opacity:0;
+    animation:eflSpin .7s linear infinite;
+}
+
+.efl-spinner.active {
+    opacity:1;
+}
+
+@keyframes eflSpin {
+    to { transform:rotate(360deg); }
+}
+
+.efl-dynamic {
+    transition:opacity .15s;
+}
+
+.efl-dynamic.loading {
+    opacity:.55;
+}
+
+.efl-table-wrap {
+    overflow-x:auto;
+}
+
+.efl-table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+.efl-table th {
+    padding:13px 15px;
+    border-bottom:1px solid #e7ecf3;
+    background:#f8fafc;
+    color:#7d899c;
+    text-align:left;
+    font-size:7.8px;
+    font-weight:850;
+    letter-spacing:.075em;
+    text-transform:uppercase;
+    white-space:nowrap;
+}
+
+.efl-table td {
+    padding:15px;
+    border-bottom:1px solid #edf1f5;
+    color:#42536b;
+    font-size:9.5px;
+    vertical-align:middle;
+}
+
+.efl-table tbody tr:hover {
+    background:#f9fbff;
+}
+
+.efl-person {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.efl-avatar {
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    flex-shrink:0;
+    border-radius:12px;
+    background:linear-gradient(145deg,#eff5ff,#e5eeff);
+    color:#2563eb;
+    font-size:12px;
+    font-weight:850;
+}
+
+.efl-name {
+    color:#0b2344;
+    font-size:10.5px;
+    font-weight:780;
+}
+
+.efl-id {
+    margin-top:3px;
+    color:#929eae;
+    font-size:8px;
+}
+
+.efl-dept {
+    color:#415771;
+    font-size:9.3px;
+    font-weight:650;
+}
+
+.efl-position {
+    margin-top:3px;
+    color:#9aa5b4;
+    font-size:8px;
+}
+
+.efl-salary {
+    color:#153b5f;
+    font-size:10.5px;
+    font-weight:760;
+}
+
+.efl-status {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:6px 9px;
+    border-radius:999px;
+    font-size:8px;
+    font-weight:760;
+}
+
+.efl-status.active {
+    color:#078152;
+    background:#eafaf3;
+}
+
+.efl-status.inactive {
+    color:#667085;
+    background:#f2f4f7;
+}
+
+.efl-dot {
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:currentColor;
+}
+
+.efl-actions {
+    display:flex;
+    justify-content:flex-end;
+    gap:6px;
+}
+
+.efl-action {
+    min-height:32px;
+    display:inline-flex;
+    align-items:center;
+    padding:0 9px;
+    border-radius:8px;
+    font-size:8.5px;
+    font-weight:720;
+    text-decoration:none;
+}
+
+.efl-action.view {
+    color:#2563eb;
+    background:#eff5ff;
+    border:1px solid #d7e5ff;
+}
+
+.efl-action.edit {
+    color:#078152;
+    background:#f3fbf7;
+    border:1px solid #dce7df;
+}
+
+.efl-empty {
+    min-height:380px;
+    display:grid;
+    place-items:center;
+    padding:40px;
+    text-align:center;
+    background:
+        radial-gradient(circle,rgba(37,99,235,.05),transparent 45%);
+}
+
+.efl-empty-icon {
+    width:84px;
+    height:84px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 18px;
+    border-radius:23px;
+    background:#edf4ff;
+    color:#2563eb;
+    font-size:31px;
+}
+
+.efl-empty-title {
+    color:#0b2344;
+    font-size:19px;
+    font-weight:780;
+}
+
+.efl-empty-text {
+    max-width:410px;
+    margin:8px auto 18px;
+    color:#8290a4;
+    font-size:10.5px;
+    line-height:1.6;
+}
+
+@media(max-width:1050px) {
+    .efl-kpis {
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:760px) {
+    .efl-page {
+        padding:22px 16px 45px;
+    }
+
+    .efl-context {
+        display:none;
+    }
+
+    .efl-hero {
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .efl-hero-icon {
+        display:none;
+    }
+
+    .efl-hero-actions {
+        flex-direction:column;
+    }
+
+    .efl-btn {
+        width:100%;
+    }
+
+    .efl-kpis,
+    .efl-toolbar {
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+
+<div
+    class="efl-progress"
+    id="employeeFinanceProgress"
+></div>
+
+
+<div class="efl-page">
+
+<div class="efl-container">
+
+
+    <div class="efl-context">
+
+        <div class="efl-breadcrumb">
+
+            <span>EduFinance</span>
+            <span>›</span>
+            <span>Management</span>
+            <span>›</span>
+            <span>Employee Finance</span>
+
+        </div>
+
+
+        <div class="efl-context-links">
+
+            <a
+                href="{% url 'payables:expense_list' %}"
+                class="efl-context-link"
+            >
+                Expenses
+            </a>
+
+            <a
+                href="{% url 'payables:supplier_payment_list' %}"
+                class="efl-context-link"
+            >
+                Supplier Payments
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <section class="efl-hero">
+
+
+        <div class="efl-hero-left">
+
+
+            <div class="efl-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path>
+                    <path d="M17 5h4"></path>
+                    <path d="M19 3v4"></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="efl-eyebrow">
+                    Employee Financial Management
+                </div>
+
+                <h1 class="efl-title">
+                    Employee Finance
+                </h1>
+
+                <p class="efl-subtitle">
+
+                    Manage employee financial profiles, salary references,
+                    advances, reimbursements, allowances, deductions and
+                    payment history from one controlled financial workspace.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="efl-hero-actions">
+
+            <a
+                href="{% url 'payables:employee_financial_transaction_create' %}"
+                class="efl-btn secondary"
+            >
+                + Financial Transaction
+            </a>
+
+            <a
+                href="{% url 'payables:employee_financial_create' %}"
+                class="efl-btn primary"
+            >
+                + Employee Profile
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <div
+        class="efl-dynamic"
+        id="employeeFinanceDynamic"
+    >
+
+
+        <section class="efl-kpis">
+
+
+            <article class="efl-kpi">
+
+                <div class="efl-kpi-label">
+                    Employee Profiles
+                </div>
+
+                <div class="efl-kpi-value">
+                    {{ employee_count }}
+                </div>
+
+                <div class="efl-kpi-note">
+                    Financial profiles maintained
+                </div>
+
+                <div class="efl-kpi-line"></div>
+
+            </article>
+
+
+            <article class="efl-kpi">
+
+                <div class="efl-kpi-label">
+                    Active Employees
+                </div>
+
+                <div class="efl-kpi-value">
+                    {{ active_count }}
+                </div>
+
+                <div class="efl-kpi-note">
+                    Available for new transactions
+                </div>
+
+                <div class="efl-kpi-line"></div>
+
+            </article>
+
+
+            <article class="efl-kpi">
+
+                <div class="efl-kpi-label">
+                    Total Financial Activity
+                </div>
+
+                <div class="efl-kpi-value money">
+                    ${{ total_activity|floatformat:2 }}
+                </div>
+
+                <div class="efl-kpi-note">
+                    Posted transaction value
+                </div>
+
+                <div class="efl-kpi-line"></div>
+
+            </article>
+
+
+            <article class="efl-kpi">
+
+                <div class="efl-kpi-label">
+                    Current Month Activity
+                </div>
+
+                <div class="efl-kpi-value money">
+                    ${{ month_activity|floatformat:2 }}
+                </div>
+
+                <div class="efl-kpi-note">
+                    {{ transaction_count }} posted transaction{{ transaction_count|pluralize }}
+                </div>
+
+                <div class="efl-kpi-line"></div>
+
+            </article>
+
+        </section>
+
+
+        <section class="efl-panel">
+
+
+            <div class="efl-panel-head">
+
+                <div>
+
+                    <h2 class="efl-panel-title">
+                        Employee Financial Profiles
+                    </h2>
+
+                    <div class="efl-panel-subtitle">
+
+                        Search staff financial records and open
+                        complete transaction histories.
+
+                    </div>
+
+                </div>
+
+
+                <div class="efl-count">
+                    {{ employee_count }}
+                    profile{{ employee_count|pluralize }}
+                </div>
+
+            </div>
+
+
+            <form
+                method="get"
+                class="efl-toolbar"
+                id="employeeFinanceFilterForm"
+            >
+
+
+                <div class="efl-search-wrap">
+
+                    <input
+                        type="text"
+                        name="search"
+                        id="employeeFinanceSearch"
+                        class="efl-search"
+                        value="{{ search }}"
+                        placeholder="Search employee ID, name, department or position..."
+                        autocomplete="off"
+                    >
+
+                    <span
+                        class="efl-spinner"
+                        id="employeeFinanceSpinner"
+                    ></span>
+
+                </div>
+
+
+                <select
+                    name="department"
+                    id="employeeFinanceDepartment"
+                    class="efl-select"
+                >
+
+                    <option value="">
+                        All departments
+                    </option>
+
+                    {% for item in departments %}
+
+                        <option
+                            value="{{ item }}"
+                            {% if selected_department == item %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ item }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+
+                <select
+                    name="status"
+                    id="employeeFinanceStatus"
+                    class="efl-select"
+                >
+
+                    <option value="">
+                        All statuses
+                    </option>
+
+                    {% for value, label in status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </form>
+
+
+            {% if employees %}
+
+                <div class="efl-table-wrap">
+
+                    <table class="efl-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Employee</th>
+                                <th>Department / Position</th>
+                                <th>Salary Reference</th>
+                                <th>Status</th>
+
+                                <th style="text-align:right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for employee in employees %}
+
+                                <tr>
+
+
+                                    <td>
+
+                                        <div class="efl-person">
+
+                                            <div class="efl-avatar">
+
+                                                {{ employee.full_name|slice:":1"|upper }}
+
+                                            </div>
+
+                                            <div>
+
+                                                <div class="efl-name">
+                                                    {{ employee.full_name }}
+                                                </div>
+
+                                                <div class="efl-id">
+                                                    {{ employee.employee_id }}
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="efl-dept">
+
+                                            {% if employee.department %}
+                                                {{ employee.department }}
+                                            {% else %}
+                                                No department
+                                            {% endif %}
+
+                                        </div>
+
+                                        <div class="efl-position">
+
+                                            {% if employee.position %}
+                                                {{ employee.position }}
+                                            {% else %}
+                                                No position specified
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="efl-salary">
+
+                                            {% if employee.base_salary_reference != None %}
+
+                                                ${{ employee.base_salary_reference|floatformat:2 }}
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="efl-status {{ employee.status }}"
+                                        >
+
+                                            <span class="efl-dot"></span>
+
+                                            {{ employee.get_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="efl-actions">
+
+                                            <a
+                                                href="{% url 'payables:employee_financial_detail' employee.pk %}"
+                                                class="efl-action view"
+                                            >
+                                                Financial Profile
+                                            </a>
+
+                                            <a
+                                                href="{% url 'payables:employee_financial_edit' employee.pk %}"
+                                                class="efl-action edit"
+                                            >
+                                                Edit
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="efl-empty">
+
+                    <div>
+
+                        <div class="efl-empty-icon">
+                            ◉
+                        </div>
+
+                        {% if search or selected_status or selected_department %}
+
+                            <div class="efl-empty-title">
+                                No matching employees
+                            </div>
+
+                            <div class="efl-empty-text">
+
+                                No employee financial profiles match the
+                                current search and filters.
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="efl-empty-title">
+                                Build your employee finance directory
+                            </div>
+
+                            <div class="efl-empty-text">
+
+                                Create financial profiles for school employees
+                                and track advances, reimbursements, allowances,
+                                deductions and payment history.
+
+                            </div>
+
+                            <a
+                                href="{% url 'payables:employee_financial_create' %}"
+                                class="efl-btn primary"
+                            >
+                                + Create First Profile
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+</div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const progress =
+            document.getElementById(
+                "employeeFinanceProgress"
+            );
+
+        let debounceTimer = null;
+        let controller = null;
+
+
+        function startProgress() {
+
+            if (progress) {
+                progress.classList.add(
+                    "active"
+                );
+            }
+
+        }
+
+
+        function stopProgress() {
+
+            if (progress) {
+                progress.classList.remove(
+                    "active"
+                );
+            }
+
+        }
+
+
+        async function filterEmployees() {
+
+            const search =
+                document.getElementById(
+                    "employeeFinanceSearch"
+                );
+
+            const department =
+                document.getElementById(
+                    "employeeFinanceDepartment"
+                );
+
+            const status =
+                document.getElementById(
+                    "employeeFinanceStatus"
+                );
+
+            const current =
+                document.getElementById(
+                    "employeeFinanceDynamic"
+                );
+
+            const spinner =
+                document.getElementById(
+                    "employeeFinanceSpinner"
+                );
+
+            if (
+                !search
+                ||
+                !department
+                ||
+                !status
+                ||
+                !current
+            ) {
+                return;
+            }
+
+
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+
+            if (search.value.trim()) {
+
+                url.searchParams.set(
+                    "search",
+                    search.value.trim()
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "search"
+                );
+
+            }
+
+
+            if (department.value) {
+
+                url.searchParams.set(
+                    "department",
+                    department.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "department"
+                );
+
+            }
+
+
+            if (status.value) {
+
+                url.searchParams.set(
+                    "status",
+                    status.value
+                );
+
+            } else {
+
+                url.searchParams.delete(
+                    "status"
+                );
+
+            }
+
+
+            if (controller) {
+                controller.abort();
+            }
+
+            controller =
+                new AbortController();
+
+
+            current.classList.add(
+                "loading"
+            );
+
+            if (spinner) {
+                spinner.classList.add(
+                    "active"
+                );
+            }
+
+            startProgress();
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        url.toString(),
+                        {
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            },
+                            signal:
+                                controller.signal
+                        }
+                    );
+
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Unable to load employee profiles."
+                    );
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                const parsed =
+                    new DOMParser()
+                    .parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                const replacement =
+                    parsed.getElementById(
+                        "employeeFinanceDynamic"
+                    );
+
+
+                if (!replacement) {
+
+                    window.location.href =
+                        url.toString();
+
+                    return;
+                }
+
+
+                current.innerHTML =
+                    replacement.innerHTML;
+
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    url.toString()
+                );
+
+
+                bindFilters();
+
+            }
+
+            catch (error) {
+
+                if (
+                    error.name
+                    !== "AbortError"
+                ) {
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+            finally {
+
+                const area =
+                    document.getElementById(
+                        "employeeFinanceDynamic"
+                    );
+
+                const newSpinner =
+                    document.getElementById(
+                        "employeeFinanceSpinner"
+                    );
+
+                if (area) {
+                    area.classList.remove(
+                        "loading"
+                    );
+                }
+
+                if (newSpinner) {
+                    newSpinner.classList.remove(
+                        "active"
+                    );
+                }
+
+                stopProgress();
+
+            }
+
+        }
+
+
+        function bindFilters() {
+
+            const form =
+                document.getElementById(
+                    "employeeFinanceFilterForm"
+                );
+
+            const search =
+                document.getElementById(
+                    "employeeFinanceSearch"
+                );
+
+            const department =
+                document.getElementById(
+                    "employeeFinanceDepartment"
+                );
+
+            const status =
+                document.getElementById(
+                    "employeeFinanceStatus"
+                );
+
+
+            if (
+                !form
+                ||
+                !search
+                ||
+                !department
+                ||
+                !status
+            ) {
+                return;
+            }
+
+
+            if (
+                form.dataset.bound
+                === "true"
+            ) {
+                return;
+            }
+
+
+            form.dataset.bound =
+                "true";
+
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    filterEmployees();
+
+                }
+            );
+
+
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        debounceTimer
+                    );
+
+                    debounceTimer =
+                        setTimeout(
+                            filterEmployees,
+                            320
+                        );
+
+                }
+            );
+
+
+            department.addEventListener(
+                "change",
+                filterEmployees
+            );
+
+
+            status.addEventListener(
+                "change",
+                filterEmployees
+            );
+
+        }
+
+
+        bindFilters();
+
+    }
+);
+</script>
+
+{% endblock %}

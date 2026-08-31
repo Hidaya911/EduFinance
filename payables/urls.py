@@ -151,4 +151,49 @@ path(
     name="expense_void",
 ),
 
+
+
+# ============================================================
+# EMPLOYEE FINANCIAL RECORDS
+# ============================================================
+
+path(
+    "employee-financial-records/",
+    views.employee_financial_list,
+    name="employee_financial_list",
+),
+
+path(
+    "employee-financial-records/create/",
+    views.employee_financial_create,
+    name="employee_financial_create",
+),
+
+path(
+    "employee-financial-records/<str:pk>/",
+    views.employee_financial_detail,
+    name="employee_financial_detail",
+),
+
+path(
+    "employee-financial-records/<str:pk>/edit/",
+    views.employee_financial_edit,
+    name="employee_financial_edit",
+),
+
+path(
+    "employee-financial-transactions/create/",
+    views.employee_financial_transaction_create,
+    name=
+        "employee_financial_transaction_create",
+),
+
+path(
+    "employee-financial-transactions/<str:pk>/void/",
+    views.employee_financial_transaction_void,
+    name=
+        "employee_financial_transaction_void",
+),
+
+
 ]

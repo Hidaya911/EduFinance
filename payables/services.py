@@ -7,6 +7,7 @@ from .models import (
     SupplierBill,
     SupplierPayment,
     Expense,
+    EmployeeFinancialTransaction,
 )
 
 # ============================================================
@@ -248,3 +249,64 @@ def void_expense(
     expense.save()
 
     return expense
+
+
+
+
+# ============================================================
+# VOID EMPLOYEE FINANCIAL TRANSACTION
+# ============================================================
+
+def void_employee_financial_transaction(
+    *,
+    transaction,
+    user,
+    reason="",
+):
+
+    transaction = (
+        EmployeeFinancialTransaction
+        .objects
+        .get(
+            pk=transaction.pk
+        )
+    )
+
+    if (
+        transaction.status
+        ==
+        EmployeeFinancialTransaction
+        .Status
+        .VOIDED
+    ):
+
+        raise ValidationError(
+            (
+                "This employee financial "
+                "transaction is already voided."
+            )
+        )
+
+    transaction.status = (
+        EmployeeFinancialTransaction
+        .Status
+        .VOIDED
+    )
+
+    transaction.void_reason = (
+        reason.strip()
+        if reason
+        else ""
+    )
+
+    transaction.voided_at = (
+        timezone.now()
+    )
+
+    transaction.voided_by = (
+        user
+    )
+
+    transaction.save()
+
+    return transaction

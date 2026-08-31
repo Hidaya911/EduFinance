@@ -1,0 +1,1951 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+    .eff-page {
+        min-height: 100vh;
+        padding: 32px 34px 70px;
+
+        background:
+            radial-gradient(
+                circle at 92% 3%,
+                rgba(37,99,235,.12),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 8% 12%,
+                rgba(16,185,129,.05),
+                transparent 20%
+            ),
+            linear-gradient(
+                180deg,
+                #f8faff,
+                #f3f7fc
+            );
+
+        color: #12243d;
+    }
+
+    .eff-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .eff-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        margin-bottom: 16px;
+
+        color: #8d99aa;
+
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+    .eff-breadcrumb a {
+        color: #7c8b9f;
+        text-decoration: none;
+    }
+
+    .eff-breadcrumb a:hover {
+        color: #2563eb;
+    }
+
+    .eff-hero {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 25px;
+
+        margin-bottom: 22px;
+        padding: 28px 31px;
+
+        border-radius: 21px;
+
+        background:
+            linear-gradient(
+                128deg,
+                #081d39,
+                #0d2d58 54%,
+                #174b8e
+            );
+
+        color: white;
+
+        box-shadow:
+            0 21px 48px
+            rgba(13,42,83,.17);
+    }
+
+    .eff-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        right: -100px;
+        top: -195px;
+
+        border:
+            46px solid
+            rgba(255,255,255,.055);
+
+        border-radius: 50%;
+    }
+
+    .eff-hero-left {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+
+        gap: 18px;
+    }
+
+    .eff-hero-icon {
+        width: 62px;
+        height: 62px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 17px;
+
+        background:
+            rgba(255,255,255,.08);
+    }
+
+    .eff-hero-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .eff-eyebrow {
+        margin-bottom: 6px;
+
+        color: #79b2ff;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+        text-transform: uppercase;
+    }
+
+    .eff-title {
+        margin: 0;
+
+        font-size: 29px;
+        font-weight: 790;
+
+        letter-spacing: -.025em;
+    }
+
+    .eff-subtitle {
+        max-width: 680px;
+
+        margin: 8px 0 0;
+
+        color:
+            rgba(228,238,252,.76);
+
+        font-size: 11.5px;
+        line-height: 1.55;
+    }
+
+    .eff-chip {
+        position: relative;
+        z-index: 2;
+
+        padding: 8px 12px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.15);
+
+        border-radius: 999px;
+
+        background:
+            rgba(255,255,255,.075);
+
+        color:
+            rgba(255,255,255,.88);
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .eff-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1fr)
+            335px;
+
+        gap: 20px;
+
+        align-items: start;
+    }
+
+    .eff-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d8e2ed;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 12px 34px
+            rgba(25,43,69,.06);
+    }
+
+    .eff-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 20px 22px;
+
+        border-bottom:
+            1px solid #edf1f5;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcfe
+            );
+    }
+
+    .eff-card-title {
+        margin: 0;
+
+        color: #0b2344;
+
+        font-size: 14px;
+        font-weight: 770;
+    }
+
+    .eff-card-subtitle {
+        margin-top: 4px;
+
+        color: #939eae;
+
+        font-size: 9px;
+    }
+
+    .eff-required-note {
+        color: #9ba6b4;
+
+        font-size: 8.5px;
+    }
+
+    .eff-body {
+        padding: 20px;
+    }
+
+    .eff-section {
+        position: relative;
+
+        margin-bottom: 20px;
+        padding: 18px;
+
+        border:
+            1px solid #dce5ef;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #fbfcff
+            );
+
+        transition: .2s ease;
+    }
+
+    .eff-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .eff-section::before {
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+
+        width: 3px;
+
+        border-radius:
+            0 4px 4px 0;
+
+        background:
+            linear-gradient(
+                180deg,
+                #2563eb,
+                #60a5fa
+            );
+    }
+
+    .eff-section:focus-within {
+        border-color: #91b3ed;
+
+        box-shadow:
+            0 10px 26px
+            rgba(37,99,235,.07);
+
+        transform:
+            translateY(-1px);
+    }
+
+    .eff-section-head {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .eff-section-number {
+        width: 30px;
+        height: 30px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 9px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color: white;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .eff-section-title {
+        color: #102b50;
+
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .eff-section-desc {
+        margin-left: auto;
+
+        color: #9aa5b4;
+
+        font-size: 8.3px;
+    }
+
+    .eff-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 18px;
+    }
+
+    .eff-full {
+        grid-column:
+            1 / -1;
+    }
+
+    .eff-label {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin-bottom: 8px;
+
+        color: #203956;
+
+        font-size: 10px;
+        font-weight: 780;
+    }
+
+    .eff-required {
+        color: #df4554;
+    }
+
+    .eff-optional {
+        margin-left: auto;
+
+        padding: 3px 7px;
+
+        border-radius: 999px;
+
+        background: #f1f4f8;
+
+        color: #748297;
+
+        font-size: 7.5px;
+        font-weight: 700;
+    }
+
+    .eff-field .form-control {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border:
+            1.5px solid #b8c8da;
+
+        border-radius: 10px;
+
+        background:
+            linear-gradient(
+                180deg,
+                white,
+                #f9fbfe
+            );
+
+        color: #172b47;
+
+        font: inherit;
+        font-size: 11.5px;
+
+        outline: none;
+
+        transition: .2s ease;
+    }
+
+    .eff-field
+    input.form-control,
+    .eff-field
+    select.form-control {
+        height: 47px;
+
+        padding:
+            0 13px;
+    }
+
+    .eff-field
+    textarea.form-control {
+        min-height: 105px;
+
+        padding: 12px 13px;
+
+        resize: vertical;
+
+        line-height: 1.55;
+    }
+
+    .eff-field
+    .form-control:focus {
+        border-color: #2563eb;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(37,99,235,.09);
+    }
+
+    .eff-help {
+        margin-top: 7px;
+
+        color: #78899f;
+
+        font-size: 8.7px;
+        line-height: 1.45;
+    }
+
+    .eff-money {
+        position: relative;
+    }
+
+    .eff-money-symbol {
+        position: absolute;
+
+        left: 14px;
+        top: 50%;
+
+        z-index: 2;
+
+        transform:
+            translateY(-50%);
+
+        color: #2563eb;
+
+        font-size: 13px;
+        font-weight: 850;
+    }
+
+    .eff-money
+    input.form-control {
+        padding-left: 31px;
+
+        color: #102f53;
+
+        font-weight: 750;
+    }
+
+    .eff-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border:
+            1px solid #f0c8ce;
+
+        border-radius: 8px;
+
+        background: #fff5f6;
+
+        color: #c43e4b;
+
+        font-size: 9px;
+    }
+
+    .eff-error ul {
+        margin: 0;
+        padding-left: 15px;
+    }
+
+    .eff-global-error {
+        margin-bottom: 18px;
+    }
+
+    .eff-footer {
+        position: sticky;
+
+        bottom: 0;
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 16px 21px;
+
+        border-top:
+            1px solid #dfe7f0;
+
+        background:
+            rgba(250,252,255,.95);
+
+        backdrop-filter:
+            blur(14px);
+    }
+
+    .eff-footer-note {
+        color: #99a4b3;
+
+        font-size: 8.7px;
+    }
+
+    .eff-actions {
+        display: flex;
+
+        gap: 9px;
+    }
+
+    .eff-cancel,
+    .eff-submit {
+        min-height: 43px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0 18px;
+
+        border-radius: 9px;
+
+        font-size: 10px;
+        font-weight: 720;
+    }
+
+    .eff-cancel {
+        border:
+            1px solid #d7e0ea;
+
+        background: white;
+
+        color: #5d6e84;
+
+        text-decoration: none;
+    }
+
+    .eff-submit {
+        min-width: 145px;
+
+        border: none;
+
+        background:
+            linear-gradient(
+                135deg,
+                #3478f6,
+                #1d4ed8
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        box-shadow:
+            0 9px 19px
+            rgba(37,99,235,.22);
+    }
+
+    .eff-submit:disabled {
+        opacity: .8;
+        cursor: wait;
+    }
+
+    .eff-loading {
+        display: none;
+    }
+
+    .eff-submit.loading
+    .eff-normal {
+        display: none;
+    }
+
+    .eff-submit.loading
+    .eff-loading {
+        display: inline-flex;
+
+        align-items: center;
+        gap: 7px;
+    }
+
+    .eff-spinner {
+        width: 13px;
+        height: 13px;
+
+        border:
+            2px solid
+            rgba(255,255,255,.4);
+
+        border-top-color: white;
+
+        border-radius: 50%;
+
+        animation:
+            effSpin
+            .7s linear infinite;
+    }
+
+    @keyframes effSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .eff-side {
+        position: sticky;
+
+        top: 24px;
+
+        display: flex;
+        flex-direction: column;
+
+        gap: 15px;
+    }
+
+    .eff-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid #d9e3ee;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 8px 25px
+            rgba(25,43,69,.05);
+    }
+
+    .eff-side-head {
+        padding: 15px 16px;
+
+        border-bottom:
+            1px solid #edf1f5;
+    }
+
+    .eff-side-title {
+        color: #0b2344;
+
+        font-size: 11px;
+        font-weight: 760;
+    }
+
+    .eff-side-desc {
+        margin-top: 4px;
+
+        color: #929eae;
+
+        font-size: 8.5px;
+    }
+
+    .eff-side-body {
+        padding: 16px;
+    }
+
+    .eff-preview {
+        background:
+            linear-gradient(
+                145deg,
+                #091e3b,
+                #123b70
+            );
+
+        color: white;
+    }
+
+    .eff-preview
+    .eff-side-head {
+        border-color:
+            rgba(255,255,255,.09);
+    }
+
+    .eff-preview
+    .eff-side-title {
+        color: white;
+    }
+
+    .eff-preview
+    .eff-side-desc {
+        color:
+            rgba(225,236,249,.62);
+    }
+
+    .eff-avatar {
+        width: 58px;
+        height: 58px;
+
+        display: grid;
+        place-items: center;
+
+        margin-bottom: 13px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.12);
+
+        border-radius: 16px;
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: #bcd6ff;
+
+        font-size: 19px;
+        font-weight: 850;
+    }
+
+    .eff-preview-name {
+        color: white;
+
+        font-size: 15px;
+        font-weight: 780;
+    }
+
+    .eff-preview-id {
+        margin-top: 4px;
+
+        color:
+            rgba(215,228,244,.58);
+
+        font-size: 8.5px;
+    }
+
+    .eff-preview-divider {
+        height: 1px;
+
+        margin: 14px 0;
+
+        background:
+            rgba(255,255,255,.09);
+    }
+
+    .eff-preview-row {
+        display: flex;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-bottom: 10px;
+    }
+
+    .eff-preview-label {
+        color:
+            rgba(217,230,245,.64);
+
+        font-size: 8.5px;
+    }
+
+    .eff-preview-value {
+        max-width: 170px;
+
+        color: white;
+
+        text-align: right;
+
+        font-size: 8.8px;
+        font-weight: 700;
+    }
+
+    .eff-status-preview {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 5px;
+
+        padding: 5px 8px;
+
+        border-radius: 999px;
+
+        background:
+            rgba(16,185,129,.14);
+
+        color: #9ff2cb;
+
+        font-size: 8px;
+        font-weight: 720;
+    }
+
+    .eff-status-preview.inactive {
+        background:
+            rgba(148,163,184,.14);
+
+        color: #d8dfe8;
+    }
+
+    .eff-rule {
+        display: flex;
+        align-items: flex-start;
+
+        gap: 9px;
+
+        margin-bottom: 13px;
+    }
+
+    .eff-rule:last-child {
+        margin-bottom: 0;
+    }
+
+    .eff-rule-icon {
+        width: 23px;
+        height: 23px;
+
+        display: grid;
+        place-items: center;
+
+        flex-shrink: 0;
+
+        border-radius: 7px;
+
+        background: #edf4ff;
+
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .eff-rule-title {
+        color: #40526b;
+
+        font-size: 9px;
+        font-weight: 720;
+    }
+
+    .eff-rule-text {
+        margin-top: 2px;
+
+        color: #98a3b2;
+
+        font-size: 8px;
+        line-height: 1.4;
+    }
+
+    @media(max-width:1050px) {
+        .eff-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .eff-side {
+            position: static;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+        }
+
+        .eff-preview {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media(max-width:720px) {
+        .eff-page {
+            padding:
+                22px
+                16px
+                45px;
+        }
+
+        .eff-breadcrumb {
+            display: none;
+        }
+
+        .eff-hero {
+            padding: 23px 20px;
+        }
+
+        .eff-hero-icon,
+        .eff-chip {
+            display: none;
+        }
+
+        .eff-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .eff-full {
+            grid-column: auto;
+        }
+
+        .eff-side {
+            display: flex;
+        }
+
+        .eff-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .eff-actions {
+            flex-direction:
+                column-reverse;
+        }
+
+        .eff-cancel,
+        .eff-submit {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="eff-page">
+
+<div class="eff-container">
+
+
+    <div class="eff-breadcrumb">
+
+        <a
+            href="{% url 'payables:employee_financial_list' %}"
+        >
+            Employee Finance
+        </a>
+
+        <span>›</span>
+
+        <span>
+            {{ page_title }}
+        </span>
+
+    </div>
+
+
+    <section class="eff-hero">
+
+
+        <div class="eff-hero-left">
+
+
+            <div class="eff-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <circle
+                        cx="12"
+                        cy="8"
+                        r="4"
+                    ></circle>
+
+                    <path
+                        d="M4 20c0-4 3.5-7 8-7s8 3 8 7"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <div>
+
+                <div class="eff-eyebrow">
+                    Employee Financial Management
+                </div>
+
+                <h1 class="eff-title">
+                    {{ page_title }}
+                </h1>
+
+                <p class="eff-subtitle">
+
+                    Maintain the employee's core financial identity,
+                    organizational information and base salary reference
+                    without introducing a full HR or payroll workflow.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="eff-chip">
+
+            {% if is_edit %}
+                Existing Financial Profile
+            {% else %}
+                New Financial Profile
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <form
+        method="post"
+        id="employeeFinancialProfileForm"
+    >
+
+        {% csrf_token %}
+
+
+        <div class="eff-layout">
+
+
+            <section class="eff-card">
+
+
+                <div class="eff-card-head">
+
+                    <div>
+
+                        <h2 class="eff-card-title">
+                            Employee Financial Identity
+                        </h2>
+
+                        <div class="eff-card-subtitle">
+                            Financial profile information
+                        </div>
+
+                    </div>
+
+                    <div class="eff-required-note">
+                        * Required field
+                    </div>
+
+                </div>
+
+
+                <div class="eff-body">
+
+
+                    {% if form.non_field_errors %}
+
+                        <div class="eff-error eff-global-error">
+                            {{ form.non_field_errors }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- IDENTITY -->
+
+                    <div class="eff-section">
+
+
+                        <div class="eff-section-head">
+
+                            <div class="eff-section-number">
+                                01
+                            </div>
+
+                            <div class="eff-section-title">
+                                Employee Identity
+                            </div>
+
+                            <div class="eff-section-desc">
+                                ID & name
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-grid">
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Employee ID
+
+                                    <span class="eff-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.employee_id }}
+
+                                <div class="eff-help">
+
+                                    Unique financial identifier for
+                                    this school employee.
+
+                                </div>
+
+                                {% if form.employee_id.errors %}
+                                    <div class="eff-error">
+                                        {{ form.employee_id.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Full Name
+
+                                    <span class="eff-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.full_name }}
+
+                                {% if form.full_name.errors %}
+                                    <div class="eff-error">
+                                        {{ form.full_name.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ORGANIZATION -->
+
+                    <div class="eff-section">
+
+
+                        <div class="eff-section-head">
+
+                            <div class="eff-section-number">
+                                02
+                            </div>
+
+                            <div class="eff-section-title">
+                                School Assignment
+                            </div>
+
+                            <div class="eff-section-desc">
+                                Department & position
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-grid">
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Department
+
+                                    <span class="eff-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.department }}
+
+                                {% if form.department.errors %}
+                                    <div class="eff-error">
+                                        {{ form.department.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Position
+
+                                    <span class="eff-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                {{ form.position }}
+
+                                {% if form.position.errors %}
+                                    <div class="eff-error">
+                                        {{ form.position.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FINANCE -->
+
+                    <div class="eff-section">
+
+
+                        <div class="eff-section-head">
+
+                            <div class="eff-section-number">
+                                03
+                            </div>
+
+                            <div class="eff-section-title">
+                                Financial Reference
+                            </div>
+
+                            <div class="eff-section-desc">
+                                Salary & status
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-grid">
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Base Salary Reference
+
+                                    <span class="eff-optional">
+                                        Optional
+                                    </span>
+
+                                </label>
+
+                                <div class="eff-money">
+
+                                    <span class="eff-money-symbol">
+                                        $
+                                    </span>
+
+                                    {{ form.base_salary_reference }}
+
+                                </div>
+
+                                <div class="eff-help">
+
+                                    Reference amount only.
+                                    EduFinance is not calculating payroll.
+
+                                </div>
+
+                                {% if form.base_salary_reference.errors %}
+                                    <div class="eff-error">
+                                        {{ form.base_salary_reference.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="eff-field">
+
+                                <label class="eff-label">
+
+                                    Profile Status
+
+                                    <span class="eff-required">
+                                        *
+                                    </span>
+
+                                </label>
+
+                                {{ form.status }}
+
+                                <div class="eff-help">
+
+                                    Inactive profiles remain in history
+                                    but cannot receive new transactions.
+
+                                </div>
+
+                                {% if form.status.errors %}
+                                    <div class="eff-error">
+                                        {{ form.status.errors }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NOTES -->
+
+                    <div class="eff-section">
+
+
+                        <div class="eff-section-head">
+
+                            <div class="eff-section-number">
+                                04
+                            </div>
+
+                            <div class="eff-section-title">
+                                Financial Notes
+                            </div>
+
+                            <div class="eff-section-desc">
+                                Internal context
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-field">
+
+                            <label class="eff-label">
+
+                                Notes
+
+                                <span class="eff-optional">
+                                    Optional
+                                </span>
+
+                            </label>
+
+                            {{ form.notes }}
+
+                            {% if form.notes.errors %}
+                                <div class="eff-error">
+                                    {{ form.notes.errors }}
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="eff-footer">
+
+
+                    <div class="eff-footer-note">
+
+                        Transaction history is maintained separately
+                        from this profile information.
+
+                    </div>
+
+
+                    <div class="eff-actions">
+
+
+                        {% if is_edit %}
+
+                            <a
+                                href="{% url 'payables:employee_financial_detail' employee.pk %}"
+                                class="eff-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'payables:employee_financial_list' %}"
+                                class="eff-cancel"
+                            >
+                                Cancel
+                            </a>
+
+                        {% endif %}
+
+
+                        <button
+                            type="submit"
+                            class="eff-submit"
+                            id="employeeProfileSubmit"
+                        >
+
+                            <span class="eff-normal">
+                                ✓ {{ submit_text }}
+                            </span>
+
+                            <span class="eff-loading">
+
+                                <span class="eff-spinner"></span>
+
+                                {% if is_edit %}
+                                    Saving Changes...
+                                {% else %}
+                                    Creating Profile...
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SIDEBAR -->
+
+            <aside class="eff-side">
+
+
+                <section class="eff-side-card eff-preview">
+
+
+                    <div class="eff-side-head">
+
+                        <div class="eff-side-title">
+                            Live Profile Preview
+                        </div>
+
+                        <div class="eff-side-desc">
+                            Employee financial identity
+                        </div>
+
+                    </div>
+
+
+                    <div class="eff-side-body">
+
+
+                        <div
+                            class="eff-avatar"
+                            id="employeePreviewAvatar"
+                        >
+                            E
+                        </div>
+
+
+                        <div
+                            class="eff-preview-name"
+                            id="employeePreviewName"
+                        >
+                            Employee Name
+                        </div>
+
+
+                        <div
+                            class="eff-preview-id"
+                            id="employeePreviewId"
+                        >
+                            Employee ID
+                        </div>
+
+
+                        <div class="eff-preview-divider"></div>
+
+
+                        <div class="eff-preview-row">
+
+                            <span class="eff-preview-label">
+                                Department
+                            </span>
+
+                            <span
+                                class="eff-preview-value"
+                                id="employeePreviewDepartment"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="eff-preview-row">
+
+                            <span class="eff-preview-label">
+                                Position
+                            </span>
+
+                            <span
+                                class="eff-preview-value"
+                                id="employeePreviewPosition"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="eff-preview-row">
+
+                            <span class="eff-preview-label">
+                                Salary Reference
+                            </span>
+
+                            <span
+                                class="eff-preview-value"
+                                id="employeePreviewSalary"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="eff-preview-divider"></div>
+
+
+                        <span
+                            class="eff-status-preview"
+                            id="employeePreviewStatus"
+                        >
+                            Active
+                        </span>
+
+                    </div>
+
+                </section>
+
+
+                <section class="eff-side-card">
+
+
+                    <div class="eff-side-head">
+
+                        <div class="eff-side-title">
+                            Financial Profile Rules
+                        </div>
+
+                        <div class="eff-side-desc">
+                            Employee finance safeguards
+                        </div>
+
+                    </div>
+
+
+                    <div class="eff-side-body">
+
+
+                        <div class="eff-rule">
+
+                            <div class="eff-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="eff-rule-title">
+                                    Unique employee ID
+                                </div>
+
+                                <div class="eff-rule-text">
+
+                                    Duplicate employee financial
+                                    identifiers are prevented.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-rule">
+
+                            <div class="eff-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="eff-rule-title">
+                                    Salary reference only
+                                </div>
+
+                                <div class="eff-rule-text">
+
+                                    This module does not become
+                                    a complete payroll system.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="eff-rule">
+
+                            <div class="eff-rule-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <div class="eff-rule-title">
+                                    Historical continuity
+                                </div>
+
+                                <div class="eff-rule-text">
+
+                                    Inactive employees retain their
+                                    historical financial transactions.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+</div>
+
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const form =
+            document.getElementById(
+                "employeeFinancialProfileForm"
+            );
+
+        const employeeId =
+            document.getElementById(
+                "id_employee_id"
+            );
+
+        const name =
+            document.getElementById(
+                "id_full_name"
+            );
+
+        const department =
+            document.getElementById(
+                "id_department"
+            );
+
+        const position =
+            document.getElementById(
+                "id_position"
+            );
+
+        const salary =
+            document.getElementById(
+                "id_base_salary_reference"
+            );
+
+        const status =
+            document.getElementById(
+                "id_status"
+            );
+
+        const submit =
+            document.getElementById(
+                "employeeProfileSubmit"
+            );
+
+
+        function money(value) {
+
+            const number =
+                parseFloat(value);
+
+            if (isNaN(number)) {
+                return "—";
+            }
+
+            return (
+                "$"
+                +
+                number.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            );
+
+        }
+
+
+        function updatePreview() {
+
+            const nameValue =
+                name
+                ? name.value.trim()
+                : "";
+
+            const idValue =
+                employeeId
+                ? employeeId.value.trim()
+                : "";
+
+            const departmentValue =
+                department
+                ? department.value.trim()
+                : "";
+
+            const positionValue =
+                position
+                ? position.value.trim()
+                : "";
+
+            const statusValue =
+                status
+                ? status.value
+                : "active";
+
+
+            document.getElementById(
+                "employeePreviewName"
+            ).textContent =
+                nameValue
+                || "Employee Name";
+
+
+            document.getElementById(
+                "employeePreviewId"
+            ).textContent =
+                idValue
+                || "Employee ID";
+
+
+            document.getElementById(
+                "employeePreviewDepartment"
+            ).textContent =
+                departmentValue
+                || "—";
+
+
+            document.getElementById(
+                "employeePreviewPosition"
+            ).textContent =
+                positionValue
+                || "—";
+
+
+            document.getElementById(
+                "employeePreviewSalary"
+            ).textContent =
+                money(
+                    salary
+                    ? salary.value
+                    : ""
+                );
+
+
+            document.getElementById(
+                "employeePreviewAvatar"
+            ).textContent =
+                nameValue
+                ?
+                nameValue.charAt(0).toUpperCase()
+                :
+                "E";
+
+
+            const statusPreview =
+                document.getElementById(
+                    "employeePreviewStatus"
+                );
+
+
+            statusPreview.className =
+                "eff-status-preview";
+
+
+            if (
+                statusValue
+                === "inactive"
+            ) {
+
+                statusPreview.classList.add(
+                    "inactive"
+                );
+
+                statusPreview.textContent =
+                    "Inactive";
+
+            } else {
+
+                statusPreview.textContent =
+                    "Active";
+
+            }
+
+        }
+
+
+        [
+            employeeId,
+            name,
+            department,
+            position,
+            salary,
+            status
+        ].forEach(
+            function (element) {
+
+                if (!element) {
+                    return;
+                }
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+        if (
+            form
+            &&
+            submit
+        ) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+                    if (
+                        !form.checkValidity()
+                    ) {
+                        return;
+                    }
+
+                    if (submit.disabled) {
+                        return;
+                    }
+
+                    submit.disabled = true;
+
+                    submit.classList.add(
+                        "loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+        updatePreview();
+
+    }
+);
+</script>
+
+{% endblock %}
