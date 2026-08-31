@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduFinance Workspace{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --sidebar-bg: #091e36;
+            --sidebar-active: #17365d;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-active: #ffffff;
+            --body-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--body-bg);
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            flex-shrink: 0;
+        }
+
+        .nav-section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            padding-left: 0.75rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 0.55rem 0.75rem;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+            margin-bottom: 0.15rem;
+        }
+
+        .nav-link-custom:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link-custom.active {
+            background-color: var(--sidebar-active);
+            color: var(--sidebar-text-active);
+            font-weight: 600;
+        }
+
+        /* User Avatar Small */
+        .user-avatar-sm {
+            width: 34px;
+            height: 34px;
+            background-color: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .user-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Main Workspace Content */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .top-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            height: 65px;
+        }
+
+        .user-avatar-md {
+            width: 38px;
+            height: 38px;
+            background-color: #1e40af;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .content-area {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="app-layout">
+    <!-- Include Sidebar -->
+    {% include 'includes/sidebar.html' %}
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+        <!-- Include Top Navbar -->
+        {% include 'includes/navbar.html' %}
+
+        <!-- Content Injection Block -->
+        <main class="content-area">
+            {% block content %}
+            <!-- Content from extended pages will load here -->
+            {% endblock %}
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% load static %}
+<!-- Sidebar -->
+<aside class="sidebar d-flex flex-column justify-content-between p-3">
+  <div>
+    <!-- Brand Logo -->
+  <div class="sidebar-brand mb-4 p-0">
+      <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance Logo" style="height: 69px; width: auto; display: block;">
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      
+      <!-- OVERVIEW -->
+      <div class="nav-section-label">OVERVIEW</div>
+      <a href="#" class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <i class="bi bi-grid-fill me-2"></i> Dashboard
+      </a>
+
+      <!-- STUDENTS -->
+      <div class="nav-section-label">STUDENTS</div>
+      <a href="#" class="nav-link-custom {% if 'student' in request.path %}active{% endif %}">
+        <i class="bi bi-people-fill me-2"></i> Students
+      </a>
+      <a href="#" class="nav-link-custom">
+        <i class="bi bi-person-badge-fill me-2"></i> Guardians
+      </a>
+
+      <!-- FINANCE -->
+      <div class="nav-section-label">FINANCE</div>
+      <a href="#" class="nav-link-custom">Fee Structures</a>
+      <a href="#" class="nav-link-custom">Invoices</a>
+      <a href="#" class="nav-link-custom">Payments</a>
+      <a href="#" class="nav-link-custom">Installments</a>
+      <a href="#" class="nav-link-custom">Scholarships</a>
+      <a href="#" class="nav-link-custom">Discounts</a>
+      <a href="#" class="nav-link-custom">Refunds</a>
+
+      <!-- EXPENSES -->
+      <div class="nav-section-label">EXPENSES</div>
+      <a href="#" class="nav-link-custom">Expenses</a>
+      <a href="#" class="nav-link-custom">Suppliers</a>
+
+      <!-- REPORTING -->
+      <div class="nav-section-label">REPORTING</div>
+      <a href="#" class="nav-link-custom {% if 'reports' in request.path %}active{% endif %}">
+        <i class="bi bi-bar-chart-line-fill me-2"></i> Reports
+      </a>
+      <a href="#" class="nav-link-custom">Statements</a>
+
+      <!-- MANAGEMENT (Visible to Admins / Managers) -->
+      {% if user.is_staff or user.role == 'admin' %}
+      <div class="nav-section-label">MANAGEMENT</div>
+      <a href="#" class="nav-link-custom">Approvals</a>
+      <a href="#" class="nav-link-custom">Audit Log</a>
+      {% endif %}
+
+      <!-- CONFIGURATION (Visible to Super Admins) -->
+      {% if user.is_superuser %}
+      <div class="nav-section-label">CONFIGURATION</div>
+      <a href="#" class="nav-link-custom">Users & Roles</a>
+      <a href="#" class="nav-link-custom">Academic Years</a>
+      <a href="#" class="nav-link-custom">School Settings</a>
+      {% endif %}
+
+    </nav>
+  </div>
+
+  <!-- User Profile Badge at Bottom -->
+  <div class="sidebar-user pt-3 border-top border-secondary-subtle d-flex align-items-center gap-2">
+    <div class="user-avatar-sm">
+      {{ user.first_name|default:"A"|slice:":1" }}{{ user.last_name|default:"R"|slice:":1" }}
+    </div>
+    <div class="user-info text-truncate">
+      <div class="user-name">{{ user.get_full_name|default:"Amal Rahal" }}</div>
+      <div class="user-role">{{ user.groups.first.name|default:"Accountant" }}</div>
+    </div>
+  </div>
+</aside>

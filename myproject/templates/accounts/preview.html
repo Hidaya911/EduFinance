@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Developer 1 - Base Layout Preview{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-1">Base Layout Preview</h2>
+        <p class="text-muted small mb-0">Testing the shared frame, sidebar, and navbar.</p>
+    </div>
+    <button class="btn btn-primary">Primary Action</button>
+</div>
+
+<!-- Dummy Container to check main content alignment -->
+<div class="card border-0 shadow-sm p-4">
+    <h5 class="card-title">Content Area Placeholder</h5>
+    <p class="text-muted">
+        This is where the pages will load when they extend <code>base.html</code>.
+    </p>
+    <div class="alert alert-info mb-0">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        If the dark navy sidebar on the left and the top search bar above look clean, your base layout setup is complete!
+    </div>
+</div>
+{% endblock %}
