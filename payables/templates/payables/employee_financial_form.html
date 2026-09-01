@@ -1313,7 +1313,7 @@
                                 <div class="eff-money">
 
                                     <span class="eff-money-symbol">
-                                        $
+                                        {{ currency_code }}
                                     </span>
 
                                     {{ form.base_salary_reference }}
@@ -1750,6 +1750,10 @@ document.addEventListener(
             );
 
 
+        const employeeFinancialCurrency =
+            "{{ currency_code|escapejs }}";
+
+
         function money(value) {
 
             const number =
@@ -1760,7 +1764,9 @@ document.addEventListener(
             }
 
             return (
-                "$"
+                employeeFinancialCurrency
+                +
+                " "
                 +
                 number.toLocaleString(
                     undefined,

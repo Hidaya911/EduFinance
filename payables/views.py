@@ -2269,6 +2269,9 @@ def employee_financial_list(request):
 
         "month_activity":
             month_activity,
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -2337,6 +2340,9 @@ def employee_financial_create(request):
                 "Create Profile",
             "is_edit":
                 False,
+
+            "currency_code":
+                get_school_currency(),
         },
     )
 
@@ -2415,6 +2421,9 @@ def employee_financial_edit(
 
             "is_edit":
                 True,
+
+            "currency_code":
+                get_school_currency(),
         },
     )
 
@@ -2520,6 +2529,9 @@ def employee_financial_detail(
 
         "posted_transaction_count":
             len(posted),
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -2732,6 +2744,9 @@ def employee_financial_transaction_create(
 
             "employee_data":
                 employee_data,
+
+            "currency_code":
+                get_school_currency(),
         },
     )
 

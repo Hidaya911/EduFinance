@@ -1046,7 +1046,7 @@
                                 <div class="eft-money">
 
                                     <span class="eft-money-symbol">
-                                        $
+                                        {{ currency_code }}
                                     </span>
 
                                     {{ form.amount }}
@@ -1267,7 +1267,7 @@
                             class="eft-preview-amount"
                             id="previewTransactionAmount"
                         >
-                            $0.00
+                            {{ currency_code }} 0.00
                         </div>
 
 
@@ -1594,6 +1594,10 @@ document.addEventListener(
             );
 
 
+        const employeeFinancialCurrency =
+            "{{ currency_code|escapejs }}";
+
+
         function money(value) {
 
             let number =
@@ -1604,7 +1608,9 @@ document.addEventListener(
             }
 
             return (
-                "$"
+                employeeFinancialCurrency
+                +
+                " "
                 +
                 number.toLocaleString(
                     undefined,

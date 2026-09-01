@@ -994,7 +994,7 @@
             </div>
 
             <div class="efd-kpi-value">
-                ${{ advance_total|floatformat:2 }}
+                {{ currency_code }} {{ advance_total|floatformat:2 }}
             </div>
 
             <div class="efd-kpi-note">
@@ -1011,7 +1011,7 @@
             </div>
 
             <div class="efd-kpi-value">
-                ${{ reimbursement_total|floatformat:2 }}
+                {{ currency_code }} {{ reimbursement_total|floatformat:2 }}
             </div>
 
             <div class="efd-kpi-note">
@@ -1028,7 +1028,7 @@
             </div>
 
             <div class="efd-kpi-value">
-                ${{ allowance_total|floatformat:2 }}
+                {{ currency_code }} {{ allowance_total|floatformat:2 }}
             </div>
 
             <div class="efd-kpi-note">
@@ -1045,7 +1045,7 @@
             </div>
 
             <div class="efd-kpi-value">
-                ${{ deduction_total|floatformat:2 }}
+                {{ currency_code }} {{ deduction_total|floatformat:2 }}
             </div>
 
             <div class="efd-kpi-note">
@@ -1062,7 +1062,7 @@
             </div>
 
             <div class="efd-kpi-value">
-                ${{ payment_total|floatformat:2 }}
+                {{ currency_code }} {{ payment_total|floatformat:2 }}
             </div>
 
             <div class="efd-kpi-note">
@@ -1190,7 +1190,7 @@
                                         <td>
 
                                             <span class="efd-money">
-                                                ${{ transaction.amount|floatformat:2 }}
+                                                {{ currency_code }} {{ transaction.amount|floatformat:2 }}
                                             </span>
 
                                         </td>
@@ -1414,7 +1414,7 @@
 
                                 {% if employee.base_salary_reference != None %}
 
-                                    ${{ employee.base_salary_reference|floatformat:2 }}
+                                    {{ currency_code }} {{ employee.base_salary_reference|floatformat:2 }}
 
                                 {% else %}
                                     Not specified
@@ -1611,6 +1611,10 @@ document.addEventListener(
             );
 
 
+        const employeeFinancialCurrency =
+            "{{ currency_code|escapejs }}";
+
+
         function openModal(button) {
 
             form.action =
@@ -1629,7 +1633,11 @@ document.addEventListener(
                 +
                 button.dataset.type
                 +
-                " · $"
+                " · "
+                +
+                employeeFinancialCurrency
+                +
+                " "
                 +
                 amount.toLocaleString(
                     undefined,

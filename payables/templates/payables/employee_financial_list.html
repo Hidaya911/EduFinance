@@ -757,7 +757,7 @@
                 </div>
 
                 <div class="efl-kpi-value money">
-                    ${{ total_activity|floatformat:2 }}
+                    {{ currency_code }} {{ total_activity|floatformat:2 }}
                 </div>
 
                 <div class="efl-kpi-note">
@@ -776,7 +776,7 @@
                 </div>
 
                 <div class="efl-kpi-value money">
-                    ${{ month_activity|floatformat:2 }}
+                    {{ currency_code }} {{ month_activity|floatformat:2 }}
                 </div>
 
                 <div class="efl-kpi-note">
@@ -990,7 +990,7 @@
 
                                             {% if employee.base_salary_reference != None %}
 
-                                                ${{ employee.base_salary_reference|floatformat:2 }}
+                                                {{ currency_code }} {{ employee.base_salary_reference|floatformat:2 }}
 
                                             {% else %}
 
