@@ -1198,6 +1198,9 @@ def supplier_payment_list(request):
 
         "month_paid":
             month_paid,
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -1213,6 +1216,8 @@ def supplier_payment_list(request):
 
 @login_required
 def supplier_payment_create(request):
+
+    currency_code = get_school_currency()
 
     selected_bill_id = (
         request.GET.get(
@@ -1239,7 +1244,8 @@ def supplier_payment_create(request):
     if request.method == "POST":
 
         form = SupplierPaymentForm(
-            request.POST
+            request.POST,
+            currency_code=currency_code,
         )
 
         if form.is_valid():
@@ -1323,7 +1329,8 @@ def supplier_payment_create(request):
             ] = selected_bill_id
 
         form = SupplierPaymentForm(
-            initial=initial
+            initial=initial,
+            currency_code=currency_code,
         )
 
     # --------------------------------------------------------
@@ -1400,6 +1407,9 @@ def supplier_payment_create(request):
 
         "bill_data":
             bill_data,
+
+        "currency_code":
+            currency_code,
     }
 
     return render(

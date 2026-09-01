@@ -2240,7 +2240,7 @@
 
 
                 <div class="spl-kpi-value money">
-                    ${{ total_paid|floatformat:2 }}
+                    {{ currency_code }} {{ total_paid|floatformat:2 }}
                 </div>
 
 
@@ -2290,7 +2290,7 @@
 
 
                 <div class="spl-kpi-value money">
-                    ${{ month_paid|floatformat:2 }}
+                    {{ currency_code }} {{ month_paid|floatformat:2 }}
                 </div>
 
 
@@ -2831,7 +2831,7 @@
 
                                         <div class="spl-money">
 
-                                            ${{ payment.amount|floatformat:2 }}
+                                            {{ currency_code }} {{ payment.amount|floatformat:2 }}
 
                                         </div>
 
@@ -3741,6 +3741,10 @@ document.addEventListener(
             );
 
 
+        const supplierPaymentCurrency =
+            "{{ currency_code|escapejs }}";
+
+
 
         function openVoidModal(button) {
 
@@ -3784,7 +3788,11 @@ document.addEventListener(
                 voidSummary.textContent =
                     number
                     +
-                    " · $"
+                    " · "
+                    +
+                    supplierPaymentCurrency
+                    +
+                    " "
                     +
                     amount.toLocaleString(
                         undefined,

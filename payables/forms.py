@@ -488,6 +488,11 @@ class SupplierPaymentForm(forms.ModelForm):
         **kwargs,
     ):
 
+        self.currency_code = kwargs.pop(
+            "currency_code",
+            "USD",
+        )
+
         super().__init__(
             *args,
             **kwargs,
@@ -521,7 +526,8 @@ class SupplierPaymentForm(forms.ModelForm):
                 (
                     f"{bill.bill_number} — "
                     f"{bill.supplier.name} — "
-                    f"${bill.remaining_amount:.2f} remaining"
+                    f"{self.currency_code} "
+                    f"{bill.remaining_amount:.2f} remaining"
                 )
              )
     def clean_amount(self):
@@ -592,7 +598,8 @@ class SupplierPaymentForm(forms.ModelForm):
                 (
                     "Payment amount cannot be greater "
                     "than the remaining bill balance "
-                    f"of ${bill.remaining_amount:.2f}."
+                    f"of {self.currency_code} "
+                    f"{bill.remaining_amount:.2f}."
                 ),
             )
 

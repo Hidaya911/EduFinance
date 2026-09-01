@@ -1822,7 +1822,7 @@
                                                 class="spf-bill-preview-value"
                                                 id="selectedBillTotal"
                                             >
-                                                $0.00
+                                                {{ currency_code }} 0.00
                                             </div>
 
                                         </div>
@@ -1838,7 +1838,7 @@
                                                 class="spf-bill-preview-value"
                                                 id="selectedBillPaid"
                                             >
-                                                $0.00
+                                                {{ currency_code }} 0.00
                                             </div>
 
                                         </div>
@@ -1854,7 +1854,7 @@
                                                 class="spf-bill-preview-value"
                                                 id="selectedBillRemaining"
                                             >
-                                                $0.00
+                                                {{ currency_code }} 0.00
                                             </div>
 
                                         </div>
@@ -1951,7 +1951,7 @@
                                 <div class="spf-money-wrap">
 
                                     <span class="spf-money-symbol">
-                                        $
+                                        {{ currency_code }}
                                     </span>
 
                                     {{ form.amount }}
@@ -2262,7 +2262,7 @@
                             class="spf-settlement-amount"
                             id="previewPaymentAmount"
                         >
-                            $0.00
+                            {{ currency_code }} 0.00
                         </div>
 
 
@@ -2314,7 +2314,7 @@
                                 class="spf-settlement-value"
                                 id="previewCurrentRemaining"
                             >
-                                $0.00
+                                {{ currency_code }} 0.00
                             </span>
 
                         </div>
@@ -2337,7 +2337,7 @@
                                 class="spf-after-value"
                                 id="previewAfterPayment"
                             >
-                                $0.00
+                                {{ currency_code }} 0.00
                             </div>
 
 
@@ -2711,6 +2711,9 @@ document.addEventListener(
            FORMAT MONEY
         ======================================================= */
 
+        const supplierPaymentCurrency =
+            "{{ currency_code|escapejs }}";
+
         function formatMoney(value) {
 
             let number =
@@ -2723,7 +2726,9 @@ document.addEventListener(
 
 
             return (
-                "$"
+                supplierPaymentCurrency
+                +
+                " "
                 +
                 number.toLocaleString(
                     undefined,
@@ -2807,7 +2812,7 @@ document.addEventListener(
                 if (previewCurrentRemaining) {
 
                     previewCurrentRemaining.textContent =
-                        "$0.00";
+                        formatMoney(0);
 
                 }
 
@@ -2992,7 +2997,7 @@ document.addEventListener(
                 if (previewAfterPayment) {
 
                     previewAfterPayment.textContent =
-                        "$0.00";
+                        formatMoney(0);
 
                 }
 
