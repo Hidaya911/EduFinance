@@ -1824,7 +1824,7 @@
 
 
                 <div class="sbl-kpi-value money">
-                    ${{ total_billed|floatformat:2 }}
+                    {{ currency_code }} {{ total_billed|floatformat:2 }}
                 </div>
 
 
@@ -1874,7 +1874,7 @@
 
 
                 <div class="sbl-kpi-value money">
-                    ${{ outstanding_amount|floatformat:2 }}
+                    {{ currency_code }} {{ outstanding_amount|floatformat:2 }}
                 </div>
 
 
@@ -2400,7 +2400,7 @@
 
                                         <div class="sbl-money">
 
-                                            ${{ bill.total_amount|floatformat:2 }}
+                                            {{ currency_code }} {{ bill.total_amount|floatformat:2 }}
 
                                         </div>
 
@@ -2427,7 +2427,7 @@
 
                                                 <span class="sbl-payment-value">
 
-                                                    ${{ bill.amount_paid|floatformat:2 }}
+                                                    {{ currency_code }} {{ bill.amount_paid|floatformat:2 }}
 
                                                 </span>
 
@@ -2464,7 +2464,7 @@
 
                                             <div class="sbl-remaining">
 
-                                                ${{ bill.remaining_amount|floatformat:2 }}
+                                                {{ currency_code }} {{ bill.remaining_amount|floatformat:2 }}
 
                                             </div>
 
@@ -2474,7 +2474,7 @@
                                                 class="sbl-money"
                                                 style="color:#078152;"
                                             >
-                                                $0.00
+                                                {{ currency_code }} 0.00
                                             </div>
 
                                         {% endif %}

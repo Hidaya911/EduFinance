@@ -1476,7 +1476,7 @@
 
 
             <div class="sbd-kpi-value">
-                ${{ bill.total_amount|floatformat:2 }}
+                {{ currency_code }} {{ bill.total_amount|floatformat:2 }}
             </div>
 
 
@@ -1524,7 +1524,7 @@
 
 
             <div class="sbd-kpi-value">
-                ${{ bill.amount_paid|floatformat:2 }}
+                {{ currency_code }} {{ bill.amount_paid|floatformat:2 }}
             </div>
 
 
@@ -1571,7 +1571,7 @@
 
 
             <div class="sbd-kpi-value">
-                ${{ bill.remaining_amount|floatformat:2 }}
+                {{ currency_code }} {{ bill.remaining_amount|floatformat:2 }}
             </div>
 
 
@@ -1652,9 +1652,9 @@
 
                 <div class="sbd-payment-subtitle">
 
-                    ${{ bill.amount_paid|floatformat:2 }}
+                    {{ currency_code }} {{ bill.amount_paid|floatformat:2 }}
                     paid from
-                    ${{ bill.total_amount|floatformat:2 }}
+                    {{ currency_code }} {{ bill.total_amount|floatformat:2 }}
 
                 </div>
 
@@ -1685,7 +1685,7 @@
             </span>
 
             <span>
-                ${{ bill.remaining_amount|floatformat:2 }}
+                {{ currency_code }} {{ bill.remaining_amount|floatformat:2 }}
                 remaining
             </span>
 

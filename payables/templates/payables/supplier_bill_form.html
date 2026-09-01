@@ -2192,7 +2192,7 @@
                                 <div class="sbf-money-wrap">
 
                                     <span class="sbf-money-symbol">
-                                        $
+                                        {{ currency_code }}
                                     </span>
 
                                     {{ form.total_amount }}
@@ -2636,7 +2636,7 @@
                                 class="sbf-preview-money"
                                 id="billPreviewAmount"
                             >
-                                $0.00
+                                {{ currency_code }} 0.00
                             </div>
 
                         </div>
@@ -2709,7 +2709,7 @@
                                     class="sbf-preview-row-value"
                                     id="billPreviewPaid"
                                 >
-                                    ${{ bill.amount_paid|floatformat:2 }}
+                                    {{ currency_code }} {{ bill.amount_paid|floatformat:2 }}
                                 </span>
 
                             </div>
@@ -2734,7 +2734,7 @@
                                 class="sbf-preview-row-value"
                                 id="billPreviewBalance"
                             >
-                                $0.00
+                                {{ currency_code }} 0.00
                             </span>
 
                         </div>
@@ -3138,6 +3138,9 @@ document.addEventListener(
            MONEY FORMAT
         ======================================================= */
 
+        const supplierBillCurrency =
+            "{{ currency_code|escapejs }}";
+
         function formatMoney(value) {
 
             const number =
@@ -3145,12 +3148,14 @@ document.addEventListener(
 
 
             if (isNaN(number)) {
-                return "$0.00";
+                return supplierBillCurrency + " 0.00";
             }
 
 
             return (
-                "$"
+                supplierBillCurrency
+                +
+                " "
                 +
                 number.toLocaleString(
                     undefined,

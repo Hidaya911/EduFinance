@@ -77,6 +77,39 @@ def get_school_currency():
     return "USD"
 
 
+def _add_validation_error_to_form(
+    form,
+    error,
+):
+
+    if hasattr(
+        error,
+        "message_dict",
+    ):
+
+        for field, errors in error.message_dict.items():
+
+            form_field = (
+                field
+                if field in form.fields
+                else None
+            )
+
+            for message in errors:
+                form.add_error(
+                    form_field,
+                    message,
+                )
+
+        return
+
+    for message in error.messages:
+        form.add_error(
+            None,
+            message,
+        )
+
+
 
 
 @login_required
@@ -670,6 +703,9 @@ def supplier_bill_list(request):
 
         "due_soon_count":
             due_soon_count,
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -695,21 +731,32 @@ def supplier_bill_create(request):
 
         if form.is_valid():
 
-            bill = form.save()
+            try:
 
-            messages.success(
-                request,
-                (
-                    f"Supplier bill "
-                    f"{bill.bill_number} "
-                    f"was created successfully."
-                ),
-            )
+                bill = form.save()
 
-            return redirect(
-                "payables:supplier_bill_detail",
-                pk=bill.pk,
-            )
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        f"Supplier bill "
+                        f"{bill.bill_number} "
+                        f"was created successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:supplier_bill_detail",
+                    pk=bill.pk,
+                )
 
     else:
 
@@ -732,6 +779,9 @@ def supplier_bill_create(request):
 
         "is_edit":
             False,
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -766,21 +816,32 @@ def supplier_bill_edit(
 
         if form.is_valid():
 
-            bill = form.save()
+            try:
 
-            messages.success(
-                request,
-                (
-                    f"Supplier bill "
-                    f"{bill.bill_number} "
-                    f"was updated successfully."
-                ),
-            )
+                bill = form.save()
 
-            return redirect(
-                "payables:supplier_bill_detail",
-                pk=bill.pk,
-            )
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        f"Supplier bill "
+                        f"{bill.bill_number} "
+                        f"was updated successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:supplier_bill_detail",
+                    pk=bill.pk,
+                )
 
     else:
 
@@ -802,6 +863,9 @@ def supplier_bill_edit(
 
         "is_edit":
             True,
+
+        "currency_code":
+            get_school_currency(),
     }
 
     return render(
@@ -833,6 +897,8 @@ def supplier_bill_detail(
         "payables/supplier_bill_detail.html",
         {
             "bill": bill,
+            "currency_code":
+                get_school_currency(),
         },
     )
 
