@@ -1,0 +1,5359 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+/* ============================================================
+   EDUFINANCE
+   DISCOUNT FINANCIAL ADJUSTMENT STUDIO
+
+   Scope prefix:
+   dfs-
+
+   This template intentionally contains all visual styling
+   locally so it cannot leak into other EduFinance pages.
+============================================================ */
+
+
+/* ============================================================
+   ROOT
+============================================================ */
+
+.dfs-page {
+
+    --navy-1000: #02101f;
+    --navy-950: #05182c;
+    --navy-900: #08213c;
+    --navy-850: #0c2a4c;
+    --navy-800: #12365e;
+    --navy-700: #184979;
+
+    --blue-700: #174fc4;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+
+    --cyan-500: #06b6d4;
+    --cyan-400: #22d3ee;
+
+    --violet-700: #6d28d9;
+    --violet-600: #7c3aed;
+    --violet-500: #8b5cf6;
+    --violet-400: #a78bfa;
+
+    --green-700: #047857;
+    --green-600: #059669;
+    --green-500: #10b981;
+    --green-400: #34d399;
+
+    --amber-700: #b45309;
+    --amber-600: #d97706;
+    --amber-500: #f59e0b;
+    --amber-400: #fbbf24;
+
+    --red-700: #b91c1c;
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+
+    --slate-950: #12243d;
+    --slate-900: #1e334d;
+    --slate-800: #334155;
+    --slate-700: #475569;
+    --slate-600: #64748b;
+    --slate-500: #7e8da1;
+    --slate-400: #9ba6b5;
+    --slate-300: #cbd5e1;
+    --slate-200: #e2e8f0;
+    --slate-100: #f1f5f9;
+    --slate-50: #f8fafc;
+
+    position: relative;
+
+    min-height: 100vh;
+
+    overflow: hidden;
+
+    padding:
+        27px
+        30px
+        85px;
+
+    background:
+        radial-gradient(
+            circle at 92% 3%,
+            rgba(37,99,235,.14),
+            transparent 26%
+        ),
+        radial-gradient(
+            circle at 5% 17%,
+            rgba(124,58,237,.075),
+            transparent 20%
+        ),
+        radial-gradient(
+            circle at 78% 82%,
+            rgba(6,182,212,.05),
+            transparent 23%
+        ),
+        linear-gradient(
+            180deg,
+            #f8faff 0%,
+            #f3f7fc 48%,
+            #eef3f9 100%
+        );
+
+    color: var(--slate-950);
+
+    isolation: isolate;
+}
+
+
+/* ============================================================
+   GRID BACKGROUND
+============================================================ */
+
+.dfs-page::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -4;
+
+    pointer-events: none;
+
+    opacity: .52;
+
+    background-image:
+
+        linear-gradient(
+            rgba(32,78,130,.032) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(32,78,130,.032) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        42px
+        42px;
+}
+
+
+/* ============================================================
+   AMBIENT BLOBS
+============================================================ */
+
+.dfs-ambient {
+
+    position: fixed;
+
+    z-index: -3;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(80px);
+
+    opacity: .16;
+}
+
+
+.dfs-ambient-a {
+
+    width: 390px;
+    height: 390px;
+
+    right: -170px;
+    top: 110px;
+
+    background: #3b82f6;
+
+    animation:
+        dfsAmbientA
+        15s ease-in-out infinite;
+}
+
+
+.dfs-ambient-b {
+
+    width: 330px;
+    height: 330px;
+
+    left: -180px;
+    top: 610px;
+
+    background: #8b5cf6;
+
+    animation:
+        dfsAmbientB
+        17s ease-in-out infinite;
+}
+
+
+.dfs-ambient-c {
+
+    width: 300px;
+    height: 300px;
+
+    right: 24%;
+    bottom: -170px;
+
+    background: #06b6d4;
+
+    opacity: .08;
+
+    animation:
+        dfsAmbientC
+        19s ease-in-out infinite;
+}
+
+
+@keyframes dfsAmbientA {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                -75px,
+                65px,
+                0
+            );
+    }
+}
+
+
+@keyframes dfsAmbientB {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                90px,
+                -55px,
+                0
+            );
+    }
+}
+
+
+@keyframes dfsAmbientC {
+
+    0%,
+    100% {
+        transform:
+            scale(1);
+    }
+
+    50% {
+        transform:
+            scale(1.18);
+    }
+}
+
+
+/* ============================================================
+   SHELL
+============================================================ */
+
+.dfs-shell {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1510px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   TOP PROGRESS
+============================================================ */
+
+.dfs-top-progress {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 999999;
+
+    width: 100%;
+    height: 3px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .16s ease;
+}
+
+
+.dfs-top-progress.active {
+    opacity: 1;
+}
+
+
+.dfs-top-progress::after {
+
+    content: "";
+
+    display: block;
+
+    width: 29%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #3b82f6,
+            #22d3ee,
+            #8b5cf6,
+            transparent
+        );
+
+    box-shadow:
+        0 0 20px
+        rgba(59,130,246,.48);
+
+    animation:
+        dfsProgress
+        .9s cubic-bezier(.65,0,.35,1)
+        infinite;
+}
+
+
+@keyframes dfsProgress {
+
+    from {
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+        transform:
+            translateX(460%);
+    }
+}
+
+
+/* ============================================================
+   BREADCRUMBS
+============================================================ */
+
+.dfs-context {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+
+    animation:
+        dfsReveal
+        .45s ease both;
+}
+
+
+.dfs-breadcrumb {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    color: #8a97a8;
+
+    font-size: 10px;
+    font-weight: 760;
+}
+
+
+.dfs-breadcrumb a {
+
+    color: #728398;
+
+    text-decoration: none;
+
+    transition:
+        color .15s ease;
+}
+
+
+.dfs-breadcrumb a:hover {
+    color: var(--blue-600);
+}
+
+
+.dfs-breadcrumb-dot {
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: #c2ccd7;
+}
+
+
+.dfs-breadcrumb-current {
+    color: #36536f;
+}
+
+
+.dfs-context-status {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 30px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.09);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.7);
+
+    backdrop-filter:
+        blur(12px);
+
+    color: #54718f;
+
+    box-shadow:
+        0 8px 20px
+        rgba(30,53,84,.035);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+.dfs-context-status span {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(52,211,153,.09);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.dfs-hero {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.32fr)
+        minmax(330px,.68fr);
+
+    gap: 24px;
+
+    min-height: 265px;
+
+    overflow: hidden;
+
+    padding:
+        32px
+        34px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.085);
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            127deg,
+            #041426 0%,
+            #08213e 40%,
+            #0e315b 70%,
+            #1c5799 100%
+        );
+
+    box-shadow:
+        0 26px 62px
+        rgba(8,31,62,.19);
+
+    color: white;
+
+    animation:
+        dfsReveal
+        .52s .03s ease both;
+}
+
+
+.dfs-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    right: -120px;
+    top: -350px;
+
+    border:
+        67px solid
+        rgba(255,255,255,.04);
+
+    border-radius: 50%;
+}
+
+
+.dfs-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 250px;
+    height: 250px;
+
+    left: 42%;
+    bottom: -220px;
+
+    border:
+        42px solid
+        rgba(96,165,250,.05);
+
+    border-radius: 50%;
+}
+
+
+.dfs-hero-copy {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.dfs-eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    gap: 8px;
+
+    min-height: 29px;
+
+    padding:
+        0
+        11px;
+
+    margin-bottom: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.11);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    color:
+        rgba(255,255,255,.7);
+
+    backdrop-filter:
+        blur(13px);
+
+    font-size: 9px;
+    font-weight: 850;
+
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+
+.dfs-eyebrow-dot {
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #60a5fa,
+            #22d3ee
+        );
+
+    box-shadow:
+        0 0 13px
+        rgba(96,165,250,.75);
+}
+
+
+.dfs-hero h1 {
+
+    max-width: 730px;
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            31px,
+            4vw,
+            47px
+        );
+
+    font-weight: 870;
+
+    line-height: 1;
+
+    letter-spacing: -.05em;
+}
+
+
+.dfs-hero-highlight {
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #d4e8ff 48%,
+            #c6baff
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+
+.dfs-hero p {
+
+    max-width: 730px;
+
+    margin:
+        16px
+        0
+        0;
+
+    color:
+        rgba(236,244,255,.67);
+
+    font-size: 11.7px;
+
+    line-height: 1.8;
+}
+
+
+/* ============================================================
+   HERO VISUAL
+============================================================ */
+
+.dfs-hero-visual {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+}
+
+
+.dfs-hero-engine {
+
+    position: relative;
+
+    width: 225px;
+    height: 225px;
+}
+
+
+.dfs-engine-ring {
+
+    position: absolute;
+
+    inset: 10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    animation:
+        dfsSpin
+        18s linear infinite;
+}
+
+
+.dfs-engine-ring::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    top: 22px;
+    left: 32px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 16px
+        rgba(96,165,250,.8);
+}
+
+
+.dfs-engine-ring::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    right: 23px;
+    bottom: 31px;
+
+    border-radius: 50%;
+
+    background: #a78bfa;
+
+    box-shadow:
+        0 0 15px
+        rgba(167,139,250,.8);
+}
+
+
+.dfs-engine-ring-inner {
+
+    position: absolute;
+
+    inset: 39px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.1);
+
+    border-radius: 50%;
+
+    animation:
+        dfsSpinReverse
+        13s linear infinite;
+}
+
+
+.dfs-engine-core {
+
+    position: absolute;
+
+    inset: 60px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 34% 25%,
+            rgba(255,255,255,.16),
+            rgba(255,255,255,.055)
+        );
+
+    backdrop-filter:
+        blur(17px);
+
+    box-shadow:
+        inset 0 0 30px
+        rgba(255,255,255,.035),
+        0 22px 50px
+        rgba(0,0,0,.15);
+}
+
+
+.dfs-engine-core-symbol {
+
+    color: #e0ecff;
+
+    font-size: 34px;
+    font-weight: 300;
+}
+
+
+.dfs-engine-core-text {
+
+    margin-top: 5px;
+
+    color:
+        rgba(255,255,255,.54);
+
+    font-size: 7.5px;
+    font-weight: 850;
+
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+
+.dfs-engine-chip {
+
+    position: absolute;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 32px;
+
+    padding:
+        0
+        10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 10px;
+
+    background:
+        rgba(5,25,48,.51);
+
+    backdrop-filter:
+        blur(13px);
+
+    color:
+        rgba(255,255,255,.7);
+
+    box-shadow:
+        0 13px 26px
+        rgba(0,0,0,.14);
+
+    font-size: 8px;
+    font-weight: 780;
+}
+
+
+.dfs-engine-chip strong {
+    color: white;
+}
+
+
+.dfs-engine-chip-a {
+
+    left: -25px;
+    top: 45px;
+
+    animation:
+        dfsFloatChip
+        4.2s ease-in-out infinite;
+}
+
+
+.dfs-engine-chip-b {
+
+    right: -30px;
+    bottom: 47px;
+
+    animation:
+        dfsFloatChip
+        4.8s .5s ease-in-out infinite;
+}
+
+
+.dfs-engine-chip-dot {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+.dfs-engine-chip-b
+.dfs-engine-chip-dot {
+    background: #fbbf24;
+}
+
+
+@keyframes dfsSpin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes dfsSpinReverse {
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes dfsFloatChip {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-7px);
+    }
+}
+
+
+/* ============================================================
+   MAIN STUDIO GRID
+============================================================ */
+
+.dfs-studio {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.42fr)
+        minmax(350px,.72fr);
+
+    gap: 17px;
+
+    margin-top: 17px;
+
+    align-items: start;
+}
+
+
+/* ============================================================
+   CARD BASE
+============================================================ */
+
+.dfs-card {
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 21px;
+
+    background:
+        rgba(255,255,255,.93);
+
+    backdrop-filter:
+        blur(17px);
+
+    box-shadow:
+        0 17px 42px
+        rgba(28,50,80,.06);
+
+    animation:
+        dfsReveal
+        .55s .1s ease both;
+}
+
+
+.dfs-card-head {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        18px
+        20px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fcfdff
+        );
+}
+
+
+.dfs-card-heading {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.dfs-card-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eaf2ff,
+            #f5f8ff
+        );
+
+    color: #3268b5;
+}
+
+
+.dfs-card-icon svg {
+
+    width: 15px;
+    height: 15px;
+}
+
+
+.dfs-card-heading strong {
+
+    display: block;
+
+    color: #28445f;
+
+    font-size: 11.5px;
+}
+
+
+.dfs-card-heading small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #96a1af;
+
+    font-size: 8.6px;
+}
+
+
+.dfs-card-step {
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+
+    padding:
+        0
+        9px;
+
+    border-radius: 999px;
+
+    background: #eef4ff;
+
+    color: #3a69a9;
+
+    font-size: 8px;
+    font-weight: 850;
+
+    letter-spacing: .06em;
+
+    text-transform: uppercase;
+}
+
+
+/* ============================================================
+   FORM BODY
+============================================================ */
+
+.dfs-form-body {
+
+    padding:
+        22px
+        21px
+        23px;
+}
+
+
+.dfs-errors {
+
+    position: relative;
+
+    margin-bottom: 18px;
+
+    padding:
+        14px
+        15px
+        14px
+        43px;
+
+    border:
+        1px solid
+        rgba(220,38,38,.18);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff4f4,
+            #fffafa
+        );
+
+    color: #af2d2d;
+
+    font-size: 9.7px;
+    font-weight: 650;
+
+    line-height: 1.6;
+}
+
+
+.dfs-errors::before {
+
+    content: "!";
+
+    position: absolute;
+
+    display: grid;
+    place-items: center;
+
+    left: 13px;
+    top: 13px;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background: #fee2e2;
+
+    color: #dc2626;
+
+    font-size: 10px;
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   FORM SECTIONS
+============================================================ */
+
+.dfs-section {
+
+    position: relative;
+
+    padding-bottom: 23px;
+
+    margin-bottom: 22px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+}
+
+
+.dfs-section:last-child {
+
+    margin-bottom: 0;
+
+    padding-bottom: 0;
+
+    border-bottom: 0;
+}
+
+
+.dfs-section-header {
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 17px;
+}
+
+
+.dfs-section-title {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+}
+
+
+.dfs-section-number {
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        27px;
+
+    width: 27px;
+    height: 27px;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0d3159,
+            #1d5595
+        );
+
+    color: white;
+
+    box-shadow:
+        0 7px 16px
+        rgba(18,63,111,.12);
+
+    font-size: 8.5px;
+    font-weight: 900;
+}
+
+
+.dfs-section-title strong {
+
+    display: block;
+
+    color: #2d4864;
+
+    font-size: 10.7px;
+}
+
+
+.dfs-section-title small {
+
+    display: block;
+
+    max-width: 510px;
+
+    margin-top: 3px;
+
+    color: #919dac;
+
+    font-size: 8.7px;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   GRID
+============================================================ */
+
+.dfs-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap:
+        17px
+        15px;
+}
+
+
+.dfs-field-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   FIELD
+============================================================ */
+
+.dfs-field {
+    position: relative;
+}
+
+
+.dfs-label {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 7px;
+
+    color: #50647b;
+
+    font-size: 9px;
+    font-weight: 850;
+
+    letter-spacing: .035em;
+}
+
+
+.dfs-required {
+    color: #dc2626;
+}
+
+
+.dfs-field-hint {
+
+    color: #a0aab7;
+
+    font-size: 7.8px;
+    font-weight: 700;
+}
+
+
+.dfs-field
+.form-control {
+
+    width: 100%;
+
+    min-height: 45px;
+
+    box-sizing: border-box;
+
+    padding:
+        10px
+        12px;
+
+    border:
+        1px solid
+        #dfe6ee;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fbfcfe
+        );
+
+    color: #304861;
+
+    font-size: 10.7px;
+    font-weight: 630;
+
+    box-shadow:
+        inset 0 1px 1px
+        rgba(18,51,93,.018);
+
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s ease,
+        background .16s ease;
+}
+
+
+.dfs-field
+.form-control:hover {
+
+    border-color: #cdd8e6;
+}
+
+
+.dfs-field
+.form-control:focus {
+
+    border-color:
+        rgba(37,99,235,.48);
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.065);
+
+    transform:
+        translateY(-1px);
+}
+
+
+.dfs-field
+textarea.form-control {
+
+    min-height: 125px;
+
+    resize: vertical;
+
+    line-height: 1.65;
+}
+
+
+.dfs-error {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 6px;
+
+    margin-top: 6px;
+
+    color: #cb3232;
+
+    font-size: 8.7px;
+    font-weight: 720;
+}
+
+
+.dfs-error::before {
+
+    content: "•";
+
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   IDENTITY INPUTS
+============================================================ */
+
+.dfs-identity-wrap {
+
+    position: relative;
+}
+
+
+.dfs-identity-icon {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 12px;
+    top: 50%;
+
+    display: grid;
+    place-items: center;
+
+    width: 19px;
+    height: 19px;
+
+    transform:
+        translateY(-50%);
+
+    color: #8292a5;
+}
+
+
+.dfs-identity-icon svg {
+
+    width: 14px;
+    height: 14px;
+}
+
+
+.dfs-identity-wrap
+.form-control {
+
+    padding-left: 39px;
+}
+
+
+/* ============================================================
+   VALUE MODE
+============================================================ */
+
+.dfs-mode-switch {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap: 8px;
+
+    margin-bottom: 10px;
+}
+
+
+.dfs-mode-button {
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 48px;
+
+    padding:
+        0
+        12px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        #e1e7ef;
+
+    border-radius: 12px;
+
+    background: #fbfcfe;
+
+    color: #5c6f84;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        border-color .16s ease,
+        background .16s ease,
+        color .16s ease,
+        transform .16s ease,
+        box-shadow .16s ease;
+}
+
+
+.dfs-mode-button:hover {
+
+    transform:
+        translateY(-1px);
+
+    border-color: #d1dceb;
+
+    background: white;
+}
+
+
+.dfs-mode-button.active {
+
+    border-color:
+        rgba(37,99,235,.24);
+
+    background:
+        linear-gradient(
+            135deg,
+            #edf4ff,
+            #f8fbff
+        );
+
+    color: #275c9e;
+
+    box-shadow:
+        0 7px 18px
+        rgba(37,99,235,.07);
+}
+
+
+.dfs-mode-button-icon {
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        30px;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 9px;
+
+    background: white;
+
+    box-shadow:
+        0 4px 10px
+        rgba(30,52,81,.055);
+
+    color: #4773ad;
+
+    font-size: 11px;
+    font-weight: 900;
+}
+
+
+.dfs-mode-button strong {
+
+    display: block;
+
+    font-size: 9.5px;
+}
+
+
+.dfs-mode-button small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #95a1b0;
+
+    font-size: 7.5px;
+}
+
+
+/* ============================================================
+   HIDE ORIGINAL VALUE SELECT VISUALLY BUT KEEP FORM FUNCTIONAL
+============================================================ */
+
+.dfs-native-value-type {
+
+    position: absolute !important;
+
+    width: 1px !important;
+    height: 1px !important;
+
+    opacity: 0 !important;
+
+    pointer-events: none !important;
+
+    overflow: hidden !important;
+}
+
+
+/* ============================================================
+   MONEY INPUT
+============================================================ */
+
+.dfs-value-shell {
+
+    display: flex;
+
+    min-height: 51px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        #dfe6ef;
+
+    border-radius: 12px;
+
+    background: white;
+
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease;
+}
+
+
+.dfs-value-shell:focus-within {
+
+    border-color:
+        rgba(37,99,235,.48);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.065);
+}
+
+
+.dfs-value-unit {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 75px;
+
+    padding:
+        0
+        13px;
+
+    border-right:
+        1px solid
+        #e5eaf1;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f1f6fb,
+            #edf3f9
+        );
+
+    color: #42627e;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: .03em;
+}
+
+
+.dfs-value-shell
+.form-control {
+
+    flex: 1;
+
+    min-height: 49px;
+
+    border: 0 !important;
+
+    border-radius: 0 !important;
+
+    background: white !important;
+
+    box-shadow: none !important;
+
+    transform: none !important;
+
+    font-size: 15px;
+    font-weight: 850;
+
+    letter-spacing: -.02em;
+}
+
+
+.dfs-value-help {
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 7px;
+
+    color: #929eae;
+
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+
+.dfs-value-help-dot {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+}
+
+
+/* ============================================================
+   APPROVAL CONTROL
+============================================================ */
+
+.dfs-approval-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding:
+        15px;
+
+    border:
+        1px solid
+        #e3e9f1;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fafcff,
+            #f6f9fd
+        );
+
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.dfs-approval-card.active {
+
+    border-color:
+        rgba(245,158,11,.28);
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf0,
+            #fffdf8
+        );
+
+    box-shadow:
+        0 9px 24px
+        rgba(245,158,11,.075);
+}
+
+
+.dfs-approval-row {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+}
+
+
+.dfs-approval-copy {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+}
+
+
+.dfs-approval-icon {
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        34px;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 10px;
+
+    background:
+        #edf3fb;
+
+    color: #486d97;
+
+    transition:
+        background .2s ease,
+        color .2s ease;
+}
+
+
+.dfs-approval-card.active
+.dfs-approval-icon {
+
+    background: #fff1d8;
+
+    color: #bb690b;
+}
+
+
+.dfs-approval-icon svg {
+
+    width: 16px;
+    height: 16px;
+}
+
+
+.dfs-approval-copy strong {
+
+    display: block;
+
+    color: #354f6b;
+
+    font-size: 9.8px;
+}
+
+
+.dfs-approval-copy small {
+
+    display: block;
+
+    max-width: 550px;
+
+    margin-top: 4px;
+
+    color: #8d99a9;
+
+    font-size: 8.2px;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   CUSTOM TOGGLE
+============================================================ */
+
+.dfs-toggle {
+
+    position: relative;
+
+    flex:
+        0 0
+        45px;
+
+    width: 45px;
+    height: 25px;
+
+    cursor: pointer;
+}
+
+
+.dfs-toggle input {
+
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+.dfs-toggle-track {
+
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: 999px;
+
+    background: #dce3eb;
+
+    box-shadow:
+        inset 0 1px 3px
+        rgba(23,51,80,.12);
+
+    transition:
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+
+.dfs-toggle-track::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 19px;
+    height: 19px;
+
+    left: 3px;
+    top: 3px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 3px 7px
+        rgba(14,38,65,.17);
+
+    transition:
+        transform .2s cubic-bezier(.2,.8,.2,1);
+}
+
+
+.dfs-toggle input:checked
++
+.dfs-toggle-track {
+
+    background:
+        linear-gradient(
+            90deg,
+            #f59e0b,
+            #d97706
+        );
+
+    box-shadow:
+        0 0 0 4px
+        rgba(245,158,11,.08);
+}
+
+
+.dfs-toggle input:checked
++
+.dfs-toggle-track::after {
+
+    transform:
+        translateX(20px);
+}
+
+
+/* ============================================================
+   ACTION FOOTER
+============================================================ */
+
+.dfs-form-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding:
+        17px
+        20px;
+
+    border-top:
+        1px solid
+        #edf1f5;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fcfdff,
+            #f9fbfd
+        );
+}
+
+
+.dfs-save-info {
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #8996a7;
+
+    font-size: 8.5px;
+    font-weight: 680;
+}
+
+
+.dfs-save-info-dot {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #10b981;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(16,185,129,.08);
+}
+
+
+.dfs-form-actions {
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.dfs-button {
+
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+
+    padding:
+        0
+        15px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    font-size: 9.5px;
+    font-weight: 850;
+
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease,
+        opacity .16s ease;
+}
+
+
+.dfs-button:hover {
+    transform:
+        translateY(-1px);
+}
+
+
+.dfs-button-secondary {
+
+    border:
+        1px solid
+        #e0e6ed;
+
+    background: white;
+
+    color: #5b6e83;
+}
+
+
+.dfs-button-primary {
+
+    overflow: hidden;
+
+    min-width: 138px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #174fc4,
+            #2563eb 55%,
+            #3b82f6
+        );
+
+    color: white;
+
+    box-shadow:
+        0 10px 23px
+        rgba(37,99,235,.19);
+}
+
+
+.dfs-button-primary::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 60px;
+    height: 130%;
+
+    left: -90px;
+    top: -15%;
+
+    transform:
+        rotate(15deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.35),
+            transparent
+        );
+
+    transition:
+        left .45s ease;
+}
+
+
+.dfs-button-primary:hover::before {
+    left: 130%;
+}
+
+
+.dfs-button-primary:disabled {
+
+    opacity: .65;
+
+    cursor: wait;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   RIGHT INTELLIGENCE COLUMN
+============================================================ */
+
+.dfs-intelligence-column {
+
+    position: sticky;
+
+    top: 20px;
+
+    display: grid;
+
+    gap: 13px;
+}
+
+
+/* ============================================================
+   LIVE ENGINE CARD
+============================================================ */
+
+.dfs-engine-panel {
+
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 390px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.085);
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #061a31,
+            #0a294b 57%,
+            #103b6b
+        );
+
+    box-shadow:
+        0 20px 48px
+        rgba(9,35,65,.16);
+
+    color: white;
+
+    animation:
+        dfsReveal
+        .58s .14s ease both;
+}
+
+
+.dfs-engine-panel::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    right: -150px;
+    top: -140px;
+
+    border:
+        46px solid
+        rgba(255,255,255,.035);
+
+    border-radius: 50%;
+}
+
+
+.dfs-engine-panel::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 160px;
+    height: 160px;
+
+    left: -95px;
+    bottom: -90px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(96,165,250,.055);
+}
+
+
+.dfs-engine-panel-head {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding:
+        17px
+        18px;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.07);
+}
+
+
+.dfs-engine-panel-title {
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.dfs-live-dot {
+
+    position: relative;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+
+    box-shadow:
+        0 0 12px
+        rgba(52,211,153,.65);
+}
+
+
+.dfs-live-dot::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -4px;
+
+    border:
+        1px solid
+        rgba(52,211,153,.35);
+
+    border-radius: 50%;
+
+    animation:
+        dfsPulse
+        1.8s ease-out infinite;
+}
+
+
+@keyframes dfsPulse {
+
+    0% {
+        opacity: 1;
+        transform:
+            scale(.65);
+    }
+
+    100% {
+        opacity: 0;
+        transform:
+            scale(1.45);
+    }
+}
+
+
+.dfs-engine-panel-title strong {
+
+    color: white;
+
+    font-size: 9.7px;
+}
+
+
+.dfs-engine-panel-title small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        rgba(255,255,255,.48);
+
+    font-size: 7.4px;
+}
+
+
+.dfs-engine-status-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 25px;
+
+    padding:
+        0
+        8px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.09);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    color:
+        rgba(255,255,255,.65);
+
+    font-size: 7.5px;
+    font-weight: 830;
+}
+
+
+/* ============================================================
+   VALUE DIAL
+============================================================ */
+
+.dfs-engine-main {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+
+    padding:
+        25px
+        18px
+        19px;
+}
+
+
+.dfs-value-dial {
+
+    --progress: 18deg;
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    width: 184px;
+    height: 184px;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            from 220deg,
+            #60a5fa 0deg,
+            #8b5cf6 var(--progress),
+            rgba(255,255,255,.08) var(--progress),
+            rgba(255,255,255,.08) 280deg,
+            transparent 280deg
+        );
+
+    filter:
+        drop-shadow(
+            0 16px 26px
+            rgba(0,0,0,.18)
+        );
+
+    transition:
+        --progress .4s ease;
+}
+
+
+.dfs-value-dial::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 11px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            #123c69,
+            #071d36 72%
+        );
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    box-shadow:
+        inset 0 0 30px
+        rgba(255,255,255,.025);
+}
+
+
+.dfs-value-dial-inner {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 135px;
+    height: 135px;
+}
+
+
+.dfs-dial-label {
+
+    color:
+        rgba(255,255,255,.44);
+
+    font-size: 7px;
+    font-weight: 850;
+
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+
+.dfs-dial-value {
+
+    max-width: 130px;
+
+    margin-top: 7px;
+
+    color: white;
+
+    font-size: 22px;
+    font-weight: 880;
+
+    letter-spacing: -.04em;
+
+    text-align: center;
+
+    word-break: break-word;
+}
+
+
+.dfs-dial-mode {
+
+    margin-top: 5px;
+
+    color:
+        rgba(255,255,255,.49);
+
+    font-size: 7.7px;
+    font-weight: 680;
+}
+
+
+/* ============================================================
+   PREVIEW IDENTITY
+============================================================ */
+
+.dfs-engine-identities {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap: 8px;
+
+    padding:
+        0
+        15px
+        15px;
+}
+
+
+.dfs-preview-identity {
+
+    min-width: 0;
+
+    padding: 11px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.075);
+
+    border-radius: 11px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    backdrop-filter:
+        blur(8px);
+}
+
+
+.dfs-preview-identity small {
+
+    display: block;
+
+    color:
+        rgba(255,255,255,.39);
+
+    font-size: 6.7px;
+    font-weight: 850;
+
+    letter-spacing: .075em;
+    text-transform: uppercase;
+}
+
+
+.dfs-preview-identity strong {
+
+    display: block;
+
+    overflow: hidden;
+
+    margin-top: 5px;
+
+    color:
+        rgba(255,255,255,.8);
+
+    font-size: 8.6px;
+    font-weight: 760;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   WORKFLOW INTELLIGENCE
+============================================================ */
+
+.dfs-workflow-card {
+
+    padding: 17px;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255,255,255,.91);
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 13px 32px
+        rgba(29,51,81,.055);
+
+    animation:
+        dfsReveal
+        .58s .2s ease both;
+}
+
+
+.dfs-workflow-heading {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.dfs-workflow-heading strong {
+
+    color: #304c68;
+
+    font-size: 10px;
+}
+
+
+.dfs-workflow-heading span {
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 23px;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    background: #eef4ff;
+
+    color: #3c69a5;
+
+    font-size: 7.6px;
+    font-weight: 850;
+}
+
+
+.dfs-workflow-intensity {
+
+    margin-top: 14px;
+}
+
+
+.dfs-intensity-meta {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 7px;
+
+    color: #8491a1;
+
+    font-size: 7.8px;
+    font-weight: 720;
+}
+
+
+.dfs-intensity-meta strong {
+
+    color: #4a647f;
+
+    font-size: 8px;
+}
+
+
+.dfs-intensity-track {
+
+    position: relative;
+
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: #edf1f5;
+}
+
+
+.dfs-intensity-fill {
+
+    width: 35%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #3b82f6,
+            #22d3ee
+        );
+
+    transition:
+        width .35s ease,
+        background .35s ease;
+}
+
+
+.dfs-intensity-fill.approval {
+
+    width: 82%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #f59e0b,
+            #d97706
+        );
+}
+
+
+/* ============================================================
+   WORKFLOW STEPS
+============================================================ */
+
+.dfs-workflow-path {
+
+    display: grid;
+
+    gap: 7px;
+
+    margin-top: 15px;
+}
+
+
+.dfs-workflow-step {
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 9px 10px;
+
+    border:
+        1px solid
+        #edf1f5;
+
+    border-radius: 10px;
+
+    background: #fafbfd;
+
+    transition:
+        border-color .18s ease,
+        background .18s ease,
+        transform .18s ease,
+        opacity .18s ease;
+}
+
+
+.dfs-workflow-step.active {
+
+    border-color:
+        rgba(37,99,235,.17);
+
+    background: #f2f7ff;
+
+    transform:
+        translateX(2px);
+}
+
+
+.dfs-workflow-step.disabled {
+
+    opacity: .4;
+}
+
+
+.dfs-workflow-step-number {
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        24px;
+
+    width: 24px;
+    height: 24px;
+
+    border-radius: 7px;
+
+    background: #eaf1fa;
+
+    color: #4d6f94;
+
+    font-size: 7.5px;
+    font-weight: 900;
+}
+
+
+.dfs-workflow-step.active
+.dfs-workflow-step-number {
+
+    background:
+        linear-gradient(
+            145deg,
+            #2563eb,
+            #3b82f6
+        );
+
+    color: white;
+}
+
+
+.dfs-workflow-step strong {
+
+    display: block;
+
+    color: #4a6078;
+
+    font-size: 8px;
+}
+
+
+.dfs-workflow-step small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #98a3b0;
+
+    font-size: 7px;
+}
+
+
+/* ============================================================
+   STATUS INFORMATION
+============================================================ */
+
+.dfs-policy-note {
+
+    display: flex;
+    align-items: flex-start;
+
+    gap: 9px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        #e7ecf2;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fbfcfe,
+            #f7f9fc
+        );
+
+    color: #77879a;
+
+    font-size: 7.8px;
+
+    line-height: 1.55;
+}
+
+
+.dfs-policy-icon {
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        24px;
+
+    width: 24px;
+    height: 24px;
+
+    border-radius: 7px;
+
+    background: #edf3fb;
+
+    color: #4b7099;
+}
+
+
+.dfs-policy-icon svg {
+
+    width: 12px;
+    height: 12px;
+}
+
+
+/* ============================================================
+   SUBMIT OVERLAY
+============================================================ */
+
+.dfs-saving-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999998;
+
+    display: grid;
+    place-items: center;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    padding: 20px;
+
+    background:
+        rgba(3,16,31,.48);
+
+    backdrop-filter:
+        blur(7px);
+
+    transition:
+        opacity .18s ease,
+        visibility .18s ease;
+}
+
+
+.dfs-saving-overlay.active {
+
+    visibility: visible;
+
+    opacity: 1;
+}
+
+
+.dfs-saving-box {
+
+    width: min(
+        360px,
+        100%
+    );
+
+    padding:
+        24px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #071b33,
+            #0d3159
+        );
+
+    color: white;
+
+    box-shadow:
+        0 28px 70px
+        rgba(0,0,0,.26);
+
+    text-align: center;
+}
+
+
+.dfs-saving-spinner {
+
+    position: relative;
+
+    width: 52px;
+    height: 52px;
+
+    margin:
+        0
+        auto
+        15px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 50%;
+}
+
+
+.dfs-saving-spinner::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -2px;
+
+    border:
+        2px solid
+        transparent;
+
+    border-top-color: #60a5fa;
+
+    border-right-color: #8b5cf6;
+
+    border-radius: 50%;
+
+    animation:
+        dfsSpinner
+        .75s linear infinite;
+}
+
+
+@keyframes dfsSpinner {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+.dfs-saving-box strong {
+
+    display: block;
+
+    font-size: 13px;
+}
+
+
+.dfs-saving-box small {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color:
+        rgba(255,255,255,.55);
+
+    font-size: 8.5px;
+}
+
+
+/* ============================================================
+   REVEAL
+============================================================ */
+
+@keyframes dfsReveal {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1120px) {
+
+    .dfs-hero {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            290px;
+    }
+
+    .dfs-studio {
+
+        grid-template-columns:
+            minmax(0,1.15fr)
+            minmax(320px,.85fr);
+    }
+}
+
+
+@media (max-width: 940px) {
+
+    .dfs-page {
+
+        padding:
+            19px
+            14px
+            55px;
+    }
+
+    .dfs-hero {
+
+        grid-template-columns: 1fr;
+    }
+
+    .dfs-hero-visual {
+        display: none;
+    }
+
+    .dfs-studio {
+
+        grid-template-columns: 1fr;
+    }
+
+    .dfs-intelligence-column {
+
+        position: static;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+}
+
+
+@media (max-width: 680px) {
+
+    .dfs-context {
+
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dfs-hero {
+
+        padding:
+            25px
+            21px;
+    }
+
+    .dfs-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .dfs-field-full {
+
+        grid-column: auto;
+    }
+
+    .dfs-mode-switch {
+
+        grid-template-columns: 1fr;
+    }
+
+    .dfs-intelligence-column {
+
+        grid-template-columns: 1fr;
+    }
+
+    .dfs-form-footer {
+
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dfs-form-actions {
+
+        width: 100%;
+    }
+
+    .dfs-button {
+
+        flex: 1;
+    }
+
+    .dfs-engine-identities {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+
+<!-- ==========================================================
+     GLOBAL UI LAYERS
+========================================================== -->
+
+<div
+    id="dfsTopProgress"
+    class="dfs-top-progress"
+></div>
+
+
+<div
+    class="
+        dfs-ambient
+        dfs-ambient-a
+    "
+></div>
+
+
+<div
+    class="
+        dfs-ambient
+        dfs-ambient-b
+    "
+></div>
+
+
+<div
+    class="
+        dfs-ambient
+        dfs-ambient-c
+    "
+></div>
+
+
+<!-- ==========================================================
+     SAVING OVERLAY
+========================================================== -->
+
+<div
+    id="dfsSavingOverlay"
+    class="dfs-saving-overlay"
+>
+
+    <div class="dfs-saving-box">
+
+        <div class="dfs-saving-spinner"></div>
+
+        <strong>
+            Saving financial adjustment
+        </strong>
+
+        <small>
+            Validating discount data and preserving
+            the financial record...
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     PAGE
+========================================================== -->
+
+<div class="dfs-page">
+
+<div class="dfs-shell">
+
+
+    <!-- ======================================================
+         CONTEXT
+    ======================================================= -->
+
+    <div class="dfs-context">
+
+        <div class="dfs-breadcrumb">
+
+            <a href="{% url 'payables:discount_list' %}">
+                EduFinance
+            </a>
+
+            <span class="dfs-breadcrumb-dot"></span>
+
+            <a href="{% url 'payables:discount_list' %}">
+                Discounts
+            </a>
+
+            <span class="dfs-breadcrumb-dot"></span>
+
+            <span class="dfs-breadcrumb-current">
+                {{ page_title }}
+            </span>
+
+        </div>
+
+
+        <div class="dfs-context-status">
+
+            <span></span>
+
+            Financial controls active
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         HERO
+    ======================================================= -->
+
+    <section class="dfs-hero">
+
+        <div class="dfs-hero-copy">
+
+            <div class="dfs-eyebrow">
+
+                <span class="dfs-eyebrow-dot"></span>
+
+                Financial adjustment studio
+
+            </div>
+
+
+            <h1>
+
+                Design a
+                <span class="dfs-hero-highlight">
+                    controlled discount.
+                </span>
+
+            </h1>
+
+
+            <p>
+                Configure the student, invoice reference,
+                discount architecture and approval pathway
+                from one intelligent workspace. Every saved
+                adjustment remains structured for financial
+                review and future invoice integration.
+            </p>
+
+        </div>
+
+
+        <div class="dfs-hero-visual">
+
+            <div class="dfs-hero-engine">
+
+                <div class="dfs-engine-ring"></div>
+
+                <div class="dfs-engine-ring-inner"></div>
+
+
+                <div class="dfs-engine-core">
+
+                    <div class="dfs-engine-core-symbol">
+                        %
+                    </div>
+
+                    <div class="dfs-engine-core-text">
+                        Adjustment Engine
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="
+                        dfs-engine-chip
+                        dfs-engine-chip-a
+                    "
+                >
+
+                    <span class="dfs-engine-chip-dot"></span>
+
+                    Currency
+
+                    <strong>
+                        {{ currency_code }}
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="
+                        dfs-engine-chip
+                        dfs-engine-chip-b
+                    "
+                >
+
+                    <span class="dfs-engine-chip-dot"></span>
+
+                    Workflow
+
+                    <strong id="heroWorkflowLabel">
+                        Direct
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================================
+         FORM
+    ======================================================= -->
+
+    <form
+        id="discountForm"
+        method="post"
+        novalidate
+    >
+
+        {% csrf_token %}
+
+
+        <div class="dfs-studio">
+
+
+            <!-- =================================================
+                 LEFT SIDE
+            ================================================== -->
+
+            <section class="dfs-card">
+
+                <div class="dfs-card-head">
+
+                    <div class="dfs-card-heading">
+
+                        <div class="dfs-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M4 5h16v14H4z"></path>
+                                <path d="M8 9h8"></path>
+                                <path d="M8 13h5"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Adjustment configuration
+                            </strong>
+
+                            <small>
+                                Build the financial record before submission
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="dfs-card-step">
+
+                        {% if is_edit %}
+                            Editing draft
+                        {% else %}
+                            New record
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="dfs-form-body">
+
+
+                    <!-- =========================================
+                         NON FIELD ERRORS
+                    ========================================== -->
+
+                    {% if form.non_field_errors %}
+
+                        <div class="dfs-errors">
+
+                            {% for error in form.non_field_errors %}
+
+                                <div>
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- =========================================
+                         SECTION 1
+                    ========================================== -->
+
+                    <section class="dfs-section">
+
+                        <div class="dfs-section-header">
+
+                            <div class="dfs-section-title">
+
+                                <div class="dfs-section-number">
+                                    01
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Financial identity
+                                    </strong>
+
+                                    <small>
+                                        Define which student and invoice
+                                        this adjustment belongs to.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="dfs-grid">
+
+
+                            <!-- STUDENT -->
+
+                            <div class="dfs-field">
+
+                                <label class="dfs-label">
+
+                                    <span>
+                                        Student reference
+                                        <span class="dfs-required">*</span>
+                                    </span>
+
+                                    <span class="dfs-field-hint">
+                                        Required
+                                    </span>
+
+                                </label>
+
+
+                                <div class="dfs-identity-wrap">
+
+                                    <span class="dfs-identity-icon">
+
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                        >
+                                            <circle
+                                                cx="12"
+                                                cy="8"
+                                                r="4"
+                                            ></circle>
+
+                                            <path
+                                                d="M4.5 20c.8-4.1 3.2-6.2 7.5-6.2s6.7 2.1 7.5 6.2"
+                                            ></path>
+                                        </svg>
+
+                                    </span>
+
+                                    {{ form.student_reference }}
+
+                                </div>
+
+
+                                {% for error in form.student_reference.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- INVOICE -->
+
+                            <div class="dfs-field">
+
+                                <label class="dfs-label">
+
+                                    <span>
+                                        Invoice reference
+                                        <span class="dfs-required">*</span>
+                                    </span>
+
+                                    <span class="dfs-field-hint">
+                                        Required
+                                    </span>
+
+                                </label>
+
+
+                                <div class="dfs-identity-wrap">
+
+                                    <span class="dfs-identity-icon">
+
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                        >
+                                            <path
+                                                d="M6 3h12v18l-3-2-3 2-3-2-3 2z"
+                                            ></path>
+
+                                            <path d="M9 8h6"></path>
+                                            <path d="M9 12h6"></path>
+                                        </svg>
+
+                                    </span>
+
+                                    {{ form.invoice_reference }}
+
+                                </div>
+
+
+                                {% for error in form.invoice_reference.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- DISCOUNT TYPE -->
+
+                            <div class="dfs-field">
+
+                                <label class="dfs-label">
+
+                                    <span>
+                                        Discount category
+                                        <span class="dfs-required">*</span>
+                                    </span>
+
+                                </label>
+
+                                {{ form.discount_type }}
+
+
+                                {% for error in form.discount_type.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            <!-- DATE -->
+
+                            <div class="dfs-field">
+
+                                <label class="dfs-label">
+
+                                    <span>
+                                        Effective date
+                                        <span class="dfs-required">*</span>
+                                    </span>
+
+                                </label>
+
+                                {{ form.discount_date }}
+
+
+                                {% for error in form.discount_date.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         SECTION 2
+                    ========================================== -->
+
+                    <section class="dfs-section">
+
+                        <div class="dfs-section-header">
+
+                            <div class="dfs-section-title">
+
+                                <div class="dfs-section-number">
+                                    02
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Value architecture
+                                    </strong>
+
+                                    <small>
+                                        Choose whether this adjustment
+                                        is monetary or percentage-based.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="dfs-grid">
+
+
+                            <div class="dfs-field dfs-field-full">
+
+
+                                <!-- Keep the real Django select -->
+
+                                <div class="dfs-native-value-type">
+                                    {{ form.value_type }}
+                                </div>
+
+
+                                <!-- Enhanced visual control -->
+
+                                <div class="dfs-mode-switch">
+
+                                    <button
+                                        type="button"
+                                        class="dfs-mode-button"
+                                        data-value-type="fixed_amount"
+                                        id="fixedModeButton"
+                                    >
+
+                                        <span class="dfs-mode-button-icon">
+                                            {{ currency_code }}
+                                        </span>
+
+                                        <span>
+
+                                            <strong>
+                                                Fixed amount
+                                            </strong>
+
+                                            <small>
+                                                Reduce by a monetary value
+                                            </small>
+
+                                        </span>
+
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="dfs-mode-button"
+                                        data-value-type="percentage"
+                                        id="percentageModeButton"
+                                    >
+
+                                        <span class="dfs-mode-button-icon">
+                                            %
+                                        </span>
+
+                                        <span>
+
+                                            <strong>
+                                                Percentage
+                                            </strong>
+
+                                            <small>
+                                                Reduce by a proportional rate
+                                            </small>
+
+                                        </span>
+
+                                    </button>
+
+                                </div>
+
+
+                                {% for error in form.value_type.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="dfs-field dfs-field-full">
+
+                                <label class="dfs-label">
+
+                                    <span>
+                                        Discount value
+                                        <span class="dfs-required">*</span>
+                                    </span>
+
+                                    <span
+                                        id="dfsValueTypeHint"
+                                        class="dfs-field-hint"
+                                    >
+                                        Fixed financial amount
+                                    </span>
+
+                                </label>
+
+
+                                <div class="dfs-value-shell">
+
+                                    <div
+                                        id="dfsValueUnit"
+                                        class="dfs-value-unit"
+                                    >
+                                        {{ currency_code }}
+                                    </div>
+
+                                    {{ form.value }}
+
+                                </div>
+
+
+                                <div class="dfs-value-help">
+
+                                    <span class="dfs-value-help-dot"></span>
+
+                                    <span id="dfsValueHelp">
+                                        Enter a positive monetary discount value.
+                                    </span>
+
+                                </div>
+
+
+                                {% for error in form.value.errors %}
+
+                                    <div class="dfs-error">
+                                        {{ error }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         SECTION 3
+                    ========================================== -->
+
+                    <section class="dfs-section">
+
+                        <div class="dfs-section-header">
+
+                            <div class="dfs-section-title">
+
+                                <div class="dfs-section-number">
+                                    03
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Governance pathway
+                                    </strong>
+
+                                    <small>
+                                        Decide whether management approval
+                                        is required before this discount
+                                        can advance.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="dfsApprovalCard"
+                            class="dfs-approval-card"
+                        >
+
+                            <div class="dfs-approval-row">
+
+                                <div class="dfs-approval-copy">
+
+                                    <div class="dfs-approval-icon">
+
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.8"
+                                        >
+                                            <path
+                                                d="M12 3 5 6v5c0 4.4 2.8 7.8 7 10 4.2-2.2 7-5.6 7-10V6z"
+                                            ></path>
+
+                                            <path
+                                                d="m9 12 2 2 4-4"
+                                            ></path>
+                                        </svg>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <strong>
+                                            Require management approval
+                                        </strong>
+
+                                        <small>
+                                            If enabled, submitting this draft
+                                            will create a linked Approval Request
+                                            and place the discount into
+                                            Pending Approval.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <label class="dfs-toggle">
+
+                                    {{ form.requires_approval }}
+
+                                    <span class="dfs-toggle-track"></span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+
+                        {% for error in form.requires_approval.errors %}
+
+                            <div class="dfs-error">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </section>
+
+
+                    <!-- =========================================
+                         SECTION 4
+                    ========================================== -->
+
+                    <section class="dfs-section">
+
+                        <div class="dfs-section-header">
+
+                            <div class="dfs-section-title">
+
+                                <div class="dfs-section-number">
+                                    04
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Decision rationale
+                                    </strong>
+
+                                    <small>
+                                        Record the financial reason
+                                        supporting this adjustment.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="dfs-field">
+
+                            <label class="dfs-label">
+
+                                <span>
+                                    Discount reason
+                                    <span class="dfs-required">*</span>
+                                </span>
+
+                                <span class="dfs-field-hint">
+                                    Audit context
+                                </span>
+
+                            </label>
+
+                            {{ form.reason }}
+
+
+                            {% for error in form.reason.errors %}
+
+                                <div class="dfs-error">
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <!-- =============================================
+                     FOOTER
+                ============================================== -->
+
+                <div class="dfs-form-footer">
+
+                    <div class="dfs-save-info">
+
+                        <span class="dfs-save-info-dot"></span>
+
+                        Draft financial record
+
+                    </div>
+
+
+                    <div class="dfs-form-actions">
+
+                        <a
+                            href="
+                                {% if discount %}
+                                    {% url 'payables:discount_detail' discount.pk %}
+                                {% else %}
+                                    {% url 'payables:discount_list' %}
+                                {% endif %}
+                            "
+                            class="
+                                dfs-button
+                                dfs-button-secondary
+                            "
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            id="discountSubmitButton"
+                            type="submit"
+                            class="
+                                dfs-button
+                                dfs-button-primary
+                            "
+                        >
+
+                            <span id="discountSubmitText">
+                                {{ submit_text }}
+                            </span>
+
+                            <span>
+                                →
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 RIGHT SIDE
+            ================================================== -->
+
+            <aside class="dfs-intelligence-column">
+
+
+                <!-- =============================================
+                     LIVE ENGINE
+                ============================================== -->
+
+                <section class="dfs-engine-panel">
+
+                    <div class="dfs-engine-panel-head">
+
+                        <div class="dfs-engine-panel-title">
+
+                            <span class="dfs-live-dot"></span>
+
+                            <div>
+
+                                <strong>
+                                    Live adjustment engine
+                                </strong>
+
+                                <small>
+                                    Real-time financial preview
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            id="dfsPreviewModeChip"
+                            class="dfs-engine-status-chip"
+                        >
+                            Fixed
+                        </span>
+
+                    </div>
+
+
+                    <div class="dfs-engine-main">
+
+                        <div
+                            id="dfsValueDial"
+                            class="dfs-value-dial"
+                        >
+
+                            <div class="dfs-value-dial-inner">
+
+                                <div class="dfs-dial-label">
+                                    Discount value
+                                </div>
+
+                                <div
+                                    id="dfsPreviewValue"
+                                    class="dfs-dial-value"
+                                >
+                                    {{ currency_code }} 0.00
+                                </div>
+
+                                <div
+                                    id="dfsPreviewType"
+                                    class="dfs-dial-mode"
+                                >
+                                    Fixed amount
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dfs-engine-identities">
+
+                        <div class="dfs-preview-identity">
+
+                            <small>
+                                Student
+                            </small>
+
+                            <strong id="dfsPreviewStudent">
+                                Not selected
+                            </strong>
+
+                        </div>
+
+
+                        <div class="dfs-preview-identity">
+
+                            <small>
+                                Invoice
+                            </small>
+
+                            <strong id="dfsPreviewInvoice">
+                                Not selected
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =============================================
+                     WORKFLOW
+                ============================================== -->
+
+                <section class="dfs-workflow-card">
+
+                    <div class="dfs-workflow-heading">
+
+                        <strong>
+                            Workflow intelligence
+                        </strong>
+
+                        <span id="dfsWorkflowBadge">
+                            Direct
+                        </span>
+
+                    </div>
+
+
+                    <div class="dfs-workflow-intensity">
+
+                        <div class="dfs-intensity-meta">
+
+                            <span>
+                                Workflow intensity
+                            </span>
+
+                            <strong id="dfsIntensityLabel">
+                                Standard
+                            </strong>
+
+                        </div>
+
+
+                        <div class="dfs-intensity-track">
+
+                            <div
+                                id="dfsIntensityFill"
+                                class="dfs-intensity-fill"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dfs-workflow-path">
+
+                        <div
+                            id="dfsStepDraft"
+                            class="
+                                dfs-workflow-step
+                                active
+                            "
+                        >
+
+                            <span class="dfs-workflow-step-number">
+                                1
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Draft
+                                </strong>
+
+                                <small>
+                                    Financial adjustment is editable
+                                </small>
+
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="dfsStepApproval"
+                            class="
+                                dfs-workflow-step
+                                disabled
+                            "
+                        >
+
+                            <span class="dfs-workflow-step-number">
+                                2
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Management approval
+                                </strong>
+
+                                <small>
+                                    Central approval decision
+                                </small>
+
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="dfsStepApproved"
+                            class="dfs-workflow-step"
+                        >
+
+                            <span class="dfs-workflow-step-number">
+                                3
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Approved
+                                </strong>
+
+                                <small>
+                                    Adjustment accepted
+                                </small>
+
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="
+                                dfs-workflow-step
+                                disabled
+                            "
+                        >
+
+                            <span class="dfs-workflow-step-number">
+                                4
+                            </span>
+
+                            <span>
+
+                                <strong>
+                                    Applied
+                                </strong>
+
+                                <small>
+                                    Reserved for invoice integration
+                                </small>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =============================================
+                     POLICY
+                ============================================== -->
+
+                <div class="dfs-policy-note">
+
+                    <div class="dfs-policy-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path d="M12 11v5"></path>
+
+                            <path
+                                d="M12 8h.01"
+                            ></path>
+                        </svg>
+
+                    </div>
+
+
+                    <div>
+                        Saving creates or updates the Discount
+                        record only. Invoice balances are not
+                        modified until the shared Student Invoice
+                        module is available.
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    /* ========================================================
+       REFERENCES
+    ======================================================== */
+
+    const currency =
+        "{{ currency_code|escapejs }}";
+
+
+    const form =
+        document.getElementById(
+            "discountForm"
+        );
+
+
+    const valueType =
+        document.getElementById(
+            "id_value_type"
+        );
+
+
+    const valueInput =
+        document.getElementById(
+            "id_value"
+        );
+
+
+    const studentInput =
+        document.getElementById(
+            "id_student_reference"
+        );
+
+
+    const invoiceInput =
+        document.getElementById(
+            "id_invoice_reference"
+        );
+
+
+    const approvalInput =
+        document.getElementById(
+            "id_requires_approval"
+        );
+
+
+    const discountType =
+        document.getElementById(
+            "id_discount_type"
+        );
+
+
+    const fixedButton =
+        document.getElementById(
+            "fixedModeButton"
+        );
+
+
+    const percentageButton =
+        document.getElementById(
+            "percentageModeButton"
+        );
+
+
+    const valueUnit =
+        document.getElementById(
+            "dfsValueUnit"
+        );
+
+
+    const valueHelp =
+        document.getElementById(
+            "dfsValueHelp"
+        );
+
+
+    const valueTypeHint =
+        document.getElementById(
+            "dfsValueTypeHint"
+        );
+
+
+    const previewValue =
+        document.getElementById(
+            "dfsPreviewValue"
+        );
+
+
+    const previewType =
+        document.getElementById(
+            "dfsPreviewType"
+        );
+
+
+    const previewStudent =
+        document.getElementById(
+            "dfsPreviewStudent"
+        );
+
+
+    const previewInvoice =
+        document.getElementById(
+            "dfsPreviewInvoice"
+        );
+
+
+    const previewModeChip =
+        document.getElementById(
+            "dfsPreviewModeChip"
+        );
+
+
+    const valueDial =
+        document.getElementById(
+            "dfsValueDial"
+        );
+
+
+    const approvalCard =
+        document.getElementById(
+            "dfsApprovalCard"
+        );
+
+
+    const workflowBadge =
+        document.getElementById(
+            "dfsWorkflowBadge"
+        );
+
+
+    const heroWorkflowLabel =
+        document.getElementById(
+            "heroWorkflowLabel"
+        );
+
+
+    const intensityFill =
+        document.getElementById(
+            "dfsIntensityFill"
+        );
+
+
+    const intensityLabel =
+        document.getElementById(
+            "dfsIntensityLabel"
+        );
+
+
+    const approvalStep =
+        document.getElementById(
+            "dfsStepApproval"
+        );
+
+
+    const approvedStep =
+        document.getElementById(
+            "dfsStepApproved"
+        );
+
+
+    const submitButton =
+        document.getElementById(
+            "discountSubmitButton"
+        );
+
+
+    const submitText =
+        document.getElementById(
+            "discountSubmitText"
+        );
+
+
+    const savingOverlay =
+        document.getElementById(
+            "dfsSavingOverlay"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "dfsTopProgress"
+        );
+
+
+    /* ========================================================
+       UTILITIES
+    ======================================================== */
+
+    function safeNumber(value) {
+
+        const number =
+            Number(
+                value || 0
+            );
+
+
+        if (
+            Number.isFinite(
+                number
+            )
+        ) {
+
+            return number;
+        }
+
+
+        return 0;
+    }
+
+
+    function money(value) {
+
+        return (
+            currency
+            + " "
+            + safeNumber(value)
+                .toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+        );
+    }
+
+
+    function formattedPercent(value) {
+
+        return (
+            safeNumber(value)
+                .toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+            + "%"
+        );
+    }
+
+
+    function getValueMode() {
+
+        if (!valueType) {
+            return "fixed_amount";
+        }
+
+
+        return (
+            valueType.value
+            ||
+            "fixed_amount"
+        );
+    }
+
+
+    /* ========================================================
+       MODE BUTTONS
+    ======================================================== */
+
+    function updateModeButtons() {
+
+        const mode =
+            getValueMode();
+
+
+        if (fixedButton) {
+
+            fixedButton.classList.toggle(
+                "active",
+                mode === "fixed_amount"
+            );
+        }
+
+
+        if (percentageButton) {
+
+            percentageButton.classList.toggle(
+                "active",
+                mode === "percentage"
+            );
+        }
+    }
+
+
+    function setMode(mode) {
+
+        if (!valueType) {
+            return;
+        }
+
+
+        valueType.value =
+            mode;
+
+
+        valueType.dispatchEvent(
+            new Event(
+                "change",
+                {
+                    bubbles: true
+                }
+            )
+        );
+
+
+        updateEverything();
+    }
+
+
+    if (fixedButton) {
+
+        fixedButton.addEventListener(
+            "click",
+            function () {
+
+                setMode(
+                    "fixed_amount"
+                );
+            }
+        );
+    }
+
+
+    if (percentageButton) {
+
+        percentageButton.addEventListener(
+            "click",
+            function () {
+
+                setMode(
+                    "percentage"
+                );
+            }
+        );
+    }
+
+
+    /* ========================================================
+       VALUE PRESENTATION
+    ======================================================== */
+
+    function updateValuePresentation() {
+
+        const mode =
+            getValueMode();
+
+
+        const amount =
+            safeNumber(
+                valueInput
+                ? valueInput.value
+                : 0
+            );
+
+
+        const isPercentage =
+            mode === "percentage";
+
+
+        if (isPercentage) {
+
+            if (valueUnit) {
+                valueUnit.textContent = "%";
+            }
+
+
+            if (valueTypeHint) {
+
+                valueTypeHint.textContent =
+                    "Percentage rate";
+            }
+
+
+            if (valueHelp) {
+
+                valueHelp.textContent =
+                    "Percentage must be greater than 0 and cannot exceed 100%.";
+            }
+
+
+            if (previewValue) {
+
+                previewValue.textContent =
+                    formattedPercent(
+                        amount
+                    );
+            }
+
+
+            if (previewType) {
+
+                previewType.textContent =
+                    "Percentage adjustment";
+            }
+
+
+            if (previewModeChip) {
+
+                previewModeChip.textContent =
+                    "Percentage";
+            }
+
+
+            if (valueInput) {
+
+                valueInput.setAttribute(
+                    "max",
+                    "100"
+                );
+            }
+
+
+            const progressAmount =
+                Math.max(
+                    0,
+                    Math.min(
+                        amount,
+                        100
+                    )
+                );
+
+
+            const degrees =
+                18
+                +
+                (
+                    progressAmount
+                    / 100
+                )
+                *
+                245;
+
+
+            if (valueDial) {
+
+                valueDial.style.setProperty(
+                    "--progress",
+                    degrees + "deg"
+                );
+            }
+
+        }
+
+        else {
+
+            if (valueUnit) {
+
+                valueUnit.textContent =
+                    currency;
+            }
+
+
+            if (valueTypeHint) {
+
+                valueTypeHint.textContent =
+                    "Fixed financial amount";
+            }
+
+
+            if (valueHelp) {
+
+                valueHelp.textContent =
+                    "Enter a positive monetary discount value.";
+            }
+
+
+            if (previewValue) {
+
+                previewValue.textContent =
+                    money(
+                        amount
+                    );
+            }
+
+
+            if (previewType) {
+
+                previewType.textContent =
+                    "Fixed monetary adjustment";
+            }
+
+
+            if (previewModeChip) {
+
+                previewModeChip.textContent =
+                    "Fixed";
+            }
+
+
+            if (valueInput) {
+
+                valueInput.removeAttribute(
+                    "max"
+                );
+            }
+
+
+            /*
+             * Fixed values do not have a known invoice
+             * amount yet, so the dial is intentionally
+             * decorative rather than pretending to show
+             * a financial percentage.
+             */
+
+            const visualProgress =
+                amount > 0
+                ? 155
+                : 28;
+
+
+            if (valueDial) {
+
+                valueDial.style.setProperty(
+                    "--progress",
+                    visualProgress + "deg"
+                );
+            }
+        }
+    }
+
+
+    /* ========================================================
+       IDENTITY PREVIEW
+    ======================================================== */
+
+    function updateIdentities() {
+
+        if (previewStudent) {
+
+            previewStudent.textContent =
+                (
+                    studentInput
+                    &&
+                    studentInput.value.trim()
+                )
+                ||
+                "Not selected";
+        }
+
+
+        if (previewInvoice) {
+
+            previewInvoice.textContent =
+                (
+                    invoiceInput
+                    &&
+                    invoiceInput.value.trim()
+                )
+                ||
+                "Not selected";
+        }
+    }
+
+
+    /* ========================================================
+       APPROVAL WORKFLOW
+    ======================================================== */
+
+    function updateApprovalWorkflow() {
+
+        const requiresApproval =
+            Boolean(
+                approvalInput
+                &&
+                approvalInput.checked
+            );
+
+
+        if (approvalCard) {
+
+            approvalCard.classList.toggle(
+                "active",
+                requiresApproval
+            );
+        }
+
+
+        if (workflowBadge) {
+
+            workflowBadge.textContent =
+                requiresApproval
+                ? "Approval review"
+                : "Direct";
+        }
+
+
+        if (heroWorkflowLabel) {
+
+            heroWorkflowLabel.textContent =
+                requiresApproval
+                ? "Approval"
+                : "Direct";
+        }
+
+
+        if (intensityFill) {
+
+            intensityFill.classList.toggle(
+                "approval",
+                requiresApproval
+            );
+        }
+
+
+        if (intensityLabel) {
+
+            intensityLabel.textContent =
+                requiresApproval
+                ? "Approval review"
+                : "Standard";
+        }
+
+
+        if (approvalStep) {
+
+            approvalStep.classList.toggle(
+                "disabled",
+                !requiresApproval
+            );
+
+
+            approvalStep.classList.toggle(
+                "active",
+                requiresApproval
+            );
+        }
+
+
+        if (approvedStep) {
+
+            approvedStep.classList.toggle(
+                "active",
+                !requiresApproval
+            );
+        }
+    }
+
+
+    /* ========================================================
+       CATEGORY INTELLIGENCE
+    ======================================================== */
+
+    function updateCategoryContext() {
+
+        if (!discountType) {
+            return;
+        }
+
+
+        /*
+         * This deliberately does not change business rules.
+         * It is only visual context.
+         */
+
+        const label =
+            discountType.options[
+                discountType.selectedIndex
+            ]
+            ?.text
+            ||
+            "Discount";
+    }
+
+
+    /* ========================================================
+       MASTER REFRESH
+    ======================================================== */
+
+    function updateEverything() {
+
+        updateModeButtons();
+
+        updateValuePresentation();
+
+        updateIdentities();
+
+        updateApprovalWorkflow();
+
+        updateCategoryContext();
+    }
+
+
+    /* ========================================================
+       EVENT BINDINGS
+    ======================================================== */
+
+    [
+        valueType,
+        valueInput,
+        studentInput,
+        invoiceInput,
+        approvalInput,
+        discountType
+    ]
+    .forEach(
+        function (element) {
+
+            if (!element) {
+                return;
+            }
+
+
+            element.addEventListener(
+                "input",
+                updateEverything
+            );
+
+
+            element.addEventListener(
+                "change",
+                updateEverything
+            );
+        }
+    );
+
+
+    /* ========================================================
+       SAVE / DOUBLE SUBMIT PROTECTION
+    ======================================================== */
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (
+                    submitButton
+                    &&
+                    submitButton.disabled
+                ) {
+
+                    return;
+                }
+
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        true;
+                }
+
+
+                if (submitText) {
+
+                    submitText.textContent =
+                        "Saving...";
+                }
+
+
+                if (progress) {
+
+                    progress.classList.add(
+                        "active"
+                    );
+                }
+
+
+                if (savingOverlay) {
+
+                    savingOverlay.classList.add(
+                        "active"
+                    );
+                }
+            }
+        );
+    }
+
+
+    /* ========================================================
+       BROWSER BACK CACHE RESET
+    ======================================================== */
+
+    window.addEventListener(
+        "pageshow",
+        function () {
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    false;
+            }
+
+
+            if (submitText) {
+
+                submitText.textContent =
+                    "{{ submit_text|escapejs }}";
+            }
+
+
+            if (progress) {
+
+                progress.classList.remove(
+                    "active"
+                );
+            }
+
+
+            if (savingOverlay) {
+
+                savingOverlay.classList.remove(
+                    "active"
+                );
+            }
+
+
+            updateEverything();
+        }
+    );
+
+
+    /* ========================================================
+       INITIALIZATION
+    ======================================================== */
+
+    updateEverything();
+
+})();
+</script>
+
+{% endblock %}

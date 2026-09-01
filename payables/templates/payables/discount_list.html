@@ -1,0 +1,3150 @@
+{% extends "base.html" %}
+
+{% block title %}Discount Intelligence | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+/* ============================================================
+   EDUFINANCE — DISCOUNT INTELLIGENCE
+   Premium financial-control experience
+   Scoped entirely under .discount-os
+============================================================ */
+
+.discount-os {
+    --ink-1000: #03111f;
+    --ink-950: #06182b;
+    --ink-900: #091f38;
+    --ink-850: #0d2948;
+    --ink-800: #12365d;
+
+    --blue-700: #174fc4;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+
+    --cyan-500: #06b6d4;
+    --violet-600: #7c3aed;
+    --violet-500: #8b5cf6;
+
+    --green-600: #059669;
+    --green-500: #10b981;
+
+    --amber-600: #d97706;
+    --amber-500: #f59e0b;
+
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+
+    --slate-950: #13233a;
+    --slate-800: #334155;
+    --slate-700: #475569;
+    --slate-600: #64748b;
+    --slate-500: #8290a3;
+    --slate-400: #9aa6b5;
+    --slate-300: #c5ceda;
+    --slate-200: #e2e8f0;
+    --slate-100: #f1f5f9;
+    --slate-50: #f8fafc;
+
+    position: relative;
+    min-height: 100vh;
+
+    padding:
+        28px
+        30px
+        80px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 88% 2%,
+            rgba(37,99,235,.14),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 5% 22%,
+            rgba(124,58,237,.08),
+            transparent 20%
+        ),
+        radial-gradient(
+            circle at 74% 76%,
+            rgba(6,182,212,.045),
+            transparent 20%
+        ),
+        linear-gradient(
+            180deg,
+            #f7faff 0%,
+            #f2f6fb 48%,
+            #eef3f9 100%
+        );
+
+    color: var(--slate-950);
+
+    isolation: isolate;
+}
+
+
+/* ============================================================
+   AMBIENT BACKDROP
+============================================================ */
+
+.discount-os::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    z-index: -3;
+
+    opacity: .42;
+
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(
+            rgba(25,77,137,.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(25,77,137,.035) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        42px
+        42px;
+}
+
+
+.dio-ambient {
+    position: fixed;
+
+    pointer-events: none;
+
+    z-index: -2;
+
+    border-radius: 999px;
+
+    filter: blur(70px);
+
+    opacity: .17;
+}
+
+
+.dio-ambient-one {
+    width: 350px;
+    height: 350px;
+
+    right: -130px;
+    top: 150px;
+
+    background: #3b82f6;
+
+    animation:
+        dioFloatA
+        13s ease-in-out infinite;
+}
+
+
+.dio-ambient-two {
+    width: 310px;
+    height: 310px;
+
+    left: -150px;
+    top: 500px;
+
+    background: #7c3aed;
+
+    animation:
+        dioFloatB
+        16s ease-in-out infinite;
+}
+
+
+@keyframes dioFloatA {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                -60px,
+                70px,
+                0
+            );
+    }
+}
+
+
+@keyframes dioFloatB {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                80px,
+                -45px,
+                0
+            );
+    }
+}
+
+
+/* ============================================================
+   SHELL
+============================================================ */
+
+.dio-shell {
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1550px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   PROGRESS LINE
+============================================================ */
+
+.dio-progress {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 999999;
+
+    width: 100%;
+    height: 3px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .16s ease;
+}
+
+
+.dio-progress.is-active {
+    opacity: 1;
+}
+
+
+.dio-progress::before {
+    content: "";
+
+    display: block;
+
+    width: 28%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #3b82f6,
+            #67e8f9,
+            #8b5cf6,
+            transparent
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(59,130,246,.5);
+
+    animation:
+        dioProgressMove
+        .9s cubic-bezier(.6,0,.4,1)
+        infinite;
+}
+
+
+@keyframes dioProgressMove {
+
+    from {
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+        transform:
+            translateX(460%);
+    }
+}
+
+
+/* ============================================================
+   TOP NAV CONTEXT
+============================================================ */
+
+.dio-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    margin-bottom: 15px;
+
+    animation:
+        dioFadeUp
+        .45s ease both;
+}
+
+
+.dio-breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    color: #8794a5;
+
+    font-size: 10.5px;
+    font-weight: 760;
+
+    letter-spacing: .015em;
+}
+
+
+.dio-breadcrumbs .dio-current {
+    color: #365470;
+}
+
+
+.dio-breadcrumb-dot {
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: #c0cad6;
+}
+
+
+.dio-context-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 30px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.1);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.7);
+
+    backdrop-filter:
+        blur(12px);
+
+    color: #55718f;
+
+    box-shadow:
+        0 7px 22px
+        rgba(28,50,81,.04);
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+
+.dio-context-chip i {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #10b981;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(16,185,129,.09);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.dio-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.32fr)
+        minmax(350px,.68fr);
+
+    gap: 24px;
+
+    min-height: 290px;
+
+    overflow: hidden;
+
+    padding:
+        34px
+        35px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 27px;
+
+    background:
+        linear-gradient(
+            128deg,
+            #041427 0%,
+            #08213d 38%,
+            #0d315a 68%,
+            #154f8f 100%
+        );
+
+    box-shadow:
+        0 27px 65px
+        rgba(7,31,62,.19);
+
+    color: white;
+
+    animation:
+        dioFadeUp
+        .52s .03s ease both;
+}
+
+
+.dio-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 520px;
+    height: 520px;
+
+    top: -350px;
+    right: -80px;
+
+    border:
+        70px solid
+        rgba(255,255,255,.04);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+
+.dio-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    left: 36%;
+    bottom: -240px;
+
+    border:
+        50px solid
+        rgba(96,165,250,.05);
+
+    border-radius: 50%;
+}
+
+
+.dio-hero-copy {
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    max-width: 770px;
+}
+
+
+.dio-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    gap: 9px;
+
+    min-height: 29px;
+
+    padding:
+        0
+        11px;
+
+    margin-bottom: 15px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.11);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    backdrop-filter:
+        blur(12px);
+
+    color:
+        rgba(255,255,255,.72);
+
+    font-size: 9px;
+    font-weight: 850;
+
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+
+.dio-eyebrow-light {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #60a5fa,
+            #22d3ee
+        );
+
+    box-shadow:
+        0 0 14px
+        rgba(96,165,250,.72);
+}
+
+
+.dio-hero h1 {
+    margin: 0;
+
+    max-width: 730px;
+
+    font-size:
+        clamp(
+            33px,
+            4.2vw,
+            52px
+        );
+
+    line-height: .98;
+
+    letter-spacing: -.052em;
+
+    font-weight: 850;
+}
+
+
+.dio-gradient-word {
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #c9e4ff 45%,
+            #b9b8ff
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+
+.dio-hero-copy p {
+    max-width: 710px;
+
+    margin:
+        18px
+        0
+        0;
+
+    color:
+        rgba(232,242,255,.67);
+
+    font-size: 12.5px;
+
+    line-height: 1.8;
+}
+
+
+.dio-hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 23px;
+}
+
+
+.dio-primary-action {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 45px;
+
+    padding:
+        0
+        17px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #eaf3ff
+        );
+
+    color: #143b69;
+
+    box-shadow:
+        0 12px 28px
+        rgba(0,0,0,.16);
+
+    text-decoration: none;
+
+    font-size: 10.5px;
+    font-weight: 850;
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+
+.dio-primary-action::after {
+    content: "";
+
+    position: absolute;
+
+    width: 70px;
+    height: 120%;
+
+    left: -110px;
+    top: -10%;
+
+    transform:
+        rotate(16deg);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.75),
+            transparent
+        );
+
+    transition:
+        left .5s ease;
+}
+
+
+.dio-primary-action:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 17px 35px
+        rgba(0,0,0,.21);
+}
+
+
+.dio-primary-action:hover::after {
+    left: 120%;
+}
+
+
+.dio-primary-action svg {
+    width: 16px;
+    height: 16px;
+}
+
+
+.dio-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color:
+        rgba(255,255,255,.72);
+
+    font-size: 9.5px;
+    font-weight: 700;
+}
+
+
+.dio-hero-secondary span {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+/* ============================================================
+   HERO VISUAL
+============================================================ */
+
+.dio-hero-visual {
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+}
+
+
+.dio-orbit-stage {
+    position: relative;
+
+    width: 250px;
+    height: 250px;
+}
+
+
+.dio-orbit-ring {
+    position: absolute;
+
+    inset: 17px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    animation:
+        dioRotate
+        18s linear infinite;
+}
+
+
+.dio-orbit-ring::before,
+.dio-orbit-ring::after {
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 16px
+        rgba(96,165,250,.8);
+}
+
+
+.dio-orbit-ring::before {
+    top: 14px;
+    left: 42px;
+}
+
+
+.dio-orbit-ring::after {
+    right: 20px;
+    bottom: 38px;
+
+    background: #a78bfa;
+
+    box-shadow:
+        0 0 16px
+        rgba(167,139,250,.75);
+}
+
+
+.dio-orbit-ring-two {
+    position: absolute;
+
+    inset: 47px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.1);
+
+    border-radius: 50%;
+
+    animation:
+        dioRotateReverse
+        13s linear infinite;
+}
+
+
+.dio-core-card {
+    position: absolute;
+
+    inset: 67px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            rgba(255,255,255,.16),
+            rgba(255,255,255,.06)
+        );
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        inset 0 0 35px
+        rgba(255,255,255,.04),
+        0 25px 55px
+        rgba(0,0,0,.16);
+}
+
+
+.dio-core-symbol {
+    font-size: 37px;
+    font-weight: 300;
+
+    color: #dbeafe;
+}
+
+
+.dio-core-label {
+    margin-top: 7px;
+
+    color:
+        rgba(255,255,255,.58);
+
+    font-size: 8px;
+    font-weight: 800;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+
+.dio-float-chip {
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 34px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 10px;
+
+    background:
+        rgba(6,25,47,.48);
+
+    backdrop-filter:
+        blur(13px);
+
+    box-shadow:
+        0 13px 28px
+        rgba(0,0,0,.15);
+
+    color:
+        rgba(255,255,255,.74);
+
+    font-size: 8.5px;
+    font-weight: 760;
+}
+
+
+.dio-float-chip b {
+    color: white;
+}
+
+
+.dio-float-chip-one {
+    left: -24px;
+    top: 50px;
+
+    animation:
+        dioChipFloat
+        4.2s ease-in-out infinite;
+}
+
+
+.dio-float-chip-two {
+    right: -21px;
+    bottom: 48px;
+
+    animation:
+        dioChipFloat
+        4.8s .5s ease-in-out infinite;
+}
+
+
+.dio-float-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+.dio-float-chip-two
+.dio-float-dot {
+    background: #fbbf24;
+}
+
+
+@keyframes dioRotate {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes dioRotateReverse {
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes dioChipFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-7px);
+    }
+}
+
+
+/* ============================================================
+   METRICS
+============================================================ */
+
+.dio-metrics {
+    display: grid;
+
+    grid-template-columns:
+        1.02fr
+        .86fr
+        .86fr
+        .86fr
+        1.4fr;
+
+    gap: 13px;
+
+    margin-top: 17px;
+}
+
+
+.dio-metric {
+    position: relative;
+
+    min-height: 137px;
+
+    overflow: hidden;
+
+    padding: 19px;
+
+    border:
+        1px solid
+        rgba(23,56,94,.075);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255,255,255,.86);
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 13px 34px
+        rgba(31,52,83,.055);
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+    animation:
+        dioFadeUp
+        .5s ease both;
+}
+
+
+.dio-metric:nth-child(1) {
+    animation-delay: .08s;
+}
+
+
+.dio-metric:nth-child(2) {
+    animation-delay: .12s;
+}
+
+
+.dio-metric:nth-child(3) {
+    animation-delay: .16s;
+}
+
+
+.dio-metric:nth-child(4) {
+    animation-delay: .20s;
+}
+
+
+.dio-metric:nth-child(5) {
+    animation-delay: .24s;
+}
+
+
+.dio-metric:hover {
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(37,99,235,.16);
+
+    box-shadow:
+        0 18px 40px
+        rgba(31,52,83,.085);
+}
+
+
+.dio-metric::after {
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    right: -45px;
+    bottom: -48px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(37,99,235,.07),
+            transparent 70%
+        );
+}
+
+
+.dio-metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+
+.dio-metric-label {
+    color: #7d8b9e;
+
+    font-size: 8.5px;
+    font-weight: 850;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+
+.dio-metric-icon {
+    display: grid;
+    place-items: center;
+
+    width: 27px;
+    height: 27px;
+
+    border-radius: 8px;
+
+    background: #edf4ff;
+
+    color: #2863b7;
+}
+
+
+.dio-metric-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+
+.dio-metric-value {
+    margin-top: 13px;
+
+    color: #122f50;
+
+    font-size: 29px;
+    font-weight: 870;
+
+    letter-spacing: -.042em;
+
+    line-height: 1;
+}
+
+
+.dio-metric-value.pending {
+    color: #c66a07;
+}
+
+
+.dio-metric-value.approved {
+    color: #068763;
+}
+
+
+.dio-metric-value.money {
+    font-size: 21px;
+    color: #6f45cf;
+}
+
+
+.dio-metric-foot {
+    margin-top: 10px;
+
+    color: #94a0af;
+
+    font-size: 9px;
+    font-weight: 650;
+}
+
+
+.dio-mini-bar {
+    position: relative;
+
+    height: 4px;
+
+    margin-top: 13px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: #edf1f6;
+}
+
+
+.dio-mini-bar span {
+    display: block;
+
+    width: 58%;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #3b82f6,
+            #8b5cf6
+        );
+}
+
+
+/* ============================================================
+   INTELLIGENCE STRIP
+============================================================ */
+
+.dio-insight-grid {
+    display: grid;
+
+    grid-template-columns:
+        1.25fr
+        .75fr;
+
+    gap: 13px;
+
+    margin-top: 13px;
+}
+
+
+.dio-intelligence {
+    position: relative;
+
+    overflow: hidden;
+
+    padding:
+        18px
+        19px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.09);
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            128deg,
+            rgba(238,245,255,.92),
+            rgba(255,255,255,.92)
+        );
+
+    box-shadow:
+        0 10px 28px
+        rgba(31,52,83,.035);
+
+    animation:
+        dioFadeUp
+        .5s .28s ease both;
+}
+
+
+.dio-intelligence::after {
+    content: "";
+
+    position: absolute;
+
+    width: 120px;
+    height: 120px;
+
+    right: -55px;
+    top: -60px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37,99,235,.05);
+}
+
+
+.dio-insight-label {
+    color: #315e8c;
+
+    font-size: 9px;
+    font-weight: 850;
+
+    letter-spacing: .075em;
+    text-transform: uppercase;
+}
+
+
+.dio-insight-heading {
+    margin-top: 6px;
+
+    color: #284662;
+
+    font-size: 12px;
+    font-weight: 820;
+}
+
+
+.dio-insight-text {
+    max-width: 760px;
+
+    margin-top: 6px;
+
+    color: #8190a3;
+
+    font-size: 10px;
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   COMMAND WORKSPACE
+============================================================ */
+
+.dio-command {
+    margin-top: 16px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 22px;
+
+    background:
+        rgba(255,255,255,.93);
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        0 17px 42px
+        rgba(27,48,78,.065);
+
+    animation:
+        dioFadeUp
+        .55s .32s ease both;
+}
+
+
+.dio-command-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        17px
+        18px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fcfdff
+        );
+}
+
+
+.dio-command-title {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.dio-command-title-icon {
+    display: grid;
+    place-items: center;
+
+    width: 31px;
+    height: 31px;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eaf2ff,
+            #f4f8ff
+        );
+
+    color: #2f65b5;
+}
+
+
+.dio-command-title-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+
+.dio-command-title strong {
+    display: block;
+
+    color: #28445f;
+
+    font-size: 11.5px;
+}
+
+
+.dio-command-title small {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #98a2b0;
+
+    font-size: 8.5px;
+}
+
+
+/* ============================================================
+   FILTERS
+============================================================ */
+
+.dio-filter-panel {
+    display: grid;
+
+    grid-template-columns:
+        minmax(290px,1.55fr)
+        repeat(
+            4,
+            minmax(150px,.68fr)
+        );
+
+    gap: 9px;
+
+    padding:
+        14px
+        17px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+
+    background:
+        #fbfcfe;
+}
+
+
+.dio-field {
+    position: relative;
+}
+
+
+.dio-field-search-icon {
+    position: absolute;
+
+    z-index: 2;
+
+    left: 13px;
+    top: 50%;
+
+    width: 15px;
+    height: 15px;
+
+    transform:
+        translateY(-50%);
+
+    color: #98a5b5;
+}
+
+
+.dio-input,
+.dio-select {
+    width: 100%;
+    height: 42px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        #e0e6ee;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color: #42566e;
+
+    font-size: 10.5px;
+    font-weight: 650;
+
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s ease;
+}
+
+
+.dio-input {
+    padding:
+        0
+        13px
+        0
+        38px;
+}
+
+
+.dio-select {
+    padding:
+        0
+        11px;
+}
+
+
+.dio-input:focus,
+.dio-select:focus {
+    border-color:
+        rgba(37,99,235,.43);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.065);
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.dio-table-shell {
+    overflow-x: auto;
+}
+
+
+.dio-table {
+    width: 100%;
+
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+
+.dio-table thead th {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 2;
+
+    padding:
+        11px
+        15px;
+
+    border-bottom:
+        1px solid
+        #e9eef4;
+
+    background:
+        rgba(248,250,253,.96);
+
+    backdrop-filter:
+        blur(12px);
+
+    color: #8996a7;
+
+    font-size: 8.4px;
+    font-weight: 900;
+
+    letter-spacing: .075em;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+
+.dio-table tbody tr {
+    position: relative;
+
+    transition:
+        background .16s ease,
+        transform .16s ease,
+        box-shadow .16s ease;
+}
+
+
+.dio-table tbody tr:hover {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(244,248,255,.95),
+            rgba(250,252,255,.95)
+        );
+}
+
+
+.dio-table td {
+    padding:
+        14px
+        15px;
+
+    border-bottom:
+        1px solid
+        #eef2f6;
+
+    color: #425870;
+
+    font-size: 10.5px;
+
+    vertical-align: middle;
+}
+
+
+.dio-record-cell {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.dio-record-icon {
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        34px;
+
+    width: 34px;
+    height: 34px;
+
+    border:
+        1px solid
+        #e5ebf3;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f1f6ff,
+            #ffffff
+        );
+
+    color: #2d65b5;
+
+    font-size: 13px;
+    font-weight: 900;
+}
+
+
+.dio-record-icon::after {
+    content: "";
+
+    position: absolute;
+
+    width: 6px;
+    height: 6px;
+
+    right: -2px;
+    top: -2px;
+
+    border:
+        2px solid
+        white;
+
+    border-radius: 50%;
+
+    background: #3b82f6;
+}
+
+
+.dio-record-number {
+    display: inline-block;
+
+    color: #225ab7;
+
+    font-size: 10.5px;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+
+.dio-record-number:hover {
+    color: #174fc4;
+    text-decoration: underline;
+}
+
+
+.dio-record-date {
+    margin-top: 3px;
+
+    color: #a0aab7;
+
+    font-size: 8.5px;
+}
+
+
+.dio-student-main {
+    color: #263f5e;
+
+    font-weight: 820;
+}
+
+
+.dio-student-sub {
+    margin-top: 3px;
+
+    color: #98a3b1;
+
+    font-size: 8.7px;
+}
+
+
+.dio-value-primary {
+    color: #183d69;
+
+    font-size: 11.5px;
+    font-weight: 880;
+
+    white-space: nowrap;
+}
+
+
+.dio-value-primary.is-percent {
+    color: #7146ca;
+}
+
+
+.dio-pill {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 25px;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    font-size: 8.6px;
+    font-weight: 820;
+
+    white-space: nowrap;
+}
+
+
+.dio-pill-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+}
+
+
+.dio-pill-type {
+    background: #f3efff;
+    color: #6f49bc;
+}
+
+
+.dio-pill-approval {
+    background: #fff6e6;
+    color: #c06b0d;
+}
+
+
+.dio-pill-direct {
+    background: #ebf8f3;
+    color: #087c5b;
+}
+
+
+.dio-status-draft {
+    background: #f1f3f6;
+    color: #667085;
+}
+
+
+.dio-status-draft
+.dio-pill-dot {
+    background: #98a2b3;
+}
+
+
+.dio-status-pending_approval {
+    background: #fff6e7;
+    color: #b86607;
+}
+
+
+.dio-status-pending_approval
+.dio-pill-dot {
+    background: #f59e0b;
+}
+
+
+.dio-status-approved {
+    background: #eaf8f3;
+    color: #05815d;
+}
+
+
+.dio-status-approved
+.dio-pill-dot {
+    background: #10b981;
+}
+
+
+.dio-status-rejected {
+    background: #fff0f1;
+    color: #cc3030;
+}
+
+
+.dio-status-rejected
+.dio-pill-dot {
+    background: #ef4444;
+}
+
+
+.dio-status-applied {
+    background: #edf4ff;
+    color: #2563eb;
+}
+
+
+.dio-status-applied
+.dio-pill-dot {
+    background: #3b82f6;
+}
+
+
+.dio-status-cancelled {
+    background: #f3f4f6;
+    color: #737b87;
+}
+
+
+.dio-status-cancelled
+.dio-pill-dot {
+    background: #9ca3af;
+}
+
+
+.dio-row-arrow {
+    display: grid;
+    place-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    border:
+        1px solid
+        #e5eaf1;
+
+    border-radius: 8px;
+
+    background: white;
+
+    color: #8190a2;
+
+    text-decoration: none;
+
+    transition:
+        transform .15s ease,
+        border-color .15s ease,
+        color .15s ease;
+}
+
+
+.dio-row-arrow:hover {
+    transform:
+        translateX(2px);
+
+    border-color:
+        #cddaf0;
+
+    color: #2563eb;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.dio-empty {
+    position: relative;
+
+    padding:
+        75px
+        25px
+        80px;
+
+    text-align: center;
+}
+
+
+.dio-empty-orbit {
+    position: relative;
+
+    width: 88px;
+    height: 88px;
+
+    margin:
+        0
+        auto
+        20px;
+}
+
+
+.dio-empty-orbit::before,
+.dio-empty-orbit::after {
+    content: "";
+
+    position: absolute;
+
+    border-radius: 50%;
+}
+
+
+.dio-empty-orbit::before {
+    inset: 0;
+
+    border:
+        1px dashed
+        #cdd9e8;
+
+    animation:
+        dioRotate
+        12s linear infinite;
+}
+
+
+.dio-empty-orbit::after {
+    width: 8px;
+    height: 8px;
+
+    left: 8px;
+    top: 10px;
+
+    background: #3b82f6;
+
+    box-shadow:
+        0 0 12px
+        rgba(59,130,246,.45);
+}
+
+
+.dio-empty-center {
+    position: absolute;
+
+    inset: 17px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #ffffff
+        );
+
+    color: #3168b3;
+
+    box-shadow:
+        0 12px 32px
+        rgba(39,75,116,.08);
+
+    font-size: 25px;
+    font-weight: 600;
+}
+
+
+.dio-empty h3 {
+    margin: 0;
+
+    color: #294765;
+
+    font-size: 16px;
+}
+
+
+.dio-empty p {
+    max-width: 480px;
+
+    margin:
+        8px
+        auto
+        18px;
+
+    color: #8e9bab;
+
+    font-size: 10.5px;
+    line-height: 1.7;
+}
+
+
+.dio-empty-action {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 38px;
+
+    padding:
+        0
+        13px;
+
+    border-radius: 10px;
+
+    background:
+        #edf4ff;
+
+    color: #2b60aa;
+
+    text-decoration: none;
+
+    font-size: 9.5px;
+    font-weight: 820;
+}
+
+
+/* ============================================================
+   PAGE REVEAL
+============================================================ */
+
+@keyframes dioFadeUp {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1260px) {
+
+    .dio-hero {
+        grid-template-columns:
+            minmax(0,1fr)
+            320px;
+    }
+
+    .dio-metrics {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0,1fr)
+            );
+    }
+
+    .dio-filter-panel {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+
+    .dio-filter-panel
+    .dio-field:first-child {
+        grid-column:
+            1 / -1;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .discount-os {
+        padding:
+            19px
+            14px
+            55px;
+    }
+
+    .dio-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .dio-hero-visual {
+        display: none;
+    }
+
+    .dio-insight-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 670px) {
+
+    .dio-context {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dio-hero {
+        padding:
+            26px
+            22px;
+    }
+
+    .dio-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .dio-filter-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .dio-filter-panel
+    .dio-field:first-child {
+        grid-column: auto;
+    }
+
+    .dio-command-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+</style>
+
+
+<div
+    id="dioProgress"
+    class="dio-progress"
+></div>
+
+<div
+    class="dio-ambient dio-ambient-one"
+></div>
+
+<div
+    class="dio-ambient dio-ambient-two"
+></div>
+
+
+<div class="discount-os">
+
+    <div class="dio-shell">
+
+
+        <!-- ===================================================
+             CONTEXT
+        ==================================================== -->
+
+        <div class="dio-context">
+
+            <div class="dio-breadcrumbs">
+
+                <span>
+                    EduFinance
+                </span>
+
+                <span class="dio-breadcrumb-dot"></span>
+
+                <span>
+                    Student Finance
+                </span>
+
+                <span class="dio-breadcrumb-dot"></span>
+
+                <span class="dio-current">
+                    Discount Intelligence
+                </span>
+
+            </div>
+
+
+            <div class="dio-context-chip">
+
+                <i></i>
+
+                Financial control online
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================
+             HERO
+        ==================================================== -->
+
+        <section class="dio-hero">
+
+            <div class="dio-hero-copy">
+
+                <div class="dio-eyebrow">
+
+                    <span class="dio-eyebrow-light"></span>
+
+                    Discount intelligence workspace
+
+                </div>
+
+
+                <h1>
+                    Control every
+                    <span class="dio-gradient-word">
+                        financial adjustment.
+                    </span>
+                </h1>
+
+
+                <p>
+                    Build, review and track student discounts through
+                    one controlled workflow. Fixed reductions,
+                    percentage adjustments and approval-sensitive
+                    decisions remain visible, traceable and ready
+                    for future invoice integration.
+                </p>
+
+
+                <div class="dio-hero-actions">
+
+                    <a
+                        href="{% url 'payables:discount_create' %}"
+                        class="dio-primary-action"
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M12 5v14"></path>
+                            <path d="M5 12h14"></path>
+                        </svg>
+
+                        Create discount
+
+                    </a>
+
+
+                    <div class="dio-hero-secondary">
+
+                        <span></span>
+
+                        School currency:
+                        {{ currency_code }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dio-hero-visual">
+
+                <div class="dio-orbit-stage">
+
+                    <div class="dio-orbit-ring"></div>
+
+                    <div class="dio-orbit-ring-two"></div>
+
+
+                    <div class="dio-core-card">
+
+                        <div class="dio-core-symbol">
+                            %
+                        </div>
+
+                        <div class="dio-core-label">
+                            Discount OS
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            dio-float-chip
+                            dio-float-chip-one
+                        "
+                    >
+
+                        <span class="dio-float-dot"></span>
+
+                        <b>{{ pending_count }}</b>
+
+                        pending
+
+                    </div>
+
+
+                    <div
+                        class="
+                            dio-float-chip
+                            dio-float-chip-two
+                        "
+                    >
+
+                        <span class="dio-float-dot"></span>
+
+                        <b>{{ approved_count }}</b>
+
+                        approved
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================
+             METRICS
+        ==================================================== -->
+
+        <section class="dio-metrics">
+
+            <article class="dio-metric">
+
+                <div class="dio-metric-top">
+
+                    <div class="dio-metric-label">
+                        Discount records
+                    </div>
+
+                    <div class="dio-metric-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M4 6h16"></path>
+                            <path d="M4 12h16"></path>
+                            <path d="M4 18h10"></path>
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div class="dio-metric-value">
+                    {{ total_discounts }}
+                </div>
+
+                <div class="dio-metric-foot">
+                    Full financial history
+                </div>
+
+                <div class="dio-mini-bar">
+                    <span></span>
+                </div>
+
+            </article>
+
+
+            <article class="dio-metric">
+
+                <div class="dio-metric-top">
+
+                    <div class="dio-metric-label">
+                        Draft queue
+                    </div>
+
+                    <div class="dio-metric-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M4 4h16v16H4z"></path>
+                            <path d="M8 9h8"></path>
+                            <path d="M8 13h5"></path>
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div class="dio-metric-value">
+                    {{ draft_count }}
+                </div>
+
+                <div class="dio-metric-foot">
+                    Editable adjustments
+                </div>
+
+            </article>
+
+
+            <article class="dio-metric">
+
+                <div class="dio-metric-top">
+
+                    <div class="dio-metric-label">
+                        Approval queue
+                    </div>
+
+                    <div class="dio-metric-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M12 7v5l3 2"></path>
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="
+                        dio-metric-value
+                        pending
+                    "
+                >
+                    {{ pending_count }}
+                </div>
+
+                <div class="dio-metric-foot">
+                    Waiting for decision
+                </div>
+
+            </article>
+
+
+            <article class="dio-metric">
+
+                <div class="dio-metric-top">
+
+                    <div class="dio-metric-label">
+                        Approved
+                    </div>
+
+                    <div class="dio-metric-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="m8 12 2.6 2.6L16.5 9"></path>
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="
+                        dio-metric-value
+                        approved
+                    "
+                >
+                    {{ approved_count }}
+                </div>
+
+                <div class="dio-metric-foot">
+                    Accepted adjustments
+                </div>
+
+            </article>
+
+
+            <article class="dio-metric">
+
+                <div class="dio-metric-top">
+
+                    <div class="dio-metric-label">
+                        Fixed discount exposure
+                    </div>
+
+                    <div class="dio-metric-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M4 7h16"></path>
+                            <path d="M7 4v6"></path>
+                            <path d="M17 14H7"></path>
+                            <path d="M17 11v6"></path>
+                        </svg>
+
+                    </div>
+
+                </div>
+
+                <div
+                    class="
+                        dio-metric-value
+                        money
+                    "
+                >
+                    {{ currency_code }}
+                    {{ fixed_amount_total|floatformat:2 }}
+                </div>
+
+                <div class="dio-metric-foot">
+                    Excluding cancelled records
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- ===================================================
+             INTELLIGENCE
+        ==================================================== -->
+
+        <section class="dio-insight-grid">
+
+            <article class="dio-intelligence">
+
+                <div class="dio-insight-label">
+                    Approval governance
+                </div>
+
+                <div class="dio-insight-heading">
+                    Sensitive discounts enter a controlled decision path.
+                </div>
+
+                <div class="dio-insight-text">
+                    Draft records remain editable until submission.
+                    Approval-required adjustments are then locked and
+                    synchronized with the central Approval workflow.
+                </div>
+
+            </article>
+
+
+            <article class="dio-intelligence">
+
+                <div class="dio-insight-label">
+                    Invoice readiness
+                </div>
+
+                <div class="dio-insight-heading">
+                    {{ applied_count }} applied adjustment{{ applied_count|pluralize }}
+                </div>
+
+                <div class="dio-insight-text">
+                    Applied status remains reserved for discounts
+                    actually committed to invoice balances.
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- ===================================================
+             COMMAND CENTER
+        ==================================================== -->
+
+        <section class="dio-command">
+
+            <div class="dio-command-head">
+
+                <div class="dio-command-title">
+
+                    <div class="dio-command-title-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M4 5h16"></path>
+                            <path d="M4 12h16"></path>
+                            <path d="M4 19h16"></path>
+                            <circle cx="8" cy="5" r="2"></circle>
+                            <circle cx="15" cy="12" r="2"></circle>
+                            <circle cx="10" cy="19" r="2"></circle>
+                        </svg>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Discount ledger
+                        </strong>
+
+                        <small>
+                            Search and segment financial adjustments
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <form
+                id="discountFilterForm"
+                method="get"
+                class="dio-filter-panel"
+            >
+
+                <div class="dio-field">
+
+                    <svg
+                        class="dio-field-search-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="m20 20-3.5-3.5"></path>
+                    </svg>
+
+                    <input
+                        id="discountSearch"
+                        type="search"
+                        name="search"
+                        class="dio-input"
+                        value="{{ search }}"
+                        placeholder="Search discount, student, invoice or reason..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="dio-field">
+
+                    <select
+                        name="status"
+                        class="
+                            dio-select
+                            dio-auto-filter
+                        "
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        {% for value, label in status_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if status == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="dio-field">
+
+                    <select
+                        name="discount_type"
+                        class="
+                            dio-select
+                            dio-auto-filter
+                        "
+                    >
+
+                        <option value="">
+                            All discount types
+                        </option>
+
+                        {% for value, label in discount_type_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if selected_discount_type == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="dio-field">
+
+                    <select
+                        name="value_type"
+                        class="
+                            dio-select
+                            dio-auto-filter
+                        "
+                    >
+
+                        <option value="">
+                            Fixed / Percentage
+                        </option>
+
+                        {% for value, label in value_type_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if selected_value_type == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="dio-field">
+
+                    <select
+                        name="approval"
+                        class="
+                            dio-select
+                            dio-auto-filter
+                        "
+                    >
+
+                        <option value="">
+                            All approval modes
+                        </option>
+
+                        <option
+                            value="required"
+                            {% if selected_approval == "required" %}
+                                selected
+                            {% endif %}
+                        >
+                            Approval required
+                        </option>
+
+                        <option
+                            value="not_required"
+                            {% if selected_approval == "not_required" %}
+                                selected
+                            {% endif %}
+                        >
+                            Direct approval
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </form>
+
+
+            <div class="dio-table-shell">
+
+                {% if discounts %}
+
+                    <table class="dio-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Record</th>
+                                <th>Student / invoice</th>
+                                <th>Discount type</th>
+                                <th>Value</th>
+                                <th>Approval mode</th>
+                                <th>Workflow status</th>
+                                <th></th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for discount in discounts %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="dio-record-cell">
+
+                                            <div class="dio-record-icon">
+                                                %
+                                            </div>
+
+                                            <div>
+
+                                                <a
+                                                    href="{% url 'payables:discount_detail' discount.pk %}"
+                                                    class="dio-record-number"
+                                                >
+                                                    {{ discount.discount_number }}
+                                                </a>
+
+                                                <div class="dio-record-date">
+                                                    {{ discount.discount_date|date:"d M Y" }}
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="dio-student-main">
+                                            {{ discount.student_reference }}
+                                        </div>
+
+                                        <div class="dio-student-sub">
+                                            {{ discount.invoice_reference }}
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                dio-pill
+                                                dio-pill-type
+                                            "
+                                        >
+                                            {{ discount.get_discount_type_display }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if discount.value_type == "percentage" %}
+
+                                            <span
+                                                class="
+                                                    dio-value-primary
+                                                    is-percent
+                                                "
+                                            >
+                                                {{ discount.value|floatformat:2 }}%
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="dio-value-primary">
+                                                {{ currency_code }}
+                                                {{ discount.value|floatformat:2 }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if discount.requires_approval %}
+
+                                            <span
+                                                class="
+                                                    dio-pill
+                                                    dio-pill-approval
+                                                "
+                                            >
+                                                Approval required
+                                            </span>
+
+                                        {% else %}
+
+                                            <span
+                                                class="
+                                                    dio-pill
+                                                    dio-pill-direct
+                                                "
+                                            >
+                                                Direct
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                dio-pill
+                                                dio-status-{{ discount.status }}
+                                            "
+                                        >
+
+                                            <span class="dio-pill-dot"></span>
+
+                                            {{ discount.get_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="{% url 'payables:discount_detail' discount.pk %}"
+                                            class="dio-row-arrow"
+                                            aria-label="Open discount"
+                                        >
+                                            →
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                {% else %}
+
+                    <div class="dio-empty">
+
+                        <div class="dio-empty-orbit">
+
+                            <div class="dio-empty-center">
+                                %
+                            </div>
+
+                        </div>
+
+                        <h3>
+                            No financial adjustments found
+                        </h3>
+
+                        <p>
+                            There are no discounts matching this
+                            financial view. Change your filters or
+                            create a new student adjustment.
+                        </p>
+
+
+                        {% if search or status or selected_discount_type or selected_value_type or selected_approval %}
+
+                            <a
+                                href="{% url 'payables:discount_list' %}"
+                                class="dio-empty-action"
+                            >
+                                Clear filters
+                            </a>
+
+                        {% else %}
+
+                            <a
+                                href="{% url 'payables:discount_create' %}"
+                                class="dio-empty-action"
+                            >
+                                Create first discount
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    const progress =
+        document.getElementById(
+            "dioProgress"
+        );
+
+    const form =
+        document.getElementById(
+            "discountFilterForm"
+        );
+
+    const search =
+        document.getElementById(
+            "discountSearch"
+        );
+
+    const filters =
+        document.querySelectorAll(
+            ".dio-auto-filter"
+        );
+
+    let searchTimer = null;
+
+
+    function startLoading() {
+
+        if (progress) {
+            progress.classList.add(
+                "is-active"
+            );
+        }
+    }
+
+
+    function submitFilters() {
+
+        startLoading();
+
+        form.submit();
+    }
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(
+                    searchTimer
+                );
+
+                searchTimer =
+                    setTimeout(
+                        submitFilters,
+                        320
+                    );
+            }
+        );
+    }
+
+
+    filters.forEach(
+        function (filter) {
+
+            filter.addEventListener(
+                "change",
+                submitFilters
+            );
+        }
+    );
+
+
+    window.addEventListener(
+        "pageshow",
+        function () {
+
+            if (progress) {
+
+                progress.classList.remove(
+                    "is-active"
+                );
+            }
+        }
+    );
+
+})();
+</script>
+
+{% endblock %}

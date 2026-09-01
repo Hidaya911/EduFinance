@@ -3,7 +3,10 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import ApprovalRequest
+from .models import (
+    ApprovalRequest,
+    Discount,
+)
 
 from .models import (
     SupplierBill,
@@ -524,3 +527,652 @@ def process_approval_request(
     )
 
     return approval_request
+
+
+
+
+# ============================================================
+# DISCOUNT — CREATE
+# ============================================================
+
+def create_discount(
+    *,
+    user,
+    student_reference,
+    invoice_reference,
+    discount_type,
+    value_type,
+    value,
+    reason,
+    discount_date,
+    requires_approval=False,
+):
+
+    discount = Discount(
+        student_reference=student_reference,
+        invoice_reference=invoice_reference,
+        discount_type=discount_type,
+        value_type=value_type,
+        value=value,
+        reason=reason,
+        discount_date=discount_date,
+        requires_approval=requires_approval,
+        requested_by=user,
+        status=Discount.Status.DRAFT,
+    )
+
+    discount.full_clean()
+
+    discount.save()
+
+    return discount
+
+
+# ============================================================
+# DISCOUNT — UPDATE DRAFT
+# ============================================================
+
+def update_discount(
+    *,
+    discount,
+    student_reference,
+    invoice_reference,
+    discount_type,
+    value_type,
+    value,
+    reason,
+    discount_date,
+    requires_approval,
+):
+
+    discount = (
+        Discount.objects.get(
+            pk=discount.pk
+        )
+    )
+
+    if (
+        discount.status
+        != Discount.Status.DRAFT
+    ):
+
+        raise ValidationError(
+            (
+                "Only draft discounts "
+                "can be edited."
+            )
+        )
+
+    discount.student_reference = (
+        student_reference
+    )
+
+    discount.invoice_reference = (
+        invoice_reference
+    )
+
+    discount.discount_type = (
+        discount_type
+    )
+
+    discount.value_type = (
+        value_type
+    )
+
+    discount.value = (
+        value
+    )
+
+    discount.reason = (
+        reason
+    )
+
+    discount.discount_date = (
+        discount_date
+    )
+
+    discount.requires_approval = (
+        requires_approval
+    )
+
+    discount.full_clean()
+
+    discount.save()
+
+    return discount
+
+
+# ============================================================
+# DISCOUNT — APPROVAL DESCRIPTION
+# ============================================================
+
+def _discount_approval_description(
+    discount,
+):
+
+    if (
+        discount.value_type
+        ==
+        Discount.ValueType.PERCENTAGE
+    ):
+
+        value_description = (
+            f"{discount.value:.2f}%"
+        )
+
+    else:
+
+        value_description = (
+            f"Fixed amount {discount.value:.2f}"
+        )
+
+    return (
+        f"Discount {discount.discount_number} "
+        f"for student "
+        f"{discount.student_reference}. "
+        f"Invoice: "
+        f"{discount.invoice_reference}. "
+        f"Type: "
+        f"{discount.get_discount_type_display()}. "
+        f"Value: "
+        f"{value_description}."
+    )
+
+
+# ============================================================
+# DISCOUNT — SUBMIT
+# ============================================================
+
+def submit_discount(
+    *,
+    discount,
+):
+
+    discount = (
+        Discount.objects.get(
+            pk=discount.pk
+        )
+    )
+
+    if (
+        discount.status
+        != Discount.Status.DRAFT
+    ):
+
+        raise ValidationError(
+            (
+                "Only draft discounts "
+                "can be submitted."
+            )
+        )
+
+    # --------------------------------------------------------
+    # NO APPROVAL REQUIRED
+    # --------------------------------------------------------
+
+    if not discount.requires_approval:
+
+        discount.status = (
+            Discount.Status.APPROVED
+        )
+
+        discount.approved_at = (
+            timezone.now()
+        )
+
+        discount.full_clean()
+
+        discount.save()
+
+        return discount
+
+
+    # --------------------------------------------------------
+    # APPROVAL REQUIRED
+    # --------------------------------------------------------
+
+    if discount.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This discount already has "
+                "an approval request."
+            )
+        )
+
+    approval_amount = None
+
+    if (
+        discount.value_type
+        ==
+        Discount.ValueType.FIXED_AMOUNT
+    ):
+
+        approval_amount = (
+            discount.value
+        )
+
+    approval_request = ApprovalRequest(
+        operation_type=
+            ApprovalRequest
+            .OperationType
+            .DISCOUNT,
+
+        title=(
+            f"Discount approval — "
+            f"{discount.discount_number}"
+        ),
+
+        description=(
+            _discount_approval_description(
+                discount
+            )
+        ),
+
+        amount=approval_amount,
+
+        related_entity_type="Discount",
+
+        related_entity_id=str(
+            discount.pk
+        ),
+
+        requester=(
+            discount.requested_by
+        ),
+
+        request_reason=(
+            discount.reason
+        ),
+
+        status=
+            ApprovalRequest
+            .Status
+            .REQUESTED,
+    )
+
+    approval_request.full_clean()
+
+    approval_request.save()
+
+    try:
+
+        approval_request = (
+            submit_approval_request(
+                approval_request
+            )
+        )
+
+        discount.approval_request = (
+            approval_request
+        )
+
+        discount.status = (
+            Discount.Status
+            .PENDING_APPROVAL
+        )
+
+        discount.full_clean()
+
+        discount.save()
+
+    except Exception:
+
+        # This approval request was only
+        # created as part of this operation.
+        # Delete it if linking the discount
+        # fails so we do not leave an orphan.
+        approval_request.delete()
+
+        raise
+
+    return discount
+
+
+# ============================================================
+# GET DISCOUNT LINKED TO APPROVAL
+# ============================================================
+
+def get_discount_for_approval(
+    approval_request,
+):
+
+    if (
+        approval_request.operation_type
+        !=
+        ApprovalRequest
+        .OperationType
+        .DISCOUNT
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request "
+                "is not for a discount."
+            )
+        )
+
+    entity_type = (
+        approval_request
+        .related_entity_type
+        or ""
+    ).strip()
+
+    entity_id = (
+        approval_request
+        .related_entity_id
+        or ""
+    ).strip()
+
+    if (
+        entity_type.lower()
+        != "discount"
+        or
+        not entity_id
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request is not "
+                "linked to a valid discount."
+            )
+        )
+
+    try:
+
+        discount = (
+            Discount.objects.get(
+                pk=entity_id
+            )
+        )
+
+    except Discount.DoesNotExist:
+
+        raise ValidationError(
+            (
+                "The discount linked to this "
+                "approval request no longer exists."
+            )
+        )
+
+    if (
+        not discount.approval_request_id
+        or
+        str(
+            discount.approval_request_id
+        )
+        !=
+        str(
+            approval_request.pk
+        )
+    ):
+
+        raise ValidationError(
+            (
+                "The approval request is not "
+                "linked to this discount record."
+            )
+        )
+
+    return discount
+
+
+# ============================================================
+# APPROVE DISCOUNT APPROVAL
+# ============================================================
+
+def approve_discount_approval(
+    *,
+    approval_request,
+    approver,
+    comments="",
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    discount = (
+        get_discount_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        discount.status
+        !=
+        Discount.Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked discount is not "
+                "pending approval."
+            )
+        )
+
+    approval_request = (
+        approve_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        discount.status = (
+            Discount.Status.APPROVED
+        )
+
+        discount.approved_by = (
+            approver
+        )
+
+        discount.approved_at = (
+            approval_request.decided_at
+            or timezone.now()
+        )
+
+        discount.full_clean()
+
+        discount.save()
+
+    except Exception:
+
+        # Compensating rollback.
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+    return discount
+
+
+# ============================================================
+# REJECT DISCOUNT APPROVAL
+# ============================================================
+
+def reject_discount_approval(
+    *,
+    approval_request,
+    approver,
+    comments,
+):
+
+    approval_request = (
+        ApprovalRequest.objects.get(
+            pk=approval_request.pk
+        )
+    )
+
+    discount = (
+        get_discount_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        discount.status
+        !=
+        Discount.Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked discount is not "
+                "pending approval."
+            )
+        )
+
+    approval_request = (
+        reject_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        discount.status = (
+            Discount.Status.REJECTED
+        )
+
+        discount.approved_by = None
+
+        discount.approved_at = None
+
+        discount.full_clean()
+
+        discount.save()
+
+    except Exception:
+
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+    return discount
+
+
+# ============================================================
+# CANCEL DISCOUNT
+# ============================================================
+
+def cancel_discount(
+    *,
+    discount,
+    user,
+    reason,
+):
+
+    discount = (
+        Discount.objects.get(
+            pk=discount.pk
+        )
+    )
+
+    reason = (
+        reason
+        .strip()
+        if reason
+        else ""
+    )
+
+    if not reason:
+
+        raise ValidationError(
+            (
+                "A cancellation reason "
+                "is required."
+            )
+        )
+
+    if (
+        discount.status
+        == Discount.Status.CANCELLED
+    ):
+
+        raise ValidationError(
+            (
+                "This discount is "
+                "already cancelled."
+            )
+        )
+
+    if (
+        discount.status
+        ==
+        Discount.Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "A discount cannot be cancelled "
+                "while its approval request "
+                "is pending."
+            )
+        )
+
+    if (
+        discount.status
+        ==
+        Discount.Status
+        .APPLIED
+    ):
+
+        raise ValidationError(
+            (
+                "An applied discount cannot "
+                "be cancelled directly because "
+                "its invoice effect would need "
+                "to be reversed."
+            )
+        )
+
+    discount.status = (
+        Discount.Status.CANCELLED
+    )
+
+    discount.cancellation_reason = (
+        reason
+    )
+
+    discount.cancelled_at = (
+        timezone.now()
+    )
+
+    discount.cancelled_by = (
+        user
+    )
+
+    discount.full_clean()
+
+    discount.save()
+
+    return discount

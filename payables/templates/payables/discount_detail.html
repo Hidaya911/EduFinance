@@ -1,0 +1,5174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ discount.discount_number }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+/* ============================================================
+   EDUFINANCE
+   DISCOUNT DECISION DOSSIER
+
+   Scope:
+   ddd-
+
+   This page is intentionally isolated from the rest of
+   EduFinance so all animation and styling remain local.
+============================================================ */
+
+
+/* ============================================================
+   ROOT
+============================================================ */
+
+.ddd-page {
+
+    --navy-1000: #020f1e;
+    --navy-950: #041527;
+    --navy-900: #071d35;
+    --navy-850: #0a2746;
+    --navy-800: #10345b;
+    --navy-750: #16436f;
+
+    --blue-700: #174fc4;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+
+    --cyan-500: #06b6d4;
+    --cyan-400: #22d3ee;
+
+    --violet-700: #6d28d9;
+    --violet-600: #7c3aed;
+    --violet-500: #8b5cf6;
+    --violet-400: #a78bfa;
+
+    --green-700: #047857;
+    --green-600: #059669;
+    --green-500: #10b981;
+    --green-400: #34d399;
+
+    --amber-700: #b45309;
+    --amber-600: #d97706;
+    --amber-500: #f59e0b;
+    --amber-400: #fbbf24;
+
+    --red-700: #b91c1c;
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+    --red-400: #f87171;
+
+    --slate-950: #12243d;
+    --slate-900: #1e334d;
+    --slate-800: #334155;
+    --slate-700: #475569;
+    --slate-600: #64748b;
+    --slate-500: #7e8da1;
+    --slate-400: #9ba6b5;
+    --slate-300: #cbd5e1;
+    --slate-200: #e2e8f0;
+    --slate-100: #f1f5f9;
+    --slate-50: #f8fafc;
+
+    position: relative;
+
+    min-height: 100vh;
+
+    overflow: hidden;
+
+    padding:
+        27px
+        30px
+        86px;
+
+    background:
+        radial-gradient(
+            circle at 92% 4%,
+            rgba(37,99,235,.14),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 5% 25%,
+            rgba(124,58,237,.08),
+            transparent 21%
+        ),
+        radial-gradient(
+            circle at 74% 82%,
+            rgba(6,182,212,.045),
+            transparent 20%
+        ),
+        linear-gradient(
+            180deg,
+            #f8faff 0%,
+            #f3f7fc 48%,
+            #eef3f9 100%
+        );
+
+    color: var(--slate-950);
+
+    isolation: isolate;
+}
+
+
+/* ============================================================
+   BACKGROUND GRID
+============================================================ */
+
+.ddd-page::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -4;
+
+    pointer-events: none;
+
+    opacity: .48;
+
+    background-image:
+
+        linear-gradient(
+            rgba(32,78,130,.032) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(32,78,130,.032) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        42px
+        42px;
+}
+
+
+/* ============================================================
+   AMBIENCE
+============================================================ */
+
+.ddd-ambient {
+
+    position: fixed;
+
+    z-index: -3;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(80px);
+
+    opacity: .15;
+}
+
+
+.ddd-ambient-one {
+
+    width: 420px;
+    height: 420px;
+
+    top: 90px;
+    right: -190px;
+
+    background: #3b82f6;
+
+    animation:
+        dddAmbientOne
+        15s ease-in-out infinite;
+}
+
+
+.ddd-ambient-two {
+
+    width: 360px;
+    height: 360px;
+
+    left: -210px;
+    top: 600px;
+
+    background: #8b5cf6;
+
+    animation:
+        dddAmbientTwo
+        18s ease-in-out infinite;
+}
+
+
+.ddd-ambient-three {
+
+    width: 280px;
+    height: 280px;
+
+    right: 30%;
+    bottom: -160px;
+
+    background: #06b6d4;
+
+    opacity: .07;
+
+    animation:
+        dddAmbientThree
+        17s ease-in-out infinite;
+}
+
+
+@keyframes dddAmbientOne {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                -75px,
+                60px,
+                0
+            );
+    }
+}
+
+
+@keyframes dddAmbientTwo {
+
+    0%,
+    100% {
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            );
+    }
+
+    50% {
+        transform:
+            translate3d(
+                95px,
+                -55px,
+                0
+            );
+    }
+}
+
+
+@keyframes dddAmbientThree {
+
+    0%,
+    100% {
+        transform:
+            scale(1);
+    }
+
+    50% {
+        transform:
+            scale(1.2);
+    }
+}
+
+
+/* ============================================================
+   PAGE SHELL
+============================================================ */
+
+.ddd-shell {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1530px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.ddd-progress {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 999999;
+
+    width: 100%;
+    height: 3px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .15s ease;
+}
+
+
+.ddd-progress.active {
+    opacity: 1;
+}
+
+
+.ddd-progress::after {
+
+    content: "";
+
+    display: block;
+
+    width: 29%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #3b82f6,
+            #22d3ee,
+            #8b5cf6,
+            transparent
+        );
+
+    box-shadow:
+        0 0 20px
+        rgba(59,130,246,.48);
+
+    animation:
+        dddProgress
+        .9s cubic-bezier(.65,0,.35,1)
+        infinite;
+}
+
+
+@keyframes dddProgress {
+
+    from {
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+        transform:
+            translateX(460%);
+    }
+}
+
+
+/* ============================================================
+   CONTEXT
+============================================================ */
+
+.ddd-context {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+
+    animation:
+        dddReveal
+        .44s ease both;
+}
+
+
+.ddd-breadcrumb {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    color: #8b98a8;
+
+    font-size: 10px;
+    font-weight: 760;
+}
+
+
+.ddd-breadcrumb a {
+
+    color: #738398;
+
+    text-decoration: none;
+
+    transition:
+        color .15s ease;
+}
+
+
+.ddd-breadcrumb a:hover {
+    color: var(--blue-600);
+}
+
+
+.ddd-breadcrumb-dot {
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: #c3ccd7;
+}
+
+
+.ddd-breadcrumb-current {
+    color: #36536f;
+}
+
+
+.ddd-context-state {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 30px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.09);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.72);
+
+    backdrop-filter:
+        blur(12px);
+
+    box-shadow:
+        0 8px 22px
+        rgba(29,51,80,.04);
+
+    color: #57718d;
+
+    font-size: 8.6px;
+    font-weight: 820;
+}
+
+
+.ddd-context-light {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #10b981;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(16,185,129,.09);
+}
+
+
+/* ============================================================
+   HERO DOSSIER
+============================================================ */
+
+.ddd-hero {
+
+    --spot-x: 70%;
+    --spot-y: 30%;
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.22fr)
+        minmax(360px,.78fr);
+
+    gap: 25px;
+
+    min-height: 314px;
+
+    overflow: hidden;
+
+    padding:
+        33px
+        35px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.085);
+
+    border-radius: 28px;
+
+    background:
+
+        radial-gradient(
+            circle at
+            var(--spot-x)
+            var(--spot-y),
+            rgba(96,165,250,.15),
+            transparent 23%
+        ),
+
+        linear-gradient(
+            128deg,
+            #031322 0%,
+            #071e37 39%,
+            #0d3159 67%,
+            #1a5595 100%
+        );
+
+    box-shadow:
+        0 28px 68px
+        rgba(7,30,60,.2);
+
+    color: white;
+
+    animation:
+        dddReveal
+        .53s .03s ease both;
+}
+
+
+.ddd-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 540px;
+    height: 540px;
+
+    right: -125px;
+    top: -370px;
+
+    border:
+        75px solid
+        rgba(255,255,255,.038);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+
+.ddd-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 270px;
+    height: 270px;
+
+    left: 35%;
+    bottom: -240px;
+
+    border:
+        48px solid
+        rgba(96,165,250,.045);
+
+    border-radius: 50%;
+}
+
+
+.ddd-hero-copy {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.ddd-record-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    gap: 8px;
+
+    min-height: 29px;
+
+    padding:
+        0
+        11px;
+
+    margin-bottom: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.11);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    backdrop-filter:
+        blur(14px);
+
+    color:
+        rgba(255,255,255,.66);
+
+    font-size: 8.7px;
+    font-weight: 850;
+
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+
+.ddd-record-chip span {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 13px
+        rgba(96,165,250,.7);
+}
+
+
+.ddd-hero h1 {
+
+    max-width: 780px;
+
+    margin: 0;
+
+    color: white;
+
+    font-size:
+        clamp(
+            32px,
+            4vw,
+            48px
+        );
+
+    font-weight: 870;
+
+    line-height: 1;
+
+    letter-spacing: -.052em;
+}
+
+
+.ddd-hero-number {
+
+    display: block;
+
+    margin-top: 9px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #dcecff,
+            #aacdf9,
+            #c6b8ff
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+
+    font-size:
+        clamp(
+            16px,
+            2vw,
+            20px
+        );
+
+    font-weight: 720;
+
+    letter-spacing: -.025em;
+}
+
+
+.ddd-hero-summary {
+
+    max-width: 740px;
+
+    margin:
+        15px
+        0
+        0;
+
+    color:
+        rgba(234,243,255,.66);
+
+    font-size: 11.4px;
+
+    line-height: 1.75;
+}
+
+
+/* ============================================================
+   HERO META CHIPS
+============================================================ */
+
+.ddd-hero-meta {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 19px;
+}
+
+
+.ddd-hero-meta-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 32px;
+
+    padding:
+        0
+        10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.09);
+
+    border-radius: 10px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    backdrop-filter:
+        blur(10px);
+
+    color:
+        rgba(255,255,255,.68);
+
+    font-size: 8.3px;
+    font-weight: 760;
+}
+
+
+.ddd-hero-meta-chip strong {
+    color: white;
+}
+
+
+.ddd-hero-meta-dot {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+/* ============================================================
+   ACTION BAR
+============================================================ */
+
+.ddd-hero-actions {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-top: 20px;
+}
+
+
+.ddd-action {
+
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+
+    padding:
+        0
+        14px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    font-size: 9px;
+    font-weight: 850;
+
+    transition:
+        transform .17s ease,
+        box-shadow .17s ease,
+        opacity .17s ease;
+}
+
+
+.ddd-action:hover {
+    transform:
+        translateY(-2px);
+}
+
+
+.ddd-action svg {
+
+    width: 14px;
+    height: 14px;
+}
+
+
+.ddd-action-light {
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #eef5ff
+        );
+
+    color: #214872;
+
+    box-shadow:
+        0 10px 24px
+        rgba(0,0,0,.14);
+}
+
+
+.ddd-action-primary {
+
+    border:
+        1px solid
+        rgba(96,165,250,.18);
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d5fd2,
+            #367ef1
+        );
+
+    color: white;
+
+    box-shadow:
+        0 10px 24px
+        rgba(37,99,235,.25);
+}
+
+
+.ddd-action-danger {
+
+    border:
+        1px solid
+        rgba(248,113,113,.15);
+
+    background:
+        rgba(239,68,68,.12);
+
+    backdrop-filter:
+        blur(10px);
+
+    color: #fecaca;
+}
+
+
+.ddd-action-danger:hover {
+
+    background:
+        rgba(239,68,68,.18);
+}
+
+
+.ddd-action:disabled {
+
+    opacity: .6;
+
+    cursor: wait;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   VALUE INSTRUMENT
+============================================================ */
+
+.ddd-value-stage {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+}
+
+
+.ddd-value-orbit {
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    width: 255px;
+    height: 255px;
+}
+
+
+.ddd-value-ring {
+
+    position: absolute;
+
+    inset: 8px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    animation:
+        dddSpin
+        19s linear infinite;
+}
+
+
+.ddd-value-ring::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    top: 27px;
+    left: 38px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 17px
+        rgba(96,165,250,.8);
+}
+
+
+.ddd-value-ring::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    right: 30px;
+    bottom: 32px;
+
+    border-radius: 50%;
+
+    background: #a78bfa;
+
+    box-shadow:
+        0 0 16px
+        rgba(167,139,250,.8);
+}
+
+
+.ddd-value-ring-two {
+
+    position: absolute;
+
+    inset: 41px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.09);
+
+    border-radius: 50%;
+
+    animation:
+        dddSpinReverse
+        14s linear infinite;
+}
+
+
+.ddd-value-core {
+
+    position: absolute;
+
+    inset: 65px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 34% 25%,
+            rgba(255,255,255,.17),
+            rgba(255,255,255,.055)
+        );
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        inset 0 0 34px
+        rgba(255,255,255,.03),
+        0 23px 52px
+        rgba(0,0,0,.17);
+}
+
+
+.ddd-value-caption {
+
+    color:
+        rgba(255,255,255,.43);
+
+    font-size: 7px;
+    font-weight: 850;
+
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+
+.ddd-value-number {
+
+    max-width: 135px;
+
+    margin-top: 8px;
+
+    color: white;
+
+    font-size: 23px;
+    font-weight: 880;
+
+    line-height: 1;
+
+    letter-spacing: -.04em;
+
+    text-align: center;
+
+    word-break: break-word;
+}
+
+
+.ddd-value-type {
+
+    margin-top: 7px;
+
+    color:
+        rgba(255,255,255,.5);
+
+    font-size: 7.4px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   FLOATING VALUE CHIPS
+============================================================ */
+
+.ddd-orbit-chip {
+
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 32px;
+
+    padding:
+        0
+        10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 10px;
+
+    background:
+        rgba(4,22,41,.53);
+
+    backdrop-filter:
+        blur(12px);
+
+    box-shadow:
+        0 13px 27px
+        rgba(0,0,0,.14);
+
+    color:
+        rgba(255,255,255,.67);
+
+    font-size: 8px;
+    font-weight: 760;
+}
+
+
+.ddd-orbit-chip strong {
+    color: white;
+}
+
+
+.ddd-orbit-chip-one {
+
+    left: -20px;
+    top: 52px;
+
+    animation:
+        dddFloatChip
+        4.3s ease-in-out infinite;
+}
+
+
+.ddd-orbit-chip-two {
+
+    right: -19px;
+    bottom: 51px;
+
+    animation:
+        dddFloatChip
+        4.9s .4s ease-in-out infinite;
+}
+
+
+.ddd-orbit-light {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+.ddd-orbit-chip-two
+.ddd-orbit-light {
+
+    background: #fbbf24;
+}
+
+
+@keyframes dddSpin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes dddSpinReverse {
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes dddFloatChip {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-7px);
+    }
+}
+
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+
+.ddd-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.38fr)
+        minmax(340px,.68fr);
+
+    gap: 17px;
+
+    margin-top: 17px;
+
+    align-items: start;
+}
+
+
+.ddd-main {
+
+    display: grid;
+
+    gap: 17px;
+}
+
+
+.ddd-side {
+
+    position: sticky;
+
+    top: 20px;
+
+    display: grid;
+
+    gap: 13px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.ddd-card {
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 21px;
+
+    background:
+        rgba(255,255,255,.93);
+
+    backdrop-filter:
+        blur(17px);
+
+    box-shadow:
+        0 16px 40px
+        rgba(29,51,81,.058);
+
+    animation:
+        dddReveal
+        .55s .1s ease both;
+}
+
+
+.ddd-card-head {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        18px
+        20px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fcfdff
+        );
+}
+
+
+.ddd-card-heading {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.ddd-card-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eaf2ff,
+            #f5f8ff
+        );
+
+    color: #3268b5;
+}
+
+
+.ddd-card-icon svg {
+
+    width: 15px;
+    height: 15px;
+}
+
+
+.ddd-card-heading strong {
+
+    display: block;
+
+    color: #28445f;
+
+    font-size: 11.4px;
+}
+
+
+.ddd-card-heading small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #96a1af;
+
+    font-size: 8.5px;
+}
+
+
+.ddd-card-body {
+
+    padding:
+        20px;
+}
+
+
+/* ============================================================
+   FINANCIAL METRICS
+============================================================ */
+
+.ddd-metric-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1.35fr
+        repeat(
+            3,
+            minmax(0,.8fr)
+        );
+
+    gap: 11px;
+}
+
+
+.ddd-metric {
+
+    position: relative;
+
+    overflow: hidden;
+
+    min-height: 116px;
+
+    padding: 16px;
+
+    border:
+        1px solid
+        #e8edf3;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fbfcfe,
+            #ffffff
+        );
+
+    transition:
+        transform .17s ease,
+        border-color .17s ease,
+        box-shadow .17s ease;
+}
+
+
+.ddd-metric:hover {
+
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(37,99,235,.15);
+
+    box-shadow:
+        0 11px 24px
+        rgba(31,52,83,.06);
+}
+
+
+.ddd-metric::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 80px;
+    height: 80px;
+
+    right: -35px;
+    bottom: -39px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37,99,235,.045);
+}
+
+
+.ddd-metric-label {
+
+    color: #8b98a8;
+
+    font-size: 7.6px;
+    font-weight: 880;
+
+    letter-spacing: .075em;
+    text-transform: uppercase;
+}
+
+
+.ddd-metric-value {
+
+    margin-top: 10px;
+
+    color: #294866;
+
+    font-size: 13px;
+    font-weight: 840;
+
+    line-height: 1.3;
+}
+
+
+.ddd-metric-value-big {
+
+    color: #6f45ca;
+
+    font-size: 23px;
+
+    letter-spacing: -.035em;
+}
+
+
+.ddd-metric-foot {
+
+    margin-top: 7px;
+
+    color: #9aa5b3;
+
+    font-size: 7.7px;
+}
+
+
+/* ============================================================
+   STATUS BADGES
+============================================================ */
+
+.ddd-status {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 26px;
+
+    padding:
+        0
+        9px;
+
+    border-radius: 999px;
+
+    font-size: 8.5px;
+    font-weight: 840;
+}
+
+
+.ddd-status-dot {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+}
+
+
+.ddd-status-draft {
+
+    background: #f2f4f7;
+    color: #667085;
+}
+
+
+.ddd-status-draft
+.ddd-status-dot {
+
+    background: #98a2b3;
+}
+
+
+.ddd-status-pending_approval {
+
+    background: #fff6e6;
+    color: #bd6808;
+}
+
+
+.ddd-status-pending_approval
+.ddd-status-dot {
+
+    background: #f59e0b;
+}
+
+
+.ddd-status-approved {
+
+    background: #eaf8f3;
+    color: #067e5b;
+}
+
+
+.ddd-status-approved
+.ddd-status-dot {
+
+    background: #10b981;
+}
+
+
+.ddd-status-rejected {
+
+    background: #fff0f1;
+    color: #ca3333;
+}
+
+
+.ddd-status-rejected
+.ddd-status-dot {
+
+    background: #ef4444;
+}
+
+
+.ddd-status-applied {
+
+    background: #edf4ff;
+    color: #2563eb;
+}
+
+
+.ddd-status-applied
+.ddd-status-dot {
+
+    background: #3b82f6;
+}
+
+
+.ddd-status-cancelled {
+
+    background: #f3f4f6;
+    color: #6f7783;
+}
+
+
+.ddd-status-cancelled
+.ddd-status-dot {
+
+    background: #9ca3af;
+}
+
+
+/* ============================================================
+   RECORD DOSSIER
+============================================================ */
+
+.ddd-dossier-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap: 10px;
+}
+
+
+.ddd-dossier-item {
+
+    position: relative;
+
+    min-width: 0;
+
+    padding: 14px;
+
+    border:
+        1px solid
+        #e9edf3;
+
+    border-radius: 13px;
+
+    background:
+        #fbfcfe;
+}
+
+
+.ddd-dossier-item-wide {
+
+    grid-column:
+        span 2;
+}
+
+
+.ddd-dossier-item-full {
+
+    grid-column:
+        1 / -1;
+}
+
+
+.ddd-dossier-label {
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    color: #929eac;
+
+    font-size: 7.5px;
+    font-weight: 860;
+
+    letter-spacing: .065em;
+    text-transform: uppercase;
+}
+
+
+.ddd-dossier-label-dot {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+}
+
+
+.ddd-dossier-value {
+
+    margin-top: 7px;
+
+    overflow-wrap: anywhere;
+
+    color: #3c536e;
+
+    font-size: 9.7px;
+    font-weight: 760;
+
+    line-height: 1.6;
+}
+
+
+.ddd-dossier-value-large {
+
+    color: #274868;
+
+    font-size: 11px;
+    font-weight: 820;
+}
+
+
+/* ============================================================
+   REASON PANEL
+============================================================ */
+
+.ddd-reason-panel {
+
+    position: relative;
+
+    margin-top: 12px;
+
+    overflow: hidden;
+
+    padding:
+        16px
+        17px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.09);
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f3f7ff,
+            #fbfdff
+        );
+}
+
+
+.ddd-reason-panel::after {
+
+    content: "“";
+
+    position: absolute;
+
+    right: 18px;
+    top: -23px;
+
+    color:
+        rgba(37,99,235,.055);
+
+    font-size: 100px;
+    font-family: Georgia, serif;
+}
+
+
+.ddd-reason-label {
+
+    position: relative;
+
+    z-index: 2;
+
+    color: #41678d;
+
+    font-size: 7.5px;
+    font-weight: 880;
+
+    letter-spacing: .075em;
+    text-transform: uppercase;
+}
+
+
+.ddd-reason-text {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 850px;
+
+    margin-top: 7px;
+
+    color: #64788e;
+
+    font-size: 9.3px;
+
+    line-height: 1.7;
+}
+
+
+/* ============================================================
+   CANCELLATION RECORD
+============================================================ */
+
+.ddd-cancellation-record {
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-top: 12px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        rgba(220,38,38,.14);
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff5f5,
+            #fffafa
+        );
+}
+
+
+.ddd-cancellation-record strong {
+
+    display: block;
+
+    color: #b83737;
+
+    font-size: 9px;
+}
+
+
+.ddd-cancellation-record p {
+
+    margin:
+        6px
+        0
+        0;
+
+    color: #916565;
+
+    font-size: 8.6px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   WORKFLOW CARD
+============================================================ */
+
+.ddd-workflow-card {
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.94);
+
+    backdrop-filter:
+        blur(16px);
+
+    box-shadow:
+        0 15px 36px
+        rgba(29,51,81,.055);
+
+    animation:
+        dddReveal
+        .58s .16s ease both;
+}
+
+
+.ddd-workflow-head {
+
+    padding:
+        17px
+        18px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+}
+
+
+.ddd-workflow-head-top {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.ddd-workflow-head strong {
+
+    color: #304b68;
+
+    font-size: 10.4px;
+}
+
+
+.ddd-workflow-head small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #97a2af;
+
+    font-size: 7.7px;
+}
+
+
+.ddd-workflow-mode {
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 24px;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    background: #eef4ff;
+
+    color: #3a68a8;
+
+    font-size: 7.3px;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   WORKFLOW RAIL
+============================================================ */
+
+.ddd-workflow-body {
+
+    padding:
+        18px;
+}
+
+
+.ddd-workflow-rail {
+
+    position: relative;
+
+    display: grid;
+
+    gap: 5px;
+}
+
+
+.ddd-workflow-step {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        32px
+        minmax(0,1fr);
+
+    gap: 10px;
+
+    min-height: 59px;
+}
+
+
+.ddd-workflow-step:not(:last-child)::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 15px;
+    top: 33px;
+
+    width: 2px;
+    height: 30px;
+
+    border-radius: 999px;
+
+    background: #e4e9ef;
+}
+
+
+.ddd-workflow-step.done:not(:last-child)::after {
+
+    background:
+        linear-gradient(
+            180deg,
+            #10b981,
+            #60a5fa
+        );
+}
+
+
+.ddd-step-node {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+
+    width: 30px;
+    height: 30px;
+
+    border:
+        1px solid
+        #e0e6ee;
+
+    border-radius: 10px;
+
+    background: white;
+
+    color: #8c99aa;
+
+    box-shadow:
+        0 4px 10px
+        rgba(31,53,82,.04);
+
+    font-size: 8px;
+    font-weight: 900;
+}
+
+
+.ddd-workflow-step.done
+.ddd-step-node {
+
+    border-color:
+        rgba(16,185,129,.17);
+
+    background:
+        #eaf8f3;
+
+    color: #059669;
+}
+
+
+.ddd-workflow-step.active
+.ddd-step-node {
+
+    border-color:
+        rgba(37,99,235,.25);
+
+    background:
+        linear-gradient(
+            145deg,
+            #2563eb,
+            #3b82f6
+        );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px
+        rgba(37,99,235,.17);
+}
+
+
+.ddd-workflow-step.rejected
+.ddd-step-node {
+
+    border-color:
+        rgba(239,68,68,.2);
+
+    background: #fff0f1;
+
+    color: #dc2626;
+}
+
+
+.ddd-step-content {
+
+    padding-top: 3px;
+}
+
+
+.ddd-step-content strong {
+
+    display: block;
+
+    color: #465d76;
+
+    font-size: 8.7px;
+}
+
+
+.ddd-step-content small {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #98a3b0;
+
+    font-size: 7.3px;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   APPROVAL REQUEST PANEL
+============================================================ */
+
+.ddd-approval-panel {
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-top: 14px;
+
+    padding:
+        14px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.12);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0f6ff,
+            #fbfdff
+        );
+}
+
+
+.ddd-approval-panel::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    right: -43px;
+    top: -48px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(37,99,235,.05);
+}
+
+
+.ddd-approval-panel-label {
+
+    position: relative;
+
+    z-index: 2;
+
+    color: #5279a7;
+
+    font-size: 7px;
+    font-weight: 850;
+
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+
+.ddd-approval-panel-number {
+
+    position: relative;
+
+    z-index: 2;
+
+    margin-top: 5px;
+
+    color: #285890;
+
+    font-size: 10px;
+    font-weight: 850;
+}
+
+
+.ddd-approval-panel-meta {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 7px;
+
+    color: #8394a8;
+
+    font-size: 7.5px;
+}
+
+
+.ddd-approval-link {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 10px;
+
+    color: #2f66ab;
+
+    text-decoration: none;
+
+    font-size: 8px;
+    font-weight: 840;
+}
+
+
+.ddd-approval-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ============================================================
+   INTEGRITY PANEL
+============================================================ */
+
+.ddd-integrity-card {
+
+    padding: 16px;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.91);
+
+    backdrop-filter:
+        blur(14px);
+
+    box-shadow:
+        0 12px 31px
+        rgba(29,51,81,.05);
+
+    animation:
+        dddReveal
+        .58s .22s ease both;
+}
+
+
+.ddd-integrity-head {
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.ddd-integrity-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 29px;
+    height: 29px;
+
+    border-radius: 9px;
+
+    background: #edf3fb;
+
+    color: #476c96;
+}
+
+
+.ddd-integrity-icon svg {
+
+    width: 14px;
+    height: 14px;
+}
+
+
+.ddd-integrity-head strong {
+
+    color: #425a73;
+
+    font-size: 9px;
+}
+
+
+.ddd-integrity-copy {
+
+    margin-top: 10px;
+
+    color: #8391a1;
+
+    font-size: 7.7px;
+
+    line-height: 1.58;
+}
+
+
+.ddd-integrity-row {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 11px;
+
+    padding:
+        9px
+        10px;
+
+    border-radius: 10px;
+
+    background: #f7f9fc;
+
+    color: #718397;
+
+    font-size: 7.4px;
+    font-weight: 720;
+}
+
+
+.ddd-integrity-row strong {
+
+    color: #3c5874;
+
+    font-size: 7.7px;
+}
+
+
+/* ============================================================
+   APPLIED WARNING
+============================================================ */
+
+.ddd-invoice-note {
+
+    margin-top: 14px;
+
+    padding:
+        12px;
+
+    border:
+        1px solid
+        rgba(245,158,11,.15);
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff9ed,
+            #fffcf7
+        );
+
+    color: #8f691a;
+
+    font-size: 7.5px;
+
+    line-height: 1.58;
+}
+
+
+/* ============================================================
+   MODAL BACKDROP
+============================================================ */
+
+.ddd-modal-backdrop {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999998;
+
+    display: grid;
+    place-items: center;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    padding: 20px;
+
+    background:
+        rgba(2,15,30,.58);
+
+    backdrop-filter:
+        blur(8px);
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
+}
+
+
+.ddd-modal-backdrop.open {
+
+    visibility: visible;
+
+    opacity: 1;
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+.ddd-modal {
+
+    width: min(
+        470px,
+        100%
+    );
+
+    overflow: hidden;
+
+    transform:
+        translateY(12px)
+        scale(.98);
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 22px;
+
+    background: white;
+
+    box-shadow:
+        0 35px 90px
+        rgba(0,0,0,.28);
+
+    transition:
+        transform .22s
+        cubic-bezier(.2,.8,.2,1);
+}
+
+
+.ddd-modal-backdrop.open
+.ddd-modal {
+
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+.ddd-modal-hero {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding:
+        23px
+        22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3c1118,
+            #761d2a
+        );
+
+    color: white;
+}
+
+
+.ddd-modal-hero::after {
+
+    content: "!";
+
+    position: absolute;
+
+    right: 15px;
+    bottom: -37px;
+
+    color:
+        rgba(255,255,255,.05);
+
+    font-size: 110px;
+    font-weight: 900;
+}
+
+
+.ddd-modal-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    margin-bottom: 12px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 11px;
+
+    background:
+        rgba(255,255,255,.09);
+
+    color: #fecaca;
+}
+
+
+.ddd-modal-icon svg {
+
+    width: 18px;
+    height: 18px;
+}
+
+
+.ddd-modal-hero h3 {
+
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0;
+
+    font-size: 15px;
+}
+
+
+.ddd-modal-hero p {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 380px;
+
+    margin:
+        7px
+        0
+        0;
+
+    color:
+        rgba(255,255,255,.62);
+
+    font-size: 8.7px;
+
+    line-height: 1.6;
+}
+
+
+.ddd-modal-body {
+
+    padding:
+        20px;
+}
+
+
+.ddd-modal-record {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+}
+
+
+.ddd-modal-record-item {
+
+    padding: 10px;
+
+    border:
+        1px solid
+        #e8edf3;
+
+    border-radius: 10px;
+
+    background: #fafbfd;
+}
+
+
+.ddd-modal-record-item small {
+
+    display: block;
+
+    color: #9aa5b2;
+
+    font-size: 6.7px;
+    font-weight: 850;
+
+    text-transform: uppercase;
+}
+
+
+.ddd-modal-record-item strong {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: #445c75;
+
+    font-size: 8px;
+}
+
+
+.ddd-modal-label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #53677e;
+
+    font-size: 8px;
+    font-weight: 850;
+}
+
+
+.ddd-modal-textarea {
+
+    width: 100%;
+    min-height: 120px;
+
+    box-sizing: border-box;
+
+    padding:
+        11px
+        12px;
+
+    border:
+        1px solid
+        #dfe6ef;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    resize: vertical;
+
+    background: #fbfcfe;
+
+    color: #3c536d;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease,
+        background .15s ease;
+}
+
+
+.ddd-modal-textarea:focus {
+
+    border-color:
+        rgba(220,38,38,.35);
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(220,38,38,.055);
+}
+
+
+.ddd-modal-help {
+
+    margin-top: 7px;
+
+    color: #99a4b1;
+
+    font-size: 7px;
+
+    line-height: 1.5;
+}
+
+
+.ddd-modal-footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding:
+        15px
+        20px;
+
+    border-top:
+        1px solid
+        #edf1f5;
+
+    background: #fafbfd;
+}
+
+
+.ddd-modal-button {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 39px;
+
+    padding:
+        0
+        13px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 8.6px;
+    font-weight: 850;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+
+.ddd-modal-button:hover {
+
+    transform:
+        translateY(-1px);
+}
+
+
+.ddd-modal-button-neutral {
+
+    border:
+        1px solid
+        #e1e6ed;
+
+    background: white;
+
+    color: #66778b;
+}
+
+
+.ddd-modal-button-danger {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #ef4444
+        );
+
+    color: white;
+
+    box-shadow:
+        0 8px 18px
+        rgba(220,38,38,.17);
+}
+
+
+.ddd-modal-button:disabled {
+
+    opacity: .6;
+
+    cursor: wait;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   OPERATION OVERLAY
+============================================================ */
+
+.ddd-operation-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999999;
+
+    display: grid;
+    place-items: center;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    padding: 20px;
+
+    background:
+        rgba(2,15,30,.5);
+
+    backdrop-filter:
+        blur(7px);
+
+    transition:
+        opacity .18s ease,
+        visibility .18s ease;
+}
+
+
+.ddd-operation-overlay.active {
+
+    visibility: visible;
+
+    opacity: 1;
+}
+
+
+.ddd-operation-box {
+
+    width: min(
+        350px,
+        100%
+    );
+
+    padding:
+        24px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #061a30,
+            #0d3158
+        );
+
+    color: white;
+
+    box-shadow:
+        0 30px 75px
+        rgba(0,0,0,.26);
+
+    text-align: center;
+}
+
+
+.ddd-spinner {
+
+    position: relative;
+
+    width: 50px;
+    height: 50px;
+
+    margin:
+        0
+        auto
+        15px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 50%;
+}
+
+
+.ddd-spinner::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -2px;
+
+    border:
+        2px solid
+        transparent;
+
+    border-top-color: #60a5fa;
+
+    border-right-color: #8b5cf6;
+
+    border-radius: 50%;
+
+    animation:
+        dddSpinner
+        .75s linear infinite;
+}
+
+
+@keyframes dddSpinner {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+.ddd-operation-box strong {
+
+    display: block;
+
+    font-size: 12.5px;
+}
+
+
+.ddd-operation-box small {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color:
+        rgba(255,255,255,.53);
+
+    font-size: 8px;
+}
+
+
+/* ============================================================
+   REVEAL
+============================================================ */
+
+@keyframes dddReveal {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(12px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1180px) {
+
+    .ddd-hero {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            320px;
+    }
+
+    .ddd-layout {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            320px;
+    }
+
+    .ddd-metric-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+}
+
+
+@media (max-width: 930px) {
+
+    .ddd-page {
+
+        padding:
+            19px
+            14px
+            56px;
+    }
+
+    .ddd-hero {
+
+        grid-template-columns: 1fr;
+    }
+
+    .ddd-value-stage {
+
+        display: none;
+    }
+
+    .ddd-layout {
+
+        grid-template-columns: 1fr;
+    }
+
+    .ddd-side {
+
+        position: static;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+}
+
+
+@media (max-width: 720px) {
+
+    .ddd-context {
+
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ddd-hero {
+
+        padding:
+            25px
+            21px;
+    }
+
+    .ddd-dossier-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+
+    .ddd-dossier-item-wide {
+
+        grid-column:
+            span 1;
+    }
+
+    .ddd-dossier-item-full {
+
+        grid-column:
+            1 / -1;
+    }
+
+    .ddd-side {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 540px) {
+
+    .ddd-metric-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .ddd-dossier-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .ddd-dossier-item-full,
+    .ddd-dossier-item-wide {
+
+        grid-column: auto;
+    }
+
+    .ddd-hero-actions {
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ddd-action {
+
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .ddd-modal-record {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+
+<!-- =========================================================
+     UI LAYERS
+========================================================= -->
+
+<div
+    id="dddProgress"
+    class="ddd-progress"
+></div>
+
+
+<div
+    class="
+        ddd-ambient
+        ddd-ambient-one
+    "
+></div>
+
+
+<div
+    class="
+        ddd-ambient
+        ddd-ambient-two
+    "
+></div>
+
+
+<div
+    class="
+        ddd-ambient
+        ddd-ambient-three
+    "
+></div>
+
+
+<!-- =========================================================
+     OPERATION OVERLAY
+========================================================= -->
+
+<div
+    id="dddOperationOverlay"
+    class="ddd-operation-overlay"
+>
+
+    <div class="ddd-operation-box">
+
+        <div class="ddd-spinner"></div>
+
+        <strong id="dddOperationTitle">
+            Processing financial record
+        </strong>
+
+        <small id="dddOperationDescription">
+            Updating the discount workflow...
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     PAGE
+========================================================= -->
+
+<div class="ddd-page">
+
+<div class="ddd-shell">
+
+
+    <!-- =====================================================
+         CONTEXT
+    ====================================================== -->
+
+    <div class="ddd-context">
+
+        <div class="ddd-breadcrumb">
+
+            <a href="{% url 'payables:discount_list' %}">
+                EduFinance
+            </a>
+
+            <span class="ddd-breadcrumb-dot"></span>
+
+            <a href="{% url 'payables:discount_list' %}">
+                Discounts
+            </a>
+
+            <span class="ddd-breadcrumb-dot"></span>
+
+            <span class="ddd-breadcrumb-current">
+                {{ discount.discount_number }}
+            </span>
+
+        </div>
+
+
+        <div class="ddd-context-state">
+
+            <span class="ddd-context-light"></span>
+
+            Financial record protected
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section
+        id="dddHero"
+        class="ddd-hero"
+    >
+
+        <!-- ================================================
+             HERO COPY
+        ================================================= -->
+
+        <div class="ddd-hero-copy">
+
+            <div class="ddd-record-chip">
+
+                <span></span>
+
+                Financial decision dossier
+
+            </div>
+
+
+            <h1>
+
+                {{ discount.get_discount_type_display }}
+
+                <span class="ddd-hero-number">
+                    {{ discount.discount_number }}
+                </span>
+
+            </h1>
+
+
+            <p class="ddd-hero-summary">
+
+                Controlled student financial adjustment for
+                <strong>
+                    {{ discount.student_reference }}
+                </strong>,
+                linked to invoice reference
+                <strong>
+                    {{ discount.invoice_reference }}
+                </strong>.
+
+                {% if discount.requires_approval %}
+
+                    This record follows a management approval path.
+
+                {% else %}
+
+                    This record follows the direct approval path.
+
+                {% endif %}
+
+            </p>
+
+
+            <!-- ============================================
+                 HERO META
+            ============================================= -->
+
+            <div class="ddd-hero-meta">
+
+                <div class="ddd-hero-meta-chip">
+
+                    <span class="ddd-hero-meta-dot"></span>
+
+                    Student
+
+                    <strong>
+                        {{ discount.student_reference }}
+                    </strong>
+
+                </div>
+
+
+                <div class="ddd-hero-meta-chip">
+
+                    <span class="ddd-hero-meta-dot"></span>
+
+                    Invoice
+
+                    <strong>
+                        {{ discount.invoice_reference }}
+                    </strong>
+
+                </div>
+
+
+                <div class="ddd-hero-meta-chip">
+
+                    <span class="ddd-hero-meta-dot"></span>
+
+                    {{ discount.discount_date|date:"d M Y" }}
+
+                </div>
+
+            </div>
+
+
+            <!-- ============================================
+                 ACTIONS
+            ============================================= -->
+
+            <div class="ddd-hero-actions">
+
+
+                {% if discount.status == "draft" %}
+
+                    <a
+                        href="{% url 'payables:discount_edit' discount.pk %}"
+                        class="
+                            ddd-action
+                            ddd-action-light
+                        "
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path
+                                d="M4 20h4l11-11-4-4L4 16z"
+                            ></path>
+
+                            <path
+                                d="m13.5 6.5 4 4"
+                            ></path>
+                        </svg>
+
+                        Edit draft
+
+                    </a>
+
+
+                    <form
+                        method="post"
+                        action="{% url 'payables:discount_submit' discount.pk %}"
+                        class="ddd-submit-form"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="
+                                ddd-action
+                                ddd-action-primary
+                            "
+                        >
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    d="M5 12h14"
+                                ></path>
+
+                                <path
+                                    d="m14 7 5 5-5 5"
+                                ></path>
+                            </svg>
+
+                            Submit discount
+
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+
+                {% if discount.status != "cancelled" and discount.status != "pending_approval" and discount.status != "applied" %}
+
+                    <button
+                        id="dddOpenCancel"
+                        type="button"
+                        class="
+                            ddd-action
+                            ddd-action-danger
+                        "
+                    >
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                            ></circle>
+
+                            <path
+                                d="m8.5 8.5 7 7"
+                            ></path>
+
+                            <path
+                                d="m15.5 8.5-7 7"
+                            ></path>
+                        </svg>
+
+                        Cancel record
+
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             VALUE STAGE
+        ================================================= -->
+
+        <div class="ddd-value-stage">
+
+            <div class="ddd-value-orbit">
+
+                <div class="ddd-value-ring"></div>
+
+                <div class="ddd-value-ring-two"></div>
+
+
+                <div class="ddd-value-core">
+
+                    <div class="ddd-value-caption">
+                        Discount
+                    </div>
+
+
+                    <div class="ddd-value-number">
+
+                        {% if discount.value_type == "percentage" %}
+
+                            {{ discount.value|floatformat:2 }}%
+
+                        {% else %}
+
+                            {{ currency_code }}
+                            {{ discount.value|floatformat:2 }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="ddd-value-type">
+                        {{ discount.get_value_type_display }}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="
+                        ddd-orbit-chip
+                        ddd-orbit-chip-one
+                    "
+                >
+
+                    <span class="ddd-orbit-light"></span>
+
+                    Status
+
+                    <strong>
+                        {{ discount.get_status_display }}
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="
+                        ddd-orbit-chip
+                        ddd-orbit-chip-two
+                    "
+                >
+
+                    <span class="ddd-orbit-light"></span>
+
+                    Approval
+
+                    <strong>
+
+                        {% if discount.requires_approval %}
+                            Required
+                        {% else %}
+                            Direct
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN LAYOUT
+    ====================================================== -->
+
+    <div class="ddd-layout">
+
+
+        <!-- =================================================
+             MAIN
+        ================================================== -->
+
+        <main class="ddd-main">
+
+
+            <!-- =============================================
+                 FINANCIAL OVERVIEW
+            ============================================== -->
+
+            <section class="ddd-card">
+
+                <div class="ddd-card-head">
+
+                    <div class="ddd-card-heading">
+
+                        <div class="ddd-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    d="M4 19V9"
+                                ></path>
+
+                                <path
+                                    d="M10 19V5"
+                                ></path>
+
+                                <path
+                                    d="M16 19v-7"
+                                ></path>
+
+                                <path
+                                    d="M22 19H2"
+                                ></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Financial overview
+                            </strong>
+
+                            <small>
+                                Core value and workflow state
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ddd-card-body">
+
+                    <div class="ddd-metric-grid">
+
+
+                        <!-- VALUE -->
+
+                        <div class="ddd-metric">
+
+                            <div class="ddd-metric-label">
+                                Discount value
+                            </div>
+
+
+                            <div
+                                class="
+                                    ddd-metric-value
+                                    ddd-metric-value-big
+                                "
+                            >
+
+                                {% if discount.value_type == "percentage" %}
+
+                                    {{ discount.value|floatformat:2 }}%
+
+                                {% else %}
+
+                                    {{ currency_code }}
+                                    {{ discount.value|floatformat:2 }}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="ddd-metric-foot">
+                                {{ discount.get_value_type_display }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="ddd-metric">
+
+                            <div class="ddd-metric-label">
+                                Workflow status
+                            </div>
+
+
+                            <div class="ddd-metric-value">
+
+                                <span
+                                    class="
+                                        ddd-status
+                                        ddd-status-{{ discount.status }}
+                                    "
+                                >
+
+                                    <span class="ddd-status-dot"></span>
+
+                                    {{ discount.get_status_display }}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="ddd-metric-foot">
+                                Current financial state
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPROVAL -->
+
+                        <div class="ddd-metric">
+
+                            <div class="ddd-metric-label">
+                                Governance
+                            </div>
+
+
+                            <div class="ddd-metric-value">
+
+                                {% if discount.requires_approval %}
+
+                                    Management approval
+
+                                {% else %}
+
+                                    Direct approval
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="ddd-metric-foot">
+                                Decision pathway
+                            </div>
+
+                        </div>
+
+
+                        <!-- DATE -->
+
+                        <div class="ddd-metric">
+
+                            <div class="ddd-metric-label">
+                                Effective date
+                            </div>
+
+
+                            <div class="ddd-metric-value">
+                                {{ discount.discount_date|date:"d M Y" }}
+                            </div>
+
+
+                            <div class="ddd-metric-foot">
+                                Financial record date
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 RECORD DOSSIER
+            ============================================== -->
+
+            <section class="ddd-card">
+
+                <div class="ddd-card-head">
+
+                    <div class="ddd-card-heading">
+
+                        <div class="ddd-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    d="M6 3h12v18H6z"
+                                ></path>
+
+                                <path
+                                    d="M9 8h6"
+                                ></path>
+
+                                <path
+                                    d="M9 12h6"
+                                ></path>
+
+                                <path
+                                    d="M9 16h4"
+                                ></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Financial record dossier
+                            </strong>
+
+                            <small>
+                                Identity, accountability and audit context
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="ddd-card-body">
+
+                    <div class="ddd-dossier-grid">
+
+
+                        <!-- STUDENT -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Student
+
+                            </div>
+
+                            <div
+                                class="
+                                    ddd-dossier-value
+                                    ddd-dossier-value-large
+                                "
+                            >
+                                {{ discount.student_reference }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- INVOICE -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Invoice
+
+                            </div>
+
+                            <div
+                                class="
+                                    ddd-dossier-value
+                                    ddd-dossier-value-large
+                                "
+                            >
+                                {{ discount.invoice_reference }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- TYPE -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Category
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+                                {{ discount.get_discount_type_display }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- REQUESTED BY -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Requested by
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+                                {{ discount.requested_by }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPROVED BY -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Approved by
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+
+                                {% if discount.approved_by %}
+
+                                    {{ discount.approved_by }}
+
+                                {% else %}
+
+                                    Not assigned
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPROVED TIME -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Approved at
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+
+                                {% if discount.approved_at %}
+
+                                    {{ discount.approved_at|date:"d M Y · H:i" }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CREATED -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Created
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+                                {{ discount.created_at|date:"d M Y · H:i" }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- UPDATED -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                Last updated
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+                                {{ discount.updated_at|date:"d M Y · H:i" }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- RECORD ID -->
+
+                        <div class="ddd-dossier-item">
+
+                            <div class="ddd-dossier-label">
+
+                                <span class="ddd-dossier-label-dot"></span>
+
+                                System ID
+
+                            </div>
+
+                            <div class="ddd-dossier-value">
+                                {{ discount.pk }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         REASON
+                    ====================================== -->
+
+                    <div class="ddd-reason-panel">
+
+                        <div class="ddd-reason-label">
+                            Decision rationale
+                        </div>
+
+                        <div class="ddd-reason-text">
+                            {{ discount.reason }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         CANCELLED DATA
+                    ====================================== -->
+
+                    {% if discount.status == "cancelled" %}
+
+                        <div class="ddd-cancellation-record">
+
+                            <strong>
+                                Cancellation history preserved
+                            </strong>
+
+
+                            <p>
+
+                                {{ discount.cancellation_reason }}
+
+                                {% if discount.cancelled_by %}
+
+                                    <br>
+
+                                    Cancelled by
+                                    {{ discount.cancelled_by }}
+
+                                {% endif %}
+
+                                {% if discount.cancelled_at %}
+
+                                    on
+                                    {{ discount.cancelled_at|date:"d M Y · H:i" }}
+
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =================================================
+             SIDE
+        ================================================== -->
+
+        <aside class="ddd-side">
+
+
+            <!-- =============================================
+                 WORKFLOW
+            ============================================== -->
+
+            <section class="ddd-workflow-card">
+
+                <div class="ddd-workflow-head">
+
+                    <div class="ddd-workflow-head-top">
+
+                        <strong>
+                            Workflow control rail
+                        </strong>
+
+
+                        <span class="ddd-workflow-mode">
+
+                            {% if discount.requires_approval %}
+
+                                Approval path
+
+                            {% else %}
+
+                                Direct path
+
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <small>
+                        Financial state progression
+                    </small>
+
+                </div>
+
+
+                <div class="ddd-workflow-body">
+
+                    <div class="ddd-workflow-rail">
+
+
+                        <!-- CREATED -->
+
+                        <div
+                            class="
+                                ddd-workflow-step
+                                {% if discount.status != 'cancelled' %}
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="ddd-step-node">
+                                ✓
+                            </div>
+
+
+                            <div class="ddd-step-content">
+
+                                <strong>
+                                    Record created
+                                </strong>
+
+                                <small>
+                                    Discount entered into financial history
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SUBMITTED -->
+
+                        <div
+                            class="
+                                ddd-workflow-step
+
+                                {% if discount.status == 'pending_approval' %}
+                                    active
+                                {% elif discount.status == 'approved' or discount.status == 'applied' %}
+                                    done
+                                {% elif discount.status == 'rejected' %}
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="ddd-step-node">
+                                2
+                            </div>
+
+
+                            <div class="ddd-step-content">
+
+                                <strong>
+                                    Submission
+                                </strong>
+
+                                <small>
+
+                                    {% if discount.requires_approval %}
+
+                                        Routed into management approval
+
+                                    {% else %}
+
+                                        Direct workflow without separate review
+
+                                    {% endif %}
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DECISION -->
+
+                        <div
+                            class="
+                                ddd-workflow-step
+
+                                {% if discount.status == 'approved' %}
+                                    active
+                                {% elif discount.status == 'applied' %}
+                                    done
+                                {% elif discount.status == 'rejected' %}
+                                    rejected
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="ddd-step-node">
+
+                                {% if discount.status == "rejected" %}
+                                    ×
+                                {% else %}
+                                    3
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="ddd-step-content">
+
+                                <strong>
+
+                                    {% if discount.status == "rejected" %}
+
+                                        Rejected
+
+                                    {% else %}
+
+                                        Approved
+
+                                    {% endif %}
+
+                                </strong>
+
+
+                                <small>
+
+                                    {% if discount.status == "rejected" %}
+
+                                        Financial adjustment was not approved
+
+                                    {% else %}
+
+                                        Adjustment accepted for future application
+
+                                    {% endif %}
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPLIED -->
+
+                        <div
+                            class="
+                                ddd-workflow-step
+
+                                {% if discount.status == 'applied' %}
+                                    active
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="ddd-step-node">
+                                4
+                            </div>
+
+
+                            <div class="ddd-step-content">
+
+                                <strong>
+                                    Applied
+                                </strong>
+
+                                <small>
+                                    Invoice balance effect committed
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         APPROVAL LINK
+                    ====================================== -->
+
+                    {% if approval_request %}
+
+                        <div class="ddd-approval-panel">
+
+                            <div class="ddd-approval-panel-label">
+                                Linked approval request
+                            </div>
+
+
+                            <div class="ddd-approval-panel-number">
+                                {{ approval_request.request_number }}
+                            </div>
+
+
+                            <div class="ddd-approval-panel-meta">
+
+                                {{ approval_request.get_status_display }}
+
+                                ·
+
+                                {{ approval_request.created_at|date:"d M Y" }}
+
+                            </div>
+
+
+                            <a
+                                href="{% url 'payables:approval_detail' approval_request.pk %}"
+                                class="ddd-approval-link"
+                            >
+                                Open approval dossier
+                                →
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- =====================================
+                         INVOICE INTEGRATION NOTE
+                    ====================================== -->
+
+                    {% if discount.status == "approved" %}
+
+                        <div class="ddd-invoice-note">
+
+                            This adjustment is approved but has not
+                            been applied to an actual invoice balance.
+                            Invoice application remains reserved until
+                            the shared Student Invoice module is
+                            integrated.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 RECORD INTEGRITY
+            ============================================== -->
+
+            <section class="ddd-integrity-card">
+
+                <div class="ddd-integrity-head">
+
+                    <div class="ddd-integrity-icon">
+
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path
+                                d="M12 3 5 6v5c0 4.4 2.8 7.8 7 10 4.2-2.2 7-5.6 7-10V6z"
+                            ></path>
+
+                            <path
+                                d="m9 12 2 2 4-4"
+                            ></path>
+                        </svg>
+
+                    </div>
+
+
+                    <strong>
+                        Financial record integrity
+                    </strong>
+
+                </div>
+
+
+                <div class="ddd-integrity-copy">
+
+                    This record is preserved as financial history.
+                    Cancellation changes its workflow status rather
+                    than removing the original transaction.
+
+                </div>
+
+
+                <div class="ddd-integrity-row">
+
+                    <span>
+                        Permanent deletion
+                    </span>
+
+                    <strong>
+                        Disabled by workflow
+                    </strong>
+
+                </div>
+
+
+                <div class="ddd-integrity-row">
+
+                    <span>
+                        School currency
+                    </span>
+
+                    <strong>
+                        {{ currency_code }}
+                    </strong>
+
+                </div>
+
+
+                <div class="ddd-integrity-row">
+
+                    <span>
+                        Invoice effect
+                    </span>
+
+                    <strong>
+
+                        {% if discount.status == "applied" %}
+
+                            Applied
+
+                        {% else %}
+
+                            Not committed
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =========================================================
+     CANCELLATION MODAL
+========================================================= -->
+
+<div
+    id="dddCancelModal"
+    class="ddd-modal-backdrop"
+    aria-hidden="true"
+>
+
+    <div
+        class="ddd-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dddCancelHeading"
+    >
+
+        <div class="ddd-modal-hero">
+
+            <div class="ddd-modal-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <path
+                        d="M12 4 3.5 19h17z"
+                    ></path>
+
+                    <path
+                        d="M12 9v4"
+                    ></path>
+
+                    <path
+                        d="M12 16h.01"
+                    ></path>
+                </svg>
+
+            </div>
+
+
+            <h3 id="dddCancelHeading">
+                Cancel financial discount?
+            </h3>
+
+
+            <p>
+
+                This operation will preserve the record permanently
+                but change its financial status to Cancelled.
+
+            </p>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="{% url 'payables:discount_cancel' discount.pk %}"
+            id="dddCancelForm"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="ddd-modal-body">
+
+                <div class="ddd-modal-record">
+
+                    <div class="ddd-modal-record-item">
+
+                        <small>
+                            Record
+                        </small>
+
+                        <strong>
+                            {{ discount.discount_number }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="ddd-modal-record-item">
+
+                        <small>
+                            Value
+                        </small>
+
+                        <strong>
+
+                            {% if discount.value_type == "percentage" %}
+
+                                {{ discount.value|floatformat:2 }}%
+
+                            {% else %}
+
+                                {{ currency_code }}
+                                {{ discount.value|floatformat:2 }}
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <label
+                    for="dddCancellationReason"
+                    class="ddd-modal-label"
+                >
+                    Cancellation reason
+                </label>
+
+
+                <textarea
+                    id="dddCancellationReason"
+                    name="reason"
+                    class="ddd-modal-textarea"
+                    placeholder="Explain why this financial adjustment is being cancelled..."
+                    required
+                ></textarea>
+
+
+                <div class="ddd-modal-help">
+
+                    A reason is mandatory because financial
+                    cancellation history must remain traceable.
+
+                </div>
+
+            </div>
+
+
+            <div class="ddd-modal-footer">
+
+                <button
+                    id="dddCloseCancel"
+                    type="button"
+                    class="
+                        ddd-modal-button
+                        ddd-modal-button-neutral
+                    "
+                >
+                    Keep record
+                </button>
+
+
+                <button
+                    id="dddConfirmCancel"
+                    type="submit"
+                    class="
+                        ddd-modal-button
+                        ddd-modal-button-danger
+                    "
+                >
+                    Confirm cancellation
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    /* ========================================================
+       REFERENCES
+    ======================================================== */
+
+    const hero =
+        document.getElementById(
+            "dddHero"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "dddProgress"
+        );
+
+
+    const operationOverlay =
+        document.getElementById(
+            "dddOperationOverlay"
+        );
+
+
+    const operationTitle =
+        document.getElementById(
+            "dddOperationTitle"
+        );
+
+
+    const operationDescription =
+        document.getElementById(
+            "dddOperationDescription"
+        );
+
+
+    const openCancel =
+        document.getElementById(
+            "dddOpenCancel"
+        );
+
+
+    const modal =
+        document.getElementById(
+            "dddCancelModal"
+        );
+
+
+    const closeCancel =
+        document.getElementById(
+            "dddCloseCancel"
+        );
+
+
+    const cancelForm =
+        document.getElementById(
+            "dddCancelForm"
+        );
+
+
+    const cancelReason =
+        document.getElementById(
+            "dddCancellationReason"
+        );
+
+
+    const confirmCancel =
+        document.getElementById(
+            "dddConfirmCancel"
+        );
+
+
+    const submitForms =
+        document.querySelectorAll(
+            ".ddd-submit-form"
+        );
+
+
+    /* ========================================================
+       HERO POINTER LIGHT
+    ======================================================== */
+
+    if (hero) {
+
+        hero.addEventListener(
+            "pointermove",
+            function (event) {
+
+                const rect =
+                    hero.getBoundingClientRect();
+
+
+                const x =
+                    (
+                        (
+                            event.clientX
+                            -
+                            rect.left
+                        )
+                        /
+                        rect.width
+                    )
+                    *
+                    100;
+
+
+                const y =
+                    (
+                        (
+                            event.clientY
+                            -
+                            rect.top
+                        )
+                        /
+                        rect.height
+                    )
+                    *
+                    100;
+
+
+                hero.style.setProperty(
+                    "--spot-x",
+                    x + "%"
+                );
+
+
+                hero.style.setProperty(
+                    "--spot-y",
+                    y + "%"
+                );
+            }
+        );
+
+
+        hero.addEventListener(
+            "pointerleave",
+            function () {
+
+                hero.style.setProperty(
+                    "--spot-x",
+                    "70%"
+                );
+
+
+                hero.style.setProperty(
+                    "--spot-y",
+                    "30%"
+                );
+            }
+        );
+    }
+
+
+    /* ========================================================
+       OVERLAY
+    ======================================================== */
+
+    function showOperation(
+        title,
+        description
+    ) {
+
+        if (operationTitle) {
+
+            operationTitle.textContent =
+                title;
+        }
+
+
+        if (operationDescription) {
+
+            operationDescription.textContent =
+                description;
+        }
+
+
+        if (progress) {
+
+            progress.classList.add(
+                "active"
+            );
+        }
+
+
+        if (operationOverlay) {
+
+            operationOverlay.classList.add(
+                "active"
+            );
+        }
+    }
+
+
+    function resetOperation() {
+
+        if (progress) {
+
+            progress.classList.remove(
+                "active"
+            );
+        }
+
+
+        if (operationOverlay) {
+
+            operationOverlay.classList.remove(
+                "active"
+            );
+        }
+    }
+
+
+    /* ========================================================
+       SUBMIT DISCOUNT
+    ======================================================== */
+
+    submitForms.forEach(
+        function (form) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+                    const button =
+                        form.querySelector(
+                            "button[type='submit']"
+                        );
+
+
+                    if (
+                        button
+                        &&
+                        button.disabled
+                    ) {
+                        return;
+                    }
+
+
+                    if (button) {
+
+                        button.disabled =
+                            true;
+
+
+                        button.textContent =
+                            "Submitting...";
+                    }
+
+
+                    showOperation(
+                        "Advancing discount workflow",
+                        "Validating the financial adjustment and updating its status..."
+                    );
+                }
+            );
+        }
+    );
+
+
+    /* ========================================================
+       MODAL
+    ======================================================== */
+
+    function openModal() {
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.add(
+            "open"
+        );
+
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        document.body.style.overflow =
+            "hidden";
+
+
+        window.setTimeout(
+            function () {
+
+                if (cancelReason) {
+
+                    cancelReason.focus();
+                }
+            },
+            120
+        );
+    }
+
+
+    function closeModal() {
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.remove(
+            "open"
+        );
+
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+
+        document.body.style.overflow =
+            "";
+    }
+
+
+    if (openCancel) {
+
+        openCancel.addEventListener(
+            "click",
+            openModal
+        );
+    }
+
+
+    if (closeCancel) {
+
+        closeCancel.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target
+                    ===
+                    modal
+                ) {
+
+                    closeModal();
+                }
+            }
+        );
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key
+                ===
+                "Escape"
+                &&
+                modal
+                &&
+                modal.classList.contains(
+                    "open"
+                )
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    /* ========================================================
+       CANCELLATION SUBMIT
+    ======================================================== */
+
+    if (cancelForm) {
+
+        cancelForm.addEventListener(
+            "submit",
+            function () {
+
+                if (
+                    confirmCancel
+                    &&
+                    confirmCancel.disabled
+                ) {
+
+                    return;
+                }
+
+
+                if (confirmCancel) {
+
+                    confirmCancel.disabled =
+                        true;
+
+
+                    confirmCancel.textContent =
+                        "Cancelling...";
+                }
+
+
+                closeModal();
+
+
+                showOperation(
+                    "Cancelling financial record",
+                    "Preserving the original discount and recording its cancellation history..."
+                );
+            }
+        );
+    }
+
+
+    /* ========================================================
+       BROWSER CACHE RESET
+    ======================================================== */
+
+    window.addEventListener(
+        "pageshow",
+        function () {
+
+            resetOperation();
+
+
+            document.body.style.overflow =
+                "";
+
+
+            submitForms.forEach(
+                function (form) {
+
+                    const button =
+                        form.querySelector(
+                            "button[type='submit']"
+                        );
+
+
+                    if (button) {
+
+                        button.disabled =
+                            false;
+
+
+                        button.innerHTML = `
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M5 12h14"></path>
+                                <path d="m14 7 5 5-5 5"></path>
+                            </svg>
+
+                            Submit discount
+                        `;
+                    }
+                }
+            );
+
+
+            if (confirmCancel) {
+
+                confirmCancel.disabled =
+                    false;
+
+
+                confirmCancel.textContent =
+                    "Confirm cancellation";
+            }
+        }
+    );
+
+})();
+</script>
+
+{% endblock %}

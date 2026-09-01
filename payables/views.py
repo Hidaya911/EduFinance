@@ -27,6 +27,7 @@ from .forms import (
     ExpenseForm,
     EmployeeFinancialProfileForm,
     EmployeeFinancialTransactionForm,
+    DiscountForm,
 )
 
 from .models import (
@@ -37,6 +38,7 @@ from .models import (
     Expense,
     EmployeeFinancialProfile,
     EmployeeFinancialTransaction,
+    Discount,
 )
 
 from .services import (
@@ -44,6 +46,10 @@ from .services import (
     void_supplier_payment,
     void_expense,
     void_employee_financial_transaction,
+    create_discount,
+    update_discount,
+    submit_discount,
+    cancel_discount,
 )
 
 
@@ -54,6 +60,8 @@ from .services import (
     process_approval_request,
     reject_approval_request,
     submit_approval_request,
+    approve_discount_approval,
+    reject_discount_approval,
 )
 
 
@@ -3535,27 +3543,56 @@ def approval_approve(
 
     try:
 
-        approval = (
-            approve_approval_request(
-                approval,
-                request.user,
-                comments,
+         if (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .DISCOUNT
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "discount"
+         ):
+
+            discount = (
+                approve_discount_approval(
+                    approval_request=approval,
+                    approver=request.user,
+                    comments=comments,
+                )
             )
-        )
+
+            approval = (
+                discount.approval_request
+            )
+
+         else:
+
+            approval = (
+                approve_approval_request(
+                    approval,
+                    request.user,
+                    comments,
+                )
+            )
 
 
-        messages.success(
+         messages.success(
             request,
             (
                 f"{approval.request_number} "
                 "was approved."
             ),
-        )
+         )
 
 
     except ValidationError as error:
 
-        messages.error(
+         messages.error(
             request,
             _approval_validation_message(
                 error
@@ -3595,13 +3632,42 @@ def approval_reject(
 
     try:
 
-        approval = (
-            reject_approval_request(
-                approval,
-                request.user,
-                comments,
+        if (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .DISCOUNT
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "discount"
+        ):
+
+            discount = (
+                reject_discount_approval(
+                    approval_request=approval,
+                    approver=request.user,
+                    comments=comments,
+                )
             )
-        )
+
+            approval = (
+                discount.approval_request
+            )
+
+        else:
+
+            approval = (
+                reject_approval_request(
+                    approval,
+                    request.user,
+                    comments,
+                )
+            )
 
 
         messages.success(
@@ -3676,4 +3742,754 @@ def approval_process(
     return redirect(
         "payables:approval_detail",
         pk=approval.pk,
+    )
+
+
+
+
+
+
+# ============================================================
+# DISCOUNTS
+# ============================================================
+
+@login_required
+def discount_list(request):
+
+    search = (
+        request.GET
+        .get(
+            "search",
+            "",
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET
+        .get(
+            "status",
+            "",
+        )
+        .strip()
+    )
+
+    discount_type = (
+        request.GET
+        .get(
+            "discount_type",
+            "",
+        )
+        .strip()
+    )
+
+    value_type = (
+        request.GET
+        .get(
+            "value_type",
+            "",
+        )
+        .strip()
+    )
+
+    approval = (
+        request.GET
+        .get(
+            "approval",
+            "",
+        )
+        .strip()
+    )
+
+    discounts = (
+        Discount.objects
+        .all()
+    )
+
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        discounts = (
+            discounts.filter(
+                Q(
+                    discount_number__icontains=
+                        search
+                )
+                |
+                Q(
+                    student_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    invoice_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    reason__icontains=
+                        search
+                )
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS FILTER
+    # --------------------------------------------------------
+
+    valid_statuses = {
+        choice[0]
+        for choice
+        in Discount.Status.choices
+    }
+
+    if status in valid_statuses:
+
+        discounts = (
+            discounts.filter(
+                status=status
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # DISCOUNT TYPE FILTER
+    # --------------------------------------------------------
+
+    valid_discount_types = {
+        choice[0]
+        for choice
+        in Discount.DiscountType.choices
+    }
+
+    if discount_type in valid_discount_types:
+
+        discounts = (
+            discounts.filter(
+                discount_type=
+                    discount_type
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # VALUE TYPE FILTER
+    # --------------------------------------------------------
+
+    valid_value_types = {
+        choice[0]
+        for choice
+        in Discount.ValueType.choices
+    }
+
+    if value_type in valid_value_types:
+
+        discounts = (
+            discounts.filter(
+                value_type=
+                    value_type
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # APPROVAL FILTER
+    # --------------------------------------------------------
+
+    if approval == "required":
+
+        discounts = (
+            discounts.filter(
+                requires_approval=True
+            )
+        )
+
+    elif approval == "not_required":
+
+        discounts = (
+            discounts.filter(
+                requires_approval=False
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # KPI DATA
+    # --------------------------------------------------------
+
+    all_discounts = (
+        Discount.objects.all()
+    )
+
+    total_discounts = (
+        all_discounts.count()
+    )
+
+    draft_count = (
+        all_discounts.filter(
+            status=
+                Discount.Status.DRAFT
+        )
+        .count()
+    )
+
+    pending_count = (
+        all_discounts.filter(
+            status=
+                Discount.Status
+                .PENDING_APPROVAL
+        )
+        .count()
+    )
+
+    approved_count = (
+        all_discounts.filter(
+            status=
+                Discount.Status.APPROVED
+        )
+        .count()
+    )
+
+    applied_count = (
+        all_discounts.filter(
+            status=
+                Discount.Status.APPLIED
+        )
+        .count()
+    )
+
+    fixed_amount_total = (
+        Decimal("0.00")
+    )
+
+    for item in (
+        all_discounts.filter(
+            value_type=
+                Discount.ValueType
+                .FIXED_AMOUNT
+        )
+        .exclude(
+            status=
+                Discount.Status.CANCELLED
+        )
+    ):
+
+        fixed_amount_total += (
+            item.value
+            or Decimal("0.00")
+        )
+
+
+    context = {
+
+        "discounts":
+            discounts,
+
+        "search":
+            search,
+
+        "status":
+            status,
+
+        "selected_discount_type":
+            discount_type,
+
+        "selected_value_type":
+            value_type,
+
+        "selected_approval":
+            approval,
+
+        "status_choices":
+            Discount.Status.choices,
+
+        "discount_type_choices":
+            Discount.DiscountType.choices,
+
+        "value_type_choices":
+            Discount.ValueType.choices,
+
+        "total_discounts":
+            total_discounts,
+
+        "draft_count":
+            draft_count,
+
+        "pending_count":
+            pending_count,
+
+        "approved_count":
+            approved_count,
+
+        "applied_count":
+            applied_count,
+
+        "fixed_amount_total":
+            fixed_amount_total,
+
+        "currency_code":
+            get_school_currency(),
+    }
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "discount_list.html"
+        ),
+        context,
+    )
+
+
+# ============================================================
+# CREATE DISCOUNT
+# ============================================================
+
+@login_required
+def discount_create(request):
+
+    if request.method == "POST":
+
+        form = DiscountForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            try:
+
+                discount = (
+                    create_discount(
+                        user=request.user,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        invoice_reference=
+                            form.cleaned_data[
+                                "invoice_reference"
+                            ],
+
+                        discount_type=
+                            form.cleaned_data[
+                                "discount_type"
+                            ],
+
+                        value_type=
+                            form.cleaned_data[
+                                "value_type"
+                            ],
+
+                        value=
+                            form.cleaned_data[
+                                "value"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        discount_date=
+                            form.cleaned_data[
+                                "discount_date"
+                            ],
+
+                        requires_approval=
+                            form.cleaned_data[
+                                "requires_approval"
+                            ],
+                    )
+                )
+
+                messages.success(
+                    request,
+                    (
+                        f"{discount.discount_number} "
+                        "was created successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:discount_detail",
+                    pk=discount.pk,
+                )
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+    else:
+
+        form = DiscountForm(
+            initial={
+                "discount_date":
+                    timezone.localdate(),
+            }
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "discount_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                "Create Discount",
+
+            "submit_text":
+                "Create Discount",
+
+            "is_edit":
+                False,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# EDIT DISCOUNT
+# ============================================================
+
+@login_required
+def discount_edit(
+    request,
+    pk,
+):
+
+    discount = (
+        get_object_or_404(
+            Discount,
+            pk=pk,
+        )
+    )
+
+
+    if (
+        discount.status
+        != Discount.Status.DRAFT
+    ):
+
+        messages.error(
+            request,
+            (
+                "Only draft discounts "
+                "can be edited."
+            ),
+        )
+
+        return redirect(
+            "payables:discount_detail",
+            pk=discount.pk,
+        )
+
+
+    if request.method == "POST":
+
+        form = DiscountForm(
+            request.POST,
+            instance=discount,
+        )
+
+        if form.is_valid():
+
+            try:
+
+                discount = (
+                    update_discount(
+                        discount=discount,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        invoice_reference=
+                            form.cleaned_data[
+                                "invoice_reference"
+                            ],
+
+                        discount_type=
+                            form.cleaned_data[
+                                "discount_type"
+                            ],
+
+                        value_type=
+                            form.cleaned_data[
+                                "value_type"
+                            ],
+
+                        value=
+                            form.cleaned_data[
+                                "value"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        discount_date=
+                            form.cleaned_data[
+                                "discount_date"
+                            ],
+
+                        requires_approval=
+                            form.cleaned_data[
+                                "requires_approval"
+                            ],
+                    )
+                )
+
+                messages.success(
+                    request,
+                    (
+                        f"{discount.discount_number} "
+                        "was updated successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:discount_detail",
+                    pk=discount.pk,
+                )
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+    else:
+
+        form = DiscountForm(
+            instance=discount
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "discount_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "discount":
+                discount,
+
+            "page_title":
+                "Edit Discount",
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# DISCOUNT DETAIL
+# ============================================================
+
+@login_required
+def discount_detail(
+    request,
+    pk,
+):
+
+    discount = (
+        get_object_or_404(
+            Discount,
+            pk=pk,
+        )
+    )
+
+    approval_request = (
+        discount.approval_request
+        if discount.approval_request_id
+        else None
+    )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "discount_detail.html"
+        ),
+        {
+            "discount":
+                discount,
+
+            "approval_request":
+                approval_request,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# SUBMIT DISCOUNT
+# ============================================================
+
+@login_required
+@require_POST
+def discount_submit(
+    request,
+    pk,
+):
+
+    discount = (
+        get_object_or_404(
+            Discount,
+            pk=pk,
+        )
+    )
+
+
+    try:
+
+        discount = (
+            submit_discount(
+                discount=discount
+            )
+        )
+
+        if (
+            discount.status
+            ==
+            Discount.Status
+            .PENDING_APPROVAL
+        ):
+
+            messages.success(
+                request,
+                (
+                    f"{discount.discount_number} "
+                    "was submitted for approval."
+                ),
+            )
+
+        else:
+
+            messages.success(
+                request,
+                (
+                    f"{discount.discount_number} "
+                    "was approved because no "
+                    "separate approval was required."
+                ),
+            )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            (
+                error.messages[0]
+                if error.messages
+                else
+                "Unable to submit discount."
+            ),
+        )
+
+
+    return redirect(
+        "payables:discount_detail",
+        pk=discount.pk,
+    )
+
+
+# ============================================================
+# CANCEL DISCOUNT
+# ============================================================
+
+@login_required
+@require_POST
+def discount_cancel(
+    request,
+    pk,
+):
+
+    discount = (
+        get_object_or_404(
+            Discount,
+            pk=pk,
+        )
+    )
+
+    reason = (
+        request.POST
+        .get(
+            "reason",
+            "",
+        )
+    )
+
+
+    try:
+
+        discount = (
+            cancel_discount(
+                discount=discount,
+                user=request.user,
+                reason=reason,
+            )
+        )
+
+        messages.success(
+            request,
+            (
+                f"{discount.discount_number} "
+                "was cancelled."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            (
+                error.messages[0]
+                if error.messages
+                else
+                "Unable to cancel discount."
+            ),
+        )
+
+
+    return redirect(
+        "payables:discount_detail",
+        pk=discount.pk,
     )

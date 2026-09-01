@@ -249,4 +249,45 @@ path(
     name="approval_process",
 ),
 
+
+# ============================================================
+# DISCOUNTS
+# ============================================================
+
+path(
+    "discounts/",
+    views.discount_list,
+    name="discount_list",
+),
+
+path(
+    "discounts/create/",
+    views.discount_create,
+    name="discount_create",
+),
+
+path(
+    "discounts/<str:pk>/",
+    views.discount_detail,
+    name="discount_detail",
+),
+
+path(
+    "discounts/<str:pk>/edit/",
+    views.discount_edit,
+    name="discount_edit",
+),
+
+path(
+    "discounts/<str:pk>/submit/",
+    views.discount_submit,
+    name="discount_submit",
+),
+
+path(
+    "discounts/<str:pk>/cancel/",
+    views.discount_cancel,
+    name="discount_cancel",
+),
+
 ]

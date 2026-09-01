@@ -1454,3 +1454,487 @@ class ApprovalRequest(models.Model):
                         )
                 }
             )
+
+
+
+# ============================================================
+# DISCOUNT NUMBER
+# ============================================================
+
+def generate_discount_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"DSC-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# DISCOUNT
+# ============================================================
+
+class Discount(models.Model):
+
+    # ========================================================
+    # DISCOUNT TYPE
+    # ========================================================
+
+    class DiscountType(models.TextChoices):
+
+        SIBLING = (
+            "sibling",
+            "Sibling Discount",
+        )
+
+        EARLY_PAYMENT = (
+            "early_payment",
+            "Early Payment Discount",
+        )
+
+        EMPLOYEE_CHILD = (
+            "employee_child",
+            "Employee Child Discount",
+        )
+
+        PROMOTIONAL = (
+            "promotional",
+            "Promotional Discount",
+        )
+
+        SPECIAL = (
+            "special",
+            "Special Discount",
+        )
+
+        OTHER = (
+            "other",
+            "Other",
+        )
+
+
+    # ========================================================
+    # VALUE TYPE
+    # ========================================================
+
+    class ValueType(models.TextChoices):
+
+        FIXED_AMOUNT = (
+            "fixed_amount",
+            "Fixed Amount",
+        )
+
+        PERCENTAGE = (
+            "percentage",
+            "Percentage",
+        )
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    class Status(models.TextChoices):
+
+        DRAFT = (
+            "draft",
+            "Draft",
+        )
+
+        PENDING_APPROVAL = (
+            "pending_approval",
+            "Pending Approval",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+        APPLIED = (
+            "applied",
+            "Applied",
+        )
+
+        CANCELLED = (
+            "cancelled",
+            "Cancelled",
+        )
+
+
+    # ========================================================
+    # IDENTITY
+    # ========================================================
+
+    discount_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_discount_number,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # DISCOUNT DATA
+    # ========================================================
+
+    discount_type = models.CharField(
+        max_length=30,
+        choices=DiscountType.choices,
+    )
+
+    value_type = models.CharField(
+        max_length=30,
+        choices=ValueType.choices,
+    )
+
+    value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    reason = models.TextField()
+
+
+    # ========================================================
+    # STUDENT / INVOICE
+    #
+    # Temporary shared references.
+    # Replace/integrate with Dev1's Student and Invoice models
+    # once those models exist.
+    # ========================================================
+
+    student_reference = models.CharField(
+        max_length=120,
+    )
+
+    invoice_reference = models.CharField(
+        max_length=120,
+    )
+
+
+    # ========================================================
+    # APPROVAL
+    # ========================================================
+
+    requires_approval = models.BooleanField(
+        default=False,
+    )
+
+    approval_request = models.ForeignKey(
+        "ApprovalRequest",
+        on_delete=models.PROTECT,
+        related_name="discount_records",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # RESPONSIBLE USERS
+    # ========================================================
+
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_discounts",
+    )
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approved_discounts",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # RECORD STATUS
+    # ========================================================
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # DATES
+    # ========================================================
+
+    discount_date = models.DateField(
+        default=timezone.localdate,
+    )
+
+    approved_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    applied_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # CANCELLATION
+    # ========================================================
+
+    cancellation_reason = models.TextField(
+        blank=True,
+    )
+
+    cancelled_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cancelled_discounts",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # TIMESTAMPS
+    # ========================================================
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    # ========================================================
+    # META
+    # ========================================================
+
+    class Meta:
+
+        db_table = "discounts"
+
+        ordering = [
+            "-discount_date",
+            "-created_at",
+        ]
+
+        verbose_name = "Discount"
+
+        verbose_name_plural = "Discounts"
+
+
+    # ========================================================
+    # STRING
+    # ========================================================
+
+    def __str__(self):
+
+        return (
+            f"{self.discount_number} - "
+            f"{self.student_reference}"
+        )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        super().clean()
+
+        errors = {}
+
+
+        # ----------------------------------------------------
+        # VALUE
+        # ----------------------------------------------------
+
+        if (
+            self.value is None
+            or
+            self.value <= Decimal("0.00")
+        ):
+
+            errors["value"] = (
+                "Discount value must be "
+                "greater than zero."
+            )
+
+
+        # ----------------------------------------------------
+        # PERCENTAGE
+        # ----------------------------------------------------
+
+        if (
+            self.value_type
+            ==
+            self.ValueType.PERCENTAGE
+            and
+            self.value is not None
+            and
+            (
+                self.value <= Decimal("0.00")
+                or
+                self.value > Decimal("100.00")
+            )
+        ):
+
+            errors["value"] = (
+                "Percentage discount must be "
+                "greater than 0 and cannot "
+                "exceed 100%."
+            )
+
+
+        # ----------------------------------------------------
+        # STUDENT REFERENCE
+        # ----------------------------------------------------
+
+        if (
+            not self.student_reference
+            or
+            not self.student_reference.strip()
+        ):
+
+            errors["student_reference"] = (
+                "Student reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # INVOICE REFERENCE
+        # ----------------------------------------------------
+
+        if (
+            not self.invoice_reference
+            or
+            not self.invoice_reference.strip()
+        ):
+
+            errors["invoice_reference"] = (
+                "Invoice reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # REASON
+        # ----------------------------------------------------
+
+        if (
+            not self.reason
+            or
+            not self.reason.strip()
+        ):
+
+            errors["reason"] = (
+                "Discount reason is required."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVAL REQUEST TYPE
+        # ----------------------------------------------------
+
+        if self.approval_request_id:
+
+            if (
+                self.approval_request.operation_type
+                !=
+                ApprovalRequest.OperationType.DISCOUNT
+            ):
+
+                errors["approval_request"] = (
+                    "The linked approval request "
+                    "must be a Discount approval."
+                )
+
+
+        # ----------------------------------------------------
+        # APPROVAL CONSISTENCY
+        # ----------------------------------------------------
+
+        if (
+            self.requires_approval
+            and
+            self.status
+            in [
+                self.Status.APPROVED,
+                self.Status.APPLIED,
+            ]
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before this discount can be approved."
+            )
+
+
+        if errors:
+
+            raise ValidationError(
+                errors
+            )
+
+
+    # ========================================================
+    # SAVE / NORMALIZATION
+    # ========================================================
+
+    def save(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        if self.student_reference:
+
+            self.student_reference = (
+                self.student_reference
+                .strip()
+            )
+
+        if self.invoice_reference:
+
+            self.invoice_reference = (
+                self.invoice_reference
+                .strip()
+            )
+
+        if self.reason:
+
+            self.reason = (
+                self.reason
+                .strip()
+            )
+
+        super().save(
+            *args,
+            **kwargs,
+        )

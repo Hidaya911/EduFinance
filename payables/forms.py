@@ -1,5 +1,6 @@
 import os
 
+from decimal import Decimal
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -12,6 +13,7 @@ from .models import (
     EmployeeFinancialProfile,
     EmployeeFinancialTransaction,
     ApprovalRequest,
+    Discount,
 )
 
 
@@ -1442,5 +1444,247 @@ class ApprovalRequestForm(forms.ModelForm):
         cleaned_data[
             "related_entity_id"
         ] = entity_id
+
+        return cleaned_data
+
+
+
+
+# ============================================================
+# DISCOUNT FORM
+# ============================================================
+
+class DiscountForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Discount
+
+        fields = [
+            "student_reference",
+            "invoice_reference",
+            "discount_type",
+            "value_type",
+            "value",
+            "discount_date",
+            "requires_approval",
+            "reason",
+        ]
+
+        widgets = {
+
+            "student_reference":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Student ID / reference",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "invoice_reference":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Invoice number / reference",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "discount_type":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "value_type":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "value":
+                forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "0.00",
+                        "min": "0.01",
+                        "step": "0.01",
+                    }
+                ),
+
+            "discount_date":
+                forms.DateInput(
+                    attrs={
+                        "class": "form-control",
+                        "type": "date",
+                    }
+                ),
+
+            "requires_approval":
+                forms.CheckboxInput(
+                    attrs={
+                        "class": "form-check-input",
+                    }
+                ),
+
+            "reason":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 5,
+                        "placeholder":
+                            (
+                                "Explain why this discount "
+                                "is being granted..."
+                            ),
+                    }
+                ),
+        }
+
+
+    # ========================================================
+    # STUDENT REFERENCE
+    # ========================================================
+
+    def clean_student_reference(self):
+
+        value = (
+            self.cleaned_data
+            .get(
+                "student_reference",
+                "",
+            )
+            .strip()
+        )
+
+        if not value:
+
+            raise forms.ValidationError(
+                "Student reference is required."
+            )
+
+        return value
+
+
+    # ========================================================
+    # INVOICE REFERENCE
+    # ========================================================
+
+    def clean_invoice_reference(self):
+
+        value = (
+            self.cleaned_data
+            .get(
+                "invoice_reference",
+                "",
+            )
+            .strip()
+        )
+
+        if not value:
+
+            raise forms.ValidationError(
+                "Invoice reference is required."
+            )
+
+        return value
+
+
+    # ========================================================
+    # VALUE
+    # ========================================================
+
+    def clean_value(self):
+
+        value = (
+            self.cleaned_data.get(
+                "value"
+            )
+        )
+
+        if (
+            value is None
+            or
+            value <= Decimal("0.00")
+        ):
+
+            raise forms.ValidationError(
+                (
+                    "Discount value must be "
+                    "greater than zero."
+                )
+            )
+
+        return value
+
+
+    # ========================================================
+    # REASON
+    # ========================================================
+
+    def clean_reason(self):
+
+        reason = (
+            self.cleaned_data
+            .get(
+                "reason",
+                "",
+            )
+            .strip()
+        )
+
+        if not reason:
+
+            raise forms.ValidationError(
+                "Discount reason is required."
+            )
+
+        return reason
+
+
+    # ========================================================
+    # CROSS-FIELD VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        cleaned_data = (
+            super().clean()
+        )
+
+        value_type = (
+            cleaned_data.get(
+                "value_type"
+            )
+        )
+
+        value = (
+            cleaned_data.get(
+                "value"
+            )
+        )
+
+        if (
+            value_type
+            ==
+            Discount.ValueType.PERCENTAGE
+            and
+            value is not None
+            and
+            value > Decimal("100.00")
+        ):
+
+            self.add_error(
+                "value",
+                (
+                    "Percentage discount cannot "
+                    "exceed 100%."
+                ),
+            )
 
         return cleaned_data
