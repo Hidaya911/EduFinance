@@ -3,7 +3,7 @@
 <aside class="sidebar d-flex flex-column justify-content-between p-3">
   <div>
     <!-- Brand Logo -->
-  <div class="sidebar-brand mb-4 p-0">
+    <div class="sidebar-brand mb-4 p-0">
       <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance Logo" style="height: 69px; width: auto; display: block;">
     </div>
 
@@ -12,7 +12,7 @@
       
       <!-- OVERVIEW -->
       <div class="nav-section-label">OVERVIEW</div>
-      <a href="#" class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <a href="{% url 'dashboard' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
         <i class="bi bi-grid-fill me-2"></i> Dashboard
       </a>
 
@@ -45,19 +45,30 @@
       <a href="#" class="nav-link-custom {% if 'reports' in request.path %}active{% endif %}">
         <i class="bi bi-bar-chart-line-fill me-2"></i> Reports
       </a>
-      <a href="#" class="nav-link-custom">Statements</a>
+      <a href="#" class="nav-link-custom">
+        <i class="bi bi-file-text-fill me-2"></i> Statements
+      </a>
 
-      <!-- MANAGEMENT (Visible to Admins / Managers) -->
-      {% if user.is_staff or user.role == 'admin' %}
+      <!-- MANAGEMENT (Visible to Admins / Managers / Staff) -->
+      {% if user.is_staff or user.is_superuser %}
       <div class="nav-section-label">MANAGEMENT</div>
-      <a href="#" class="nav-link-custom">Approvals</a>
-      <a href="#" class="nav-link-custom">Audit Log</a>
+      <a href="#" class="nav-link-custom">
+        <i class="bi bi-people-fill me-2"></i> Users
+      </a>
+      <a href="{% url 'roles_list' %}" class="nav-link-custom {% if 'roles' in request.path %}active{% endif %}">
+        <i class="bi bi-shield-check me-2"></i> Roles & Permissions
+      </a>
+      <a href="#" class="nav-link-custom">
+        <i class="bi bi-check-circle-fill me-2"></i> Approvals
+      </a>
+      <a href="#" class="nav-link-custom">
+        <i class="bi bi-journal-text me-2"></i> Audit Log
+      </a>
       {% endif %}
 
       <!-- CONFIGURATION (Visible to Super Admins) -->
       {% if user.is_superuser %}
       <div class="nav-section-label">CONFIGURATION</div>
-      <a href="#" class="nav-link-custom">Users & Roles</a>
       <a href="#" class="nav-link-custom">Academic Years</a>
       <a href="#" class="nav-link-custom">School Settings</a>
       {% endif %}
@@ -72,7 +83,13 @@
     </div>
     <div class="user-info text-truncate">
       <div class="user-name">{{ user.get_full_name|default:"Amal Rahal" }}</div>
-      <div class="user-role">{{ user.groups.first.name|default:"Accountant" }}</div>
+      <div class="user-role">
+        {% if user.is_superuser %}
+          Super Admin
+        {% else %}
+          {{ user.groups.first.name|default:"Accountant" }}
+        {% endif %}
+      </div>
     </div>
   </div>
 </aside>

@@ -37,8 +37,24 @@ SECRET_KEY = 'django-insecure-3-594ti_e40(+n48@wdxdlw30qg!@$zj3j%z9b48d1xih4ik1*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+# Required so Django trusts POST requests (like the login form) coming from
+# these origins. Add any cloud IDE / tunnel URL here too if you use one,
+# e.g. 'https://your-forwarded-domain.example.com'
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+# Our login page asks for email, so authenticate against the email field.
+# ModelBackend stays as a fallback so /admin (which asks for username) still works.
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Application definition
 
@@ -49,7 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -85,10 +101,17 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# settings.py example for MongoDB
+MONGODB_URI = os.getenv('MONGO_URI')
+MONGODB_NAME = os.getenv('MONGO_DB_NAME', 'edufinance')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': MONGODB_NAME,
+        'CLIENT': {
+            'host': MONGODB_URI,
+        },
     }
 }
 

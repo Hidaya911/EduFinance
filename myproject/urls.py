@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
     path('preview/', views.base_preview_view, name='base_preview'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
     # path('', include('students.urls')),      # Students & Core Transactions
     # path('', include('reports.urls')),       # Dashboard & Reports
 ]
