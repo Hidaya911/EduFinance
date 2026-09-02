@@ -1938,3 +1938,562 @@ class Discount(models.Model):
             *args,
             **kwargs,
         )
+
+
+
+
+# ============================================================
+# SCHOLARSHIP NUMBER
+# ============================================================
+
+def generate_scholarship_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"SCH-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# SCHOLARSHIP
+# ============================================================
+
+class Scholarship(models.Model):
+
+    # ========================================================
+    # VALUE TYPE
+    # ========================================================
+
+    class ValueType(models.TextChoices):
+
+        FIXED_AMOUNT = (
+            "fixed_amount",
+            "Fixed Amount",
+        )
+
+        PERCENTAGE = (
+            "percentage",
+            "Percentage",
+        )
+
+
+    # ========================================================
+    # STATUS
+    #
+    # The BRD requires scholarship status but does not define
+    # exact scholarship-specific status values.
+    #
+    # These lifecycle states align the scholarship module with
+    # EduFinance's existing approval and financial workflows.
+    # ========================================================
+
+    class Status(models.TextChoices):
+
+        DRAFT = (
+            "draft",
+            "Draft",
+        )
+
+        PENDING_APPROVAL = (
+            "pending_approval",
+            "Pending Approval",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+        APPLIED = (
+            "applied",
+            "Applied",
+        )
+
+        CANCELLED = (
+            "cancelled",
+            "Cancelled",
+        )
+
+
+    # ========================================================
+    # IDENTITY
+    # ========================================================
+
+    scholarship_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_scholarship_number,
+        editable=False,
+    )
+
+    scholarship_name = models.CharField(
+        max_length=180,
+    )
+
+
+    # ========================================================
+    # STUDENT
+    #
+    # Temporary shared reference until Dev1's Student model
+    # becomes available.
+    # ========================================================
+
+    student_reference = models.CharField(
+        max_length=120,
+    )
+
+
+    # ========================================================
+    # ACADEMIC YEAR
+    #
+    # Stored as a snapshot instead of dynamically reading the
+    # School current year. This protects historical records if
+    # the school's current academic year changes later.
+    #
+    # Replace/integrate with the shared AcademicYear model once
+    # one exists.
+    # ========================================================
+
+    academic_year_reference = models.CharField(
+        max_length=40,
+    )
+
+
+    # ========================================================
+    # PROVIDER
+    # ========================================================
+
+    provider = models.CharField(
+        max_length=180,
+        blank=True,
+    )
+
+
+    # ========================================================
+    # SCHOLARSHIP VALUE
+    # ========================================================
+
+    value_type = models.CharField(
+        max_length=30,
+        choices=ValueType.choices,
+    )
+
+    value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+
+    # ========================================================
+    # EFFECTIVE PERIOD
+    # ========================================================
+
+    start_date = models.DateField(
+        default=timezone.localdate,
+    )
+
+    end_date = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # DOCUMENTATION
+    # ========================================================
+
+    supporting_document = models.FileField(
+        upload_to="scholarships/%Y/%m/",
+        blank=True,
+    )
+
+
+    # ========================================================
+    # REASON
+    # ========================================================
+
+    reason = models.TextField()
+
+
+    # ========================================================
+    # APPROVAL ROUTING
+    #
+    # Scholarships are sensitive financial adjustments.
+    # This flag lets the module use the existing generic
+    # ApprovalRequest workflow without creating another
+    # approval implementation.
+    # ========================================================
+
+    requires_approval = models.BooleanField(
+        default=True,
+    )
+
+    approval_request = models.ForeignKey(
+        "ApprovalRequest",
+        on_delete=models.PROTECT,
+        related_name="scholarship_records",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # RESPONSIBLE USERS
+    # ========================================================
+
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_scholarships",
+    )
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approved_scholarships",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # APPROVAL / APPLICATION DATES
+    # ========================================================
+
+    approved_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    applied_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # CANCELLATION
+    # ========================================================
+
+    cancellation_reason = models.TextField(
+        blank=True,
+    )
+
+    cancelled_at = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cancelled_scholarships",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # TIMESTAMPS
+    # ========================================================
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    # ========================================================
+    # META
+    # ========================================================
+
+    class Meta:
+
+        db_table = "scholarships"
+
+        ordering = [
+            "-start_date",
+            "-created_at",
+        ]
+
+        verbose_name = "Scholarship"
+
+        verbose_name_plural = "Scholarships"
+
+
+    # ========================================================
+    # STRING
+    # ========================================================
+
+    def __str__(self):
+
+        return (
+            f"{self.scholarship_number} - "
+            f"{self.scholarship_name}"
+        )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        super().clean()
+
+        errors = {}
+
+
+        # ----------------------------------------------------
+        # SCHOLARSHIP NAME
+        # ----------------------------------------------------
+
+        if (
+            not self.scholarship_name
+            or
+            not self.scholarship_name.strip()
+        ):
+
+            errors["scholarship_name"] = (
+                "Scholarship name is required."
+            )
+
+
+        # ----------------------------------------------------
+        # STUDENT
+        # ----------------------------------------------------
+
+        if (
+            not self.student_reference
+            or
+            not self.student_reference.strip()
+        ):
+
+            errors["student_reference"] = (
+                "Student reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # ACADEMIC YEAR
+        # ----------------------------------------------------
+
+        if (
+            not self.academic_year_reference
+            or
+            not self.academic_year_reference.strip()
+        ):
+
+            errors["academic_year_reference"] = (
+                "Academic year is required."
+            )
+
+
+        # ----------------------------------------------------
+        # VALUE
+        # ----------------------------------------------------
+
+        if (
+            self.value is None
+            or
+            self.value <= Decimal("0.00")
+        ):
+
+            errors["value"] = (
+                "Scholarship value must be "
+                "greater than zero."
+            )
+
+
+        # ----------------------------------------------------
+        # PERCENTAGE
+        # ----------------------------------------------------
+
+        if (
+            self.value_type
+            ==
+            self.ValueType.PERCENTAGE
+            and
+            self.value is not None
+            and
+            (
+                self.value <= Decimal("0.00")
+                or
+                self.value > Decimal("100.00")
+            )
+        ):
+
+            errors["value"] = (
+                "Scholarship percentage must be "
+                "greater than 0 and cannot "
+                "exceed 100%."
+            )
+
+
+        # ----------------------------------------------------
+        # EFFECTIVE DATES
+        # ----------------------------------------------------
+
+        if (
+            self.start_date
+            and
+            self.end_date
+            and
+            self.end_date < self.start_date
+        ):
+
+            errors["end_date"] = (
+                "Scholarship end date cannot be "
+                "earlier than the start date."
+            )
+
+
+        # ----------------------------------------------------
+        # REASON
+        # ----------------------------------------------------
+
+        if (
+            not self.reason
+            or
+            not self.reason.strip()
+        ):
+
+            errors["reason"] = (
+                "Scholarship reason is required."
+            )
+
+
+        # ----------------------------------------------------
+        # LINKED APPROVAL REQUEST
+        # ----------------------------------------------------
+
+        if self.approval_request_id:
+
+            if (
+                self.approval_request.operation_type
+                !=
+                ApprovalRequest
+                .OperationType
+                .SCHOLARSHIP
+            ):
+
+                errors["approval_request"] = (
+                    "The linked approval request "
+                    "must be a Scholarship approval."
+                )
+
+
+        # ----------------------------------------------------
+        # APPROVAL CONSISTENCY
+        # ----------------------------------------------------
+
+        if (
+            self.requires_approval
+            and
+            self.status
+            in [
+                self.Status.APPROVED,
+                self.Status.APPLIED,
+            ]
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before this scholarship can "
+                "be approved."
+            )
+
+
+        if errors:
+
+            raise ValidationError(
+                errors
+            )
+
+
+    # ========================================================
+    # SAVE / NORMALIZATION
+    # ========================================================
+
+    def save(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        if self.scholarship_name:
+
+            self.scholarship_name = (
+                self.scholarship_name
+                .strip()
+            )
+
+
+        if self.student_reference:
+
+            self.student_reference = (
+                self.student_reference
+                .strip()
+            )
+
+
+        if self.academic_year_reference:
+
+            self.academic_year_reference = (
+                self.academic_year_reference
+                .strip()
+            )
+
+
+        if self.provider:
+
+            self.provider = (
+                self.provider
+                .strip()
+            )
+
+
+        if self.reason:
+
+            self.reason = (
+                self.reason
+                .strip()
+            )
+
+
+        super().save(
+            *args,
+            **kwargs,
+        )

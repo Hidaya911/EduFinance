@@ -1,0 +1,3354 @@
+{% extends "base.html" %}
+
+{% block title %}Scholarship Intelligence | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE
+   SCHOLARSHIP FUNDING COMMAND CENTER
+
+   Namespace: sfc-
+============================================================ */
+
+
+/* ============================================================
+   ROOT
+============================================================ */
+
+.sfc-page {
+
+    --navy-1000: #020f1e;
+    --navy-950: #041629;
+    --navy-900: #071f3a;
+    --navy-850: #0c2a4b;
+    --navy-800: #12375f;
+
+    --blue-700: #174fc4;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-400: #60a5fa;
+
+    --cyan-600: #0891b2;
+    --cyan-500: #06b6d4;
+    --cyan-400: #22d3ee;
+
+    --gold-700: #a16207;
+    --gold-600: #ca8a04;
+    --gold-500: #eab308;
+    --gold-400: #facc15;
+
+    --amber-600: #d97706;
+    --amber-500: #f59e0b;
+
+    --green-700: #047857;
+    --green-600: #059669;
+    --green-500: #10b981;
+    --green-400: #34d399;
+
+    --violet-600: #7c3aed;
+    --violet-500: #8b5cf6;
+
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+
+    --text-950: #14243a;
+    --text-800: #31465f;
+    --text-700: #475b72;
+    --text-600: #65778c;
+    --text-500: #8190a3;
+    --text-400: #9da8b6;
+
+    position: relative;
+
+    min-height: 100vh;
+
+    padding:
+        28px
+        30px
+        84px;
+
+    overflow: hidden;
+
+    isolation: isolate;
+
+    color: var(--text-950);
+
+    background:
+        radial-gradient(
+            circle at 91% 3%,
+            rgba(37,99,235,.14),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 8% 16%,
+            rgba(234,179,8,.07),
+            transparent 21%
+        ),
+        radial-gradient(
+            circle at 78% 82%,
+            rgba(6,182,212,.045),
+            transparent 20%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            #f3f7fc 45%,
+            #edf3f9 100%
+        );
+}
+
+
+/* ============================================================
+   GRID BACKDROP
+============================================================ */
+
+.sfc-page::before {
+
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    z-index: -4;
+
+    pointer-events: none;
+
+    opacity: .52;
+
+    background-image:
+        linear-gradient(
+            rgba(28,73,126,.03) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(28,73,126,.03) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        43px
+        43px;
+}
+
+
+/* ============================================================
+   AMBIENT LIGHTS
+============================================================ */
+
+.sfc-ambient {
+
+    position: fixed;
+
+    z-index: -3;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(80px);
+
+    opacity: .14;
+}
+
+
+.sfc-ambient-a {
+
+    width: 420px;
+    height: 420px;
+
+    top: 80px;
+    right: -190px;
+
+    background: #3b82f6;
+
+    animation:
+        sfcAmbientA
+        15s ease-in-out infinite;
+}
+
+
+.sfc-ambient-b {
+
+    width: 330px;
+    height: 330px;
+
+    left: -190px;
+    top: 560px;
+
+    background: #eab308;
+
+    opacity: .08;
+
+    animation:
+        sfcAmbientB
+        18s ease-in-out infinite;
+}
+
+
+.sfc-ambient-c {
+
+    width: 280px;
+    height: 280px;
+
+    right: 28%;
+    bottom: -170px;
+
+    background: #06b6d4;
+
+    opacity: .07;
+}
+
+
+@keyframes sfcAmbientA {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0,0,0);
+    }
+
+    50% {
+        transform:
+            translate3d(-80px,70px,0);
+    }
+}
+
+
+@keyframes sfcAmbientB {
+
+    0%,
+    100% {
+        transform:
+            translate3d(0,0,0);
+    }
+
+    50% {
+        transform:
+            translate3d(90px,-55px,0);
+    }
+}
+
+
+/* ============================================================
+   SHELL
+============================================================ */
+
+.sfc-shell {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1550px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   LOADING BAR
+============================================================ */
+
+.sfc-progress {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 999999;
+
+    width: 100%;
+    height: 3px;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .15s ease;
+}
+
+
+.sfc-progress.active {
+    opacity: 1;
+}
+
+
+.sfc-progress::after {
+
+    content: "";
+
+    display: block;
+
+    width: 29%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #3b82f6,
+            #22d3ee,
+            #facc15,
+            transparent
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(37,99,235,.45);
+
+    animation:
+        sfcProgress
+        .9s cubic-bezier(.65,0,.35,1)
+        infinite;
+}
+
+
+@keyframes sfcProgress {
+
+    from {
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+        transform:
+            translateX(460%);
+    }
+}
+
+
+/* ============================================================
+   CONTEXT
+============================================================ */
+
+.sfc-context {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+
+    animation:
+        sfcReveal
+        .45s ease both;
+}
+
+
+.sfc-breadcrumb {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    color: #8a98a9;
+
+    font-size: 10px;
+    font-weight: 760;
+}
+
+
+.sfc-breadcrumb-dot {
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: #c5ced9;
+}
+
+
+.sfc-breadcrumb-current {
+    color: #365470;
+}
+
+
+.sfc-online {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 30px;
+
+    padding:
+        0
+        11px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.08);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.72);
+
+    backdrop-filter:
+        blur(12px);
+
+    color: #58728e;
+
+    box-shadow:
+        0 7px 20px
+        rgba(25,49,82,.04);
+
+    font-size: 8.5px;
+    font-weight: 820;
+}
+
+
+.sfc-online-light {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #10b981;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(16,185,129,.09);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.sfc-hero {
+
+    --mouse-x: 72%;
+    --mouse-y: 25%;
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.3fr)
+        minmax(360px,.7fr);
+
+    gap: 25px;
+
+    min-height: 320px;
+
+    overflow: hidden;
+
+    padding:
+        35px
+        36px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 28px;
+
+    background:
+        radial-gradient(
+            circle at
+            var(--mouse-x)
+            var(--mouse-y),
+            rgba(250,204,21,.12),
+            transparent 20%
+        ),
+        linear-gradient(
+            127deg,
+            #031321 0%,
+            #071e37 36%,
+            #0d315a 67%,
+            #15518e 100%
+        );
+
+    box-shadow:
+        0 28px 68px
+        rgba(7,30,60,.2);
+
+    color: white;
+
+    animation:
+        sfcReveal
+        .55s .03s ease both;
+}
+
+
+.sfc-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 540px;
+    height: 540px;
+
+    top: -375px;
+    right: -120px;
+
+    border:
+        74px solid
+        rgba(255,255,255,.037);
+
+    border-radius: 50%;
+}
+
+
+.sfc-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 270px;
+    height: 270px;
+
+    left: 39%;
+    bottom: -240px;
+
+    border:
+        47px solid
+        rgba(96,165,250,.045);
+
+    border-radius: 50%;
+}
+
+
+.sfc-hero-copy {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.sfc-eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    gap: 8px;
+
+    min-height: 29px;
+
+    padding:
+        0
+        11px;
+
+    margin-bottom: 15px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.11);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    backdrop-filter:
+        blur(12px);
+
+    color:
+        rgba(255,255,255,.68);
+
+    font-size: 8.8px;
+    font-weight: 860;
+
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+
+.sfc-eyebrow-dot {
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #facc15,
+            #f59e0b
+        );
+
+    box-shadow:
+        0 0 15px
+        rgba(250,204,21,.65);
+}
+
+
+.sfc-hero h1 {
+
+    max-width: 760px;
+
+    margin: 0;
+
+    color: white;
+
+    font-size:
+        clamp(
+            34px,
+            4.4vw,
+            53px
+        );
+
+    line-height: .98;
+
+    letter-spacing: -.052em;
+
+    font-weight: 880;
+}
+
+
+.sfc-title-highlight {
+
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #d9e9ff 48%,
+            #fde68a
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+}
+
+
+.sfc-hero-copy p {
+
+    max-width: 750px;
+
+    margin:
+        18px
+        0
+        0;
+
+    color:
+        rgba(235,243,255,.66);
+
+    font-size: 11.8px;
+
+    line-height: 1.8;
+}
+
+
+.sfc-hero-actions {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 23px;
+}
+
+
+.sfc-create {
+
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    min-height: 46px;
+
+    padding:
+        0
+        17px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f5f8ff
+        );
+
+    box-shadow:
+        0 12px 29px
+        rgba(0,0,0,.16);
+
+    color: #194169;
+
+    text-decoration: none;
+
+    font-size: 10px;
+    font-weight: 860;
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+
+.sfc-create:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 17px 34px
+        rgba(0,0,0,.2);
+}
+
+
+.sfc-create svg {
+
+    width: 15px;
+    height: 15px;
+}
+
+
+.sfc-currency-note {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color:
+        rgba(255,255,255,.62);
+
+    font-size: 8.5px;
+    font-weight: 720;
+}
+
+
+.sfc-currency-note span {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+/* ============================================================
+   HERO VISUAL
+============================================================ */
+
+.sfc-visual {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+}
+
+
+.sfc-orbit {
+
+    position: relative;
+
+    width: 260px;
+    height: 260px;
+}
+
+
+.sfc-orbit-ring {
+
+    position: absolute;
+
+    inset: 10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    animation:
+        sfcSpin
+        19s linear infinite;
+}
+
+
+.sfc-orbit-ring::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    top: 26px;
+    left: 37px;
+
+    border-radius: 50%;
+
+    background: #facc15;
+
+    box-shadow:
+        0 0 17px
+        rgba(250,204,21,.78);
+}
+
+
+.sfc-orbit-ring::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    right: 29px;
+    bottom: 34px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 17px
+        rgba(96,165,250,.78);
+}
+
+
+.sfc-orbit-inner {
+
+    position: absolute;
+
+    inset: 44px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.09);
+
+    border-radius: 50%;
+
+    animation:
+        sfcSpinReverse
+        14s linear infinite;
+}
+
+
+.sfc-orbit-core {
+
+    position: absolute;
+
+    inset: 68px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 34% 25%,
+            rgba(255,255,255,.17),
+            rgba(255,255,255,.05)
+        );
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        inset 0 0 34px
+        rgba(255,255,255,.035),
+        0 24px 52px
+        rgba(0,0,0,.17);
+}
+
+
+.sfc-orbit-symbol {
+
+    color: #fff3ad;
+
+    font-size: 32px;
+    font-weight: 350;
+}
+
+
+.sfc-orbit-label {
+
+    margin-top: 7px;
+
+    color:
+        rgba(255,255,255,.5);
+
+    font-size: 7px;
+    font-weight: 850;
+
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+
+.sfc-floating-chip {
+
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 33px;
+
+    padding:
+        0
+        10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius: 10px;
+
+    background:
+        rgba(4,22,40,.52);
+
+    backdrop-filter:
+        blur(13px);
+
+    color:
+        rgba(255,255,255,.67);
+
+    box-shadow:
+        0 13px 27px
+        rgba(0,0,0,.15);
+
+    font-size: 7.8px;
+    font-weight: 760;
+}
+
+
+.sfc-floating-chip strong {
+    color: white;
+}
+
+
+.sfc-chip-one {
+
+    left: -22px;
+    top: 54px;
+
+    animation:
+        sfcFloat
+        4.3s ease-in-out infinite;
+}
+
+
+.sfc-chip-two {
+
+    right: -22px;
+    bottom: 53px;
+
+    animation:
+        sfcFloat
+        4.9s .45s ease-in-out infinite;
+}
+
+
+.sfc-chip-light {
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #34d399;
+}
+
+
+.sfc-chip-two
+.sfc-chip-light {
+
+    background: #fbbf24;
+}
+
+
+@keyframes sfcSpin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes sfcSpinReverse {
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+@keyframes sfcFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-7px);
+    }
+}
+
+
+/* ============================================================
+   KPI SECTION
+============================================================ */
+
+.sfc-kpis {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        .82fr
+        .82fr
+        .82fr
+        1.36fr;
+
+    gap: 13px;
+
+    margin-top: 17px;
+}
+
+
+.sfc-kpi {
+
+    position: relative;
+
+    min-height: 137px;
+
+    overflow: hidden;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 18px;
+
+    background:
+        rgba(255,255,255,.88);
+
+    backdrop-filter:
+        blur(15px);
+
+    box-shadow:
+        0 13px 34px
+        rgba(30,51,81,.055);
+
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+
+    animation:
+        sfcReveal
+        .5s ease both;
+}
+
+
+.sfc-kpi:nth-child(1) {
+    animation-delay: .08s;
+}
+
+.sfc-kpi:nth-child(2) {
+    animation-delay: .12s;
+}
+
+.sfc-kpi:nth-child(3) {
+    animation-delay: .16s;
+}
+
+.sfc-kpi:nth-child(4) {
+    animation-delay: .20s;
+}
+
+.sfc-kpi:nth-child(5) {
+    animation-delay: .24s;
+}
+
+
+.sfc-kpi:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(37,99,235,.14);
+
+    box-shadow:
+        0 18px 40px
+        rgba(30,51,81,.085);
+}
+
+
+.sfc-kpi::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    right: -45px;
+    bottom: -47px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(37,99,235,.065),
+            transparent 68%
+        );
+}
+
+
+.sfc-kpi-top {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.sfc-kpi-label {
+
+    color: #7f8d9f;
+
+    font-size: 8.2px;
+    font-weight: 870;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+
+.sfc-kpi-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 8px;
+
+    background: #edf4ff;
+
+    color: #2f66af;
+}
+
+
+.sfc-kpi-icon svg {
+
+    width: 14px;
+    height: 14px;
+}
+
+
+.sfc-kpi-value {
+
+    margin-top: 13px;
+
+    color: #163552;
+
+    font-size: 29px;
+    font-weight: 880;
+
+    line-height: 1;
+
+    letter-spacing: -.04em;
+}
+
+
+.sfc-kpi-value.pending {
+    color: #c16a08;
+}
+
+
+.sfc-kpi-value.approved {
+    color: #07845f;
+}
+
+
+.sfc-kpi-value.money {
+
+    color: #906b08;
+
+    font-size: 20px;
+}
+
+
+.sfc-kpi-foot {
+
+    margin-top: 9px;
+
+    color: #98a3b0;
+
+    font-size: 8.3px;
+}
+
+
+/* ============================================================
+   INTELLIGENCE STRIP
+============================================================ */
+
+.sfc-intelligence {
+
+    display: grid;
+
+    grid-template-columns:
+        1.28fr
+        .72fr;
+
+    gap: 13px;
+
+    margin-top: 13px;
+}
+
+
+.sfc-insight {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding:
+        17px
+        18px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.085);
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(241,247,255,.95),
+            rgba(255,255,255,.94)
+        );
+
+    box-shadow:
+        0 10px 27px
+        rgba(30,51,80,.035);
+
+    animation:
+        sfcReveal
+        .5s .27s ease both;
+}
+
+
+.sfc-insight.gold {
+
+    border-color:
+        rgba(202,138,4,.11);
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffbea,
+            #fffefa
+        );
+}
+
+
+.sfc-insight-label {
+
+    color: #426a94;
+
+    font-size: 7.8px;
+    font-weight: 870;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+
+.sfc-insight.gold
+.sfc-insight-label {
+    color: #a2720a;
+}
+
+
+.sfc-insight strong {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color: #2f4b67;
+
+    font-size: 10.8px;
+}
+
+
+.sfc-insight p {
+
+    max-width: 760px;
+
+    margin:
+        5px
+        0
+        0;
+
+    color: #8291a2;
+
+    font-size: 8.7px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   LEDGER
+============================================================ */
+
+.sfc-ledger {
+
+    margin-top: 16px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 22px;
+
+    background:
+        rgba(255,255,255,.94);
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        0 17px 43px
+        rgba(27,49,80,.065);
+
+    animation:
+        sfcReveal
+        .55s .3s ease both;
+}
+
+
+.sfc-ledger-head {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        17px
+        18px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+}
+
+
+.sfc-ledger-title {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.sfc-ledger-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 31px;
+    height: 31px;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff8d9,
+            #fffdf2
+        );
+
+    color: #a47708;
+}
+
+
+.sfc-ledger-icon svg {
+
+    width: 15px;
+    height: 15px;
+}
+
+
+.sfc-ledger-title strong {
+
+    display: block;
+
+    color: #2d4864;
+
+    font-size: 11px;
+}
+
+
+.sfc-ledger-title small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #99a3b0;
+
+    font-size: 8px;
+}
+
+
+/* ============================================================
+   FILTERS
+============================================================ */
+
+.sfc-filters {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(300px,1.5fr)
+        repeat(
+            4,
+            minmax(150px,.67fr)
+        );
+
+    gap: 9px;
+
+    padding:
+        14px
+        17px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+
+    background: #fbfcfe;
+}
+
+
+.sfc-field {
+
+    position: relative;
+}
+
+
+.sfc-search-icon {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 13px;
+    top: 50%;
+
+    width: 14px;
+    height: 14px;
+
+    transform:
+        translateY(-50%);
+
+    color: #98a5b5;
+}
+
+
+.sfc-input,
+.sfc-select {
+
+    width: 100%;
+    height: 42px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid
+        #e0e6ee;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color: #455970;
+
+    font-size: 10px;
+    font-weight: 650;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+}
+
+
+.sfc-input {
+
+    padding:
+        0
+        12px
+        0
+        38px;
+}
+
+
+.sfc-select {
+
+    padding:
+        0
+        10px;
+}
+
+
+.sfc-input:focus,
+.sfc-select:focus {
+
+    border-color:
+        rgba(37,99,235,.43);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.065);
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.sfc-table-shell {
+    overflow-x: auto;
+}
+
+
+.sfc-table {
+
+    width: 100%;
+
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+
+.sfc-table th {
+
+    padding:
+        11px
+        15px;
+
+    border-bottom:
+        1px solid
+        #e9eef4;
+
+    background:
+        #f9fbfd;
+
+    color: #8c98a8;
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: .075em;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+
+.sfc-table td {
+
+    padding:
+        14px
+        15px;
+
+    border-bottom:
+        1px solid
+        #eef2f6;
+
+    color: #455a71;
+
+    font-size: 9.8px;
+
+    vertical-align: middle;
+}
+
+
+.sfc-table tbody tr {
+
+    transition:
+        background .16s ease;
+}
+
+
+.sfc-table tbody tr:hover {
+
+    background:
+        linear-gradient(
+            90deg,
+            #f7faff,
+            #fcfdff
+        );
+}
+
+
+.sfc-record {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.sfc-record-icon {
+
+    position: relative;
+
+    display: grid;
+    place-items: center;
+
+    flex:
+        0 0
+        35px;
+
+    width: 35px;
+    height: 35px;
+
+    border:
+        1px solid
+        #e7ebf1;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff8d9,
+            #ffffff
+        );
+
+    color: #a77707;
+
+    font-size: 14px;
+    font-weight: 900;
+}
+
+
+.sfc-record-icon::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 6px;
+    height: 6px;
+
+    right: -2px;
+    top: -2px;
+
+    border:
+        2px solid
+        white;
+
+    border-radius: 50%;
+
+    background: #eab308;
+}
+
+
+.sfc-number {
+
+    color: #245cb3;
+
+    font-size: 9.8px;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+
+.sfc-number:hover {
+    text-decoration: underline;
+}
+
+
+.sfc-name {
+
+    margin-top: 3px;
+
+    color: #7d8b9b;
+
+    font-size: 8px;
+}
+
+
+.sfc-student {
+
+    color: #263f5d;
+
+    font-weight: 820;
+}
+
+
+.sfc-sub {
+
+    margin-top: 3px;
+
+    color: #98a3b1;
+
+    font-size: 8px;
+}
+
+
+.sfc-value {
+
+    color: #183c68;
+
+    font-size: 10.8px;
+    font-weight: 880;
+
+    white-space: nowrap;
+}
+
+
+.sfc-value.percentage {
+    color: #7b5b09;
+}
+
+
+/* ============================================================
+   BADGES
+============================================================ */
+
+.sfc-pill {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 25px;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    white-space: nowrap;
+
+    font-size: 8px;
+    font-weight: 840;
+}
+
+
+.sfc-pill-dot {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+}
+
+
+.sfc-status-draft {
+
+    background: #f1f3f6;
+    color: #667085;
+}
+
+
+.sfc-status-draft
+.sfc-pill-dot {
+    background: #98a2b3;
+}
+
+
+.sfc-status-pending_approval {
+
+    background: #fff6e6;
+    color: #b86607;
+}
+
+
+.sfc-status-pending_approval
+.sfc-pill-dot {
+    background: #f59e0b;
+}
+
+
+.sfc-status-approved {
+
+    background: #eaf8f3;
+    color: #07805d;
+}
+
+
+.sfc-status-approved
+.sfc-pill-dot {
+    background: #10b981;
+}
+
+
+.sfc-status-rejected {
+
+    background: #fff0f1;
+    color: #cc3232;
+}
+
+
+.sfc-status-rejected
+.sfc-pill-dot {
+    background: #ef4444;
+}
+
+
+.sfc-status-applied {
+
+    background: #edf4ff;
+    color: #2563eb;
+}
+
+
+.sfc-status-applied
+.sfc-pill-dot {
+    background: #3b82f6;
+}
+
+
+.sfc-status-cancelled {
+
+    background: #f3f4f6;
+    color: #717985;
+}
+
+
+.sfc-status-cancelled
+.sfc-pill-dot {
+    background: #9ca3af;
+}
+
+
+.sfc-approval {
+
+    background: #fff8dc;
+    color: #9f730a;
+}
+
+
+.sfc-direct {
+
+    background: #ecf8f3;
+    color: #0b7b5b;
+}
+
+
+.sfc-row-action {
+
+    display: grid;
+    place-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    border:
+        1px solid
+        #e4e9f0;
+
+    border-radius: 8px;
+
+    background: white;
+
+    color: #8491a1;
+
+    text-decoration: none;
+
+    transition:
+        transform .15s ease,
+        color .15s ease,
+        border-color .15s ease;
+}
+
+
+.sfc-row-action:hover {
+
+    transform:
+        translateX(2px);
+
+    color: #2563eb;
+
+    border-color: #ccd9ec;
+}
+
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.sfc-empty {
+
+    padding:
+        72px
+        24px
+        78px;
+
+    text-align: center;
+}
+
+
+.sfc-empty-orbit {
+
+    position: relative;
+
+    width: 92px;
+    height: 92px;
+
+    margin:
+        0
+        auto
+        20px;
+}
+
+
+.sfc-empty-orbit::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    border:
+        1px dashed
+        #d6c77c;
+
+    border-radius: 50%;
+
+    animation:
+        sfcSpin
+        13s linear infinite;
+}
+
+
+.sfc-empty-orbit::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    left: 10px;
+    top: 12px;
+
+    border-radius: 50%;
+
+    background: #eab308;
+
+    box-shadow:
+        0 0 13px
+        rgba(234,179,8,.42);
+}
+
+
+.sfc-empty-center {
+
+    position: absolute;
+
+    inset: 18px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff9dc,
+            #ffffff
+        );
+
+    color: #9c730b;
+
+    box-shadow:
+        0 12px 30px
+        rgba(89,73,24,.08);
+
+    font-size: 25px;
+}
+
+
+.sfc-empty h3 {
+
+    margin: 0;
+
+    color: #294763;
+
+    font-size: 15px;
+}
+
+
+.sfc-empty p {
+
+    max-width: 470px;
+
+    margin:
+        8px
+        auto
+        17px;
+
+    color: #909cab;
+
+    font-size: 9px;
+
+    line-height: 1.7;
+}
+
+
+.sfc-empty-action {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding:
+        0
+        13px;
+
+    border-radius: 10px;
+
+    background: #fff6d8;
+
+    color: #8e6909;
+
+    text-decoration: none;
+
+    font-size: 8.5px;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   REVEAL
+============================================================ */
+
+@keyframes sfcReveal {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(12px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1260px) {
+
+    .sfc-hero {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            315px;
+    }
+
+    .sfc-kpis {
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0,1fr)
+            );
+    }
+
+    .sfc-filters {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+
+    .sfc-filters
+    .sfc-field:first-child {
+
+        grid-column:
+            1 / -1;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .sfc-page {
+
+        padding:
+            19px
+            14px
+            55px;
+    }
+
+    .sfc-hero {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sfc-visual {
+        display: none;
+    }
+
+    .sfc-intelligence {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .sfc-context {
+
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sfc-hero {
+
+        padding:
+            25px
+            21px;
+    }
+
+    .sfc-kpis {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sfc-filters {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sfc-filters
+    .sfc-field:first-child {
+
+        grid-column: auto;
+    }
+}
+
+</style>
+
+
+<div
+    id="sfcProgress"
+    class="sfc-progress"
+></div>
+
+
+<div class="sfc-ambient sfc-ambient-a"></div>
+<div class="sfc-ambient sfc-ambient-b"></div>
+<div class="sfc-ambient sfc-ambient-c"></div>
+
+
+<div class="sfc-page">
+
+<div class="sfc-shell">
+
+
+    <!-- =====================================================
+         CONTEXT
+    ====================================================== -->
+
+    <div class="sfc-context">
+
+        <div class="sfc-breadcrumb">
+
+            <span>
+                EduFinance
+            </span>
+
+            <span class="sfc-breadcrumb-dot"></span>
+
+            <span>
+                Financial Assistance
+            </span>
+
+            <span class="sfc-breadcrumb-dot"></span>
+
+            <span class="sfc-breadcrumb-current">
+                Scholarships
+            </span>
+
+        </div>
+
+
+        <div class="sfc-online">
+
+            <span class="sfc-online-light"></span>
+
+            Funding controls online
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section
+        id="sfcHero"
+        class="sfc-hero"
+    >
+
+        <div class="sfc-hero-copy">
+
+            <div class="sfc-eyebrow">
+
+                <span class="sfc-eyebrow-dot"></span>
+
+                Scholarship funding intelligence
+
+            </div>
+
+
+            <h1>
+
+                Turn educational funding into
+
+                <span class="sfc-title-highlight">
+                    accountable impact.
+                </span>
+
+            </h1>
+
+
+            <p>
+                Manage scholarship awards, sponsors, academic-year
+                commitments and approval-sensitive funding from one
+                controlled financial workspace. Every award remains
+                traceable from draft through approval and eventual
+                application to student liability.
+            </p>
+
+
+            <div class="sfc-hero-actions">
+
+                <a
+                    href="{% url 'payables:scholarship_create' %}"
+                    class="sfc-create"
+                >
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+
+                    Create scholarship
+
+                </a>
+
+
+                <div class="sfc-currency-note">
+
+                    <span></span>
+
+                    School currency:
+                    {{ currency_code }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="sfc-visual">
+
+            <div class="sfc-orbit">
+
+                <div class="sfc-orbit-ring"></div>
+
+                <div class="sfc-orbit-inner"></div>
+
+
+                <div class="sfc-orbit-core">
+
+                    <div class="sfc-orbit-symbol">
+                        ✦
+                    </div>
+
+                    <div class="sfc-orbit-label">
+                        Funding Engine
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="
+                        sfc-floating-chip
+                        sfc-chip-one
+                    "
+                >
+
+                    <span class="sfc-chip-light"></span>
+
+                    Pending
+
+                    <strong>
+                        {{ pending_count }}
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="
+                        sfc-floating-chip
+                        sfc-chip-two
+                    "
+                >
+
+                    <span class="sfc-chip-light"></span>
+
+                    Approved
+
+                    <strong>
+                        {{ approved_count }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         KPIs
+    ====================================================== -->
+
+    <section class="sfc-kpis">
+
+
+        <article class="sfc-kpi">
+
+            <div class="sfc-kpi-top">
+
+                <div class="sfc-kpi-label">
+                    Scholarship awards
+                </div>
+
+                <div class="sfc-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <path d="M3 8 12 3l9 5-9 5z"></path>
+                        <path d="M6 10v5c3 2 9 2 12 0v-5"></path>
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div class="sfc-kpi-value">
+                {{ total_count }}
+            </div>
+
+            <div class="sfc-kpi-foot">
+                Historical funding records
+            </div>
+
+        </article>
+
+
+        <article class="sfc-kpi">
+
+            <div class="sfc-kpi-top">
+
+                <div class="sfc-kpi-label">
+                    Draft awards
+                </div>
+
+                <div class="sfc-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <path d="M5 4h14v16H5z"></path>
+                        <path d="M8 9h8"></path>
+                        <path d="M8 13h5"></path>
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div class="sfc-kpi-value">
+                {{ draft_count }}
+            </div>
+
+            <div class="sfc-kpi-foot">
+                Editable funding plans
+            </div>
+
+        </article>
+
+
+        <article class="sfc-kpi">
+
+            <div class="sfc-kpi-top">
+
+                <div class="sfc-kpi-label">
+                    Approval queue
+                </div>
+
+                <div class="sfc-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div
+                class="
+                    sfc-kpi-value
+                    pending
+                "
+            >
+                {{ pending_count }}
+            </div>
+
+            <div class="sfc-kpi-foot">
+                Awaiting decision
+            </div>
+
+        </article>
+
+
+        <article class="sfc-kpi">
+
+            <div class="sfc-kpi-top">
+
+                <div class="sfc-kpi-label">
+                    Approved awards
+                </div>
+
+                <div class="sfc-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="m8 12 2.5 2.5L16.5 9"></path>
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div
+                class="
+                    sfc-kpi-value
+                    approved
+                "
+            >
+                {{ approved_count }}
+            </div>
+
+            <div class="sfc-kpi-foot">
+                Accepted funding awards
+            </div>
+
+        </article>
+
+
+        <article class="sfc-kpi">
+
+            <div class="sfc-kpi-top">
+
+                <div class="sfc-kpi-label">
+                    Fixed funding exposure
+                </div>
+
+                <div class="sfc-kpi-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M9 9.5c.8-1.1 5-1.1 5.8.2.8 1.2-.2 2.3-2.8 2.3-2.4 0-3.4 1-2.7 2.2.8 1.5 5.2 1.3 6-.1"></path>
+                    </svg>
+
+                </div>
+
+            </div>
+
+            <div
+                class="
+                    sfc-kpi-value
+                    money
+                "
+            >
+                {{ currency_code }}
+                {{ fixed_amount_total|floatformat:2 }}
+            </div>
+
+            <div class="sfc-kpi-foot">
+                Excluding cancelled records
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         INTELLIGENCE
+    ====================================================== -->
+
+    <section class="sfc-intelligence">
+
+        <article class="sfc-insight">
+
+            <div class="sfc-insight-label">
+                Historical integrity
+            </div>
+
+            <strong>
+                Scholarship academic years remain permanent snapshots.
+            </strong>
+
+            <p>
+                A school's current academic year can change later,
+                but each scholarship continues to preserve the
+                original year under which the funding was awarded.
+            </p>
+
+        </article>
+
+
+        <article class="sfc-insight gold">
+
+            <div class="sfc-insight-label">
+                Liability integration
+            </div>
+
+            <strong>
+                {{ applied_count }} applied scholarship{{ applied_count|pluralize }}
+            </strong>
+
+            <p>
+                Application remains reserved for the shared
+                student-financial-account integration.
+            </p>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         LEDGER
+    ====================================================== -->
+
+    <section class="sfc-ledger">
+
+        <div class="sfc-ledger-head">
+
+            <div class="sfc-ledger-title">
+
+                <div class="sfc-ledger-icon">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                    >
+                        <path d="M4 5h16"></path>
+                        <path d="M4 12h16"></path>
+                        <path d="M4 19h16"></path>
+                        <circle cx="8" cy="5" r="2"></circle>
+                        <circle cx="15" cy="12" r="2"></circle>
+                        <circle cx="10" cy="19" r="2"></circle>
+                    </svg>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Scholarship funding ledger
+                    </strong>
+
+                    <small>
+                        Search, segment and inspect funding awards
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FILTERS
+        ================================================== -->
+
+        <form
+            id="scholarshipFilterForm"
+            method="get"
+            class="sfc-filters"
+        >
+
+            <div class="sfc-field">
+
+                <svg
+                    class="sfc-search-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="m20 20-3.5-3.5"></path>
+                </svg>
+
+
+                <input
+                    id="scholarshipSearch"
+                    type="search"
+                    name="search"
+                    value="{{ search }}"
+                    class="sfc-input"
+                    placeholder="Search scholarship, student, provider, year or reason..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="sfc-field">
+
+                <select
+                    name="status"
+                    class="
+                        sfc-select
+                        sfc-auto-filter
+                    "
+                >
+
+                    <option value="">
+                        All statuses
+                    </option>
+
+                    {% for value, label in status_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_status == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="sfc-field">
+
+                <select
+                    name="value_type"
+                    class="
+                        sfc-select
+                        sfc-auto-filter
+                    "
+                >
+
+                    <option value="">
+                        All value types
+                    </option>
+
+                    {% for value, label in value_type_choices %}
+
+                        <option
+                            value="{{ value }}"
+                            {% if selected_value_type == value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="sfc-field">
+
+                <select
+                    name="academic_year"
+                    class="
+                        sfc-select
+                        sfc-auto-filter
+                    "
+                >
+
+                    <option value="">
+                        All academic years
+                    </option>
+
+                    {% for year in academic_year_choices %}
+
+                        <option
+                            value="{{ year }}"
+                            {% if selected_academic_year == year %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ year }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="sfc-field">
+
+                <select
+                    name="approval"
+                    class="
+                        sfc-select
+                        sfc-auto-filter
+                    "
+                >
+
+                    <option value="">
+                        All governance modes
+                    </option>
+
+                    <option
+                        value="required"
+                        {% if selected_approval == "required" %}
+                            selected
+                        {% endif %}
+                    >
+                        Approval required
+                    </option>
+
+                    <option
+                        value="direct"
+                        {% if selected_approval == "direct" %}
+                            selected
+                        {% endif %}
+                    >
+                        Direct approval
+                    </option>
+
+                </select>
+
+            </div>
+
+        </form>
+
+
+        <!-- =================================================
+             TABLE
+        ================================================== -->
+
+        <div class="sfc-table-shell">
+
+            {% if scholarships %}
+
+                <table class="sfc-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Award
+                            </th>
+
+                            <th>
+                                Student
+                            </th>
+
+                            <th>
+                                Academic year
+                            </th>
+
+                            <th>
+                                Provider
+                            </th>
+
+                            <th>
+                                Funding value
+                            </th>
+
+                            <th>
+                                Governance
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th></th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for scholarship in scholarships %}
+
+                            <tr>
+
+
+                                <!-- AWARD -->
+
+                                <td>
+
+                                    <div class="sfc-record">
+
+                                        <div class="sfc-record-icon">
+                                            ✦
+                                        </div>
+
+                                        <div>
+
+                                            <a
+                                                href="{% url 'payables:scholarship_detail' scholarship.pk %}"
+                                                class="sfc-number"
+                                            >
+                                                {{ scholarship.scholarship_number }}
+                                            </a>
+
+                                            <div class="sfc-name">
+                                                {{ scholarship.scholarship_name }}
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- STUDENT -->
+
+                                <td>
+
+                                    <div class="sfc-student">
+                                        {{ scholarship.student_reference }}
+                                    </div>
+
+                                    <div class="sfc-sub">
+                                        {{ scholarship.start_date|date:"d M Y" }}
+                                    </div>
+
+                                </td>
+
+
+                                <!-- YEAR -->
+
+                                <td>
+
+                                    <div class="sfc-student">
+                                        {{ scholarship.academic_year_reference }}
+                                    </div>
+
+                                </td>
+
+
+                                <!-- PROVIDER -->
+
+                                <td>
+
+                                    {% if scholarship.provider %}
+
+                                        <div class="sfc-student">
+                                            {{ scholarship.provider }}
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="sfc-sub">
+                                            Not specified
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- VALUE -->
+
+                                <td>
+
+                                    {% if scholarship.value_type == "percentage" %}
+
+                                        <span
+                                            class="
+                                                sfc-value
+                                                percentage
+                                            "
+                                        >
+                                            {{ scholarship.value|floatformat:2 }}%
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="sfc-value">
+                                            {{ currency_code }}
+                                            {{ scholarship.value|floatformat:2 }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- APPROVAL -->
+
+                                <td>
+
+                                    {% if scholarship.requires_approval %}
+
+                                        <span
+                                            class="
+                                                sfc-pill
+                                                sfc-approval
+                                            "
+                                        >
+                                            Approval required
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                sfc-pill
+                                                sfc-direct
+                                            "
+                                        >
+                                            Direct
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            sfc-pill
+                                            sfc-status-{{ scholarship.status }}
+                                        "
+                                    >
+
+                                        <span class="sfc-pill-dot"></span>
+
+                                        {{ scholarship.get_status_display }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- OPEN -->
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'payables:scholarship_detail' scholarship.pk %}"
+                                        class="sfc-row-action"
+                                        aria-label="Open scholarship"
+                                    >
+                                        →
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <div class="sfc-empty">
+
+                    <div class="sfc-empty-orbit">
+
+                        <div class="sfc-empty-center">
+                            ✦
+                        </div>
+
+                    </div>
+
+
+                    <h3>
+                        No scholarship awards found
+                    </h3>
+
+
+                    <p>
+                        No scholarships match this funding view.
+                        Adjust the filters or create a new student
+                        scholarship award.
+                    </p>
+
+
+                    {% if search or selected_status or selected_value_type or selected_academic_year or selected_approval %}
+
+                        <a
+                            href="{% url 'payables:scholarship_list' %}"
+                            class="sfc-empty-action"
+                        >
+                            Clear all filters
+                        </a>
+
+                    {% else %}
+
+                        <a
+                            href="{% url 'payables:scholarship_create' %}"
+                            class="sfc-empty-action"
+                        >
+                            Create first scholarship
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    const form =
+        document.getElementById(
+            "scholarshipFilterForm"
+        );
+
+
+    const search =
+        document.getElementById(
+            "scholarshipSearch"
+        );
+
+
+    const filters =
+        document.querySelectorAll(
+            ".sfc-auto-filter"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "sfcProgress"
+        );
+
+
+    const hero =
+        document.getElementById(
+            "sfcHero"
+        );
+
+
+    let timer = null;
+
+
+    function startLoading() {
+
+        if (progress) {
+
+            progress.classList.add(
+                "active"
+            );
+        }
+    }
+
+
+    function submitFilters() {
+
+        startLoading();
+
+        form.submit();
+    }
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(
+                    timer
+                );
+
+
+                timer =
+                    setTimeout(
+                        submitFilters,
+                        320
+                    );
+            }
+        );
+    }
+
+
+    filters.forEach(
+        function (field) {
+
+            field.addEventListener(
+                "change",
+                submitFilters
+            );
+        }
+    );
+
+
+    if (hero) {
+
+        hero.addEventListener(
+            "pointermove",
+            function (event) {
+
+                const rect =
+                    hero.getBoundingClientRect();
+
+
+                const x =
+                    (
+                        (
+                            event.clientX
+                            -
+                            rect.left
+                        )
+                        /
+                        rect.width
+                    )
+                    *
+                    100;
+
+
+                const y =
+                    (
+                        (
+                            event.clientY
+                            -
+                            rect.top
+                        )
+                        /
+                        rect.height
+                    )
+                    *
+                    100;
+
+
+                hero.style.setProperty(
+                    "--mouse-x",
+                    x + "%"
+                );
+
+
+                hero.style.setProperty(
+                    "--mouse-y",
+                    y + "%"
+                );
+            }
+        );
+
+
+        hero.addEventListener(
+            "pointerleave",
+            function () {
+
+                hero.style.setProperty(
+                    "--mouse-x",
+                    "72%"
+                );
+
+                hero.style.setProperty(
+                    "--mouse-y",
+                    "25%"
+                );
+            }
+        );
+    }
+
+
+    window.addEventListener(
+        "pageshow",
+        function () {
+
+            if (progress) {
+
+                progress.classList.remove(
+                    "active"
+                );
+            }
+        }
+    );
+
+})();
+</script>
+
+{% endblock %}

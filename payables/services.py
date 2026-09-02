@@ -6,6 +6,7 @@ from django.utils import timezone
 from .models import (
     ApprovalRequest,
     Discount,
+    Scholarship,
 )
 
 from .models import (
@@ -505,6 +506,76 @@ def process_approval_request(
             )
         )
 
+    # --------------------------------------------------------
+    # DISCOUNT PROCESSING PROTECTION
+    # --------------------------------------------------------
+
+    if (
+        approval_request.operation_type
+        ==
+        ApprovalRequest.OperationType.DISCOUNT
+        and
+        (
+            approval_request.related_entity_type
+            or ""
+        ).strip().lower()
+        ==
+        "discount"
+    ):
+
+        discount = get_discount_for_approval(
+            approval_request
+        )
+
+        if (
+            discount.status
+            !=
+            Discount.Status.APPLIED
+        ):
+
+            raise ValidationError(
+                (
+                    "This discount cannot be marked as "
+                    "processed until it has been applied "
+                    "to its invoice."
+                )
+            )
+
+    # --------------------------------------------------------
+    # SCHOLARSHIP PROCESSING PROTECTION
+    # --------------------------------------------------------
+
+    if (
+        approval_request.operation_type
+        ==
+        ApprovalRequest.OperationType.SCHOLARSHIP
+        and
+        (
+            approval_request.related_entity_type
+            or ""
+        ).strip().lower()
+        ==
+        "scholarship"
+    ):
+
+        scholarship = get_scholarship_for_approval(
+            approval_request
+        )
+
+        if (
+            scholarship.status
+            !=
+            Scholarship.Status.APPLIED
+        ):
+
+            raise ValidationError(
+                (
+                    "This scholarship cannot be marked as "
+                    "processed until it has been applied to "
+                    "the student's financial account."
+                )
+            )
+
     approval_request.status = (
         ApprovalRequest.Status.PROCESSED
     )
@@ -527,8 +598,6 @@ def process_approval_request(
     )
 
     return approval_request
-
-
 
 
 # ============================================================
@@ -1176,3 +1245,779 @@ def cancel_discount(
     discount.save()
 
     return discount
+
+
+
+
+# ============================================================
+# SCHOLARSHIP — CREATE
+# ============================================================
+
+def create_scholarship(
+    *,
+    user,
+    scholarship_name,
+    student_reference,
+    academic_year_reference,
+    provider,
+    value_type,
+    value,
+    start_date,
+    end_date,
+    supporting_document,
+    reason,
+    requires_approval=True,
+):
+
+    scholarship = Scholarship(
+        scholarship_name=
+            scholarship_name,
+
+        student_reference=
+            student_reference,
+
+        academic_year_reference=
+            academic_year_reference,
+
+        provider=
+            provider,
+
+        value_type=
+            value_type,
+
+        value=
+            value,
+
+        start_date=
+            start_date,
+
+        end_date=
+            end_date,
+
+        supporting_document=
+            supporting_document,
+
+        reason=
+            reason,
+
+        requires_approval=
+            requires_approval,
+
+        requested_by=
+            user,
+
+        status=
+            Scholarship.Status.DRAFT,
+    )
+
+    scholarship.full_clean()
+
+    scholarship.save()
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — UPDATE DRAFT
+# ============================================================
+
+def update_scholarship(
+    *,
+    scholarship,
+    scholarship_name,
+    student_reference,
+    academic_year_reference,
+    provider,
+    value_type,
+    value,
+    start_date,
+    end_date,
+    supporting_document,
+    reason,
+    requires_approval,
+):
+
+    scholarship = (
+        Scholarship.objects
+        .get(
+            pk=scholarship.pk
+        )
+    )
+
+    if (
+        scholarship.status
+        !=
+        Scholarship.Status.DRAFT
+    ):
+
+        raise ValidationError(
+            (
+                "Only draft scholarships "
+                "can be edited."
+            )
+        )
+
+
+    scholarship.scholarship_name = (
+        scholarship_name
+    )
+
+    scholarship.student_reference = (
+        student_reference
+    )
+
+    scholarship.academic_year_reference = (
+        academic_year_reference
+    )
+
+    scholarship.provider = (
+        provider
+    )
+
+    scholarship.value_type = (
+        value_type
+    )
+
+    scholarship.value = (
+        value
+    )
+
+    scholarship.start_date = (
+        start_date
+    )
+
+    scholarship.end_date = (
+        end_date
+    )
+
+    scholarship.supporting_document = (
+        supporting_document
+    )
+
+    scholarship.reason = (
+        reason
+    )
+
+    scholarship.requires_approval = (
+        requires_approval
+    )
+
+
+    scholarship.full_clean()
+
+    scholarship.save()
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — APPROVAL DESCRIPTION
+# ============================================================
+
+def _scholarship_approval_description(
+    scholarship,
+):
+
+    if (
+        scholarship.value_type
+        ==
+        Scholarship
+        .ValueType
+        .PERCENTAGE
+    ):
+
+        value_description = (
+            f"{scholarship.value:.2f}%"
+        )
+
+    else:
+
+        value_description = (
+            f"Fixed amount "
+            f"{scholarship.value:.2f}"
+        )
+
+
+    provider_description = (
+        scholarship.provider
+        if scholarship.provider
+        else "Not specified"
+    )
+
+
+    return (
+        f"Scholarship "
+        f"{scholarship.scholarship_number} "
+        f"for student "
+        f"{scholarship.student_reference}. "
+        f"Scholarship: "
+        f"{scholarship.scholarship_name}. "
+        f"Academic year: "
+        f"{scholarship.academic_year_reference}. "
+        f"Provider: "
+        f"{provider_description}. "
+        f"Value: "
+        f"{value_description}."
+    )
+
+
+# ============================================================
+# SCHOLARSHIP — SUBMIT
+# ============================================================
+
+def submit_scholarship(
+    *,
+    scholarship,
+):
+
+    scholarship = (
+        Scholarship.objects
+        .get(
+            pk=scholarship.pk
+        )
+    )
+
+
+    if (
+        scholarship.status
+        !=
+        Scholarship.Status.DRAFT
+    ):
+
+        raise ValidationError(
+            (
+                "Only draft scholarships "
+                "can be submitted."
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # DIRECT WORKFLOW
+    # --------------------------------------------------------
+
+    if not scholarship.requires_approval:
+
+        scholarship.status = (
+            Scholarship.Status.APPROVED
+        )
+
+        scholarship.approved_at = (
+            timezone.now()
+        )
+
+        scholarship.full_clean()
+
+        scholarship.save()
+
+        return scholarship
+
+
+    # --------------------------------------------------------
+    # APPROVAL-CONTROLLED WORKFLOW
+    # --------------------------------------------------------
+
+    if scholarship.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This scholarship already "
+                "has an approval request."
+            )
+        )
+
+
+    # ApprovalRequest.amount represents a monetary amount.
+    # A scholarship percentage therefore does not populate it.
+    approval_amount = None
+
+
+    if (
+        scholarship.value_type
+        ==
+        Scholarship
+        .ValueType
+        .FIXED_AMOUNT
+    ):
+
+        approval_amount = (
+            scholarship.value
+        )
+
+
+    approval_request = (
+        ApprovalRequest(
+            operation_type=
+                ApprovalRequest
+                .OperationType
+                .SCHOLARSHIP,
+
+            title=(
+                "Scholarship approval — "
+                f"{scholarship.scholarship_number}"
+            ),
+
+            description=(
+                _scholarship_approval_description(
+                    scholarship
+                )
+            ),
+
+            amount=
+                approval_amount,
+
+            related_entity_type=
+                "Scholarship",
+
+            related_entity_id=
+                str(
+                    scholarship.pk
+                ),
+
+            requester=
+                scholarship.requested_by,
+
+            request_reason=
+                scholarship.reason,
+
+            status=
+                ApprovalRequest
+                .Status
+                .REQUESTED,
+        )
+    )
+
+
+    approval_request.full_clean()
+
+    approval_request.save()
+
+
+    try:
+
+        approval_request = (
+            submit_approval_request(
+                approval_request
+            )
+        )
+
+
+        scholarship.approval_request = (
+            approval_request
+        )
+
+        scholarship.status = (
+            Scholarship
+            .Status
+            .PENDING_APPROVAL
+        )
+
+
+        scholarship.full_clean()
+
+        scholarship.save()
+
+
+    except Exception:
+
+        # Internal compensating rollback only.
+        # The newly-created approval record has never
+        # become a valid user-facing financial workflow
+        # if scholarship linking fails.
+        approval_request.delete()
+
+        raise
+
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — RESOLVE LINKED APPROVAL
+# ============================================================
+
+def get_scholarship_for_approval(
+    approval_request,
+):
+
+    if (
+        approval_request.operation_type
+        !=
+        ApprovalRequest
+        .OperationType
+        .SCHOLARSHIP
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request "
+                "is not for a scholarship."
+            )
+        )
+
+
+    entity_type = (
+        approval_request
+        .related_entity_type
+        or ""
+    ).strip()
+
+
+    entity_id = (
+        approval_request
+        .related_entity_id
+        or ""
+    ).strip()
+
+
+    if (
+        entity_type.lower()
+        !=
+        "scholarship"
+        or
+        not entity_id
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request "
+                "is not linked to a "
+                "valid scholarship."
+            )
+        )
+
+
+    try:
+
+        scholarship = (
+            Scholarship.objects
+            .get(
+                pk=entity_id
+            )
+        )
+
+    except Scholarship.DoesNotExist:
+
+        raise ValidationError(
+            (
+                "The scholarship linked "
+                "to this approval request "
+                "could not be found."
+            )
+        )
+
+
+    if (
+        not scholarship.approval_request_id
+        or
+        str(
+            scholarship
+            .approval_request_id
+        )
+        !=
+        str(
+            approval_request.pk
+        )
+    ):
+
+        raise ValidationError(
+            (
+                "The approval request "
+                "is not linked to this "
+                "scholarship record."
+            )
+        )
+
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — APPROVE LINKED APPROVAL
+# ============================================================
+
+def approve_scholarship_approval(
+    *,
+    approval_request,
+    approver,
+    comments="",
+):
+
+    approval_request = (
+        ApprovalRequest.objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+
+    scholarship = (
+        get_scholarship_for_approval(
+            approval_request
+        )
+    )
+
+
+    if (
+        scholarship.status
+        !=
+        Scholarship
+        .Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked scholarship "
+                "is not pending approval."
+            )
+        )
+
+
+    approval_request = (
+        approve_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+
+    try:
+
+        scholarship.status = (
+            Scholarship.Status.APPROVED
+        )
+
+        scholarship.approved_by = (
+            approver
+        )
+
+        scholarship.approved_at = (
+            approval_request.decided_at
+            or
+            timezone.now()
+        )
+
+
+        scholarship.full_clean()
+
+        scholarship.save()
+
+
+    except Exception:
+
+        # Restore the generic approval if updating
+        # the linked scholarship fails.
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — REJECT LINKED APPROVAL
+# ============================================================
+
+def reject_scholarship_approval(
+    *,
+    approval_request,
+    approver,
+    comments,
+):
+
+    approval_request = (
+        ApprovalRequest.objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+
+    scholarship = (
+        get_scholarship_for_approval(
+            approval_request
+        )
+    )
+
+
+    if (
+        scholarship.status
+        !=
+        Scholarship
+        .Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked scholarship "
+                "is not pending approval."
+            )
+        )
+
+
+    approval_request = (
+        reject_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+
+    try:
+
+        scholarship.status = (
+            Scholarship.Status.REJECTED
+        )
+
+        scholarship.approved_by = None
+
+        scholarship.approved_at = None
+
+
+        scholarship.full_clean()
+
+        scholarship.save()
+
+
+    except Exception:
+
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+
+    return scholarship
+
+
+# ============================================================
+# SCHOLARSHIP — CANCEL
+# ============================================================
+
+def cancel_scholarship(
+    *,
+    scholarship,
+    user,
+    reason,
+):
+
+    scholarship = (
+        Scholarship.objects
+        .get(
+            pk=scholarship.pk
+        )
+    )
+
+
+    reason = (
+        reason.strip()
+        if reason
+        else ""
+    )
+
+
+    if not reason:
+
+        raise ValidationError(
+            (
+                "A cancellation reason "
+                "is required."
+            )
+        )
+
+
+    if (
+        scholarship.status
+        ==
+        Scholarship.Status.CANCELLED
+    ):
+
+        raise ValidationError(
+            (
+                "This scholarship "
+                "is already cancelled."
+            )
+        )
+
+
+    if (
+        scholarship.status
+        ==
+        Scholarship
+        .Status
+        .PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "A scholarship cannot "
+                "be cancelled while its "
+                "approval request is pending."
+            )
+        )
+
+
+    if (
+        scholarship.status
+        ==
+        Scholarship.Status.APPLIED
+    ):
+
+        raise ValidationError(
+            (
+                "An applied scholarship "
+                "cannot be cancelled directly "
+                "because its effect on the "
+                "student's financial liability "
+                "would need to be reversed."
+            )
+        )
+
+
+    scholarship.status = (
+        Scholarship.Status.CANCELLED
+    )
+
+    scholarship.cancellation_reason = (
+        reason
+    )
+
+    scholarship.cancelled_at = (
+        timezone.now()
+    )
+
+    scholarship.cancelled_by = (
+        user
+    )
+
+
+    scholarship.full_clean()
+
+    scholarship.save()
+
+
+    return scholarship

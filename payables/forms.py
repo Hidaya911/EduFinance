@@ -1,5 +1,7 @@
 import os
 
+from school_config.models import School
+
 from decimal import Decimal
 from django import forms
 from django.core.exceptions import ValidationError
@@ -14,6 +16,7 @@ from .models import (
     EmployeeFinancialTransaction,
     ApprovalRequest,
     Discount,
+    Scholarship,
 )
 
 
@@ -1686,5 +1689,516 @@ class DiscountForm(forms.ModelForm):
                     "exceed 100%."
                 ),
             )
+
+        return cleaned_data
+
+
+
+
+
+# ============================================================
+# SCHOLARSHIP FORM
+# ============================================================
+
+class ScholarshipForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Scholarship
+
+        fields = [
+            "scholarship_name",
+            "student_reference",
+            "academic_year_reference",
+            "provider",
+            "value_type",
+            "value",
+            "start_date",
+            "end_date",
+            "supporting_document",
+            "requires_approval",
+            "reason",
+        ]
+
+        widgets = {
+
+            "scholarship_name":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: Cedar Education Scholarship",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "student_reference":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Student ID / reference",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "academic_year_reference":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Example: 2026–2027",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "provider":
+                forms.TextInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder":
+                            "Scholarship provider / sponsor",
+                        "autocomplete": "off",
+                    }
+                ),
+
+            "value_type":
+                forms.Select(
+                    attrs={
+                        "class": "form-control",
+                    }
+                ),
+
+            "value":
+                forms.NumberInput(
+                    attrs={
+                        "class": "form-control",
+                        "placeholder": "0.00",
+                        "min": "0.01",
+                        "step": "0.01",
+                    }
+                ),
+
+            "start_date":
+                forms.DateInput(
+                    attrs={
+                        "class": "form-control",
+                        "type": "date",
+                    }
+                ),
+
+            "end_date":
+                forms.DateInput(
+                    attrs={
+                        "class": "form-control",
+                        "type": "date",
+                    }
+                ),
+
+            "supporting_document":
+                forms.FileInput(
+                    attrs={
+                        "class": "form-control",
+                        "accept":
+                            ".pdf,.png,.jpg,.jpeg",
+                    }
+                ),
+
+            "requires_approval":
+                forms.CheckboxInput(
+                    attrs={
+                        "class": "form-check-input",
+                    }
+                ),
+
+            "reason":
+                forms.Textarea(
+                    attrs={
+                        "class": "form-control",
+                        "rows": 5,
+                        "placeholder":
+                            (
+                                "Explain the scholarship reason, "
+                                "eligibility or financial context..."
+                            ),
+                    }
+                ),
+        }
+
+
+    # ========================================================
+    # INITIALIZATION
+    # ========================================================
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        # ----------------------------------------------------
+        # NEW SCHOLARSHIP
+        #
+        # Use the school's current academic year only as the
+        # initial value. The value is then physically stored
+        # on the Scholarship record as a historical snapshot.
+        # ----------------------------------------------------
+
+        if (
+            not self.is_bound
+            and
+            not (
+                self.instance
+                and
+                self.instance.pk
+            )
+            and
+            not self.initial.get(
+                "academic_year_reference"
+            )
+        ):
+
+            school = (
+                School.objects
+                .first()
+            )
+
+            if (
+                school
+                and
+                school.current_academic_year
+            ):
+
+                self.fields[
+                    "academic_year_reference"
+                ].initial = (
+                    school.current_academic_year
+                    .strip()
+                )
+
+        # Scholarships default to an approval-controlled
+        # workflow unless explicitly changed.
+        if (
+            not self.is_bound
+            and
+            not (
+                self.instance
+                and
+                self.instance.pk
+            )
+        ):
+
+            self.fields[
+                "requires_approval"
+            ].initial = True
+
+
+    # ========================================================
+    # SCHOLARSHIP NAME
+    # ========================================================
+
+    def clean_scholarship_name(self):
+
+        name = (
+            self.cleaned_data
+            .get(
+                "scholarship_name",
+                "",
+            )
+            .strip()
+        )
+
+        if not name:
+
+            raise forms.ValidationError(
+                "Scholarship name is required."
+            )
+
+        return name
+
+
+    # ========================================================
+    # STUDENT REFERENCE
+    # ========================================================
+
+    def clean_student_reference(self):
+
+        student_reference = (
+            self.cleaned_data
+            .get(
+                "student_reference",
+                "",
+            )
+            .strip()
+        )
+
+        if not student_reference:
+
+            raise forms.ValidationError(
+                "Student reference is required."
+            )
+
+        return student_reference
+
+
+    # ========================================================
+    # ACADEMIC YEAR
+    # ========================================================
+
+    def clean_academic_year_reference(self):
+
+        academic_year = (
+            self.cleaned_data
+            .get(
+                "academic_year_reference",
+                "",
+            )
+            .strip()
+        )
+
+        if not academic_year:
+
+            raise forms.ValidationError(
+                "Academic year is required."
+            )
+
+        return academic_year
+
+
+    # ========================================================
+    # PROVIDER
+    # ========================================================
+
+    def clean_provider(self):
+
+        provider = (
+            self.cleaned_data
+            .get(
+                "provider",
+                "",
+            )
+            or ""
+        )
+
+        return provider.strip()
+
+
+    # ========================================================
+    # VALUE
+    # ========================================================
+
+    def clean_value(self):
+
+        value = (
+            self.cleaned_data
+            .get(
+                "value"
+            )
+        )
+
+        if (
+            value is None
+            or
+            value <= Decimal("0.00")
+        ):
+
+            raise forms.ValidationError(
+                (
+                    "Scholarship value must "
+                    "be greater than zero."
+                )
+            )
+
+        return value
+
+
+    # ========================================================
+    # REASON
+    # ========================================================
+
+    def clean_reason(self):
+
+        reason = (
+            self.cleaned_data
+            .get(
+                "reason",
+                "",
+            )
+            .strip()
+        )
+
+        if not reason:
+
+            raise forms.ValidationError(
+                "Scholarship reason is required."
+            )
+
+        return reason
+
+
+    # ========================================================
+    # SUPPORTING DOCUMENT
+    # ========================================================
+
+    def clean_supporting_document(self):
+
+        document = (
+            self.cleaned_data
+            .get(
+                "supporting_document"
+            )
+        )
+
+        if not document:
+
+            return document
+
+        # Existing stored FieldFile while editing.
+        if not hasattr(
+            document,
+            "size",
+        ):
+
+            return document
+
+        max_size = (
+            5
+            *
+            1024
+            *
+            1024
+        )
+
+        if document.size > max_size:
+
+            raise forms.ValidationError(
+                (
+                    "Supporting document "
+                    "cannot exceed 5 MB."
+                )
+            )
+
+        filename = (
+            getattr(
+                document,
+                "name",
+                "",
+            )
+            .lower()
+        )
+
+        extension = (
+            os.path.splitext(
+                filename
+            )[1]
+            .lower()
+        )
+
+        allowed_extensions = {
+            ".pdf",
+            ".png",
+            ".jpg",
+            ".jpeg",
+        }
+
+        if (
+            extension
+            not in allowed_extensions
+        ):
+
+            raise forms.ValidationError(
+                (
+                    "Only PDF, PNG, JPG "
+                    "and JPEG files are allowed."
+                )
+            )
+
+        return document
+
+
+    # ========================================================
+    # CROSS-FIELD VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        cleaned_data = (
+            super().clean()
+        )
+
+        value_type = (
+            cleaned_data.get(
+                "value_type"
+            )
+        )
+
+        value = (
+            cleaned_data.get(
+                "value"
+            )
+        )
+
+        start_date = (
+            cleaned_data.get(
+                "start_date"
+            )
+        )
+
+        end_date = (
+            cleaned_data.get(
+                "end_date"
+            )
+        )
+
+
+        # ----------------------------------------------------
+        # PERCENTAGE
+        # ----------------------------------------------------
+
+        if (
+            value_type
+            ==
+            Scholarship.ValueType.PERCENTAGE
+            and
+            value is not None
+            and
+            value > Decimal("100.00")
+        ):
+
+            self.add_error(
+                "value",
+                (
+                    "Scholarship percentage "
+                    "cannot exceed 100%."
+                ),
+            )
+
+
+        # ----------------------------------------------------
+        # DATES
+        # ----------------------------------------------------
+
+        if (
+            start_date
+            and
+            end_date
+            and
+            end_date < start_date
+        ):
+
+            self.add_error(
+                "end_date",
+                (
+                    "Scholarship end date "
+                    "cannot be earlier than "
+                    "the start date."
+                ),
+            )
+
 
         return cleaned_data

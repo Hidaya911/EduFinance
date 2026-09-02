@@ -1,0 +1,3814 @@
+{% extends "base.html" %}
+
+{% block title %}{{ scholarship.scholarship_number }} | EduFinance{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE
+   SCHOLARSHIP DECISION DOSSIER
+
+   Namespace: sdd-
+============================================================ */
+
+.sdd-page {
+
+    --navy-1000: #020f1e;
+    --navy-950: #041629;
+    --navy-900: #071f3a;
+    --navy-850: #0c2a4b;
+    --navy-800: #12375f;
+
+    --blue-700: #174fc4;
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+
+    --gold-700: #9b7008;
+    --gold-600: #ca8a04;
+    --gold-500: #eab308;
+    --gold-400: #facc15;
+
+    --green-600: #059669;
+    --green-500: #10b981;
+
+    --amber-600: #d97706;
+    --amber-500: #f59e0b;
+
+    --red-600: #dc2626;
+    --red-500: #ef4444;
+
+    --text-950: #14243a;
+    --text-800: #31465f;
+    --text-700: #475b72;
+    --text-600: #65778c;
+    --text-500: #8190a3;
+    --text-400: #9da8b6;
+
+    position: relative;
+
+    min-height: 100vh;
+
+    overflow: hidden;
+
+    padding:
+        27px
+        30px
+        86px;
+
+    isolation: isolate;
+
+    color: var(--text-950);
+
+    background:
+        radial-gradient(
+            circle at 92% 3%,
+            rgba(37,99,235,.14),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 5% 20%,
+            rgba(234,179,8,.07),
+            transparent 20%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff,
+            #f3f7fc 48%,
+            #eef3f9
+        );
+}
+
+
+.sdd-page::before {
+
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    z-index: -4;
+
+    pointer-events: none;
+
+    opacity: .5;
+
+    background-image:
+        linear-gradient(
+            rgba(32,78,130,.03) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(32,78,130,.03) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        42px
+        42px;
+}
+
+
+/* ============================================================
+   AMBIENT
+============================================================ */
+
+.sdd-ambient {
+
+    position: fixed;
+
+    z-index: -3;
+
+    pointer-events: none;
+
+    border-radius: 999px;
+
+    filter: blur(80px);
+
+    opacity: .13;
+}
+
+
+.sdd-ambient-a {
+
+    width: 420px;
+    height: 420px;
+
+    right: -190px;
+    top: 80px;
+
+    background: #3b82f6;
+}
+
+
+.sdd-ambient-b {
+
+    width: 340px;
+    height: 340px;
+
+    left: -190px;
+    top: 600px;
+
+    background: #eab308;
+
+    opacity: .07;
+}
+
+
+/* ============================================================
+   SHELL
+============================================================ */
+
+.sdd-shell {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 1530px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   PROGRESS
+============================================================ */
+
+.sdd-progress {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    z-index: 999999;
+
+    width: 100%;
+    height: 3px;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+.sdd-progress.active {
+    opacity: 1;
+}
+
+
+.sdd-progress::after {
+
+    content: "";
+
+    display: block;
+
+    width: 29%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #3b82f6,
+            #22d3ee,
+            #facc15,
+            transparent
+        );
+
+    animation:
+        sddProgress
+        .9s ease-in-out infinite;
+}
+
+
+@keyframes sddProgress {
+
+    from {
+        transform:
+            translateX(-120%);
+    }
+
+    to {
+        transform:
+            translateX(460%);
+    }
+}
+
+
+/* ============================================================
+   CONTEXT
+============================================================ */
+
+.sdd-context {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+}
+
+
+.sdd-breadcrumb {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    color: #8b98a8;
+
+    font-size: 10px;
+    font-weight: 760;
+}
+
+
+.sdd-breadcrumb a {
+
+    color: #738398;
+
+    text-decoration: none;
+}
+
+
+.sdd-breadcrumb a:hover {
+    color: #2563eb;
+}
+
+
+.sdd-dot {
+
+    width: 4px;
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: #c4ced8;
+}
+
+
+.sdd-current {
+    color: #365470;
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.sdd-hero {
+
+    --spot-x: 70%;
+    --spot-y: 30%;
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.24fr)
+        minmax(360px,.76fr);
+
+    gap: 25px;
+
+    min-height: 320px;
+
+    overflow: hidden;
+
+    padding:
+        34px
+        36px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    border-radius: 28px;
+
+    color: white;
+
+    background:
+        radial-gradient(
+            circle at
+            var(--spot-x)
+            var(--spot-y),
+            rgba(250,204,21,.13),
+            transparent 21%
+        ),
+        linear-gradient(
+            127deg,
+            #031321,
+            #071f38 40%,
+            #0d315a 70%,
+            #15518e
+        );
+
+    box-shadow:
+        0 28px 68px
+        rgba(7,30,60,.2);
+}
+
+
+.sdd-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 530px;
+    height: 530px;
+
+    right: -120px;
+    top: -370px;
+
+    border:
+        73px solid
+        rgba(255,255,255,.037);
+
+    border-radius: 50%;
+}
+
+
+.sdd-hero-copy {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.sdd-record-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    align-self: flex-start;
+
+    gap: 8px;
+
+    min-height: 29px;
+
+    padding:
+        0
+        11px;
+
+    margin-bottom: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.11);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    color:
+        rgba(255,255,255,.67);
+
+    font-size: 8.5px;
+    font-weight: 850;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+
+.sdd-record-chip span {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #facc15;
+
+    box-shadow:
+        0 0 14px
+        rgba(250,204,21,.65);
+}
+
+
+.sdd-hero h1 {
+
+    max-width: 770px;
+
+    margin: 0;
+
+    color: white;
+
+    font-size:
+        clamp(
+            32px,
+            4vw,
+            48px
+        );
+
+    line-height: 1;
+
+    letter-spacing: -.05em;
+
+    font-weight: 880;
+}
+
+
+.sdd-number {
+
+    display: block;
+
+    margin-top: 9px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #dcecff,
+            #bad7fc,
+            #fde68a
+        );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+
+    font-size: 17px;
+    font-weight: 720;
+}
+
+
+.sdd-summary {
+
+    max-width: 740px;
+
+    margin:
+        15px
+        0
+        0;
+
+    color:
+        rgba(235,244,255,.65);
+
+    font-size: 10.7px;
+
+    line-height: 1.75;
+}
+
+
+/* ============================================================
+   HERO META
+============================================================ */
+
+.sdd-meta {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+.sdd-meta-chip {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 31px;
+
+    padding:
+        0
+        10px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.09);
+
+    border-radius: 10px;
+
+    background:
+        rgba(255,255,255,.045);
+
+    color:
+        rgba(255,255,255,.68);
+
+    font-size: 7.8px;
+}
+
+
+.sdd-meta-chip strong {
+    color: white;
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
+.sdd-actions {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+
+.sdd-action {
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 41px;
+
+    padding:
+        0
+        14px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    font-size: 8.6px;
+    font-weight: 850;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+
+.sdd-action:hover {
+    transform:
+        translateY(-2px);
+}
+
+
+.sdd-light {
+
+    background: white;
+
+    color: #244a73;
+}
+
+
+.sdd-primary {
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d5fd2,
+            #367ef1
+        );
+
+    color: white;
+
+    box-shadow:
+        0 9px 22px
+        rgba(37,99,235,.22);
+}
+
+
+.sdd-danger {
+
+    border:
+        1px solid
+        rgba(248,113,113,.14);
+
+    background:
+        rgba(239,68,68,.12);
+
+    color: #fecaca;
+}
+
+
+.sdd-action:disabled {
+
+    opacity: .6;
+
+    cursor: wait;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   VALUE VISUAL
+============================================================ */
+
+.sdd-value-stage {
+
+    position: relative;
+
+    z-index: 3;
+
+    display: grid;
+    place-items: center;
+}
+
+
+.sdd-orbit {
+
+    position: relative;
+
+    width: 255px;
+    height: 255px;
+}
+
+
+.sdd-ring {
+
+    position: absolute;
+
+    inset: 8px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.13);
+
+    border-radius: 50%;
+
+    animation:
+        sddSpin
+        19s linear infinite;
+}
+
+
+.sdd-ring::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    top: 27px;
+    left: 38px;
+
+    border-radius: 50%;
+
+    background: #facc15;
+
+    box-shadow:
+        0 0 17px
+        rgba(250,204,21,.78);
+}
+
+
+.sdd-ring::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    right: 29px;
+    bottom: 33px;
+
+    border-radius: 50%;
+
+    background: #60a5fa;
+
+    box-shadow:
+        0 0 16px
+        rgba(96,165,250,.75);
+}
+
+
+.sdd-ring-inner {
+
+    position: absolute;
+
+    inset: 42px;
+
+    border:
+        1px dashed
+        rgba(255,255,255,.09);
+
+    border-radius: 50%;
+
+    animation:
+        sddSpinReverse
+        14s linear infinite;
+}
+
+
+.sdd-value-core {
+
+    position: absolute;
+
+    inset: 66px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.055);
+
+    backdrop-filter:
+        blur(18px);
+
+    box-shadow:
+        0 23px 52px
+        rgba(0,0,0,.17);
+}
+
+
+.sdd-value-label {
+
+    color:
+        rgba(255,255,255,.42);
+
+    font-size: 6.8px;
+    font-weight: 850;
+
+    text-transform: uppercase;
+}
+
+
+.sdd-value-number {
+
+    max-width: 135px;
+
+    margin-top: 7px;
+
+    color: white;
+
+    font-size: 22px;
+    font-weight: 880;
+
+    text-align: center;
+}
+
+
+.sdd-value-type {
+
+    margin-top: 6px;
+
+    color:
+        rgba(255,255,255,.47);
+
+    font-size: 7px;
+}
+
+
+@keyframes sddSpin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+@keyframes sddSpinReverse {
+
+    to {
+        transform:
+            rotate(-360deg);
+    }
+}
+
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+
+.sdd-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1.38fr)
+        minmax(340px,.68fr);
+
+    gap: 17px;
+
+    margin-top: 17px;
+
+    align-items: start;
+}
+
+
+.sdd-main {
+
+    display: grid;
+
+    gap: 17px;
+}
+
+
+.sdd-side {
+
+    position: sticky;
+
+    top: 20px;
+
+    display: grid;
+
+    gap: 13px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.sdd-card {
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 21px;
+
+    background:
+        rgba(255,255,255,.94);
+
+    box-shadow:
+        0 16px 40px
+        rgba(29,51,81,.058);
+}
+
+
+.sdd-card-head {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding:
+        18px
+        20px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+}
+
+
+.sdd-card-title {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.sdd-card-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 9px;
+
+    background: #fff8dd;
+
+    color: #9b7109;
+}
+
+
+.sdd-card-icon svg {
+
+    width: 15px;
+    height: 15px;
+}
+
+
+.sdd-card-title strong {
+
+    display: block;
+
+    color: #2d4864;
+
+    font-size: 10.7px;
+}
+
+
+.sdd-card-title small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #98a2af;
+
+    font-size: 7.7px;
+}
+
+
+.sdd-card-body {
+
+    padding:
+        20px;
+}
+
+
+/* ============================================================
+   METRICS
+============================================================ */
+
+.sdd-metrics {
+
+    display: grid;
+
+    grid-template-columns:
+        1.35fr
+        repeat(
+            3,
+            minmax(0,.8fr)
+        );
+
+    gap: 10px;
+}
+
+
+.sdd-metric {
+
+    min-height: 112px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        #e9edf3;
+
+    border-radius: 13px;
+
+    background: #fbfcfe;
+}
+
+
+.sdd-metric small {
+
+    display: block;
+
+    color: #8f9baa;
+
+    font-size: 7px;
+    font-weight: 850;
+
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+
+.sdd-metric strong {
+
+    display: block;
+
+    margin-top: 9px;
+
+    color: #294765;
+
+    font-size: 12px;
+}
+
+
+.sdd-metric.value strong {
+
+    color: #936e0b;
+
+    font-size: 22px;
+
+    letter-spacing: -.03em;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.sdd-status {
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 25px;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    font-size: 7.8px;
+    font-weight: 850;
+}
+
+
+.sdd-status span {
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+}
+
+
+.sdd-draft {
+
+    background: #f2f4f7;
+    color: #667085;
+}
+
+
+.sdd-draft span {
+    background: #98a2b3;
+}
+
+
+.sdd-pending_approval {
+
+    background: #fff6e6;
+    color: #bb6608;
+}
+
+
+.sdd-pending_approval span {
+    background: #f59e0b;
+}
+
+
+.sdd-approved {
+
+    background: #eaf8f3;
+    color: #07805c;
+}
+
+
+.sdd-approved span {
+    background: #10b981;
+}
+
+
+.sdd-rejected {
+
+    background: #fff0f1;
+    color: #ca3232;
+}
+
+
+.sdd-rejected span {
+    background: #ef4444;
+}
+
+
+.sdd-applied {
+
+    background: #edf4ff;
+    color: #2563eb;
+}
+
+
+.sdd-applied span {
+    background: #3b82f6;
+}
+
+
+.sdd-cancelled {
+
+    background: #f3f4f6;
+    color: #707884;
+}
+
+
+.sdd-cancelled span {
+    background: #9ca3af;
+}
+
+
+/* ============================================================
+   DOSSIER
+============================================================ */
+
+.sdd-dossier {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap: 10px;
+}
+
+
+.sdd-item {
+
+    min-width: 0;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        #e9edf3;
+
+    border-radius: 12px;
+
+    background: #fbfcfe;
+}
+
+
+.sdd-item small {
+
+    display: block;
+
+    color: #929eac;
+
+    font-size: 6.8px;
+    font-weight: 850;
+
+    text-transform: uppercase;
+}
+
+
+.sdd-item strong,
+.sdd-item p {
+
+    display: block;
+
+    margin:
+        6px
+        0
+        0;
+
+    overflow-wrap: anywhere;
+
+    color: #3e566f;
+
+    font-size: 8.8px;
+
+    line-height: 1.55;
+}
+
+
+.sdd-wide {
+    grid-column: span 2;
+}
+
+
+.sdd-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   REASON
+============================================================ */
+
+.sdd-reason {
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-top: 12px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        rgba(202,138,4,.11);
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffbed,
+            #fffefa
+        );
+}
+
+
+.sdd-reason::after {
+
+    content: "“";
+
+    position: absolute;
+
+    right: 17px;
+    top: -24px;
+
+    color:
+        rgba(202,138,4,.06);
+
+    font-size: 100px;
+
+    font-family: Georgia, serif;
+}
+
+
+.sdd-reason strong {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: block;
+
+    color: #8c6b17;
+
+    font-size: 7.3px;
+
+    text-transform: uppercase;
+}
+
+
+.sdd-reason p {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 850px;
+
+    margin:
+        6px
+        0
+        0;
+
+    color: #756c55;
+
+    font-size: 8.7px;
+
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   DOCUMENT
+============================================================ */
+
+.sdd-document {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 12px;
+
+    padding:
+        13px;
+
+    border:
+        1px solid
+        #e7edf4;
+
+    border-radius: 12px;
+
+    background: #f8fbff;
+}
+
+
+.sdd-document-copy {
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.sdd-document-icon {
+
+    display: grid;
+    place-items: center;
+
+    width: 31px;
+    height: 31px;
+
+    border-radius: 9px;
+
+    background: #edf4ff;
+
+    color: #3568ad;
+}
+
+
+.sdd-document-copy strong {
+
+    display: block;
+
+    color: #405a75;
+
+    font-size: 8.3px;
+}
+
+
+.sdd-document-copy small {
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: #99a3b0;
+
+    font-size: 6.9px;
+}
+
+
+.sdd-document a {
+
+    color: #2b64af;
+
+    text-decoration: none;
+
+    font-size: 7.7px;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   WORKFLOW
+============================================================ */
+
+.sdd-workflow {
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.94);
+
+    box-shadow:
+        0 15px 36px
+        rgba(29,51,81,.055);
+}
+
+
+.sdd-workflow-head {
+
+    padding:
+        17px
+        18px;
+
+    border-bottom:
+        1px solid
+        #edf1f5;
+}
+
+
+.sdd-workflow-top {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.sdd-workflow-top strong {
+
+    color: #304b68;
+
+    font-size: 9.6px;
+}
+
+
+.sdd-workflow-mode {
+
+    min-height: 23px;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding:
+        0
+        8px;
+
+    border-radius: 999px;
+
+    background: #fff7dd;
+
+    color: #8f690a;
+
+    font-size: 6.8px;
+    font-weight: 850;
+}
+
+
+.sdd-workflow-body {
+
+    padding:
+        17px;
+}
+
+
+.sdd-rail {
+
+    display: grid;
+
+    gap: 4px;
+}
+
+
+.sdd-step {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        31px
+        minmax(0,1fr);
+
+    gap: 10px;
+
+    min-height: 59px;
+}
+
+
+.sdd-step:not(:last-child)::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 14px;
+    top: 32px;
+
+    width: 2px;
+    height: 31px;
+
+    border-radius: 999px;
+
+    background: #e4e9ef;
+}
+
+
+.sdd-step.done:not(:last-child)::after {
+
+    background:
+        linear-gradient(
+            180deg,
+            #10b981,
+            #60a5fa
+        );
+}
+
+
+.sdd-node {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+
+    width: 29px;
+    height: 29px;
+
+    border:
+        1px solid
+        #e0e6ee;
+
+    border-radius: 9px;
+
+    background: white;
+
+    color: #8c99aa;
+
+    font-size: 7.5px;
+    font-weight: 900;
+}
+
+
+.sdd-step.done
+.sdd-node {
+
+    border-color:
+        rgba(16,185,129,.16);
+
+    background: #eaf8f3;
+
+    color: #059669;
+}
+
+
+.sdd-step.active
+.sdd-node {
+
+    border-color:
+        rgba(202,138,4,.22);
+
+    background:
+        linear-gradient(
+            145deg,
+            #eab308,
+            #ca8a04
+        );
+
+    color: white;
+}
+
+
+.sdd-step.rejected
+.sdd-node {
+
+    background: #fff0f1;
+
+    color: #dc2626;
+}
+
+
+.sdd-step-content {
+
+    padding-top: 3px;
+}
+
+
+.sdd-step-content strong {
+
+    display: block;
+
+    color: #465d76;
+
+    font-size: 8.2px;
+}
+
+
+.sdd-step-content small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #98a3b0;
+
+    font-size: 6.9px;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   APPROVAL LINK
+============================================================ */
+
+.sdd-approval {
+
+    margin-top: 13px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        rgba(37,99,235,.11);
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0f6ff,
+            #fbfdff
+        );
+}
+
+
+.sdd-approval small {
+
+    display: block;
+
+    color: #6380a1;
+
+    font-size: 6.5px;
+    font-weight: 850;
+
+    text-transform: uppercase;
+}
+
+
+.sdd-approval strong {
+
+    display: block;
+
+    margin-top: 5px;
+
+    color: #2d5c96;
+
+    font-size: 9px;
+}
+
+
+.sdd-approval a {
+
+    display: inline-block;
+
+    margin-top: 9px;
+
+    color: #2d64aa;
+
+    text-decoration: none;
+
+    font-size: 7.5px;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   LIABILITY NOTE
+============================================================ */
+
+.sdd-liability-note {
+
+    margin-top: 13px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        rgba(245,158,11,.14);
+
+    border-radius: 11px;
+
+    background: #fff9eb;
+
+    color: #8b661b;
+
+    font-size: 7.4px;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   INTEGRITY
+============================================================ */
+
+.sdd-integrity {
+
+    padding: 16px;
+
+    border:
+        1px solid
+        rgba(20,51,88,.075);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    box-shadow:
+        0 12px 31px
+        rgba(29,51,81,.05);
+}
+
+
+.sdd-integrity strong {
+
+    color: #405873;
+
+    font-size: 9px;
+}
+
+
+.sdd-integrity p {
+
+    margin:
+        8px
+        0
+        0;
+
+    color: #8492a2;
+
+    font-size: 7.4px;
+
+    line-height: 1.55;
+}
+
+
+.sdd-integrity-row {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 10px;
+
+    padding:
+        8px
+        9px;
+
+    border-radius: 9px;
+
+    background: #f7f9fc;
+
+    color: #748599;
+
+    font-size: 7px;
+}
+
+
+.sdd-integrity-row b {
+
+    color: #425c76;
+}
+
+
+/* ============================================================
+   CANCELLATION
+============================================================ */
+
+.sdd-cancel-history {
+
+    margin-top: 12px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        rgba(220,38,38,.14);
+
+    border-radius: 12px;
+
+    background: #fff5f5;
+}
+
+
+.sdd-cancel-history strong {
+
+    display: block;
+
+    color: #b63838;
+
+    font-size: 8.3px;
+}
+
+
+.sdd-cancel-history p {
+
+    margin:
+        5px
+        0
+        0;
+
+    color: #8d6363;
+
+    font-size: 7.5px;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+.sdd-modal-backdrop {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999998;
+
+    display: grid;
+    place-items: center;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    padding: 20px;
+
+    background:
+        rgba(2,15,30,.58);
+
+    backdrop-filter:
+        blur(8px);
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
+}
+
+
+.sdd-modal-backdrop.open {
+
+    visibility: visible;
+
+    opacity: 1;
+}
+
+
+.sdd-modal {
+
+    width: min(
+        470px,
+        100%
+    );
+
+    overflow: hidden;
+
+    border-radius: 21px;
+
+    background: white;
+
+    box-shadow:
+        0 35px 90px
+        rgba(0,0,0,.28);
+}
+
+
+.sdd-modal-head {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding:
+        22px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #3c1118,
+            #761d2a
+        );
+
+    color: white;
+}
+
+
+.sdd-modal-head h3 {
+
+    margin: 0;
+
+    font-size: 14px;
+}
+
+
+.sdd-modal-head p {
+
+    margin:
+        6px
+        0
+        0;
+
+    color:
+        rgba(255,255,255,.62);
+
+    font-size: 8px;
+
+    line-height: 1.55;
+}
+
+
+.sdd-modal-body {
+
+    padding: 20px;
+}
+
+
+.sdd-modal-label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #53677e;
+
+    font-size: 8px;
+    font-weight: 850;
+}
+
+
+.sdd-modal textarea {
+
+    width: 100%;
+    min-height: 120px;
+
+    box-sizing: border-box;
+
+    padding:
+        11px;
+
+    border:
+        1px solid
+        #dfe6ef;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    resize: vertical;
+}
+
+
+.sdd-modal-footer {
+
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding:
+        15px
+        20px;
+
+    border-top:
+        1px solid
+        #edf1f5;
+
+    background: #fafbfd;
+}
+
+
+.sdd-modal-button {
+
+    min-height: 39px;
+
+    padding:
+        0
+        13px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 8px;
+    font-weight: 850;
+}
+
+
+.sdd-modal-neutral {
+
+    border:
+        1px solid
+        #e1e6ed;
+
+    background: white;
+
+    color: #66778b;
+}
+
+
+.sdd-modal-danger {
+
+    background:
+        linear-gradient(
+            135deg,
+            #dc2626,
+            #ef4444
+        );
+
+    color: white;
+}
+
+
+/* ============================================================
+   OPERATION OVERLAY
+============================================================ */
+
+.sdd-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 999999;
+
+    display: grid;
+    place-items: center;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    padding: 20px;
+
+    background:
+        rgba(2,15,30,.5);
+
+    backdrop-filter:
+        blur(7px);
+}
+
+
+.sdd-overlay.active {
+
+    visibility: visible;
+
+    opacity: 1;
+}
+
+
+.sdd-overlay-box {
+
+    width: min(
+        350px,
+        100%
+    );
+
+    padding: 24px;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #061a30,
+            #0d3158
+        );
+
+    color: white;
+
+    text-align: center;
+}
+
+
+.sdd-spinner {
+
+    width: 50px;
+    height: 50px;
+
+    margin:
+        0
+        auto
+        14px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.12);
+
+    border-top-color: #facc15;
+
+    border-radius: 50%;
+
+    animation:
+        sddSpinner
+        .75s linear infinite;
+}
+
+
+@keyframes sddSpinner {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+.sdd-overlay-box strong {
+
+    display: block;
+
+    font-size: 11.5px;
+}
+
+
+.sdd-overlay-box small {
+
+    display: block;
+
+    margin-top: 6px;
+
+    color:
+        rgba(255,255,255,.53);
+
+    font-size: 7.4px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1180px) {
+
+    .sdd-hero {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            320px;
+    }
+
+    .sdd-layout {
+
+        grid-template-columns:
+            minmax(0,1fr)
+            320px;
+    }
+
+    .sdd-metrics {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+}
+
+
+@media (max-width: 930px) {
+
+    .sdd-page {
+
+        padding:
+            19px
+            14px
+            55px;
+    }
+
+    .sdd-hero {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sdd-value-stage {
+        display: none;
+    }
+
+    .sdd-layout {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sdd-side {
+
+        position: static;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .sdd-hero {
+
+        padding:
+            25px
+            21px;
+    }
+
+    .sdd-dossier {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+    }
+
+    .sdd-side {
+
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 540px) {
+
+    .sdd-metrics,
+    .sdd-dossier {
+
+        grid-template-columns: 1fr;
+    }
+
+    .sdd-wide,
+    .sdd-full {
+
+        grid-column: auto;
+    }
+
+    .sdd-actions {
+
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sdd-action {
+
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+</style>
+
+
+<div
+    id="sddProgress"
+    class="sdd-progress"
+></div>
+
+
+<div class="sdd-ambient sdd-ambient-a"></div>
+<div class="sdd-ambient sdd-ambient-b"></div>
+
+
+<div
+    id="sddOverlay"
+    class="sdd-overlay"
+>
+
+    <div class="sdd-overlay-box">
+
+        <div class="sdd-spinner"></div>
+
+        <strong id="sddOverlayTitle">
+            Processing scholarship
+        </strong>
+
+        <small id="sddOverlayDescription">
+            Updating the funding workflow...
+        </small>
+
+    </div>
+
+</div>
+
+
+<div class="sdd-page">
+
+<div class="sdd-shell">
+
+
+    <!-- =====================================================
+         CONTEXT
+    ====================================================== -->
+
+    <div class="sdd-context">
+
+        <div class="sdd-breadcrumb">
+
+            <a href="{% url 'payables:scholarship_list' %}">
+                EduFinance
+            </a>
+
+            <span class="sdd-dot"></span>
+
+            <a href="{% url 'payables:scholarship_list' %}">
+                Scholarships
+            </a>
+
+            <span class="sdd-dot"></span>
+
+            <span class="sdd-current">
+                {{ scholarship.scholarship_number }}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section
+        id="sddHero"
+        class="sdd-hero"
+    >
+
+        <div class="sdd-hero-copy">
+
+            <div class="sdd-record-chip">
+
+                <span></span>
+
+                Scholarship decision dossier
+
+            </div>
+
+
+            <h1>
+
+                {{ scholarship.scholarship_name }}
+
+                <span class="sdd-number">
+                    {{ scholarship.scholarship_number }}
+                </span>
+
+            </h1>
+
+
+            <p class="sdd-summary">
+
+                Scholarship funding award for
+
+                <strong>
+                    {{ scholarship.student_reference }}
+                </strong>
+
+                under academic year
+
+                <strong>
+                    {{ scholarship.academic_year_reference }}
+                </strong>.
+
+                {% if scholarship.provider %}
+
+                    Funding provider:
+                    <strong>
+                        {{ scholarship.provider }}
+                    </strong>.
+
+                {% endif %}
+
+            </p>
+
+
+            <div class="sdd-meta">
+
+                <div class="sdd-meta-chip">
+
+                    Student
+
+                    <strong>
+                        {{ scholarship.student_reference }}
+                    </strong>
+
+                </div>
+
+
+                <div class="sdd-meta-chip">
+
+                    Academic year
+
+                    <strong>
+                        {{ scholarship.academic_year_reference }}
+                    </strong>
+
+                </div>
+
+
+                <div class="sdd-meta-chip">
+
+                    Start
+
+                    <strong>
+                        {{ scholarship.start_date|date:"d M Y" }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 ACTIONS
+            ============================================== -->
+
+            <div class="sdd-actions">
+
+                {% if scholarship.status == "draft" %}
+
+                    <a
+                        href="{% url 'payables:scholarship_edit' scholarship.pk %}"
+                        class="
+                            sdd-action
+                            sdd-light
+                        "
+                    >
+                        Edit draft
+                    </a>
+
+
+                    <form
+                        method="post"
+                        action="{% url 'payables:scholarship_submit' scholarship.pk %}"
+                        class="sdd-submit-form"
+                    >
+
+                        {% csrf_token %}
+
+                        <button
+                            type="submit"
+                            class="
+                                sdd-action
+                                sdd-primary
+                            "
+                        >
+                            Submit scholarship
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+
+                {% if scholarship.status != "cancelled" and scholarship.status != "pending_approval" and scholarship.status != "applied" %}
+
+                    <button
+                        id="sddOpenCancel"
+                        type="button"
+                        class="
+                            sdd-action
+                            sdd-danger
+                        "
+                    >
+                        Cancel scholarship
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             VALUE
+        ================================================= -->
+
+        <div class="sdd-value-stage">
+
+            <div class="sdd-orbit">
+
+                <div class="sdd-ring"></div>
+
+                <div class="sdd-ring-inner"></div>
+
+
+                <div class="sdd-value-core">
+
+                    <div class="sdd-value-label">
+                        Award value
+                    </div>
+
+
+                    <div class="sdd-value-number">
+
+                        {% if scholarship.value_type == "percentage" %}
+
+                            {{ scholarship.value|floatformat:2 }}%
+
+                        {% else %}
+
+                            {{ currency_code }}
+                            {{ scholarship.value|floatformat:2 }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="sdd-value-type">
+                        {{ scholarship.get_value_type_display }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         LAYOUT
+    ====================================================== -->
+
+    <div class="sdd-layout">
+
+
+        <main class="sdd-main">
+
+
+            <!-- =============================================
+                 OVERVIEW
+            ============================================== -->
+
+            <section class="sdd-card">
+
+                <div class="sdd-card-head">
+
+                    <div class="sdd-card-title">
+
+                        <div class="sdd-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M3 8 12 3l9 5-9 5z"></path>
+                                <path d="M6 10v5c3 2 9 2 12 0v-5"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Funding overview
+                            </strong>
+
+                            <small>
+                                Core scholarship value and governance state
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="sdd-card-body">
+
+                    <div class="sdd-metrics">
+
+
+                        <div class="sdd-metric value">
+
+                            <small>
+                                Award value
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.value_type == "percentage" %}
+
+                                    {{ scholarship.value|floatformat:2 }}%
+
+                                {% else %}
+
+                                    {{ currency_code }}
+                                    {{ scholarship.value|floatformat:2 }}
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-metric">
+
+                            <small>
+                                Status
+                            </small>
+
+                            <strong>
+
+                                <span
+                                    class="
+                                        sdd-status
+                                        sdd-{{ scholarship.status }}
+                                    "
+                                >
+
+                                    <span></span>
+
+                                    {{ scholarship.get_status_display }}
+
+                                </span>
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-metric">
+
+                            <small>
+                                Governance
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.requires_approval %}
+
+                                    Management approval
+
+                                {% else %}
+
+                                    Direct approval
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-metric">
+
+                            <small>
+                                Academic year
+                            </small>
+
+                            <strong>
+                                {{ scholarship.academic_year_reference }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 DOSSIER
+            ============================================== -->
+
+            <section class="sdd-card">
+
+                <div class="sdd-card-head">
+
+                    <div class="sdd-card-title">
+
+                        <div class="sdd-card-icon">
+
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path d="M6 3h12v18H6z"></path>
+                                <path d="M9 8h6"></path>
+                                <path d="M9 12h6"></path>
+                                <path d="M9 16h4"></path>
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Award dossier
+                            </strong>
+
+                            <small>
+                                Identity, sponsor, dates and accountability
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="sdd-card-body">
+
+                    <div class="sdd-dossier">
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Student
+                            </small>
+
+                            <strong>
+                                {{ scholarship.student_reference }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Academic year
+                            </small>
+
+                            <strong>
+                                {{ scholarship.academic_year_reference }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Provider
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.provider %}
+
+                                    {{ scholarship.provider }}
+
+                                {% else %}
+
+                                    Not specified
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Start date
+                            </small>
+
+                            <strong>
+                                {{ scholarship.start_date|date:"d M Y" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                End date
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.end_date %}
+
+                                    {{ scholarship.end_date|date:"d M Y" }}
+
+                                {% else %}
+
+                                    Open-ended
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Value type
+                            </small>
+
+                            <strong>
+                                {{ scholarship.get_value_type_display }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Requested by
+                            </small>
+
+                            <strong>
+                                {{ scholarship.requested_by }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Approved by
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.approved_by %}
+
+                                    {{ scholarship.approved_by }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Approved at
+                            </small>
+
+                            <strong>
+
+                                {% if scholarship.approved_at %}
+
+                                    {{ scholarship.approved_at|date:"d M Y · H:i" }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Created
+                            </small>
+
+                            <strong>
+                                {{ scholarship.created_at|date:"d M Y · H:i" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                Updated
+                            </small>
+
+                            <strong>
+                                {{ scholarship.updated_at|date:"d M Y · H:i" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="sdd-item">
+
+                            <small>
+                                System ID
+                            </small>
+
+                            <strong>
+                                {{ scholarship.pk }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REASON -->
+
+                    <div class="sdd-reason">
+
+                        <strong>
+                            Award rationale
+                        </strong>
+
+                        <p>
+                            {{ scholarship.reason }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- DOCUMENT -->
+
+                    {% if scholarship.supporting_document %}
+
+                        <div class="sdd-document">
+
+                            <div class="sdd-document-copy">
+
+                                <div class="sdd-document-icon">
+                                    ↑
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Supporting document attached
+                                    </strong>
+
+                                    <small>
+                                        Scholarship evidence / sponsor file
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <a
+                                href="{{ scholarship.supporting_document.url }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                View document ↗
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- CANCELLATION -->
+
+                    {% if scholarship.status == "cancelled" %}
+
+                        <div class="sdd-cancel-history">
+
+                            <strong>
+                                Cancellation history preserved
+                            </strong>
+
+                            <p>
+
+                                {{ scholarship.cancellation_reason }}
+
+                                {% if scholarship.cancelled_by %}
+
+                                    <br>
+
+                                    Cancelled by
+                                    {{ scholarship.cancelled_by }}
+
+                                {% endif %}
+
+                                {% if scholarship.cancelled_at %}
+
+                                    on
+                                    {{ scholarship.cancelled_at|date:"d M Y · H:i" }}
+
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="sdd-side">
+
+
+            <!-- WORKFLOW -->
+
+            <section class="sdd-workflow">
+
+                <div class="sdd-workflow-head">
+
+                    <div class="sdd-workflow-top">
+
+                        <strong>
+                            Scholarship workflow
+                        </strong>
+
+
+                        <span class="sdd-workflow-mode">
+
+                            {% if scholarship.requires_approval %}
+
+                                Approval path
+
+                            {% else %}
+
+                                Direct path
+
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="sdd-workflow-body">
+
+                    <div class="sdd-rail">
+
+
+                        <!-- CREATED -->
+
+                        <div
+                            class="
+                                sdd-step
+                                {% if scholarship.status != 'cancelled' %}
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="sdd-node">
+                                ✓
+                            </div>
+
+                            <div class="sdd-step-content">
+
+                                <strong>
+                                    Award created
+                                </strong>
+
+                                <small>
+                                    Scholarship record entered
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SUBMITTED -->
+
+                        <div
+                            class="
+                                sdd-step
+                                {% if scholarship.status == 'pending_approval' %}
+                                    active
+                                {% elif scholarship.status == 'approved' or scholarship.status == 'applied' or scholarship.status == 'rejected' %}
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="sdd-node">
+                                2
+                            </div>
+
+                            <div class="sdd-step-content">
+
+                                <strong>
+                                    Submission
+                                </strong>
+
+                                <small>
+
+                                    {% if scholarship.requires_approval %}
+
+                                        Routed for management decision
+
+                                    {% else %}
+
+                                        Direct approval workflow
+
+                                    {% endif %}
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPROVED / REJECTED -->
+
+                        <div
+                            class="
+                                sdd-step
+                                {% if scholarship.status == 'approved' %}
+                                    active
+                                {% elif scholarship.status == 'applied' %}
+                                    done
+                                {% elif scholarship.status == 'rejected' %}
+                                    rejected
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="sdd-node">
+
+                                {% if scholarship.status == "rejected" %}
+                                    ×
+                                {% else %}
+                                    3
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="sdd-step-content">
+
+                                <strong>
+
+                                    {% if scholarship.status == "rejected" %}
+
+                                        Rejected
+
+                                    {% else %}
+
+                                        Approved
+
+                                    {% endif %}
+
+                                </strong>
+
+
+                                <small>
+
+                                    {% if scholarship.status == "rejected" %}
+
+                                        Funding award was declined
+
+                                    {% else %}
+
+                                        Scholarship accepted
+
+                                    {% endif %}
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- APPLIED -->
+
+                        <div
+                            class="
+                                sdd-step
+                                {% if scholarship.status == 'applied' %}
+                                    active
+                                    done
+                                {% endif %}
+                            "
+                        >
+
+                            <div class="sdd-node">
+                                4
+                            </div>
+
+                            <div class="sdd-step-content">
+
+                                <strong>
+                                    Applied
+                                </strong>
+
+                                <small>
+                                    Student liability updated
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if approval_request %}
+
+                        <div class="sdd-approval">
+
+                            <small>
+                                Linked approval request
+                            </small>
+
+                            <strong>
+                                {{ approval_request.request_number }}
+                            </strong>
+
+
+                            <a
+                                href="{% url 'payables:approval_detail' approval_request.pk %}"
+                            >
+                                Open approval dossier →
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if scholarship.status == "approved" %}
+
+                        <div class="sdd-liability-note">
+
+                            This scholarship is approved but has
+                            not been applied to student liability.
+                            Application remains unavailable until
+                            the shared student financial-account
+                            model is integrated.
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- INTEGRITY -->
+
+            <section class="sdd-integrity">
+
+                <strong>
+                    Financial integrity controls
+                </strong>
+
+                <p>
+                    Scholarship records remain preserved for
+                    accountability. Cancellation changes workflow
+                    status rather than deleting historical funding.
+                </p>
+
+
+                <div class="sdd-integrity-row">
+
+                    <span>
+                        Academic year
+                    </span>
+
+                    <b>
+                        {{ scholarship.academic_year_reference }}
+                    </b>
+
+                </div>
+
+
+                <div class="sdd-integrity-row">
+
+                    <span>
+                        School currency
+                    </span>
+
+                    <b>
+                        {{ currency_code }}
+                    </b>
+
+                </div>
+
+
+                <div class="sdd-integrity-row">
+
+                    <span>
+                        Liability effect
+                    </span>
+
+                    <b>
+
+                        {% if scholarship.status == "applied" %}
+
+                            Applied
+
+                        {% else %}
+
+                            Not committed
+
+                        {% endif %}
+
+                    </b>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<!-- =========================================================
+     CANCELLATION MODAL
+========================================================= -->
+
+<div
+    id="sddCancelModal"
+    class="sdd-modal-backdrop"
+    aria-hidden="true"
+>
+
+    <div class="sdd-modal">
+
+        <div class="sdd-modal-head">
+
+            <h3>
+                Cancel scholarship?
+            </h3>
+
+            <p>
+                The scholarship will remain permanently
+                visible in financial history with a
+                Cancelled status.
+            </p>
+
+        </div>
+
+
+        <form
+            id="sddCancelForm"
+            method="post"
+            action="{% url 'payables:scholarship_cancel' scholarship.pk %}"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="sdd-modal-body">
+
+                <label
+                    for="sddCancelReason"
+                    class="sdd-modal-label"
+                >
+                    Cancellation reason
+                </label>
+
+
+                <textarea
+                    id="sddCancelReason"
+                    name="reason"
+                    required
+                    placeholder="Explain why this scholarship award is being cancelled..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="sdd-modal-footer">
+
+                <button
+                    id="sddCloseCancel"
+                    type="button"
+                    class="
+                        sdd-modal-button
+                        sdd-modal-neutral
+                    "
+                >
+                    Keep scholarship
+                </button>
+
+
+                <button
+                    id="sddConfirmCancel"
+                    type="submit"
+                    class="
+                        sdd-modal-button
+                        sdd-modal-danger
+                    "
+                >
+                    Confirm cancellation
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+
+    const hero =
+        document.getElementById(
+            "sddHero"
+        );
+
+
+    const modal =
+        document.getElementById(
+            "sddCancelModal"
+        );
+
+
+    const openCancel =
+        document.getElementById(
+            "sddOpenCancel"
+        );
+
+
+    const closeCancel =
+        document.getElementById(
+            "sddCloseCancel"
+        );
+
+
+    const cancelForm =
+        document.getElementById(
+            "sddCancelForm"
+        );
+
+
+    const confirmCancel =
+        document.getElementById(
+            "sddConfirmCancel"
+        );
+
+
+    const overlay =
+        document.getElementById(
+            "sddOverlay"
+        );
+
+
+    const overlayTitle =
+        document.getElementById(
+            "sddOverlayTitle"
+        );
+
+
+    const overlayDescription =
+        document.getElementById(
+            "sddOverlayDescription"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "sddProgress"
+        );
+
+
+    const submitForms =
+        document.querySelectorAll(
+            ".sdd-submit-form"
+        );
+
+
+    function showOverlay(
+        title,
+        description
+    ) {
+
+        overlayTitle.textContent =
+            title;
+
+
+        overlayDescription.textContent =
+            description;
+
+
+        progress.classList.add(
+            "active"
+        );
+
+
+        overlay.classList.add(
+            "active"
+        );
+    }
+
+
+    function closeModal() {
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.classList.remove(
+            "open"
+        );
+
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+
+        document.body.style.overflow =
+            "";
+    }
+
+
+    openCancel?.addEventListener(
+        "click",
+        function () {
+
+            modal.classList.add(
+                "open"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            document.body.style.overflow =
+                "hidden";
+        }
+    );
+
+
+    closeCancel?.addEventListener(
+        "click",
+        closeModal
+    );
+
+
+    modal?.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target
+                ===
+                modal
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key
+                ===
+                "Escape"
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    submitForms.forEach(
+        function (form) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+                    const button =
+                        form.querySelector(
+                            "button[type='submit']"
+                        );
+
+
+                    if (button.disabled) {
+                        return;
+                    }
+
+
+                    button.disabled =
+                        true;
+
+
+                    button.textContent =
+                        "Submitting...";
+
+
+                    showOverlay(
+                        "Advancing scholarship workflow",
+                        "Validating the funding award and updating its financial state..."
+                    );
+                }
+            );
+        }
+    );
+
+
+    cancelForm?.addEventListener(
+        "submit",
+        function () {
+
+            if (
+                confirmCancel.disabled
+            ) {
+                return;
+            }
+
+
+            confirmCancel.disabled =
+                true;
+
+
+            confirmCancel.textContent =
+                "Cancelling...";
+
+
+            closeModal();
+
+
+            showOverlay(
+                "Cancelling scholarship award",
+                "Preserving the funding record and recording its cancellation history..."
+            );
+        }
+    );
+
+
+    if (hero) {
+
+        hero.addEventListener(
+            "pointermove",
+            function (event) {
+
+                const rect =
+                    hero.getBoundingClientRect();
+
+
+                const x =
+                    (
+                        (
+                            event.clientX
+                            -
+                            rect.left
+                        )
+                        /
+                        rect.width
+                    )
+                    *
+                    100;
+
+
+                const y =
+                    (
+                        (
+                            event.clientY
+                            -
+                            rect.top
+                        )
+                        /
+                        rect.height
+                    )
+                    *
+                    100;
+
+
+                hero.style.setProperty(
+                    "--spot-x",
+                    x + "%"
+                );
+
+
+                hero.style.setProperty(
+                    "--spot-y",
+                    y + "%"
+                );
+            }
+        );
+    }
+
+
+    window.addEventListener(
+        "pageshow",
+        function () {
+
+            progress.classList.remove(
+                "active"
+            );
+
+
+            overlay.classList.remove(
+                "active"
+            );
+
+
+            document.body.style.overflow =
+                "";
+
+
+            if (confirmCancel) {
+
+                confirmCancel.disabled =
+                    false;
+
+
+                confirmCancel.textContent =
+                    "Confirm cancellation";
+            }
+        }
+    );
+
+})();
+</script>
+
+{% endblock %}

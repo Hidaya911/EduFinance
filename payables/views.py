@@ -28,6 +28,7 @@ from .forms import (
     EmployeeFinancialProfileForm,
     EmployeeFinancialTransactionForm,
     DiscountForm,
+    ScholarshipForm,
 )
 
 from .models import (
@@ -39,6 +40,7 @@ from .models import (
     EmployeeFinancialProfile,
     EmployeeFinancialTransaction,
     Discount,
+    Scholarship,
 )
 
 from .services import (
@@ -50,8 +52,11 @@ from .services import (
     update_discount,
     submit_discount,
     cancel_discount,
+    create_scholarship,
+    update_scholarship,
+    submit_scholarship,
+    cancel_scholarship,
 )
-
 
 from .forms import ApprovalRequestForm
 from .models import ApprovalRequest
@@ -62,6 +67,8 @@ from .services import (
     submit_approval_request,
     approve_discount_approval,
     reject_discount_approval,
+    approve_scholarship_approval,
+    reject_scholarship_approval,
 )
 
 
@@ -3543,7 +3550,7 @@ def approval_approve(
 
     try:
 
-         if (
+        if (
             approval.operation_type
             ==
             ApprovalRequest
@@ -3553,16 +3560,23 @@ def approval_approve(
             (
                 approval.related_entity_type
                 or ""
-            ).strip().lower()
+            )
+            .strip()
+            .lower()
             ==
             "discount"
-         ):
+        ):
 
             discount = (
                 approve_discount_approval(
-                    approval_request=approval,
-                    approver=request.user,
-                    comments=comments,
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
                 )
             )
 
@@ -3570,7 +3584,43 @@ def approval_approve(
                 discount.approval_request
             )
 
-         else:
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .SCHOLARSHIP
+            and
+            (
+                approval.related_entity_type
+                or ""
+            )
+            .strip()
+            .lower()
+            ==
+            "scholarship"
+        ):
+
+            scholarship = (
+                approve_scholarship_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                scholarship.approval_request
+            )
+
+
+        else:
 
             approval = (
                 approve_approval_request(
@@ -3581,13 +3631,13 @@ def approval_approve(
             )
 
 
-         messages.success(
+        messages.success(
             request,
             (
                 f"{approval.request_number} "
                 "was approved."
             ),
-         )
+        )
 
 
     except ValidationError as error:
@@ -3642,22 +3692,65 @@ def approval_reject(
             (
                 approval.related_entity_type
                 or ""
-            ).strip().lower()
+            )
+            .strip()
+            .lower()
             ==
             "discount"
         ):
 
             discount = (
                 reject_discount_approval(
-                    approval_request=approval,
-                    approver=request.user,
-                    comments=comments,
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
                 )
             )
 
             approval = (
                 discount.approval_request
             )
+
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .SCHOLARSHIP
+            and
+            (
+                approval.related_entity_type
+                or ""
+            )
+            .strip()
+            .lower()
+            ==
+            "scholarship"
+        ):
+
+            scholarship = (
+                reject_scholarship_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                scholarship.approval_request
+            )
+
 
         else:
 
@@ -4492,4 +4585,839 @@ def discount_cancel(
     return redirect(
         "payables:discount_detail",
         pk=discount.pk,
+    )
+
+
+
+
+# ============================================================
+# SCHOLARSHIPS
+# ============================================================
+
+@login_required
+def scholarship_list(request):
+
+    search = (
+        request.GET
+        .get(
+            "search",
+            "",
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET
+        .get(
+            "status",
+            "",
+        )
+        .strip()
+    )
+
+    value_type = (
+        request.GET
+        .get(
+            "value_type",
+            "",
+        )
+        .strip()
+    )
+
+    academic_year = (
+        request.GET
+        .get(
+            "academic_year",
+            "",
+        )
+        .strip()
+    )
+
+    approval = (
+        request.GET
+        .get(
+            "approval",
+            "",
+        )
+        .strip()
+    )
+
+
+    scholarships = (
+        Scholarship.objects
+        .all()
+    )
+
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        scholarships = (
+            scholarships.filter(
+                Q(
+                    scholarship_number__icontains=
+                        search
+                )
+                |
+                Q(
+                    scholarship_name__icontains=
+                        search
+                )
+                |
+                Q(
+                    student_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    provider__icontains=
+                        search
+                )
+                |
+                Q(
+                    academic_year_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    reason__icontains=
+                        search
+                )
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS
+    # --------------------------------------------------------
+
+    valid_statuses = {
+        item[0]
+        for item
+        in Scholarship.Status.choices
+    }
+
+    if status in valid_statuses:
+
+        scholarships = (
+            scholarships.filter(
+                status=status
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # VALUE TYPE
+    # --------------------------------------------------------
+
+    valid_value_types = {
+        item[0]
+        for item
+        in Scholarship.ValueType.choices
+    }
+
+    if value_type in valid_value_types:
+
+        scholarships = (
+            scholarships.filter(
+                value_type=value_type
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # ACADEMIC YEAR
+    # --------------------------------------------------------
+
+    if academic_year:
+
+        scholarships = (
+            scholarships.filter(
+                academic_year_reference=
+                    academic_year
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # APPROVAL MODE
+    # --------------------------------------------------------
+
+    if approval == "required":
+
+        scholarships = (
+            scholarships.filter(
+                requires_approval=True
+            )
+        )
+
+    elif approval == "direct":
+
+        scholarships = (
+            scholarships.filter(
+                requires_approval=False
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # GLOBAL KPI DATA
+    # --------------------------------------------------------
+
+    all_scholarships = (
+        Scholarship.objects
+        .all()
+    )
+
+
+    total_count = (
+        all_scholarships.count()
+    )
+
+
+    draft_count = (
+        all_scholarships
+        .filter(
+            status=
+                Scholarship.Status.DRAFT
+        )
+        .count()
+    )
+
+
+    pending_count = (
+        all_scholarships
+        .filter(
+            status=
+                Scholarship
+                .Status
+                .PENDING_APPROVAL
+        )
+        .count()
+    )
+
+
+    approved_count = (
+        all_scholarships
+        .filter(
+            status=
+                Scholarship.Status.APPROVED
+        )
+        .count()
+    )
+
+
+    applied_count = (
+        all_scholarships
+        .filter(
+            status=
+                Scholarship.Status.APPLIED
+        )
+        .count()
+    )
+
+
+    fixed_amount_total = (
+        Decimal("0.00")
+    )
+
+
+    for scholarship in (
+        all_scholarships
+        .filter(
+            value_type=
+                Scholarship
+                .ValueType
+                .FIXED_AMOUNT
+        )
+        .exclude(
+            status=
+                Scholarship.Status.CANCELLED
+        )
+    ):
+
+        fixed_amount_total += (
+            scholarship.value
+            or
+            Decimal("0.00")
+        )
+
+
+    # --------------------------------------------------------
+    # ACADEMIC YEAR FILTER OPTIONS
+    # --------------------------------------------------------
+
+    academic_year_choices = (
+        Scholarship.objects
+        .exclude(
+            academic_year_reference=""
+        )
+        .values_list(
+            "academic_year_reference",
+            flat=True,
+        )
+        .distinct()
+    )
+
+
+    context = {
+
+        "scholarships":
+            scholarships,
+
+        "search":
+            search,
+
+        "selected_status":
+            status,
+
+        "selected_value_type":
+            value_type,
+
+        "selected_academic_year":
+            academic_year,
+
+        "selected_approval":
+            approval,
+
+        "status_choices":
+            Scholarship.Status.choices,
+
+        "value_type_choices":
+            Scholarship.ValueType.choices,
+
+        "academic_year_choices":
+            academic_year_choices,
+
+        "total_count":
+            total_count,
+
+        "draft_count":
+            draft_count,
+
+        "pending_count":
+            pending_count,
+
+        "approved_count":
+            approved_count,
+
+        "applied_count":
+            applied_count,
+
+        "fixed_amount_total":
+            fixed_amount_total,
+
+        "currency_code":
+            get_school_currency(),
+    }
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "scholarship_list.html"
+        ),
+        context,
+    )
+
+
+# ============================================================
+# CREATE SCHOLARSHIP
+# ============================================================
+
+@login_required
+def scholarship_create(request):
+
+    if request.method == "POST":
+
+        form = ScholarshipForm(
+            request.POST,
+            request.FILES,
+        )
+
+
+        if form.is_valid():
+
+            try:
+
+                scholarship = (
+                    create_scholarship(
+                        user=
+                            request.user,
+
+                        scholarship_name=
+                            form.cleaned_data[
+                                "scholarship_name"
+                            ],
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        academic_year_reference=
+                            form.cleaned_data[
+                                "academic_year_reference"
+                            ],
+
+                        provider=
+                            form.cleaned_data[
+                                "provider"
+                            ],
+
+                        value_type=
+                            form.cleaned_data[
+                                "value_type"
+                            ],
+
+                        value=
+                            form.cleaned_data[
+                                "value"
+                            ],
+
+                        start_date=
+                            form.cleaned_data[
+                                "start_date"
+                            ],
+
+                        end_date=
+                            form.cleaned_data[
+                                "end_date"
+                            ],
+
+                        supporting_document=
+                            form.cleaned_data[
+                                "supporting_document"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        requires_approval=
+                            form.cleaned_data[
+                                "requires_approval"
+                            ],
+                    )
+                )
+
+
+                messages.success(
+                    request,
+                    (
+                        f"{scholarship.scholarship_number} "
+                        "was created successfully."
+                    ),
+                )
+
+
+                return redirect(
+                    "payables:scholarship_detail",
+                    pk=scholarship.pk,
+                )
+
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+
+    else:
+
+        form = ScholarshipForm()
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "scholarship_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                "Create Scholarship",
+
+            "submit_text":
+                "Create Scholarship",
+
+            "is_edit":
+                False,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# EDIT SCHOLARSHIP
+# ============================================================
+
+@login_required
+def scholarship_edit(
+    request,
+    pk,
+):
+
+    scholarship = (
+        get_object_or_404(
+            Scholarship,
+            pk=pk,
+        )
+    )
+
+
+    if (
+        scholarship.status
+        !=
+        Scholarship.Status.DRAFT
+    ):
+
+        messages.error(
+            request,
+            (
+                "Only draft scholarships "
+                "can be edited."
+            ),
+        )
+
+        return redirect(
+            "payables:scholarship_detail",
+            pk=scholarship.pk,
+        )
+
+
+    if request.method == "POST":
+
+        form = ScholarshipForm(
+            request.POST,
+            request.FILES,
+            instance=scholarship,
+        )
+
+
+        if form.is_valid():
+
+            try:
+
+                scholarship = (
+                    update_scholarship(
+                        scholarship=
+                            scholarship,
+
+                        scholarship_name=
+                            form.cleaned_data[
+                                "scholarship_name"
+                            ],
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        academic_year_reference=
+                            form.cleaned_data[
+                                "academic_year_reference"
+                            ],
+
+                        provider=
+                            form.cleaned_data[
+                                "provider"
+                            ],
+
+                        value_type=
+                            form.cleaned_data[
+                                "value_type"
+                            ],
+
+                        value=
+                            form.cleaned_data[
+                                "value"
+                            ],
+
+                        start_date=
+                            form.cleaned_data[
+                                "start_date"
+                            ],
+
+                        end_date=
+                            form.cleaned_data[
+                                "end_date"
+                            ],
+
+                        supporting_document=
+                            form.cleaned_data[
+                                "supporting_document"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        requires_approval=
+                            form.cleaned_data[
+                                "requires_approval"
+                            ],
+                    )
+                )
+
+
+                messages.success(
+                    request,
+                    (
+                        f"{scholarship.scholarship_number} "
+                        "was updated successfully."
+                    ),
+                )
+
+
+                return redirect(
+                    "payables:scholarship_detail",
+                    pk=scholarship.pk,
+                )
+
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+
+    else:
+
+        form = ScholarshipForm(
+            instance=scholarship
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "scholarship_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "scholarship":
+                scholarship,
+
+            "page_title":
+                "Edit Scholarship",
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# SCHOLARSHIP DETAIL
+# ============================================================
+
+@login_required
+def scholarship_detail(
+    request,
+    pk,
+):
+
+    scholarship = (
+        get_object_or_404(
+            Scholarship,
+            pk=pk,
+        )
+    )
+
+
+    approval_request = (
+        scholarship.approval_request
+        if scholarship.approval_request_id
+        else None
+    )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "scholarship_detail.html"
+        ),
+        {
+            "scholarship":
+                scholarship,
+
+            "approval_request":
+                approval_request,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# SUBMIT SCHOLARSHIP
+# ============================================================
+
+@login_required
+@require_POST
+def scholarship_submit(
+    request,
+    pk,
+):
+
+    scholarship = (
+        get_object_or_404(
+            Scholarship,
+            pk=pk,
+        )
+    )
+
+
+    try:
+
+        scholarship = (
+            submit_scholarship(
+                scholarship=scholarship
+            )
+        )
+
+
+        if (
+            scholarship.status
+            ==
+            Scholarship
+            .Status
+            .PENDING_APPROVAL
+        ):
+
+            messages.success(
+                request,
+                (
+                    f"{scholarship.scholarship_number} "
+                    "was submitted for approval."
+                ),
+            )
+
+        else:
+
+            messages.success(
+                request,
+                (
+                    f"{scholarship.scholarship_number} "
+                    "was approved because no "
+                    "separate approval was required."
+                ),
+            )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            (
+                error.messages[0]
+                if error.messages
+                else
+                "Unable to submit scholarship."
+            ),
+        )
+
+
+    return redirect(
+        "payables:scholarship_detail",
+        pk=scholarship.pk,
+    )
+
+
+# ============================================================
+# CANCEL SCHOLARSHIP
+# ============================================================
+
+@login_required
+@require_POST
+def scholarship_cancel(
+    request,
+    pk,
+):
+
+    scholarship = (
+        get_object_or_404(
+            Scholarship,
+            pk=pk,
+        )
+    )
+
+
+    reason = (
+        request.POST
+        .get(
+            "reason",
+            "",
+        )
+    )
+
+
+    try:
+
+        scholarship = (
+            cancel_scholarship(
+                scholarship=
+                    scholarship,
+
+                user=
+                    request.user,
+
+                reason=
+                    reason,
+            )
+        )
+
+
+        messages.success(
+            request,
+            (
+                f"{scholarship.scholarship_number} "
+                "was cancelled."
+            ),
+        )
+
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            (
+                error.messages[0]
+                if error.messages
+                else
+                "Unable to cancel scholarship."
+            ),
+        )
+
+
+    return redirect(
+        "payables:scholarship_detail",
+        pk=scholarship.pk,
     )

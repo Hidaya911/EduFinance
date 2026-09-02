@@ -290,4 +290,47 @@ path(
     name="discount_cancel",
 ),
 
+
+
+# ============================================================
+# SCHOLARSHIPS
+# ============================================================
+
+path(
+    "scholarships/",
+    views.scholarship_list,
+    name="scholarship_list",
+),
+
+path(
+    "scholarships/create/",
+    views.scholarship_create,
+    name="scholarship_create",
+),
+
+path(
+    "scholarships/<str:pk>/",
+    views.scholarship_detail,
+    name="scholarship_detail",
+),
+
+path(
+    "scholarships/<str:pk>/edit/",
+    views.scholarship_edit,
+    name="scholarship_edit",
+),
+
+path(
+    "scholarships/<str:pk>/submit/",
+    views.scholarship_submit,
+    name="scholarship_submit",
+),
+
+path(
+    "scholarships/<str:pk>/cancel/",
+    views.scholarship_cancel,
+    name="scholarship_cancel",
+),
+
+
 ]
