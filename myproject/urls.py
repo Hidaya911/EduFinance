@@ -1,3 +1,7 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.shortcuts import redirect
+
 """
 URL configuration for myproject project.
 
@@ -19,7 +23,8 @@ from django.urls import include, path
 from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
+    path('', lambda request: redirect('accounts:login')),
+    path('accounts/', include('accounts.urls')),
     path('preview/', views.base_preview_view, name='base_preview'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     # path('', include('students.urls')),      # Students & Core Transactions

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>System Notifications</h2>
+
+        <div>
+            <a href="?mark_all_read=true"
+               class="btn btn-outline-secondary btn-sm">
+                Mark All as Read
+            </a>
+
+            <a href="{% url 'accounts:notification_settings' %}"
+               class="btn btn-primary btn-sm ms-2">
+                Notification Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="list-group">
+
+        {% for notif in notifications %}
+
+            <div class="list-group-item list-group-item-action {% if not notif.is_read %}list-group-item-light fw-bold{% endif %}">
+
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ notif.title }}</h5>
+
+                    <small class="text-muted">
+                        {% if notif.created_at %}
+                            {{ notif.created_at|date:"M d, Y, P" }}
+                        {% endif %}
+                    </small>
+                </div>
+
+                <p class="mb-1">
+                    {{ notif.message }}
+                </p>
+
+                {% if notif.link %}
+                    <a href="{{ notif.link }}"
+                       class="btn btn-sm btn-link p-0 mt-1">
+                        View Details
+                    </a>
+                {% endif %}
+
+            </div>
+
+        {% empty %}
+
+            <div class="alert alert-info">
+                You don't have any notifications yet.
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
