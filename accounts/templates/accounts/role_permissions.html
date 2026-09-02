@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid p-4">
+  <div class="mb-4">
+    <a href="{% url 'roles_list' %}" class="text-decoration-none text-muted small me-2">&larr; Back to Roles</a>
+    <h3 class="fw-bold mb-1">Edit Role Permissions: {{ role.name }}</h3>
+    <p class="text-muted small">Configure specific permissions for this role[cite: 1].</p>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-body p-4">
+        <div class="row g-3">
+          {% for perm in permissions %}
+          <div class="col-md-4">
+            <div class="form-check card-body border rounded-2 p-3">
+              <input class="form-check-input" type="checkbox" name="permissions" value="{{ perm.id }}" id="perm_{{ perm.id }}"
+                {% if perm.id in role_permission_ids %}checked{% endif %}>
+              <label class="form-check-label w-100 cursor-pointer" for="perm_{{ perm.id }}">
+                <strong class="d-block text-capitalize">{{ perm.codename|replace_underscores }}</strong>
+                <small class="text-muted d-block">{{ perm.content_type.app_label }} | {{ perm.name }}</small>
+              </label>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card-footer bg-light d-flex justify-content-end p-3">
+        <a href="{% url 'roles_list' %}" class="btn btn-light me-2">Cancel</a>
+        <button type="submit" class="btn btn-primary px-4">Save Permissions</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

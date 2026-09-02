@@ -1,0 +1,47 @@
+<!-- Top Navbar -->
+<header class="top-navbar px-4 py-3 d-flex align-items-center justify-content-between">
+  <!-- Global Search Bar -->
+  <div class="search-container flex-grow-1 me-4" style="max-width: 400px;">
+    <div class="input-group">
+      <span class="input-group-text border-0 bg-light text-muted">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0 bg-light" placeholder="Search students, invoices, receipts...">
+    </div>
+  </div>
+
+  <!-- Right Action Controls -->
+  <div class="d-flex align-items-center gap-3">
+    <!-- Notification Bell -->
+    <div class="position-relative">
+      <button class="btn btn-light rounded-circle position-relative p-2" style="width: 40px; height: 40px;">
+        <i class="bi bi-bell-fill text-warning"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+          3
+        </span>
+      </button>
+    </div>
+
+    <!-- User Avatar Dropdown -->
+    <div class="dropdown">
+      <button class="btn user-avatar-btn p-0 border-0" type="button" data-bs-toggle="dropdown">
+        <div class="user-avatar-md">
+          {{ user.first_name|default:"A"|slice:":1" }}{{ user.last_name|default:"R"|slice:":1" }}
+        </div>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow">
+        <li><a class="dropdown-menu-item dropdown-item" href="#">Profile Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <!-- Fixed Sign Out Form -->
+          <form method="post" action="{% url 'logout' %}" class="m-0 p-0">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-menu-item dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+              Sign out
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>

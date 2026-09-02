@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 
     "django_mongodb_backend",
 
-    "accounts",
+    "accounts.apps.AccountsConfig",
 
     "payables.apps.PayablesConfig",
 
@@ -100,6 +100,7 @@ TEMPLATES = [
         ),
 
         "DIRS": [
+            BASE_DIR / "myproject" / "templates",
             BASE_DIR / "templates",
         ],
 
@@ -259,6 +260,19 @@ MEDIA_ROOT = BASE_DIR / "media"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Authentication
+
+# ============================================================
+# AUTHENTICATION BACKENDS
+# ============================================================
+
+# Application login authenticates using email.
+# ModelBackend remains available for Django admin and
+# standard Django authentication behavior.
+AUTHENTICATION_BACKENDS = [
+    "accounts.backends.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"

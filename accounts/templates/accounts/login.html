@@ -246,10 +246,10 @@
                 {% endfor %}
             {% endif %}
 
-            <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                
-                <div class="form-group-custom">
+           <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+              <div class="form-group-custom">
                     <label class="form-label">Email address</label>
                     <div class="input-group">
                         <span class="input-group-text input-group-text-custom">
