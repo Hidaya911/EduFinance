@@ -1,50 +1,226 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard | EduFinance{% endblock %}
+{% block title %}Financial Dashboard | EduFinance{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Dashboard Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Financial Dashboard</h1>
-        <span class="text-muted">Academic Year: {{ current_academic_year|default:"2025-2026" }}</span>
+<div class="finance-dashboard">
+    <section class="dashboard-header" aria-labelledby="dashboard-title">
+        <div class="hero-pattern" aria-hidden="true"></div>
+        <div class="hero-main">
+            <div class="hero-copy">
+                <p class="dashboard-eyebrow"><span></span> Financial command center</p>
+                <h1 class="dashboard-title" id="dashboard-title">{{ greeting }}, {{ display_name }}</h1>
+                <p class="dashboard-subtitle">Your school's financial position for <strong>{{ academic_year }}</strong>.</p>
+                <div class="hero-meta">
+                    <span><i class="bi bi-currency-exchange"></i> Base currency <strong>{{ currency_code }}</strong></span>
+                    <span><i class="bi bi-calendar3"></i> Academic year <strong>{{ academic_year }}</strong></span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a class="hero-secondary-btn" href="{% url 'payables:expense_list' %}"><i class="bi bi-grid-1x2"></i> View expenses</a>
+                <div class="dropdown">
+                    <button class="quick-entry-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-plus-lg me-1"></i> Quick entry
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item" href="{% url 'payables:expense_create' %}">Add expense</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payables:scholarship_create' %}">Create scholarship</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payables:supplier_create' %}">Add supplier</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="financial-pulse" aria-label="Current financial pulse">
+            <span class="pulse-label"><i class="bi bi-activity"></i> Live pulse</span>
+            {% for pulse in financial_pulse %}
+            <a class="pulse-item" href="{{ pulse.url }}">
+                <i class="bi {{ pulse.icon }}"></i>
+                <span><strong>{{ pulse.value }}</strong>{{ pulse.label }}</span>
+                <i class="bi bi-arrow-up-right"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="kpi-grid" aria-label="Financial key performance indicators">
+        {% for kpi in kpis %}
+        <article class="kpi-card tone-card-{{ kpi.tone }}{% if forloop.counter == 2 %} kpi-featured{% endif %}">
+            <div class="kpi-top">
+                <span class="kpi-label">{{ kpi.label }}</span>
+                <span class="dashboard-icon tone-{{ kpi.tone }}"><i class="bi {{ kpi.icon }}"></i></span>
+            </div>
+            <div class="kpi-value">
+                <span class="kpi-currency">{{ currency_code }}</span>
+                <span class="kpi-number">{{ kpi.value }}</span>
+            </div>
+            <p class="kpi-detail">{{ kpi.detail }}</p>
+            <span class="kpi-accent" aria-hidden="true"></span>
+        </article>
+        {% endfor %}
+    </section>
+
+    <div class="dashboard-grid">
+        <section class="dashboard-card" aria-labelledby="performance-title">
+            <div class="card-heading">
+                <div>
+                    <h2 class="card-title" id="performance-title">Revenue &amp; Collection Performance</h2>
+                    <p class="card-description">Expected revenue compared with received collections</p>
+                </div>
+                <span class="card-badge">{{ academic_year }}</span>
+            </div>
+            <div class="performance-body">
+                <div class="chart-stage">
+                    <div class="ghost-chart" aria-hidden="true">
+                        <span style="--ghost-height: 24%;"></span><span style="--ghost-height: 37%;"></span><span style="--ghost-height: 31%;"></span><span style="--ghost-height: 52%;"></span><span style="--ghost-height: 45%;"></span><span style="--ghost-height: 64%;"></span><span style="--ghost-height: 55%;"></span><span style="--ghost-height: 72%;"></span><span style="--ghost-height: 66%;"></span><span style="--ghost-height: 82%;"></span><span style="--ghost-height: 74%;"></span><span style="--ghost-height: 88%;"></span>
+                    </div>
+                    <div class="empty-chart">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <strong>No collection history is available yet</strong>
+                        <span>Monthly performance will appear when student invoicing and collection records are implemented.</span>
+                    </div>
+                    <div class="chart-timeline" aria-hidden="true"><span>Jan</span><span>Apr</span><span>Jul</span><span>Oct</span><span>Dec</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-card" aria-labelledby="health-title">
+            <div class="card-heading">
+                <div>
+                    <h2 class="card-title" id="health-title">Financial Health</h2>
+                    <p class="card-description">Real supplier payable indicators</p>
+                </div>
+                <span class="card-badge">Live</span>
+            </div>
+            <div class="health-body">
+                <div class="health-orbit" style="--health-score: {{ health_score }}%;">
+                    <div class="health-orbit-inner">
+                        <span class="health-orbit-label">Settlement health</span>
+                        <strong>{{ health_score }}%</strong>
+                        <small>{% if has_payable_data %}of payables settled{% else %}Awaiting bill data{% endif %}</small>
+                    </div>
+                </div>
+                {% for metric in financial_health %}
+                <div class="health-item">
+                    <div class="health-meta">
+                        <span class="health-label">{{ metric.label }}</span>
+                        <span class="health-value">{{ metric.value }}%</span>
+                    </div>
+                    <div class="progress-track" role="progressbar" aria-label="{{ metric.label }}" aria-valuenow="{{ metric.value }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-fill" style="--progress: {{ metric.value }}%;"></div>
+                    </div>
+                    <p class="health-detail">{{ metric.detail }}</p>
+                </div>
+                {% endfor %}
+                <div class="health-note">
+                    <i class="bi bi-info-circle"></i>
+                    <span>{% if has_payable_data %}Ratios are calculated from active supplier bills.{% else %}Payable health will populate when supplier bills are recorded.{% endif %}</span>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <!-- Summary Metric Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-left-primary shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Expected Revenue</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{ expected_revenue|default:"0.00" }}</div>
+    <div class="dashboard-grid">
+        <section class="dashboard-card" aria-labelledby="breakdown-title">
+            <div class="card-heading">
+                <div>
+                    <h2 class="card-title" id="breakdown-title">Supplier Bill Breakdown</h2>
+                    <p class="card-description">Current distribution of non-cancelled bills</p>
+                </div>
+                <span class="card-badge">{{ bill_count }} record{{ bill_count|pluralize }}</span>
+            </div>
+            <div class="breakdown-body">
+                <div class="ring" style="--bill-ring: {{ bill_ring }};" aria-label="Supplier bill status chart">
+                    <div class="ring-center"><strong>{{ bill_count }}</strong><span>Total bills</span></div>
+                </div>
+                <div class="breakdown-legend">
+                    {% for item in bill_breakdown %}
+                    <div class="legend-row">
+                        <span class="legend-dot" style="background: {{ item.color }};"></span>
+                        <span>{{ item.label }}</span>
+                        <span class="legend-count">{{ item.count }} <small class="text-muted">({{ item.percent }}%)</small></span>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-left-success shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Collected</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{ total_collected|default:"0.00" }}</div>
+        </section>
+
+        <section class="dashboard-card" aria-labelledby="attention-title">
+            <div class="card-heading">
+                <div>
+                    <h2 class="card-title" id="attention-title">Attention Required</h2>
+                    <p class="card-description">Items that may need action</p>
                 </div>
+                <span class="card-badge">Actionable</span>
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-left-warning shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Outstanding Balance</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{ outstanding_amount|default:"0.00" }}</div>
-                </div>
+            <div class="attention-body">
+                {% for item in attention_items %}
+                <a class="attention-row" href="{{ item.url }}">
+                    <span class="dashboard-icon tone-{{ item.tone }}"><i class="bi {{ item.icon }}"></i></span>
+                    <span class="attention-copy">
+                        <span class="attention-title">{{ item.title }}</span>
+                        <span class="attention-detail">{{ item.detail }}</span>
+                    </span>
+                    <span class="attention-count">{{ item.count }}</span>
+                    <i class="bi bi-chevron-right attention-arrow"></i>
+                </a>
+                {% endfor %}
             </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-left-danger shadow-sm h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Overdue Amount</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">${{ overdue_amount|default:"0.00" }}</div>
-                </div>
-            </div>
-        </div>
+        </section>
     </div>
+
+    <section class="dashboard-card activity-card" aria-labelledby="activity-title">
+        <div class="card-heading">
+            <div>
+                <h2 class="card-title" id="activity-title">Recent Financial Activity</h2>
+                <p class="card-description">Latest verified changes across financial records</p>
+            </div>
+            <span class="card-badge">Most recent</span>
+        </div>
+        {% if activities %}
+        <div class="activity-list">
+            {% for activity in activities %}
+            <a class="activity-row" href="{{ activity.url }}">
+                <span class="dashboard-icon tone-{{ activity.tone }}"><i class="bi {{ activity.icon }}"></i></span>
+                <span class="activity-main">
+                    <span class="activity-title">{{ activity.title }}</span>
+                    <span class="activity-reference">{{ activity.reference }}</span>
+                </span>
+                <span class="activity-value">{{ activity.value }}</span>
+                <span class="activity-status">{{ activity.status }}</span>
+                <time class="activity-time" datetime="{{ activity.timestamp|date:'c' }}">{{ activity.timestamp|timesince }} ago</time>
+                <i class="bi bi-chevron-right activity-arrow"></i>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <strong>No financial activity yet</strong>
+            <span>Recorded expenses, bills, discounts, and scholarships will appear here.</span>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="dashboard-card" aria-labelledby="actions-title">
+        <div class="card-heading">
+            <div>
+                <h2 class="card-title" id="actions-title">Quick Actions</h2>
+                <p class="card-description">Move directly into common finance workflows</p>
+            </div>
+        </div>
+        <div class="actions-grid">
+            <a class="action-link action-primary" href="{% url 'payables:expense_create' %}"><i class="bi bi-plus-circle"></i><span><strong>Add expense</strong><small>Record a new cost</small></span><i class="bi bi-arrow-right"></i></a>
+            <a class="action-link" href="{% url 'payables:scholarship_create' %}"><i class="bi bi-mortarboard"></i><span><strong>Create scholarship</strong><small>Start an award record</small></span><i class="bi bi-arrow-right"></i></a>
+            <a class="action-link" href="{% url 'payables:supplier_create' %}"><i class="bi bi-building-add"></i><span><strong>Add supplier</strong><small>Register a vendor</small></span><i class="bi bi-arrow-right"></i></a>
+            <a class="action-link" href="{% url 'payables:discount_create' %}"><i class="bi bi-tag"></i><span><strong>Create discount</strong><small>Set a student adjustment</small></span><i class="bi bi-arrow-right"></i></a>
+            <a class="action-link" href="{% url 'payables:supplier_payment_create' %}"><i class="bi bi-credit-card"></i><span><strong>Record payment</strong><small>Post a supplier payment</small></span><i class="bi bi-arrow-right"></i></a>
+            {% if user.is_staff or user.is_superuser %}<a class="action-link" href="{% url 'payables:approval_list' %}"><i class="bi bi-check2-square"></i><span><strong>View approvals</strong><small>Review sensitive actions</small></span><i class="bi bi-arrow-right"></i></a>{% endif %}
+        </div>
+    </section>
 </div>
 {% endblock %}

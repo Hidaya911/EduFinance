@@ -4,287 +4,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>Sign in — EduFinance</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
-    <style>
-        :root {
-            --navy-dark: #0b2545;
-            --navy-deep: #13315c;
-            --blue-accent: #1e50a2;
-            --blue-hover: #163c7a;
-        }
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #ffffff;
-        }
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-        }
-
-        /* Left Split Screen Pane */
-        .left-pane {
-            background: linear-gradient(180deg, #0d2847 0%, #081a30 100%);
-            color: #ffffff;
-            padding: 2.5rem 3.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 50%;
-        }
-        .brand-logo img {
-            height: 69px;
-            width: auto;
-        }
-        
-        /* Container to group center content for 1:1 vertical matching */
-        .left-content-wrapper {
-            margin-top: auto;
-            margin-bottom: auto;
-        }
-
-        .hero-title {
-            font-size: 2.35rem;
-            font-weight: 700;
-            line-height: 1.25;
-            letter-spacing: -0.02em;
-            max-width: 480px;
-        }
-        .testimonial-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            max-width: 480px;
-            margin-top: 2rem;
-            backdrop-filter: blur(8px);
-        }
-        .testimonial-card p {
-            font-size: 0.925rem;
-            color: #e2e8f0;
-            margin-bottom: 0;
-            line-height: 1.5;
-        }
-        .footer-copy {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-
-        /* Right Form Pane */
-        .right-pane {
-            width: 50%;
-            background-color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2.5rem 2rem;
-        }
-        .form-wrapper {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        /* Header Title with Inline Icon */
-        .form-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-        }
-        .form-header-icon {
-            width: 42px;
-            height: 42px;
-            background: #eff6ff;
-            color: var(--blue-accent);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 10px rgba(30, 80, 162, 0.08);
-            flex-shrink: 0;
-        }
-        .form-title {
-            font-size: 1.85rem;
-            font-weight: 700;
-            color: #0f172a;
-            letter-spacing: -0.02em;
-            margin: 0;
-        }
-
-        .form-group-custom {
-            margin-bottom: 1.25rem;
-        }
-        
-        .form-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Input Groups */
-        .input-group-text-custom {
-            background-color: #f8fafc;
-            border-right: none;
-            border-color: #cbd5e1;
-            color: #64748b;
-            padding-left: 1rem;
-            padding-right: 0.75rem;
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-        }
-        .form-control-custom {
-            border-left: none;
-            border-color: #cbd5e1;
-            padding: 0.75rem 1rem 0.75rem 0;
-            font-size: 0.925rem;
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            height: 48px;
-        }
-        
-        .input-group:focus-within .input-group-text-custom,
-        .input-group:focus-within .form-control-custom {
-            border-color: var(--blue-accent);
-            box-shadow: none;
-        }
-        .input-group:focus-within {
-            box-shadow: 0 0 0 3px rgba(30, 80, 162, 0.15);
-            border-radius: 8px;
-        }
-
-        .btn-primary-custom {
-            background-color: var(--blue-accent);
-            border: none;
-            height: 48px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border-radius: 8px;
-            width: 100%;
-            color: white;
-            transition: all 0.2s ease;
-            margin-top: 0.25rem;
-            box-shadow: 0 4px 12px rgba(30, 80, 162, 0.25);
-        }
-        .btn-primary-custom:hover {
-            background-color: var(--blue-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(30, 80, 162, 0.3);
-        }
-        .forgot-link {
-            font-size: 0.85rem;
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
-        .security-badge {
-            font-size: 0.8rem;
-            color: #64748b;
-            text-align: center;
-            margin-top: 1.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-
-        @media (max-width: 991px) {
-            .left-pane { display: none; }
-            .right-pane { width: 100%; }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
+<main class="login-shell">
+    <section class="brand-panel" aria-labelledby="brand-statement">
+        <div class="brand-grid" aria-hidden="true"></div>
+        <div class="brand-orbit brand-orbit-one" aria-hidden="true"></div>
+        <div class="brand-orbit brand-orbit-two" aria-hidden="true"></div>
 
-<div class="login-container">
-    <!-- Left Navy Panel -->
-    <div class="left-pane">
-        <div class="brand-logo">
-            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance Logo">
-        </div>
-        
-        <!-- Wrapped in left-content-wrapper to balance top and bottom alignment -->
-        <div class="left-content-wrapper">
-            <h1 class="hero-title">Every balance, receipt, and approval — traceable in seconds.</h1>
-            <div class="testimonial-card">
-                <p>"Collection rate up 12 points this term, and every discount is finally auditable."</p>
-            </div>
-        </div>
+        <header class="brand-header">
+            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance" class="brand-logo">
+            <span class="workspace-badge"><i class="bi bi-shield-check"></i> Financial workspace</span>
+        </header>
 
-        <div class="footer-copy">
-            © 2026 EduFinance. All rights reserved.
-        </div>
-    </div>
+        <div class="brand-story">
+            <p class="brand-kicker"><span></span> School finance, clearly managed</p>
+            <h1 id="brand-statement">Financial clarity for every school decision.</h1>
+            <p class="brand-copy">Bring expenses, approvals, suppliers, and student financial support into one focused operational workspace.</p>
 
-    <!-- Right Login Form Panel -->
-    <div class="right-pane">
-        <div class="form-wrapper">
-            
-            <div class="form-header">
-                <div class="form-header-icon">
-                    <i class="bi bi-shield-lock-fill"></i>
+            <div class="finance-visual" aria-hidden="true">
+                <div class="visual-header">
+                    <span><i class="bi bi-activity"></i> Financial operations</span>
+                    <span class="visual-status"><i></i> Connected</span>
                 </div>
-                <h2 class="form-title">Sign in</h2>
+                <div class="visual-chart">
+                    <span style="--bar-height: 26%;"></span>
+                    <span style="--bar-height: 43%;"></span>
+                    <span style="--bar-height: 35%;"></span>
+                    <span style="--bar-height: 61%;"></span>
+                    <span style="--bar-height: 50%;"></span>
+                    <span style="--bar-height: 76%;"></span>
+                    <span style="--bar-height: 67%;"></span>
+                    <span style="--bar-height: 88%;"></span>
+                </div>
+                <div class="visual-footer">
+                    <span>Expenses</span><span>Approvals</span><span>Payables</span>
+                </div>
             </div>
+
+            <div class="trust-chips" aria-label="Platform values">
+                <span><i class="bi bi-lock"></i> Secure access</span>
+                <span><i class="bi bi-journal-check"></i> Auditable</span>
+                <span><i class="bi bi-command"></i> In control</span>
+            </div>
+        </div>
+
+        <footer class="brand-footer">
+            <span>© {% now "Y" %} EduFinance</span>
+            <span>Modern finance operations for modern schools.</span>
+        </footer>
+    </section>
+
+    <section class="login-form-panel" aria-labelledby="login-title">
+        <div class="mobile-brand">
+            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance">
+        </div>
+
+        <div class="form-card">
+            <div class="form-symbol"><i class="bi bi-fingerprint"></i></div>
+            <p class="form-eyebrow">Protected financial operations</p>
+            <h2 id="login-title">Welcome back</h2>
+            <p class="form-intro">Sign in to continue to your school's financial workspace.</p>
 
             {% if messages %}
+            <div class="message-stack" aria-live="polite">
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="login-alert login-alert-{{ message.tags|default:'info' }}" role="alert">
+                    <i class="bi {% if message.tags == 'error' %}bi-exclamation-circle{% elif message.tags == 'success' %}bi-check-circle{% else %}bi-info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
                 {% endfor %}
+            </div>
             {% endif %}
 
-           <form method="POST" action="{% url 'login' %}">
-            {% csrf_token %}
+            {% if form.non_field_errors and not messages %}
+            <div class="login-alert login-alert-error" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>Invalid email or password.</span>
+            </div>
+            {% endif %}
 
-              <div class="form-group-custom">
-                    <label class="form-label">Email address</label>
-                    <div class="input-group">
-                        <span class="input-group-text input-group-text-custom">
-                            <i class="bi bi-envelope"></i>
-                        </span>
-                        <input type="email" name="username" class="form-control form-control-custom" placeholder="user@domain.com" required id="id_username">
+            <form method="post" action="{% url 'login' %}" class="login-form" id="login-form">
+                {% csrf_token %}
+
+                <div class="field-group{% if form.username.errors %} has-error{% endif %}">
+                    <label for="{{ form.username.id_for_label }}">Email address</label>
+                    <div class="field-control">
+                        <i class="bi bi-envelope"></i>
+                        {{ form.username }}
                     </div>
+                    {% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
                 </div>
 
-                <div class="form-group-custom">
-                    <label class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text input-group-text-custom">
-                            <i class="bi bi-key"></i>
-                        </span>
-                        <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••••••" required id="id_password">
+                <div class="field-group{% if form.password.errors %} has-error{% endif %}">
+                    <div class="label-row">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        <a href="{% url 'password_reset' %}">Forgot password?</a>
                     </div>
+                    <div class="field-control password-control">
+                        <i class="bi bi-key"></i>
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password" aria-pressed="false">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
                 </div>
 
-                <div class="d-flex justify-content-end mb-3">
-                    <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
-                </div>
-
-                <button type="submit" class="btn btn-primary-custom">
-                    Sign in <i class="bi bi-arrow-right ms-1"></i>
+                <button type="submit" class="sign-in-button" id="sign-in-button">
+                    <span class="button-label">Sign in securely</span>
+                    <span class="button-loading"><i class="bi bi-arrow-repeat"></i> Signing in</span>
+                    <i class="bi bi-arrow-right button-arrow"></i>
                 </button>
             </form>
 
-            <div class="security-badge">
-                <i class="bi bi-check-circle-fill text-success me-1"></i> Protected by role-based access & audit logging
+            <div class="security-note">
+                <i class="bi bi-shield-lock"></i>
+                <span>Secure access to your school's financial workspace.</span>
             </div>
         </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <p class="login-support">Having trouble signing in? Contact your system administrator.</p>
+    </section>
+</main>
+
+<script src="{% static 'js/login.js' %}" defer></script>
 </body>
 </html>

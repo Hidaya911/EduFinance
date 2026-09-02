@@ -31,14 +31,14 @@
       <a href="#" class="nav-link-custom">Invoices</a>
       <a href="#" class="nav-link-custom">Payments</a>
       <a href="#" class="nav-link-custom">Installments</a>
-      <a href="#" class="nav-link-custom">Scholarships</a>
-      <a href="#" class="nav-link-custom">Discounts</a>
+      <a href="{% url 'payables:scholarship_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'scholarship_' in request.resolver_match.url_name %}active{% endif %}">Scholarships</a>
+      <a href="{% url 'payables:discount_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'discount_' in request.resolver_match.url_name %}active{% endif %}">Discounts</a>
       <a href="#" class="nav-link-custom">Refunds</a>
 
       <!-- EXPENSES -->
       <div class="nav-section-label">EXPENSES</div>
-      <a href="#" class="nav-link-custom">Expenses</a>
-      <a href="#" class="nav-link-custom">Suppliers</a>
+      <a href="{% url 'payables:expense_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'expense_' in request.resolver_match.url_name %}active{% endif %}">Expenses</a>
+      <a href="{% url 'payables:supplier_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'supplier_' in request.resolver_match.url_name %}active{% endif %}">Suppliers</a>
 
       <!-- REPORTING -->
       <div class="nav-section-label">REPORTING</div>
@@ -58,7 +58,7 @@
       <a href="{% url 'roles_list' %}" class="nav-link-custom {% if 'roles' in request.path %}active{% endif %}">
         <i class="bi bi-shield-check me-2"></i> Roles & Permissions
       </a>
-      <a href="#" class="nav-link-custom">
+      <a href="{% url 'payables:approval_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'approval_' in request.resolver_match.url_name %}active{% endif %}">
         <i class="bi bi-check-circle-fill me-2"></i> Approvals
       </a>
       <a href="#" class="nav-link-custom">
@@ -70,7 +70,7 @@
       {% if user.is_superuser %}
       <div class="nav-section-label">CONFIGURATION</div>
       <a href="#" class="nav-link-custom">Academic Years</a>
-      <a href="#" class="nav-link-custom">School Settings</a>
+      <a href="{% url 'school_config:school_settings' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'school_config' %}active{% endif %}">School Settings</a>
       {% endif %}
 
     </nav>
