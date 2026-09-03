@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Financial Assistance | EduFinance{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/financial-assistance.css' %}">{% endblock %}
+
+{% block content %}
+<div class="assist-progress" id="assistProgress" aria-hidden="true"></div>
+<main class="assist-page">
+    <div class="assist-shell">
+        <nav class="assist-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'dashboard' %}">EduFinance</a><i class="bi bi-chevron-right"></i>
+            <span>Student Support</span><i class="bi bi-chevron-right"></i>
+            <span>Financial Assistance</span>
+        </nav>
+
+        <section class="assist-hero" aria-labelledby="assistance-title">
+            <div class="assist-hero-main">
+                <div>
+                    <p class="assist-eyebrow">Student Support Command Center</p>
+                    <h1 id="assistance-title">Financial Assistance</h1>
+                    <p class="assist-hero-subtitle">Structured support. Controlled review. Traceable decisions.</p>
+                    <p class="assist-hero-description">Coordinate student support requests from intake through formal review and management decision while preserving academic-year context, supporting evidence, and approval history.</p>
+                    <div class="assist-hero-actions">
+                        <a class="assist-btn assist-btn-primary assist-navigation" href="{% url 'payables:financial_assistance_create' %}"><i class="bi bi-plus-lg"></i> New Assistance Request</a>
+                        <a class="assist-btn assist-btn-ghost assist-navigation" href="{% url 'payables:approval_list' %}"><i class="bi bi-check2-square"></i> View Approval Center</a>
+                    </div>
+                </div>
+                <div class="assist-hero-visual" aria-hidden="true">
+                    <div class="assist-orbit"></div>
+                    <div class="assist-dossier">
+                        <div class="assist-dossier-head"><span>Support case dossier</span><span class="assist-dossier-status">Workflow ready</span></div>
+                        <div class="assist-dossier-lines"><span></span><span></span><span></span></div>
+                        <div class="assist-dossier-flow"><span>Intake</span><span>Review</span><span>Decision</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="assist-telemetry" aria-label="Live assistance operations">
+            <article class="assist-telemetry-item"><span class="assist-telemetry-icon"><i class="bi bi-collection"></i></span><div class="assist-telemetry-copy"><strong>{{ total_count }}</strong><span>Total cases</span></div></article>
+            <article class="assist-telemetry-item"><span class="assist-telemetry-icon"><i class="bi bi-send"></i></span><div class="assist-telemetry-copy"><strong>{{ submitted_count }}</strong><span>Submitted</span></div></article>
+            <article class="assist-telemetry-item"><span class="assist-telemetry-icon"><i class="bi bi-search"></i></span><div class="assist-telemetry-copy"><strong>{{ under_review_count }}</strong><span>Under review</span></div></article>
+            <article class="assist-telemetry-item"><span class="assist-telemetry-icon"><i class="bi bi-check2-circle"></i></span><div class="assist-telemetry-copy"><strong>{{ approved_count }}</strong><span>Approved</span></div></article>
+            <article class="assist-telemetry-item"><span class="assist-telemetry-icon"><i class="bi bi-slash-circle"></i></span><div class="assist-telemetry-copy"><strong>{{ cancelled_count }}</strong><span>Cancelled</span></div></article>
+        </section>
+
+        <div class="assist-section-head">
+            <div><h2>Executive Case Overview</h2><p>Operational distribution across the assistance lifecycle</p></div>
+            <span class="assist-section-tag">Live portfolio</span>
+        </div>
+        <section class="assist-bento" aria-label="Assistance portfolio overview">
+            <article class="assist-bento-card assist-bento-feature">
+                <div><span class="assist-bento-label">Assistance case portfolio</span><div class="assist-bento-value">{{ total_count }}</div><p class="assist-bento-note">Complete operational record of student financial-assistance requests across all academic years.</p></div>
+                <div class="assist-bento-state"><span class="assist-bento-label">Traceable case lifecycle</span><i class="bi bi-diagram-3"></i></div>
+            </article>
+            <article class="assist-bento-card"><span class="assist-bento-label">Submitted</span><div class="assist-bento-value">{{ submitted_count }}</div><p class="assist-bento-note">Editable intake cases ready for review.</p><div class="assist-bento-state"><span></span><i class="bi bi-send"></i></div></article>
+            <article class="assist-bento-card state-review"><span class="assist-bento-label">Under review</span><div class="assist-bento-value">{{ under_review_count }}</div><p class="assist-bento-note">Cases inside the approval workflow.</p><div class="assist-bento-state"><span></span><i class="bi bi-hourglass-split"></i></div></article>
+            <article class="assist-bento-card state-approved"><span class="assist-bento-label">Approved</span><div class="assist-bento-value">{{ approved_count }}</div><p class="assist-bento-note">Support formally approved.</p><div class="assist-bento-state"><span></span><i class="bi bi-check2"></i></div></article>
+            <article class="assist-bento-card state-rejected"><span class="assist-bento-label">Rejected</span><div class="assist-bento-value">{{ rejected_count }}</div><p class="assist-bento-note">Closed without approval.</p><div class="assist-bento-state"><span></span><i class="bi bi-x-lg"></i></div></article>
+            <article class="assist-bento-card state-cancelled"><span class="assist-bento-label">Cancelled</span><div class="assist-bento-value">{{ cancelled_count }}</div><p class="assist-bento-note">Withdrawn before formal review.</p><div class="assist-bento-state"><span></span><i class="bi bi-slash-circle"></i></div></article>
+        </section>
+
+        <section class="assist-operations">
+            <div class="assist-card">
+                <header class="assist-card-head"><div><h2>Assistance Pipeline</h2><p>Movement from submitted intake to management decision</p></div><span class="assist-card-badge">Workflow</span></header>
+                <div class="assist-pipeline">
+                    <article class="assist-pipeline-node"><strong>{{ submitted_count }}</strong><span>Submitted</span><small>Structured intake ready to enter review</small></article>
+                    <i class="bi bi-arrow-right assist-pipeline-arrow"></i>
+                    <article class="assist-pipeline-node review"><strong>{{ under_review_count }}</strong><span>Under Review</span><small>Approval workflow active and awaiting decision</small></article>
+                    <i class="bi bi-arrow-right assist-pipeline-arrow"></i>
+                    <div class="assist-pipeline-decision">
+                        <article class="assist-pipeline-node approved"><strong>{{ approved_count }}</strong><span>Approved</span><small>Decision recorded</small></article>
+                        <article class="assist-pipeline-rejected"><strong>{{ rejected_count }}</strong><span>Rejected</span></article>
+                    </div>
+                </div>
+                <div class="assist-cancel-lane"><i class="bi bi-sign-turn-right"></i><span>Cancellation lane · submitted cases withdrawn before review</span><strong>{{ cancelled_count }}</strong></div>
+            </div>
+
+            <aside class="assist-card">
+                <header class="assist-card-head"><div><h3>Attention Center</h3><p>Operational cases by next action</p></div><span class="assist-card-badge">Actionable</span></header>
+                <div class="assist-attention">
+                    <a class="assist-attention-row attention-submitted" href="?status=submitted"><i class="bi bi-send"></i><span><strong>Submitted</strong><small>Ready to enter formal review</small></span><span class="assist-attention-count">{{ submitted_count }}</span></a>
+                    <a class="assist-attention-row attention-review" href="?status=under_review"><i class="bi bi-hourglass-split"></i><span><strong>Under Review</strong><small>Awaiting approval decision</small></span><span class="assist-attention-count">{{ under_review_count }}</span></a>
+                    <a class="assist-attention-row attention-rejected" href="?status=rejected"><i class="bi bi-x-circle"></i><span><strong>Rejected</strong><small>Closed without approval</small></span><span class="assist-attention-count">{{ rejected_count }}</span></a>
+                </div>
+            </aside>
+        </section>
+
+        <section class="assist-card assist-ledger" aria-labelledby="ledger-title">
+            <header class="assist-card-head"><div><h2 id="ledger-title">Assistance Case Ledger</h2><p>Search, filter, and inspect traceable support cases</p></div><span class="assist-card-badge">{{ total_count }} records</span></header>
+            <form class="assist-filters" id="assistFilters" method="get">
+                <div class="assist-control-wrap"><i class="bi bi-search"></i><input class="assist-control search" id="assistSearch" type="search" name="search" value="{{ search }}" placeholder="Search case, student, academic year or reason..." aria-label="Search assistance cases"></div>
+                <select class="assist-control" id="assistStatus" name="status" aria-label="Filter by status"><option value="">All statuses</option>{% for value, label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+                <select class="assist-control" id="assistYear" name="academic_year" aria-label="Filter by academic year"><option value="">All academic years</option>{% for year in academic_years %}<option value="{{ year }}" {% if academic_year == year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select>
+                <a class="assist-reset assist-navigation" href="{% url 'payables:financial_assistance_list' %}"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </form>
+
+            {% if assistance_requests %}
+            <div class="assist-table-wrap">
+                <table class="assist-table">
+                    <thead><tr><th>Case</th><th>Student</th><th>Academic Year</th><th>Reason</th><th>Requested By</th><th>Status</th><th>Created</th><th>Action</th></tr></thead>
+                    <tbody>
+                    {% for assistance in assistance_requests %}
+                    <tr>
+                        <td><span class="assist-case-number">{{ assistance.assistance_number }}</span></td>
+                        <td><strong>{{ assistance.student_reference }}</strong></td>
+                        <td><span class="assist-year">{{ assistance.academic_year_reference }}</span></td>
+                        <td><div class="assist-reason">{{ assistance.reason|truncatechars:88 }}</div></td>
+                        <td>{{ assistance.requested_by.get_full_name|default:assistance.requested_by.username }}</td>
+                        <td><span class="assist-status status-{{ assistance.status }}">{{ assistance.get_status_display }}</span></td>
+                        <td>{{ assistance.created_at|date:"M d, Y" }}<span class="assist-cell-muted">{{ assistance.created_at|time:"H:i" }}</span></td>
+                        <td><a class="assist-view-link assist-navigation" href="{% url 'payables:financial_assistance_detail' assistance.pk %}">View case <i class="bi bi-arrow-right"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif total_count == 0 %}
+            <div class="assist-empty">
+                <div>
+                    <span class="assist-empty-badge"><i class="bi bi-stars"></i> Operations ready</span>
+                    <h3>Your assistance command center is ready.</h3>
+                    <p>Create the first structured assistance case to preserve student context, supporting evidence, and every approval decision in one traceable workflow.</p>
+                    <div class="assist-empty-flow"><span>Submit</span><i class="bi bi-arrow-right"></i><span>Review</span><i class="bi bi-arrow-right"></i><span>Decide</span></div>
+                    <div class="assist-hero-actions"><a class="assist-btn assist-btn-blue assist-navigation" href="{% url 'payables:financial_assistance_create' %}">Create First Request</a><a class="assist-btn assist-btn-light assist-navigation" href="{% url 'payables:approval_list' %}">Approval Center</a></div>
+                </div>
+                <div class="assist-integrity"><div><i class="bi bi-check-circle-fill"></i> Academic-year context preserved</div><div><i class="bi bi-check-circle-fill"></i> Evidence remains linked to the case</div><div><i class="bi bi-check-circle-fill"></i> Approval history stays traceable</div></div>
+            </div>
+            {% else %}
+            <div class="assist-empty"><div><span class="assist-empty-badge"><i class="bi bi-funnel"></i> No matches</span><h3>No cases match these filters.</h3><p>Adjust the current search or clear the filters to return to the complete assistance ledger.</p><a class="assist-btn assist-btn-blue assist-navigation" href="{% url 'payables:financial_assistance_list' %}">Clear Filters</a></div><div class="assist-integrity"><div><i class="bi bi-search"></i> Search case numbers and student references</div><div><i class="bi bi-funnel"></i> Filter by workflow status</div><div><i class="bi bi-calendar3"></i> Narrow results by academic year</div></div></div>
+            {% endif %}
+        </section>
+    </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("assistFilters");
+    const search = document.getElementById("assistSearch");
+    const status = document.getElementById("assistStatus");
+    const year = document.getElementById("assistYear");
+    const progress = document.getElementById("assistProgress");
+    let timer;
+    const showProgress = function () { if (progress) progress.classList.add("is-active"); };
+    const submitFilters = function () { if (form) { showProgress(); form.submit(); } };
+    if (search) search.addEventListener("input", function () { window.clearTimeout(timer); timer = window.setTimeout(submitFilters, 320); });
+    if (status) status.addEventListener("change", submitFilters);
+    if (year) year.addEventListener("change", submitFilters);
+    document.querySelectorAll(".assist-navigation").forEach(function (link) { link.addEventListener("click", showProgress); });
+    window.addEventListener("pageshow", function () { if (progress) progress.classList.remove("is-active"); });
+});
+</script>
+{% endblock %}

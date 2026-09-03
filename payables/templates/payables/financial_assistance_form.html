@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | EduFinance{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/financial-assistance.css' %}">{% endblock %}
+
+{% block content %}
+<main class="assist-page">
+    <div class="assist-shell">
+        <nav class="assist-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'payables:financial_assistance_list' %}">Financial Assistance</a><i class="bi bi-chevron-right"></i>
+            <span>{% if is_edit %}{{ assistance.assistance_number }}{% else %}New Request{% endif %}</span>
+        </nav>
+
+        {% if messages %}<div class="assist-alerts" aria-live="polite">{% for message in messages %}<div class="assist-alert {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% endif %}"><i class="bi bi-info-circle"></i><span>{{ message }}</span></div>{% endfor %}</div>{% endif %}
+
+        <section class="assist-hero assist-form-hero" aria-labelledby="intake-title">
+            <div class="assist-hero-main">
+                <div>
+                    <p class="assist-eyebrow">Student support intake</p>
+                    <h1 id="intake-title">{{ page_title }}</h1>
+                    <p class="assist-hero-subtitle">Financial Assistance Intake Workspace</p>
+                    <p class="assist-hero-description">Create a structured financial-assistance request with student context, academic-year history, request justification and optional supporting evidence before formal review begins.</p>
+                </div>
+                <aside class="assist-intel-card">
+                    <small>{% if is_edit %}Editing submitted request{% else %}New assistance intake{% endif %}</small>
+                    <strong>{% if is_edit %}{{ assistance.assistance_number }}{% else %}Unassigned case number{% endif %}</strong>
+                    <div class="assist-intel-stage"><i class="bi bi-record-circle"></i> Stage 01 · Submitted</div>
+                    <p>Formal approval begins only after Send for Review from the saved case.</p>
+                </aside>
+            </div>
+        </section>
+
+        <section class="assist-workflow-rail" aria-label="Assistance workflow">
+            <div class="assist-rail-step active"><span class="assist-rail-number">01</span><div><strong>Submitted</strong><small>Editable intake record</small></div></div>
+            <i class="bi bi-arrow-right assist-rail-arrow"></i>
+            <div class="assist-rail-step"><span class="assist-rail-number">02</span><div><strong>Under Review</strong><small>Approval workflow active</small></div></div>
+            <i class="bi bi-arrow-right assist-rail-arrow"></i>
+            <div class="assist-rail-step"><span class="assist-rail-number">03</span><div><strong>Decision</strong><small>Approved or rejected</small></div></div>
+        </section>
+
+        <form method="post" enctype="multipart/form-data" id="assistanceForm">
+            {% csrf_token %}
+            <div class="assist-form-layout">
+                <div class="assist-form-card">
+                    {% if form.non_field_errors %}<div class="assist-form-section"><div class="assist-alert error"><i class="bi bi-exclamation-circle"></i>{{ form.non_field_errors }}</div></div>{% endif %}
+
+                    <section class="assist-form-section" aria-labelledby="student-context-title">
+                        <header class="assist-form-section-head"><span class="assist-section-number">01</span><div><h2 id="student-context-title">Student Context</h2><p>Anchor this request to a student and historical academic year.</p></div></header>
+                        <div class="assist-field-grid">
+                            <div class="assist-field">
+                                <label for="{{ form.student_reference.id_for_label }}"><span>Student Reference <b class="assist-required">*</b></span><i class="bi bi-person-badge"></i></label>
+                                {{ form.student_reference }}
+                                <div class="assist-field-help"><i class="bi bi-info-circle"></i><span>Use the student's current school reference or student ID.</span></div>
+                                {% if form.student_reference.errors %}<div class="assist-field-errors">{{ form.student_reference.errors }}</div>{% endif %}
+                            </div>
+                            <div class="assist-field">
+                                <label for="{{ form.academic_year_reference.id_for_label }}"><span>Academic Year <b class="assist-required">*</b></span><i class="bi bi-calendar3"></i></label>
+                                {{ form.academic_year_reference }}
+                                <div class="assist-field-help"><i class="bi bi-shield-check"></i><span>Stored as a historical snapshot for record integrity.</span></div>
+                                {% if form.academic_year_reference.errors %}<div class="assist-field-errors">{{ form.academic_year_reference.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="assist-form-section" aria-labelledby="justification-title">
+                        <header class="assist-form-section-head"><span class="assist-section-number">02</span><div><h2 id="justification-title">Assistance Justification</h2><p>Give reviewers the context required for a responsible decision.</p></div></header>
+                        <div class="assist-field-grid">
+                            <div class="assist-field full">
+                                <label for="{{ form.reason.id_for_label }}"><span>Request Reason <b class="assist-required">*</b></span><span class="assist-character-count" id="reasonCount">0 characters</span></label>
+                                {{ form.reason }}
+                                <div class="assist-field-help"><i class="bi bi-journal-text"></i><span>Explain the circumstances clearly; the backend requires at least 10 characters.</span></div>
+                                {% if form.reason.errors %}<div class="assist-field-errors">{{ form.reason.errors }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="assist-form-section" aria-labelledby="evidence-title">
+                        <header class="assist-form-section-head"><span class="assist-section-number">03</span><div><h2 id="evidence-title">Supporting Evidence</h2><p>Attach optional documentation without disconnecting it from the case.</p></div></header>
+                        <div class="assist-upload">
+                            <div class="assist-upload-head"><span class="assist-upload-icon"><i class="bi bi-file-earmark-arrow-up"></i></span><div><strong>Evidence upload</strong><span>PDF, PNG, JPG or JPEG · maximum 5 MB</span></div></div>
+                            <input class="assist-file-input" type="file" name="supporting_document" id="id_supporting_document" accept=".pdf,.png,.jpg,.jpeg">
+                            <div class="assist-file-control"><label class="assist-file-button" for="id_supporting_document"><i class="bi bi-upload"></i> Select Document</label><span class="assist-file-name" id="assistFileName">No new document selected</span></div>
+                            {% if form.supporting_document.errors %}<div class="assist-field-errors">{{ form.supporting_document.errors }}</div>{% endif %}
+                            {% if is_edit and assistance.supporting_document %}<div class="assist-current-file"><span><i class="bi bi-check-circle-fill"></i> Current document remains attached unless replaced</span><a href="{{ assistance.supporting_document.url }}" target="_blank" rel="noopener">Open document <i class="bi bi-box-arrow-up-right"></i></a></div>{% endif %}
+                        </div>
+                    </section>
+
+                    <footer class="assist-action-dock">
+                        <p>Saving creates or updates the intake record only. Formal approval starts from the saved case through Send for Review.</p>
+                        <div class="assist-action-group">
+                            {% if is_edit %}<a class="assist-btn assist-btn-light" href="{% url 'payables:financial_assistance_detail' assistance.pk %}">Cancel</a>{% else %}<a class="assist-btn assist-btn-light" href="{% url 'payables:financial_assistance_list' %}">Cancel</a>{% endif %}
+                            <button class="assist-btn assist-btn-blue assist-submit" id="assistSubmit" type="submit"><span class="assist-submit-label">{{ submit_text }}</span><span class="assist-submit-loading"><span class="assist-spinner"></span>{% if is_edit %}Saving Changes...{% else %}Creating Request...{% endif %}</span></button>
+                        </div>
+                    </footer>
+                </div>
+
+                <aside class="assist-command-rail">
+                    <section class="assist-rail-card"><h3>Workflow Status</h3><p>Requests advance only through explicit workflow actions.</p><div class="assist-mini-flow"><div><span>01</span><strong>Submitted</strong></div><div><span>02</span><strong>Under Review</strong></div><div><span>03</span><strong>Decision</strong></div></div></section>
+                    <section class="assist-rail-card"><h3>Record Integrity</h3><p>Context remains attached throughout review.</p><div class="assist-check-list"><div><i class="bi bi-check-circle-fill"></i><span>Academic year preserved</span></div><div><i class="bi bi-check-circle-fill"></i><span>Documents controlled</span></div><div><i class="bi bi-check-circle-fill"></i><span>Approval traceability</span></div></div></section>
+                    <section class="assist-rail-card"><h3>Before You Submit</h3><p>Confirm the intake is review-ready.</p><div class="assist-check-list"><div><i class="bi bi-person-check"></i><span>Correct student reference</span></div><div><i class="bi bi-calendar-check"></i><span>Historical academic year</span></div><div><i class="bi bi-card-text"></i><span>Clear, specific reason</span></div><div><i class="bi bi-paperclip"></i><span>Optional supporting evidence</span></div></div></section>
+                </aside>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("assistanceForm");
+    const submit = document.getElementById("assistSubmit");
+    const reason = document.getElementById("id_reason");
+    const reasonCount = document.getElementById("reasonCount");
+    const fileInput = document.getElementById("id_supporting_document");
+    const fileName = document.getElementById("assistFileName");
+    const updateCount = function () { if (reason && reasonCount) reasonCount.textContent = reason.value.length + (reason.value.length === 1 ? " character" : " characters"); };
+    updateCount();
+    if (reason) reason.addEventListener("input", updateCount);
+    if (fileInput) fileInput.addEventListener("change", function () { fileName.textContent = fileInput.files.length ? fileInput.files[0].name : "No new document selected"; });
+    if (form && submit) form.addEventListener("submit", function () { if (!form.checkValidity() || submit.disabled) return; submit.disabled = true; submit.classList.add("is-loading"); submit.setAttribute("aria-busy", "true"); });
+});
+</script>
+{% endblock %}

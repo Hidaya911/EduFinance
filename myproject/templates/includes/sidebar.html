@@ -33,6 +33,7 @@
       <a href="#" class="nav-link-custom">Installments</a>
       <a href="{% url 'payables:scholarship_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'scholarship_' in request.resolver_match.url_name %}active{% endif %}">Scholarships</a>
       <a href="{% url 'payables:discount_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'discount_' in request.resolver_match.url_name %}active{% endif %}">Discounts</a>
+      <a href="{% url 'payables:financial_assistance_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'financial_assistance_' in request.resolver_match.url_name %}active{% endif %}">Financial Assistance</a>
       <a href="#" class="nav-link-custom">Refunds</a>
 
       <!-- EXPENSES -->

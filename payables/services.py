@@ -7,6 +7,7 @@ from .models import (
     ApprovalRequest,
     Discount,
     Scholarship,
+    FinancialAssistanceRequest,
 )
 
 from .models import (
@@ -2021,3 +2022,674 @@ def cancel_scholarship(
 
 
     return scholarship
+
+
+
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — CREATE
+# ============================================================
+
+def create_financial_assistance(
+    *,
+    user,
+    student_reference,
+    academic_year_reference,
+    reason,
+    supporting_document=None,
+):
+
+    assistance = (
+        FinancialAssistanceRequest(
+            student_reference=
+                student_reference,
+
+            academic_year_reference=
+                academic_year_reference,
+
+            reason=
+                reason,
+
+            supporting_document=
+                supporting_document,
+
+            requested_by=
+                user,
+
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .SUBMITTED,
+        )
+    )
+
+    assistance.full_clean()
+
+    assistance.save()
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — UPDATE SUBMITTED REQUEST
+# ============================================================
+
+def update_financial_assistance(
+    *,
+    assistance,
+    student_reference,
+    academic_year_reference,
+    reason,
+    supporting_document=None,
+):
+
+    assistance = (
+        FinancialAssistanceRequest
+        .objects
+        .get(
+            pk=assistance.pk
+        )
+    )
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .SUBMITTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only submitted financial "
+                "assistance requests can be edited."
+            )
+        )
+
+    if assistance.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This financial assistance request "
+                "cannot be edited because it is "
+                "already linked to an approval "
+                "workflow."
+            )
+        )
+
+    assistance.student_reference = (
+        student_reference
+    )
+
+    assistance.academic_year_reference = (
+        academic_year_reference
+    )
+
+    assistance.reason = (
+        reason
+    )
+
+    # --------------------------------------------------------
+    # DOCUMENT
+    #
+    # The view/form should pass the existing document when
+    # no replacement file has been uploaded.
+    # --------------------------------------------------------
+
+    assistance.supporting_document = (
+        supporting_document
+    )
+
+    assistance.full_clean()
+
+    assistance.save()
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — APPROVAL DESCRIPTION
+# ============================================================
+
+def _financial_assistance_approval_description(
+    assistance,
+):
+
+    return (
+        f"Financial assistance request "
+        f"{assistance.assistance_number} "
+        f"for student "
+        f"{assistance.student_reference}. "
+        f"Academic year: "
+        f"{assistance.academic_year_reference}. "
+        f"Reason: "
+        f"{assistance.reason}"
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — SEND FOR REVIEW
+# ============================================================
+
+def submit_financial_assistance_for_review(
+    *,
+    assistance,
+):
+
+    assistance = (
+        FinancialAssistanceRequest
+        .objects
+        .get(
+            pk=assistance.pk
+        )
+    )
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .SUBMITTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only submitted financial "
+                "assistance requests can be "
+                "sent for review."
+            )
+        )
+
+    if assistance.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This financial assistance request "
+                "already has an approval request."
+            )
+        )
+
+    # --------------------------------------------------------
+    # GENERIC APPROVAL REQUEST
+    #
+    # Financial Assistance currently has no BRD-defined
+    # monetary field, so ApprovalRequest.amount remains None.
+    # --------------------------------------------------------
+
+    approval_request = (
+        ApprovalRequest(
+            operation_type=
+                ApprovalRequest
+                .OperationType
+                .FINANCIAL_ASSISTANCE,
+
+            title=(
+                "Financial assistance review — "
+                f"{assistance.assistance_number}"
+            ),
+
+            description=(
+                _financial_assistance_approval_description(
+                    assistance
+                )
+            ),
+
+            amount=None,
+
+            related_entity_type=
+                "FinancialAssistanceRequest",
+
+            related_entity_id=
+                str(
+                    assistance.pk
+                ),
+
+            requester=
+                assistance.requested_by,
+
+            request_reason=
+                assistance.reason,
+
+            status=
+                ApprovalRequest
+                .Status
+                .REQUESTED,
+        )
+    )
+
+    approval_request.full_clean()
+
+    approval_request.save()
+
+    try:
+
+        approval_request = (
+            submit_approval_request(
+                approval_request
+            )
+        )
+
+        assistance.approval_request = (
+            approval_request
+        )
+
+        assistance.status = (
+            FinancialAssistanceRequest
+            .Status
+            .UNDER_REVIEW
+        )
+
+        assistance.review_started_at = (
+            approval_request.submitted_at
+            or
+            timezone.now()
+        )
+
+        assistance.full_clean()
+
+        assistance.save()
+
+    except Exception:
+
+        # ----------------------------------------------------
+        # COMPENSATING ROLLBACK
+        #
+        # The ApprovalRequest was created only for this
+        # operation. If the assistance record cannot be moved
+        # under review, remove the orphan approval.
+        # ----------------------------------------------------
+
+        approval_request.delete()
+
+        raise
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — RESOLVE LINKED APPROVAL
+# ============================================================
+
+def get_financial_assistance_for_approval(
+    approval_request,
+):
+
+    if (
+        approval_request.operation_type
+        !=
+        ApprovalRequest
+        .OperationType
+        .FINANCIAL_ASSISTANCE
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request is not "
+                "for financial assistance."
+            )
+        )
+
+    entity_type = (
+        approval_request
+        .related_entity_type
+        or ""
+    ).strip()
+
+    entity_id = (
+        approval_request
+        .related_entity_id
+        or ""
+    ).strip()
+
+    if (
+        entity_type.lower()
+        !=
+        "financialassistancerequest"
+        or
+        not entity_id
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request is not "
+                "linked to a valid financial "
+                "assistance request."
+            )
+        )
+
+    try:
+
+        assistance = (
+            FinancialAssistanceRequest
+            .objects
+            .get(
+                pk=entity_id
+            )
+        )
+
+    except FinancialAssistanceRequest.DoesNotExist:
+
+        raise ValidationError(
+            (
+                "The financial assistance request "
+                "linked to this approval could not "
+                "be found."
+            )
+        )
+
+    if (
+        not assistance.approval_request_id
+        or
+        str(
+            assistance.approval_request_id
+        )
+        !=
+        str(
+            approval_request.pk
+        )
+    ):
+
+        raise ValidationError(
+            (
+                "The approval request is not "
+                "linked to this financial "
+                "assistance record."
+            )
+        )
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — APPROVE
+# ============================================================
+
+def approve_financial_assistance_approval(
+    *,
+    approval_request,
+    approver,
+    comments="",
+):
+
+    approval_request = (
+        ApprovalRequest
+        .objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+    assistance = (
+        get_financial_assistance_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .UNDER_REVIEW
+    ):
+
+        raise ValidationError(
+            (
+                "The linked financial assistance "
+                "request is not under review."
+            )
+        )
+
+    approval_request = (
+        approve_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        assistance.status = (
+            FinancialAssistanceRequest
+            .Status
+            .APPROVED
+        )
+
+        assistance.approved_by = (
+            approver
+        )
+
+        assistance.approved_at = (
+            approval_request.decided_at
+            or
+            timezone.now()
+        )
+
+        assistance.full_clean()
+
+        assistance.save()
+
+    except Exception:
+
+        # ----------------------------------------------------
+        # RESTORE GENERIC APPROVAL
+        # ----------------------------------------------------
+
+        approval_request.status = (
+            ApprovalRequest
+            .Status
+            .PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — REJECT
+# ============================================================
+
+def reject_financial_assistance_approval(
+    *,
+    approval_request,
+    approver,
+    comments,
+):
+
+    approval_request = (
+        ApprovalRequest
+        .objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+    assistance = (
+        get_financial_assistance_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .UNDER_REVIEW
+    ):
+
+        raise ValidationError(
+            (
+                "The linked financial assistance "
+                "request is not under review."
+            )
+        )
+
+    approval_request = (
+        reject_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        assistance.status = (
+            FinancialAssistanceRequest
+            .Status
+            .REJECTED
+        )
+
+        assistance.approved_by = None
+
+        assistance.approved_at = None
+
+        assistance.full_clean()
+
+        assistance.save()
+
+    except Exception:
+
+        # ----------------------------------------------------
+        # RESTORE GENERIC APPROVAL
+        # ----------------------------------------------------
+
+        approval_request.status = (
+            ApprovalRequest
+            .Status
+            .PENDING
+        )
+
+        approval_request.approver = None
+
+        approval_request.decision_comments = ""
+
+        approval_request.decided_at = None
+
+        approval_request.save()
+
+        raise
+
+    return assistance
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — CANCEL
+# ============================================================
+
+def cancel_financial_assistance(
+    *,
+    assistance,
+    user,
+    reason,
+):
+
+    assistance = (
+        FinancialAssistanceRequest
+        .objects
+        .get(
+            pk=assistance.pk
+        )
+    )
+
+    reason = (
+        reason.strip()
+        if reason
+        else ""
+    )
+
+    if not reason:
+
+        raise ValidationError(
+            (
+                "A cancellation reason "
+                "is required."
+            )
+        )
+
+    if (
+        assistance.status
+        ==
+        FinancialAssistanceRequest
+        .Status
+        .CANCELLED
+    ):
+
+        raise ValidationError(
+            (
+                "This financial assistance "
+                "request is already cancelled."
+            )
+        )
+
+    # --------------------------------------------------------
+    # ONLY SUBMITTED REQUESTS MAY BE CANCELLED
+    #
+    # Once a request enters review, it belongs to the formal
+    # approval workflow. Approved requests may eventually
+    # affect a student's financial account, so they must not
+    # be casually cancelled here.
+    # --------------------------------------------------------
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .SUBMITTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only submitted financial "
+                "assistance requests can be "
+                "cancelled."
+            )
+        )
+
+    if assistance.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This financial assistance request "
+                "cannot be cancelled because an "
+                "approval workflow has already "
+                "started."
+            )
+        )
+
+    assistance.status = (
+        FinancialAssistanceRequest
+        .Status
+        .CANCELLED
+    )
+
+    assistance.cancellation_reason = (
+        reason
+    )
+
+    assistance.cancelled_at = (
+        timezone.now()
+    )
+
+    assistance.cancelled_by = (
+        user
+    )
+
+    assistance.full_clean()
+
+    assistance.save()
+
+    return assistance

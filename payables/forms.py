@@ -17,6 +17,7 @@ from .models import (
     ApprovalRequest,
     Discount,
     Scholarship,
+    FinancialAssistanceRequest,
 )
 
 
@@ -2202,3 +2203,464 @@ class ScholarshipForm(forms.ModelForm):
 
 
         return cleaned_data
+
+
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE FORM
+# ============================================================
+
+class FinancialAssistanceForm(
+    forms.ModelForm
+):
+
+    MAX_DOCUMENT_SIZE = (
+        5 * 1024 * 1024
+    )
+
+    ALLOWED_DOCUMENT_EXTENSIONS = {
+        "pdf",
+        "png",
+        "jpg",
+        "jpeg",
+    }
+
+    ALLOWED_DOCUMENT_CONTENT_TYPES = {
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+    }
+
+
+    class Meta:
+
+        model = (
+            FinancialAssistanceRequest
+        )
+
+        fields = [
+            "student_reference",
+            "academic_year_reference",
+            "reason",
+            "supporting_document",
+        ]
+
+        widgets = {
+
+            "student_reference":
+                forms.TextInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            (
+                                "Enter student reference "
+                                "or student ID"
+                            ),
+
+                        "autocomplete":
+                            "off",
+                    }
+                ),
+
+            "academic_year_reference":
+                forms.TextInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            "e.g. 2026-2027",
+
+                        "autocomplete":
+                            "off",
+                    }
+                ),
+
+            "reason":
+                forms.Textarea(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            (
+                                "Explain why financial "
+                                "assistance is being requested..."
+                            ),
+
+                        "rows":
+                            6,
+                    }
+                ),
+
+            "supporting_document":
+                forms.ClearableFileInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "accept":
+                            (
+                                ".pdf,"
+                                ".png,"
+                                ".jpg,"
+                                ".jpeg"
+                            ),
+                    }
+                ),
+        }
+
+        labels = {
+
+            "student_reference":
+                "Student Reference",
+
+            "academic_year_reference":
+                "Academic Year",
+
+            "reason":
+                "Assistance Reason",
+
+            "supporting_document":
+                "Supporting Document",
+        }
+
+        help_texts = {
+
+            "student_reference":
+                (
+                    "Enter the student's current "
+                    "reference or student ID."
+                ),
+
+            "academic_year_reference":
+                (
+                    "The academic year this request "
+                    "belongs to."
+                ),
+
+            "reason":
+                (
+                    "Provide enough information for "
+                    "the reviewer to understand the "
+                    "financial assistance request."
+                ),
+
+            "supporting_document":
+                (
+                    "Optional. PDF, PNG, JPG or JPEG. "
+                    "Maximum file size: 5 MB."
+                ),
+        }
+
+
+    # ========================================================
+    # INITIALIZATION
+    # ========================================================
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        # ----------------------------------------------------
+        # REQUIRED FIELDS
+        # ----------------------------------------------------
+
+        self.fields[
+            "student_reference"
+        ].required = True
+
+        self.fields[
+            "academic_year_reference"
+        ].required = True
+
+        self.fields[
+            "reason"
+        ].required = True
+
+
+        # ----------------------------------------------------
+        # CURRENT ACADEMIC YEAR DEFAULT
+        #
+        # Only prefill a new, unbound form.
+        #
+        # Existing records retain their original academic
+        # year snapshot even if School.current_academic_year
+        # changes later.
+        # ----------------------------------------------------
+
+        if (
+            not self.is_bound
+            and
+            not self.instance.pk
+        ):
+
+            school = (
+                School.objects
+                .first()
+            )
+
+            if (
+                school
+                and
+                school.current_academic_year
+            ):
+
+                self.fields[
+                    "academic_year_reference"
+                ].initial = (
+                    school
+                    .current_academic_year
+                    .strip()
+                )
+
+
+    # ========================================================
+    # STUDENT REFERENCE
+    # ========================================================
+
+    def clean_student_reference(
+        self,
+    ):
+
+        student_reference = (
+            self.cleaned_data
+            .get(
+                "student_reference",
+                "",
+            )
+        )
+
+        student_reference = (
+            student_reference.strip()
+            if student_reference
+            else ""
+        )
+
+        if not student_reference:
+
+            raise ValidationError(
+                (
+                    "Student reference "
+                    "is required."
+                )
+            )
+
+        return student_reference
+
+
+    # ========================================================
+    # ACADEMIC YEAR
+    # ========================================================
+
+    def clean_academic_year_reference(
+        self,
+    ):
+
+        academic_year = (
+            self.cleaned_data
+            .get(
+                "academic_year_reference",
+                "",
+            )
+        )
+
+        academic_year = (
+            academic_year.strip()
+            if academic_year
+            else ""
+        )
+
+        if not academic_year:
+
+            raise ValidationError(
+                (
+                    "Academic year "
+                    "is required."
+                )
+            )
+
+        return academic_year
+
+
+    # ========================================================
+    # REASON
+    # ========================================================
+
+    def clean_reason(
+        self,
+    ):
+
+        reason = (
+            self.cleaned_data
+            .get(
+                "reason",
+                "",
+            )
+        )
+
+        reason = (
+            reason.strip()
+            if reason
+            else ""
+        )
+
+        if not reason:
+
+            raise ValidationError(
+                (
+                    "A reason for financial "
+                    "assistance is required."
+                )
+            )
+
+        if len(reason) < 10:
+
+            raise ValidationError(
+                (
+                    "Please provide a little more "
+                    "detail about the financial "
+                    "assistance request."
+                )
+            )
+
+        return reason
+
+
+    # ========================================================
+    # SUPPORTING DOCUMENT
+    # ========================================================
+
+    def clean_supporting_document(
+        self,
+    ):
+
+        document = (
+            self.cleaned_data
+            .get(
+                "supporting_document"
+            )
+        )
+
+        if not document:
+
+            return document
+
+
+        # ----------------------------------------------------
+        # FILE EXTENSION
+        # ----------------------------------------------------
+
+        file_name = (
+            getattr(
+                document,
+                "name",
+                "",
+            )
+            or ""
+        )
+
+        if "." not in file_name:
+
+            raise ValidationError(
+                (
+                    "The supporting document must "
+                    "have a valid file extension."
+                )
+            )
+
+        extension = (
+            file_name
+            .rsplit(
+                ".",
+                1,
+            )[-1]
+            .lower()
+        )
+
+        if (
+            extension
+            not in
+            self.ALLOWED_DOCUMENT_EXTENSIONS
+        ):
+
+            raise ValidationError(
+                (
+                    "Unsupported document type. "
+                    "Please upload a PDF, PNG, "
+                    "JPG or JPEG file."
+                )
+            )
+
+
+        # ----------------------------------------------------
+        # FILE SIZE
+        # ----------------------------------------------------
+
+        document_size = (
+            getattr(
+                document,
+                "size",
+                None,
+            )
+        )
+
+        if (
+            document_size is not None
+            and
+            document_size
+            >
+            self.MAX_DOCUMENT_SIZE
+        ):
+
+            raise ValidationError(
+                (
+                    "The supporting document cannot "
+                    "be larger than 5 MB."
+                )
+            )
+
+
+        # ----------------------------------------------------
+        # MIME TYPE
+        #
+        # UploadedFile objects normally expose content_type.
+        # Existing stored files may not, so only perform this
+        # check when the attribute is available.
+        # ----------------------------------------------------
+
+        content_type = (
+            getattr(
+                document,
+                "content_type",
+                None,
+            )
+        )
+
+        if (
+            content_type
+            and
+            content_type
+            not in
+            self.ALLOWED_DOCUMENT_CONTENT_TYPES
+        ):
+
+            raise ValidationError(
+                (
+                    "Unsupported document type. "
+                    "Please upload a valid PDF, "
+                    "PNG, JPG or JPEG file."
+                )
+            )
+
+        return document

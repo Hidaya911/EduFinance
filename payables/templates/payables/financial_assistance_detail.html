@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ assistance.assistance_number }} | Financial Assistance{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/financial-assistance.css' %}">{% endblock %}
+
+{% block content %}
+<main class="assist-page">
+    <div class="assist-shell">
+        <nav class="assist-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'payables:financial_assistance_list' %}">Financial Assistance</a><i class="bi bi-chevron-right"></i><span>{{ assistance.assistance_number }}</span>
+        </nav>
+
+        {% if messages %}<div class="assist-alerts" aria-live="polite">{% for message in messages %}<div class="assist-alert {% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% endif %}"><i class="bi {% if message.tags == 'error' %}bi-exclamation-circle{% else %}bi-check-circle{% endif %}"></i><span>{{ message }}</span></div>{% endfor %}</div>{% endif %}
+
+        <section class="assist-hero assist-case-hero" aria-labelledby="case-title">
+            <div class="assist-hero-main">
+                <div>
+                    <p class="assist-eyebrow">Assistance Case Command View</p>
+                    <span class="assist-case-identity">{{ assistance.assistance_number }}</span>
+                    <h1 id="case-title">{{ assistance.student_reference }}</h1>
+                    <p class="assist-hero-subtitle">Student support case · {{ assistance.academic_year_reference }}</p>
+                    <div class="assist-case-meta"><span><i class="bi bi-person-badge"></i> Student <strong>{{ assistance.student_reference }}</strong></span><span><i class="bi bi-calendar3"></i> Academic Year <strong>{{ assistance.academic_year_reference }}</strong></span></div>
+                </div>
+                <aside class="assist-case-status-panel">
+                    <small>Current case state</small>
+                    <span class="assist-status status-{{ assistance.status }}">{{ assistance.get_status_display }}</span>
+                    <p>Workflow status is controlled by the Financial Assistance and Approval services.</p>
+                </aside>
+            </div>
+        </section>
+
+        <section class="assist-case-actions" aria-label="Case actions">
+            <div class="assist-case-actions-label"><strong>Case Controls</strong><span>Only actions valid for the current workflow state are available.</span></div>
+            <div class="assist-case-buttons">
+                {% if assistance.status == "submitted" and not assistance.approval_request %}
+                <a class="assist-btn assist-btn-light" href="{% url 'payables:financial_assistance_edit' assistance.pk %}"><i class="bi bi-pencil"></i> Edit Request</a>
+                <button class="assist-btn assist-btn-danger" type="button" data-modal-open="cancelModal"><i class="bi bi-x-circle"></i> Cancel Request</button>
+                <button class="assist-btn assist-btn-blue" type="button" data-modal-open="reviewModal"><i class="bi bi-send"></i> Send for Review</button>
+                {% elif assistance.status == "under_review" and assistance.approval_request %}
+                <a class="assist-btn assist-btn-blue" href="{% url 'payables:approval_detail' assistance.approval_request.pk %}"><i class="bi bi-box-arrow-up-right"></i> Open Approval</a>
+                {% endif %}
+                <a class="assist-btn assist-btn-light" href="{% url 'payables:financial_assistance_list' %}"><i class="bi bi-arrow-left"></i> Back to Ledger</a>
+            </div>
+        </section>
+
+        <div class="assist-case-layout">
+            <div class="assist-case-main">
+                <section class="assist-card" aria-labelledby="overview-title">
+                    <header class="assist-card-head"><div><h2 id="overview-title">Case Overview</h2><p>Identity, ownership, and recorded workflow facts</p></div><span class="assist-card-badge">Verified record</span></header>
+                    <div class="assist-overview-grid">
+                        <div class="assist-overview-item"><span><i class="bi bi-person-badge"></i> Student Reference</span><strong>{{ assistance.student_reference }}</strong></div>
+                        <div class="assist-overview-item"><span><i class="bi bi-calendar3"></i> Academic Year</span><strong>{{ assistance.academic_year_reference }}</strong><small>Historical snapshot</small></div>
+                        <div class="assist-overview-item"><span><i class="bi bi-person-check"></i> Requested By</span><strong>{{ assistance.requested_by.get_full_name|default:assistance.requested_by.username }}</strong></div>
+                        <div class="assist-overview-item"><span><i class="bi bi-clock-history"></i> Submitted At</span><strong>{{ assistance.submitted_at|date:"M d, Y" }}</strong><small>{{ assistance.submitted_at|time:"H:i" }}</small></div>
+                        <div class="assist-overview-item"><span><i class="bi bi-activity"></i> Current Status</span><strong>{{ assistance.get_status_display }}</strong></div>
+                        <div class="assist-overview-item"><span><i class="bi bi-patch-check"></i> Approval Decision</span>{% if assistance.approved_by %}<strong>{{ assistance.approved_by.get_full_name|default:assistance.approved_by.username }}</strong>{% if assistance.approved_at %}<small>{{ assistance.approved_at|date:"M d, Y · H:i" }}</small>{% endif %}{% else %}<strong>Not approved</strong><small>No approving user recorded</small>{% endif %}</div>
+                    </div>
+                </section>
+
+                <section class="assist-card assist-reason-panel" aria-labelledby="reason-title"><h2 id="reason-title">Assistance Justification</h2><p>{{ assistance.reason }}</p></section>
+
+                <section class="assist-card" aria-labelledby="document-title">
+                    <header class="assist-card-head"><div><h2 id="document-title">Supporting Evidence</h2><p>Documentation associated with this assistance case</p></div><span class="assist-card-badge">Controlled evidence</span></header>
+                    {% if assistance.supporting_document %}
+                    <div class="assist-document"><span class="assist-document-icon"><i class="bi bi-file-earmark-check"></i></span><div class="assist-document-copy"><strong>Supporting document attached</strong><span>The evidence remains linked to this case record.</span></div><a class="assist-btn assist-btn-light" href="{{ assistance.supporting_document.url }}" target="_blank" rel="noopener">Open Document <i class="bi bi-box-arrow-up-right"></i></a></div>
+                    {% else %}
+                    <div class="assist-document"><span class="assist-document-icon"><i class="bi bi-file-earmark"></i></span><div class="assist-document-copy"><strong>No supporting document attached</strong><span>This case was submitted without optional evidence.</span></div></div>
+                    {% endif %}
+                </section>
+            </div>
+
+            <aside class="assist-case-side">
+                <section class="assist-card" aria-labelledby="timeline-title">
+                    <header class="assist-card-head"><div><h3 id="timeline-title">Workflow Timeline</h3><p>Actual recorded progression</p></div></header>
+                    <div class="assist-timeline">
+                        <div class="assist-timeline-item complete"><span class="assist-timeline-dot"><i class="bi bi-check"></i></span><div class="assist-timeline-copy"><strong>Submitted</strong><span>Intake record created and available for review.</span><time>{{ assistance.submitted_at|date:"M d, Y · H:i" }}</time></div></div>
+
+                        {% if assistance.status == "cancelled" %}
+                        <div class="assist-timeline-item complete decision-cancelled"><span class="assist-timeline-dot"><i class="bi bi-slash"></i></span><div class="assist-timeline-copy"><strong>Cancelled</strong><span>The request exited before formal review.</span>{% if assistance.cancelled_at %}<time>{{ assistance.cancelled_at|date:"M d, Y · H:i" }}</time>{% endif %}</div></div>
+                        {% else %}
+                        <div class="assist-timeline-item {% if assistance.status == 'under_review' or assistance.status == 'approved' or assistance.status == 'rejected' %}complete{% endif %}"><span class="assist-timeline-dot"><i class="bi bi-search"></i></span><div class="assist-timeline-copy"><strong>Under Review</strong><span>{% if assistance.review_started_at %}Approval workflow opened for management decision.{% else %}Awaiting formal review submission.{% endif %}</span>{% if assistance.review_started_at %}<time>{{ assistance.review_started_at|date:"M d, Y · H:i" }}</time>{% endif %}</div></div>
+                        <div class="assist-timeline-item {% if assistance.status == 'approved' %}complete decision-approved{% elif assistance.status == 'rejected' %}complete decision-rejected{% endif %}"><span class="assist-timeline-dot"><i class="bi {% if assistance.status == 'rejected' %}bi-x{% else %}bi-check2{% endif %}"></i></span><div class="assist-timeline-copy"><strong>{% if assistance.status == "approved" %}Approved{% elif assistance.status == "rejected" %}Rejected{% else %}Decision{% endif %}</strong><span>{% if assistance.status == "approved" %}Management approval recorded.{% elif assistance.status == "rejected" %}Closed without approval.{% else %}Awaiting an approval outcome.{% endif %}</span>{% if assistance.status == "approved" and assistance.approved_at %}<time>{{ assistance.approved_at|date:"M d, Y · H:i" }}</time>{% elif assistance.status == "rejected" and assistance.approval_request.decided_at %}<time>{{ assistance.approval_request.decided_at|date:"M d, Y · H:i" }}</time>{% endif %}</div></div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="assist-card assist-approval-panel" aria-labelledby="approval-title">
+                    <h3 id="approval-title">Approval Control</h3>
+                    {% if assistance.approval_request %}
+                    <p>This case is linked to the central approval workflow.</p><div class="assist-approval-reference"><span>Approval request</span><strong>{{ assistance.approval_request.request_number }}</strong><span>Status</span><strong>{{ assistance.approval_request.get_status_display }}</strong></div><a class="assist-btn assist-btn-blue" href="{% url 'payables:approval_detail' assistance.approval_request.pk %}">Open Approval Request <i class="bi bi-arrow-up-right"></i></a>
+                    {% else %}
+                    <p>No approval workflow yet. Save the intake and use Send for Review when the case is ready for formal management review.</p>
+                    {% endif %}
+                </section>
+
+                {% if assistance.status == "cancelled" %}<section class="assist-card assist-cancellation"><h3>Cancellation History</h3><p>{{ assistance.cancellation_reason }}</p>{% if assistance.cancelled_at %}<time>Cancelled {{ assistance.cancelled_at|date:"M d, Y · H:i" }}{% if assistance.cancelled_by %} by {{ assistance.cancelled_by.get_full_name|default:assistance.cancelled_by.username }}{% endif %}</time>{% endif %}</section>{% endif %}
+            </aside>
+        </div>
+    </div>
+</main>
+
+{% if assistance.status == "submitted" and not assistance.approval_request %}
+<div class="assist-modal" id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle" hidden>
+    <div class="assist-modal-backdrop" data-modal-close></div>
+    <div class="assist-modal-dialog"><header class="assist-modal-head"><div><h2 id="reviewModalTitle">Send for Formal Review?</h2><p>This creates and submits a linked approval request.</p></div><button class="assist-modal-close" type="button" data-modal-close aria-label="Close modal"><i class="bi bi-x-lg"></i></button></header><form method="post" action="{% url 'payables:financial_assistance_submit' assistance.pk %}" data-action-form>{% csrf_token %}<div class="assist-modal-body"><div class="assist-modal-note"><i class="bi bi-shield-check"></i><span>The intake will become read-only while the central approval workflow is active.</span></div></div><footer class="assist-modal-actions"><button class="assist-btn assist-btn-light" type="button" data-modal-close>Keep Editing</button><button class="assist-btn assist-btn-blue" type="submit">Send for Review</button></footer></form></div>
+</div>
+
+<div class="assist-modal" id="cancelModal" role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle" hidden>
+    <div class="assist-modal-backdrop" data-modal-close></div>
+    <div class="assist-modal-dialog"><header class="assist-modal-head"><div><h2 id="cancelModalTitle">Cancel Assistance Request?</h2><p>The reason will be preserved in cancellation history.</p></div><button class="assist-modal-close" type="button" data-modal-close aria-label="Close modal"><i class="bi bi-x-lg"></i></button></header><form method="post" action="{% url 'payables:financial_assistance_cancel' assistance.pk %}" data-action-form>{% csrf_token %}<div class="assist-modal-body"><div class="assist-modal-note"><i class="bi bi-exclamation-circle"></i><span>Only submitted requests can be cancelled. This action closes the intake before formal review.</span></div><div class="assist-modal-field"><label for="cancelReason">Cancellation reason</label><textarea id="cancelReason" name="reason" required placeholder="Explain why this request is being cancelled..."></textarea></div></div><footer class="assist-modal-actions"><button class="assist-btn assist-btn-light" type="button" data-modal-close>Keep Request</button><button class="assist-btn assist-btn-danger" type="submit">Confirm Cancellation</button></footer></form></div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let activeModal = null;
+    let opener = null;
+    const closeModal = function () { if (!activeModal) return; activeModal.hidden = true; document.body.style.overflow = ""; if (opener) opener.focus(); activeModal = null; opener = null; };
+    document.querySelectorAll("[data-modal-open]").forEach(function (button) { button.addEventListener("click", function () { const modal = document.getElementById(button.dataset.modalOpen); if (!modal) return; opener = button; activeModal = modal; modal.hidden = false; document.body.style.overflow = "hidden"; const focusTarget = modal.querySelector("textarea, button[type='submit'], [data-modal-close]"); if (focusTarget) focusTarget.focus(); }); });
+    document.querySelectorAll("[data-modal-close]").forEach(function (button) { button.addEventListener("click", closeModal); });
+    document.addEventListener("keydown", function (event) { if (event.key === "Escape") closeModal(); });
+    document.querySelectorAll("[data-action-form]").forEach(function (form) { form.addEventListener("submit", function (event) { const button = form.querySelector("button[type='submit']"); if (button.disabled) { event.preventDefault(); return; } button.disabled = true; button.setAttribute("aria-busy", "true"); }); });
+});
+</script>
+{% endblock %}

@@ -333,4 +333,44 @@ path(
 ),
 
 
+# ============================================================
+# FINANCIAL ASSISTANCE
+# ============================================================
+
+path(
+    "financial-assistance/",
+    views.financial_assistance_list,
+    name="financial_assistance_list",
+),
+
+path(
+    "financial-assistance/create/",
+    views.financial_assistance_create,
+    name="financial_assistance_create",
+),
+
+path(
+    "financial-assistance/<str:pk>/",
+    views.financial_assistance_detail,
+    name="financial_assistance_detail",
+),
+
+path(
+    "financial-assistance/<str:pk>/edit/",
+    views.financial_assistance_edit,
+    name="financial_assistance_edit",
+),
+
+path(
+    "financial-assistance/<str:pk>/submit/",
+    views.financial_assistance_submit,
+    name="financial_assistance_submit",
+),
+
+path(
+    "financial-assistance/<str:pk>/cancel/",
+    views.financial_assistance_cancel,
+    name="financial_assistance_cancel",
+),
+
 ]

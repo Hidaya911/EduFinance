@@ -2497,3 +2497,510 @@ class Scholarship(models.Model):
             *args,
             **kwargs,
         )
+
+
+
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE REQUEST NUMBER
+# ============================================================
+
+def generate_financial_assistance_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"FAR-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE REQUEST
+# ============================================================
+
+class FinancialAssistanceRequest(models.Model):
+
+    # ========================================================
+    # STATUS
+    #
+    # These values come directly from the EduFinance BRD:
+    #
+    # Submitted
+    # Under Review
+    # Approved
+    # Rejected
+    # Cancelled
+    # ========================================================
+
+    class Status(models.TextChoices):
+
+        SUBMITTED = (
+            "submitted",
+            "Submitted",
+        )
+
+        UNDER_REVIEW = (
+            "under_review",
+            "Under Review",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+        CANCELLED = (
+            "cancelled",
+            "Cancelled",
+        )
+
+
+    # ========================================================
+    # REQUEST IDENTITY
+    # ========================================================
+
+    assistance_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_financial_assistance_number,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # TEMPORARY STUDENT REFERENCE
+    #
+    # Do NOT create another Student model.
+    #
+    # This field will later be migrated to the shared Student
+    # model once Developer 2 provides it.
+    # ========================================================
+
+    student_reference = models.CharField(
+        max_length=120,
+    )
+
+
+    # ========================================================
+    # ACADEMIC YEAR SNAPSHOT
+    #
+    # AcademicYear does not exist yet.
+    #
+    # Store the year text on the request so historical
+    # assistance records do not change when the School's
+    # current academic year changes.
+    # ========================================================
+
+    academic_year_reference = models.CharField(
+        max_length=30,
+    )
+
+
+    # ========================================================
+    # REQUEST REASON
+    # ========================================================
+
+    reason = models.TextField()
+
+
+    # ========================================================
+    # SUPPORTING DOCUMENT
+    #
+    # The BRD allows supporting documents for financial
+    # assistance requests.
+    #
+    # File extension and size validation will be handled
+    # by FinancialAssistanceForm.
+    # ========================================================
+
+    supporting_document = models.FileField(
+        upload_to="financial_assistance/%Y/%m/",
+        blank=True,
+    )
+
+
+    # ========================================================
+    # APPROVAL WORKFLOW
+    #
+    # Reuse the existing generic ApprovalRequest instead of
+    # introducing another approval implementation.
+    # ========================================================
+
+    approval_request = models.ForeignKey(
+        "ApprovalRequest",
+        on_delete=models.PROTECT,
+        related_name="financial_assistance_records",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # ACTORS
+    # ========================================================
+
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_financial_assistance",
+    )
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approved_financial_assistance",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.SUBMITTED,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # WORKFLOW TIMESTAMPS
+    # ========================================================
+
+    submitted_at = models.DateTimeField(
+        default=timezone.now,
+        editable=False,
+    )
+
+    review_started_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+    approved_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # CANCELLATION HISTORY
+    # ========================================================
+
+    cancellation_reason = models.TextField(
+        blank=True,
+    )
+
+    cancelled_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cancelled_financial_assistance",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # SYSTEM TIMESTAMPS
+    # ========================================================
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    # ========================================================
+    # META
+    # ========================================================
+
+    class Meta:
+
+        db_table = (
+            "financial_assistance_requests"
+        )
+
+        ordering = [
+            "-created_at",
+        ]
+
+        verbose_name = (
+            "Financial Assistance Request"
+        )
+
+        verbose_name_plural = (
+            "Financial Assistance Requests"
+        )
+
+
+    # ========================================================
+    # STRING REPRESENTATION
+    # ========================================================
+
+    def __str__(self):
+
+        return (
+            f"{self.assistance_number} - "
+            f"{self.student_reference}"
+        )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        super().clean()
+
+        errors = {}
+
+
+        # ----------------------------------------------------
+        # STUDENT
+        # ----------------------------------------------------
+
+        if (
+            not self.student_reference
+            or
+            not self.student_reference.strip()
+        ):
+
+            errors["student_reference"] = (
+                "Student reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # ACADEMIC YEAR
+        # ----------------------------------------------------
+
+        if (
+            not self.academic_year_reference
+            or
+            not self.academic_year_reference.strip()
+        ):
+
+            errors["academic_year_reference"] = (
+                "Academic year is required."
+            )
+
+
+        # ----------------------------------------------------
+        # REASON
+        # ----------------------------------------------------
+
+        if (
+            not self.reason
+            or
+            not self.reason.strip()
+        ):
+
+            errors["reason"] = (
+                "A reason for financial assistance "
+                "is required."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVAL REQUEST TYPE
+        # ----------------------------------------------------
+
+        if self.approval_request_id:
+
+            if (
+                self.approval_request.operation_type
+                !=
+                ApprovalRequest
+                .OperationType
+                .FINANCIAL_ASSISTANCE
+            ):
+
+                errors["approval_request"] = (
+                    "The linked approval request must "
+                    "be a Financial Assistance approval."
+                )
+
+
+        # ----------------------------------------------------
+        # UNDER REVIEW REQUIRES APPROVAL REQUEST
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.UNDER_REVIEW
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before financial assistance can "
+                "move under review."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVED / REJECTED REQUIRE APPROVAL REQUEST
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            in {
+                self.Status.APPROVED,
+                self.Status.REJECTED,
+            }
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before financial assistance can "
+                "be approved or rejected."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVED STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.APPROVED
+        ):
+
+            if not self.approved_by_id:
+
+                errors["approved_by"] = (
+                    "Approved financial assistance "
+                    "must record the approver."
+                )
+
+            if not self.approved_at:
+
+                errors["approved_at"] = (
+                    "Approved financial assistance "
+                    "must record the approval time."
+                )
+
+
+        # ----------------------------------------------------
+        # CANCELLATION STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.CANCELLED
+        ):
+
+            if (
+                not self.cancellation_reason
+                or
+                not self.cancellation_reason.strip()
+            ):
+
+                errors["cancellation_reason"] = (
+                    "A cancellation reason is required."
+                )
+
+            if not self.cancelled_at:
+
+                errors["cancelled_at"] = (
+                    "Cancelled financial assistance "
+                    "must record the cancellation time."
+                )
+
+            if not self.cancelled_by_id:
+
+                errors["cancelled_by"] = (
+                    "Cancelled financial assistance "
+                    "must record who cancelled it."
+                )
+
+
+        # ----------------------------------------------------
+        # RAISE VALIDATION ERRORS
+        # ----------------------------------------------------
+
+        if errors:
+
+            raise ValidationError(
+                errors
+            )
+
+
+    # ========================================================
+    # SAVE NORMALIZATION
+    # ========================================================
+
+    def save(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        if self.student_reference:
+
+            self.student_reference = (
+                self.student_reference
+                .strip()
+            )
+
+        if self.academic_year_reference:
+
+            self.academic_year_reference = (
+                self.academic_year_reference
+                .strip()
+            )
+
+        if self.reason:
+
+            self.reason = (
+                self.reason
+                .strip()
+            )
+
+        if self.cancellation_reason:
+
+            self.cancellation_reason = (
+                self.cancellation_reason
+                .strip()
+            )
+
+        super().save(
+            *args,
+            **kwargs,
+        )

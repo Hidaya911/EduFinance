@@ -29,6 +29,7 @@ from .forms import (
     EmployeeFinancialTransactionForm,
     DiscountForm,
     ScholarshipForm,
+    FinancialAssistanceForm,
 )
 
 from .models import (
@@ -41,6 +42,7 @@ from .models import (
     EmployeeFinancialTransaction,
     Discount,
     Scholarship,
+    FinancialAssistanceRequest,
 )
 
 from .services import (
@@ -56,6 +58,12 @@ from .services import (
     update_scholarship,
     submit_scholarship,
     cancel_scholarship,
+    create_financial_assistance,
+    update_financial_assistance,
+    submit_financial_assistance_for_review,
+    approve_financial_assistance_approval,
+    reject_financial_assistance_approval,
+    cancel_financial_assistance,
 )
 
 from .forms import ApprovalRequestForm
@@ -3523,7 +3531,6 @@ def approval_submit(
         pk=approval.pk,
     )
 
-
 @login_required
 @require_POST
 def approval_approve(
@@ -3538,17 +3545,21 @@ def approval_approve(
         )
     )
 
-
     comments = (
         request.POST
         .get(
             "comments",
             "",
         )
+        .strip()
     )
 
 
     try:
+
+        # ====================================================
+        # DISCOUNT
+        # ====================================================
 
         if (
             approval.operation_type
@@ -3560,9 +3571,7 @@ def approval_approve(
             (
                 approval.related_entity_type
                 or ""
-            )
-            .strip()
-            .lower()
+            ).strip().lower()
             ==
             "discount"
         ):
@@ -3581,9 +3590,26 @@ def approval_approve(
             )
 
             approval = (
-                discount.approval_request
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
             )
 
+            messages.success(
+                request,
+                (
+                    "Discount "
+                    f"{discount.discount_number} "
+                    "was approved."
+                ),
+            )
+
+
+        # ====================================================
+        # SCHOLARSHIP
+        # ====================================================
 
         elif (
             approval.operation_type
@@ -3595,9 +3621,7 @@ def approval_approve(
             (
                 approval.related_entity_type
                 or ""
-            )
-            .strip()
-            .lower()
+            ).strip().lower()
             ==
             "scholarship"
         ):
@@ -3616,9 +3640,76 @@ def approval_approve(
             )
 
             approval = (
-                scholarship.approval_request
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
             )
 
+            messages.success(
+                request,
+                (
+                    "Scholarship "
+                    f"{scholarship.scholarship_number} "
+                    "was approved."
+                ),
+            )
+
+
+        # ====================================================
+        # FINANCIAL ASSISTANCE
+        # ====================================================
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .FINANCIAL_ASSISTANCE
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "financialassistancerequest"
+        ):
+
+            assistance = (
+                approve_financial_assistance_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
+            )
+
+            messages.success(
+                request,
+                (
+                    "Financial assistance request "
+                    f"{assistance.assistance_number} "
+                    "was approved."
+                ),
+            )
+
+
+        # ====================================================
+        # GENERIC APPROVAL
+        # ====================================================
 
         else:
 
@@ -3630,19 +3721,18 @@ def approval_approve(
                 )
             )
 
-
-        messages.success(
-            request,
-            (
-                f"{approval.request_number} "
-                "was approved."
-            ),
-        )
+            messages.success(
+                request,
+                (
+                    f"{approval.request_number} "
+                    "was approved."
+                ),
+            )
 
 
     except ValidationError as error:
 
-         messages.error(
+        messages.error(
             request,
             _approval_validation_message(
                 error
@@ -3654,8 +3744,6 @@ def approval_approve(
         "payables:approval_detail",
         pk=approval.pk,
     )
-
-
 @login_required
 @require_POST
 def approval_reject(
@@ -3670,17 +3758,21 @@ def approval_reject(
         )
     )
 
-
     comments = (
         request.POST
         .get(
             "comments",
             "",
         )
+        .strip()
     )
 
 
     try:
+
+        # ====================================================
+        # DISCOUNT
+        # ====================================================
 
         if (
             approval.operation_type
@@ -3692,9 +3784,7 @@ def approval_reject(
             (
                 approval.related_entity_type
                 or ""
-            )
-            .strip()
-            .lower()
+            ).strip().lower()
             ==
             "discount"
         ):
@@ -3713,9 +3803,26 @@ def approval_reject(
             )
 
             approval = (
-                discount.approval_request
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
             )
 
+            messages.success(
+                request,
+                (
+                    "Discount "
+                    f"{discount.discount_number} "
+                    "was rejected."
+                ),
+            )
+
+
+        # ====================================================
+        # SCHOLARSHIP
+        # ====================================================
 
         elif (
             approval.operation_type
@@ -3727,9 +3834,7 @@ def approval_reject(
             (
                 approval.related_entity_type
                 or ""
-            )
-            .strip()
-            .lower()
+            ).strip().lower()
             ==
             "scholarship"
         ):
@@ -3748,9 +3853,76 @@ def approval_reject(
             )
 
             approval = (
-                scholarship.approval_request
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
             )
 
+            messages.success(
+                request,
+                (
+                    "Scholarship "
+                    f"{scholarship.scholarship_number} "
+                    "was rejected."
+                ),
+            )
+
+
+        # ====================================================
+        # FINANCIAL ASSISTANCE
+        # ====================================================
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .FINANCIAL_ASSISTANCE
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "financialassistancerequest"
+        ):
+
+            assistance = (
+                reject_financial_assistance_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
+            )
+
+            messages.success(
+                request,
+                (
+                    "Financial assistance request "
+                    f"{assistance.assistance_number} "
+                    "was rejected."
+                ),
+            )
+
+
+        # ====================================================
+        # GENERIC APPROVAL
+        # ====================================================
 
         else:
 
@@ -3762,14 +3934,13 @@ def approval_reject(
                 )
             )
 
-
-        messages.success(
-            request,
-            (
-                f"{approval.request_number} "
-                "was rejected."
-            ),
-        )
+            messages.success(
+                request,
+                (
+                    f"{approval.request_number} "
+                    "was rejected."
+                ),
+            )
 
 
     except ValidationError as error:
@@ -3786,7 +3957,6 @@ def approval_reject(
         "payables:approval_detail",
         pk=approval.pk,
     )
-
 
 @login_required
 @require_POST
@@ -5420,4 +5590,760 @@ def scholarship_cancel(
     return redirect(
         "payables:scholarship_detail",
         pk=scholarship.pk,
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — HELPERS
+# ============================================================
+
+def _financial_assistance_validation_message(
+    error,
+):
+
+    if (
+        hasattr(
+            error,
+            "messages",
+        )
+        and
+        error.messages
+    ):
+
+        return " ".join(
+            error.messages
+        )
+
+    return str(
+        error
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — LIST
+# ============================================================
+
+@login_required
+def financial_assistance_list(
+    request,
+):
+
+    search = (
+        request.GET
+        .get(
+            "search",
+            "",
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET
+        .get(
+            "status",
+            "",
+        )
+        .strip()
+    )
+
+    academic_year = (
+        request.GET
+        .get(
+            "academic_year",
+            "",
+        )
+        .strip()
+    )
+
+    assistance_requests = (
+        FinancialAssistanceRequest
+        .objects
+        .all()
+        .order_by(
+            "-created_at"
+        )
+    )
+
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        assistance_requests = (
+            assistance_requests
+            .filter(
+                Q(
+                    assistance_number__icontains=
+                        search
+                )
+                |
+                Q(
+                    student_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    academic_year_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    reason__icontains=
+                        search
+                )
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS FILTER
+    # --------------------------------------------------------
+
+    valid_statuses = {
+        choice[0]
+        for choice
+        in
+        FinancialAssistanceRequest
+        .Status
+        .choices
+    }
+
+    if (
+        status
+        and
+        status in valid_statuses
+    ):
+
+        assistance_requests = (
+            assistance_requests
+            .filter(
+                status=status
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # ACADEMIC YEAR FILTER
+    # --------------------------------------------------------
+
+    if academic_year:
+
+        assistance_requests = (
+            assistance_requests
+            .filter(
+                academic_year_reference=
+                    academic_year
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # ACADEMIC YEAR OPTIONS
+    # --------------------------------------------------------
+
+    academic_years = list(
+        FinancialAssistanceRequest
+        .objects
+        .values_list(
+            "academic_year_reference",
+            flat=True,
+        )
+        .distinct()
+    )
+
+    academic_years = sorted(
+        {
+            year
+            for year
+            in academic_years
+            if year
+        },
+        reverse=True,
+    )
+
+
+    # --------------------------------------------------------
+    # KPI COUNTS
+    # --------------------------------------------------------
+
+    total_count = (
+        FinancialAssistanceRequest
+        .objects
+        .count()
+    )
+
+    submitted_count = (
+        FinancialAssistanceRequest
+        .objects
+        .filter(
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .SUBMITTED
+        )
+        .count()
+    )
+
+    under_review_count = (
+        FinancialAssistanceRequest
+        .objects
+        .filter(
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .UNDER_REVIEW
+        )
+        .count()
+    )
+
+    approved_count = (
+        FinancialAssistanceRequest
+        .objects
+        .filter(
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .APPROVED
+        )
+        .count()
+    )
+
+    rejected_count = (
+        FinancialAssistanceRequest
+        .objects
+        .filter(
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .REJECTED
+        )
+        .count()
+    )
+
+    cancelled_count = (
+        FinancialAssistanceRequest
+        .objects
+        .filter(
+            status=
+                FinancialAssistanceRequest
+                .Status
+                .CANCELLED
+        )
+        .count()
+    )
+
+
+    context = {
+
+        "assistance_requests":
+            assistance_requests,
+
+        "search":
+            search,
+
+        "status":
+            status,
+
+        "academic_year":
+            academic_year,
+
+        "academic_years":
+            academic_years,
+
+        "status_choices":
+            (
+                FinancialAssistanceRequest
+                .Status
+                .choices
+            ),
+
+        "total_count":
+            total_count,
+
+        "submitted_count":
+            submitted_count,
+
+        "under_review_count":
+            under_review_count,
+
+        "approved_count":
+            approved_count,
+
+        "rejected_count":
+            rejected_count,
+
+        "cancelled_count":
+            cancelled_count,
+    }
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "financial_assistance_list.html"
+        ),
+        context,
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — CREATE
+# ============================================================
+
+@login_required
+def financial_assistance_create(
+    request,
+):
+
+    if request.method == "POST":
+
+        form = (
+            FinancialAssistanceForm(
+                request.POST,
+                request.FILES,
+            )
+        )
+
+        if form.is_valid():
+
+            try:
+
+                assistance = (
+                    create_financial_assistance(
+                        user=
+                            request.user,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        academic_year_reference=
+                            form.cleaned_data[
+                                "academic_year_reference"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        supporting_document=(
+                            form.cleaned_data
+                            .get(
+                                "supporting_document"
+                            )
+                            or ""
+                        ),
+                    )
+                )
+
+            except ValidationError as error:
+
+                messages.error(
+                    request,
+                    _financial_assistance_validation_message(
+                        error
+                    ),
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        "Financial assistance request "
+                        f"{assistance.assistance_number} "
+                        "was created successfully."
+                    ),
+                )
+
+                return redirect(
+                    (
+                        "payables:"
+                        "financial_assistance_detail"
+                    ),
+                    pk=assistance.pk,
+                )
+
+    else:
+
+        form = (
+            FinancialAssistanceForm()
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "financial_assistance_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "page_title":
+                (
+                    "Create Financial "
+                    "Assistance Request"
+                ),
+
+            "submit_text":
+                "Create Request",
+
+            "is_edit":
+                False,
+        },
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — EDIT
+# ============================================================
+
+@login_required
+def financial_assistance_edit(
+    request,
+    pk,
+):
+
+    assistance = (
+        get_object_or_404(
+            FinancialAssistanceRequest,
+            pk=pk,
+        )
+    )
+
+
+    if (
+        assistance.status
+        !=
+        FinancialAssistanceRequest
+        .Status
+        .SUBMITTED
+    ):
+
+        messages.error(
+            request,
+            (
+                "Only submitted financial "
+                "assistance requests can be edited."
+            ),
+        )
+
+        return redirect(
+            (
+                "payables:"
+                "financial_assistance_detail"
+            ),
+            pk=assistance.pk,
+        )
+
+
+    if assistance.approval_request_id:
+
+        messages.error(
+            request,
+            (
+                "This financial assistance request "
+                "cannot be edited because its "
+                "approval workflow has already started."
+            ),
+        )
+
+        return redirect(
+            (
+                "payables:"
+                "financial_assistance_detail"
+            ),
+            pk=assistance.pk,
+        )
+
+
+    if request.method == "POST":
+
+        form = (
+            FinancialAssistanceForm(
+                request.POST,
+                request.FILES,
+                instance=assistance,
+            )
+        )
+
+        if form.is_valid():
+
+            # ------------------------------------------------
+            # KEEP CURRENT DOCUMENT IF USER DID NOT REPLACE IT
+            # ------------------------------------------------
+
+            uploaded_document = (
+                form.cleaned_data
+                .get(
+                    "supporting_document"
+                )
+            )
+
+            if not uploaded_document:
+
+                uploaded_document = (
+                    assistance
+                    .supporting_document
+                )
+
+
+            try:
+
+                assistance = (
+                    update_financial_assistance(
+                        assistance=
+                            assistance,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        academic_year_reference=
+                            form.cleaned_data[
+                                "academic_year_reference"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+
+                        supporting_document=
+                            uploaded_document,
+                    )
+                )
+
+            except ValidationError as error:
+
+                messages.error(
+                    request,
+                    _financial_assistance_validation_message(
+                        error
+                    ),
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        "Financial assistance request "
+                        f"{assistance.assistance_number} "
+                        "was updated successfully."
+                    ),
+                )
+
+                return redirect(
+                    (
+                        "payables:"
+                        "financial_assistance_detail"
+                    ),
+                    pk=assistance.pk,
+                )
+
+    else:
+
+        form = (
+            FinancialAssistanceForm(
+                instance=assistance
+            )
+        )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "financial_assistance_form.html"
+        ),
+        {
+            "form":
+                form,
+
+            "assistance":
+                assistance,
+
+            "page_title":
+                (
+                    "Edit Financial "
+                    "Assistance Request"
+                ),
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+        },
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — DETAIL
+# ============================================================
+
+@login_required
+def financial_assistance_detail(
+    request,
+    pk,
+):
+
+    assistance = (
+        get_object_or_404(
+            FinancialAssistanceRequest,
+            pk=pk,
+        )
+    )
+
+
+    return render(
+        request,
+        (
+            "payables/"
+            "financial_assistance_detail.html"
+        ),
+        {
+            "assistance":
+                assistance,
+        },
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — SEND FOR REVIEW
+# ============================================================
+
+@login_required
+@require_POST
+def financial_assistance_submit(
+    request,
+    pk,
+):
+
+    assistance = (
+        get_object_or_404(
+            FinancialAssistanceRequest,
+            pk=pk,
+        )
+    )
+
+
+    try:
+
+        assistance = (
+            submit_financial_assistance_for_review(
+                assistance=
+                    assistance
+            )
+        )
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _financial_assistance_validation_message(
+                error
+            ),
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                "Financial assistance request "
+                f"{assistance.assistance_number} "
+                "was sent for review."
+            ),
+        )
+
+
+    return redirect(
+        (
+            "payables:"
+            "financial_assistance_detail"
+        ),
+        pk=assistance.pk,
+    )
+
+
+# ============================================================
+# FINANCIAL ASSISTANCE — CANCEL
+# ============================================================
+
+@login_required
+@require_POST
+def financial_assistance_cancel(
+    request,
+    pk,
+):
+
+    assistance = (
+        get_object_or_404(
+            FinancialAssistanceRequest,
+            pk=pk,
+        )
+    )
+
+    reason = (
+        request.POST
+        .get(
+            "reason",
+            "",
+        )
+        .strip()
+    )
+
+
+    try:
+
+        assistance = (
+            cancel_financial_assistance(
+                assistance=
+                    assistance,
+
+                user=
+                    request.user,
+
+                reason=
+                    reason,
+            )
+        )
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _financial_assistance_validation_message(
+                error
+            ),
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                "Financial assistance request "
+                f"{assistance.assistance_number} "
+                "was cancelled."
+            ),
+        )
+
+
+    return redirect(
+        (
+            "payables:"
+            "financial_assistance_detail"
+        ),
+        pk=assistance.pk,
     )
