@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid px-2 px-sm-3 px-lg-4">
+
+
+    <!-- Student Header -->
+    <div
+        class="d-flex flex-column flex-lg-row
+               justify-content-between
+               align-items-lg-center gap-3 mb-4"
+    >
+
+        <div class="d-flex align-items-center gap-3">
+
+            <div
+                class="rounded-circle bg-primary text-white
+                       d-flex align-items-center justify-content-center
+                       flex-shrink-0"
+                style="width: 56px; height: 56px;"
+            >
+                <span class="fw-bold">
+                    {{ student.first_name|first }}
+                    {{ student.last_name|first }}
+                </span>
+            </div>
+
+
+            <div>
+
+                <div class="d-flex flex-wrap align-items-center gap-2">
+
+                    <h3 class="fw-bold mb-0">
+                        {{ student.full_name }}
+                    </h3>
+
+
+                    {% if student.status == "active" %}
+
+                        <span class="badge bg-success">
+                            Active
+                        </span>
+
+                    {% elif student.status == "graduated" %}
+
+                        <span class="badge bg-primary">
+                            Graduated
+                        </span>
+
+                    {% elif student.status == "withdrawn" %}
+
+                        <span class="badge bg-warning text-dark">
+                            Withdrawn
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="text-muted small mt-1">
+
+                    {{ student.student_number }}
+
+                    {% if student.admission_number %}
+                        · Admission {{ student.admission_number }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Actions -->
+        <div
+            class="d-flex flex-column flex-sm-row
+                   gap-2"
+        >
+
+            {% if can_manage_students %}
+
+                <a
+                    href="{% url 'students:student_edit' student.pk %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Edit Student
+                </a>
+
+            {% endif %}
+
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                disabled
+            >
+                Receive Payment
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Main Financial KPIs -->
+    <div class="row g-3 mb-3">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="small text-muted mb-2">
+                        Total Invoiced
+                    </div>
+
+                    <h4 class="fw-bold mb-0">
+                        {{ financial_summary.total_invoiced }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="small text-muted mb-2">
+                        Total Paid
+                    </div>
+
+                    <h4 class="fw-bold mb-0">
+                        {{ financial_summary.total_paid }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="small text-muted mb-2">
+                        Outstanding
+                    </div>
+
+                    <h4 class="fw-bold mb-0">
+                        {{ financial_summary.outstanding_balance }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="small text-muted mb-2">
+                        Overdue
+                    </div>
+
+                    <h4 class="fw-bold mb-0">
+                        {{ financial_summary.overdue_amount }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Secondary KPIs -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-6 col-lg-3">
+
+            <div class="card border h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Discounts
+                    </small>
+
+                    <div class="fw-bold fs-5 mt-1">
+                        {{ financial_summary.total_discounts }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-lg-3">
+
+            <div class="card border h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Scholarships
+                    </small>
+
+                    <div class="fw-bold fs-5 mt-1">
+                        {{ financial_summary.total_scholarships }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-lg-3">
+
+            <div class="card border h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Refunded
+                    </small>
+
+                    <div class="fw-bold fs-5 mt-1">
+                        {{ financial_summary.total_refunded }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-sm-6 col-lg-3">
+
+            <div class="card border h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Upcoming Installments
+                    </small>
+
+                    <div class="fw-bold fs-5 mt-1">
+                        {{ financial_summary.upcoming_installments }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Student Details -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white py-3">
+
+            <h6 class="fw-bold mb-0">
+                Student Details
+            </h6>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Student ID
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.student_number }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Admission Number
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.admission_number|default:"—" }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Phone
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.phone|default:"—" }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Email
+                    </small>
+
+                    <span class="fw-semibold text-break">
+                        {{ student.email|default:"—" }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Date of Birth
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.date_of_birth|default:"—" }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Gender
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.get_gender_display|default:"—" }}
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Enrollment Date
+                    </small>
+
+                    <span class="fw-semibold">
+
+                        {% if enrollment %}
+                            {{ enrollment.enrollment_date }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </span>
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <small class="text-muted d-block">
+                        Status
+                    </small>
+
+                    <span class="fw-semibold">
+                        {{ student.get_status_display }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Financial Navigation -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white p-0">
+
+            <div class="overflow-auto">
+
+                <ul
+                    class="nav nav-tabs flex-nowrap border-0 px-3 pt-2"
+                    style="min-width: max-content;"
+                >
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link active"
+                            type="button"
+                        >
+                            Overview
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link"
+                            type="button"
+                            disabled
+                        >
+                            Invoices
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link"
+                            type="button"
+                            disabled
+                        >
+                            Payments
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link"
+                            type="button"
+                            disabled
+                        >
+                            Installments
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link"
+                            type="button"
+                            disabled
+                        >
+                            Receipts
+                        </button>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <button
+                            class="nav-link"
+                            type="button"
+                            disabled
+                        >
+                            Statement
+                        </button>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="text-center py-4 py-md-5">
+
+                <h6 class="fw-semibold">
+                    No financial transactions yet
+                </h6>
+
+                <p class="text-muted mb-0">
+                    Invoices, payments and other financial records
+                    will appear here once those modules are connected.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="mb-3">
+
+        <a
+            href="{% url 'students:student_list' %}"
+            class="btn btn-outline-secondary"
+        >
+            ← Back to Students
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

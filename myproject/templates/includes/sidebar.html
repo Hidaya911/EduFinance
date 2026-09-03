@@ -18,9 +18,13 @@
 
       <!-- STUDENTS -->
       <div class="nav-section-label">STUDENTS</div>
-      <a href="#" class="nav-link-custom {% if 'student' in request.path %}active{% endif %}">
-        <i class="bi bi-people-fill me-2"></i> Students
-      </a>
+     <a
+    href="{% url 'students:student_list' %}"
+    class="nav-link-custom {% if request.resolver_match.app_name == 'students' %}active{% endif %}"
+>
+    <i class="bi bi-people me-2"></i>
+    Students
+</a>
       <a href="#" class="nav-link-custom">
         <i class="bi bi-person-badge-fill me-2"></i> Guardians
       </a>
