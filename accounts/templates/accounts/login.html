@@ -1,37 +1,158 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light">
-    <title>Sign in — EduFinance</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="color-scheme"
+        content="light"
+    >
+
+    <title>
+        Sign in — EduFinance
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/login.css' %}"
+    >
+
 </head>
+
+
 <body>
+
+
 <main class="login-shell">
-    <section class="brand-panel" aria-labelledby="brand-statement">
-        <div class="brand-grid" aria-hidden="true"></div>
-        <div class="brand-orbit brand-orbit-one" aria-hidden="true"></div>
-        <div class="brand-orbit brand-orbit-two" aria-hidden="true"></div>
+
+
+    <!-- =====================================================
+         BRAND PANEL
+    ====================================================== -->
+
+    <section
+        class="brand-panel"
+        aria-labelledby="brand-statement"
+    >
+
+        <div
+            class="brand-grid"
+            aria-hidden="true"
+        ></div>
+
+        <div
+            class="brand-orbit brand-orbit-one"
+            aria-hidden="true"
+        ></div>
+
+        <div
+            class="brand-orbit brand-orbit-two"
+            aria-hidden="true"
+        ></div>
+
+
+        <!-- =================================================
+             BRAND HEADER
+        ================================================== -->
 
         <header class="brand-header">
-            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance" class="brand-logo">
-            <span class="workspace-badge"><i class="bi bi-shield-check"></i> Financial workspace</span>
+
+            <img
+                src="{% static 'images/EduFinance_Logo.png' %}"
+                alt="EduFinance"
+                class="brand-logo"
+            >
+
+
+            <span class="workspace-badge">
+
+                <i class="bi bi-shield-check"></i>
+
+                Financial workspace
+
+            </span>
+
         </header>
 
-        <div class="brand-story">
-            <p class="brand-kicker"><span></span> School finance, clearly managed</p>
-            <h1 id="brand-statement">Financial clarity for every school decision.</h1>
-            <p class="brand-copy">Bring expenses, approvals, suppliers, and student financial support into one focused operational workspace.</p>
 
-            <div class="finance-visual" aria-hidden="true">
+        <!-- =================================================
+             BRAND STORY
+        ================================================== -->
+
+        <div class="brand-story">
+
+            <p class="brand-kicker">
+
+                <span></span>
+
+                School finance, clearly managed
+
+            </p>
+
+
+            <h1 id="brand-statement">
+
+                Financial clarity for every school decision.
+
+            </h1>
+
+
+            <p class="brand-copy">
+
+                Bring expenses, approvals, suppliers, and
+                student financial support into one focused
+                operational workspace.
+
+            </p>
+
+
+            <!-- =============================================
+                 FINANCE VISUAL
+            ============================================== -->
+
+            <div
+                class="finance-visual"
+                aria-hidden="true"
+            >
+
                 <div class="visual-header">
-                    <span><i class="bi bi-activity"></i> Financial operations</span>
-                    <span class="visual-status"><i></i> Connected</span>
+
+                    <span>
+
+                        <i class="bi bi-activity"></i>
+
+                        Financial operations
+
+                    </span>
+
+
+                    <span class="visual-status">
+
+                        <i></i>
+
+                        Connected
+
+                    </span>
+
                 </div>
+
+
                 <div class="visual-chart">
+
                     <span style="--bar-height: 26%;"></span>
                     <span style="--bar-height: 43%;"></span>
                     <span style="--bar-height: 35%;"></span>
@@ -40,98 +161,419 @@
                     <span style="--bar-height: 76%;"></span>
                     <span style="--bar-height: 67%;"></span>
                     <span style="--bar-height: 88%;"></span>
+
                 </div>
+
+
                 <div class="visual-footer">
-                    <span>Expenses</span><span>Approvals</span><span>Payables</span>
+
+                    <span>
+                        Expenses
+                    </span>
+
+                    <span>
+                        Approvals
+                    </span>
+
+                    <span>
+                        Payables
+                    </span>
+
                 </div>
+
             </div>
 
-            <div class="trust-chips" aria-label="Platform values">
-                <span><i class="bi bi-lock"></i> Secure access</span>
-                <span><i class="bi bi-journal-check"></i> Auditable</span>
-                <span><i class="bi bi-command"></i> In control</span>
+
+            <!-- =============================================
+                 TRUST CHIPS
+            ============================================== -->
+
+            <div
+                class="trust-chips"
+                aria-label="Platform values"
+            >
+
+                <span>
+
+                    <i class="bi bi-lock"></i>
+
+                    Secure access
+
+                </span>
+
+
+                <span>
+
+                    <i class="bi bi-journal-check"></i>
+
+                    Auditable
+
+                </span>
+
+
+                <span>
+
+                    <i class="bi bi-command"></i>
+
+                    In control
+
+                </span>
+
             </div>
+
         </div>
+
+
+        <!-- =================================================
+             BRAND FOOTER
+        ================================================== -->
 
         <footer class="brand-footer">
-            <span>© {% now "Y" %} EduFinance</span>
-            <span>Modern finance operations for modern schools.</span>
+
+            <span>
+                © {% now "Y" %} EduFinance
+            </span>
+
+            <span>
+                Modern finance operations for modern schools.
+            </span>
+
         </footer>
+
     </section>
 
-    <section class="login-form-panel" aria-labelledby="login-title">
+
+    <!-- =====================================================
+         LOGIN PANEL
+    ====================================================== -->
+
+    <section
+        class="login-form-panel"
+        aria-labelledby="login-title"
+    >
+
+
+        <!-- =================================================
+             MOBILE BRAND
+        ================================================== -->
+
         <div class="mobile-brand">
-            <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance">
+
+            <img
+                src="{% static 'images/EduFinance_Logo.png' %}"
+                alt="EduFinance"
+            >
+
         </div>
+
+
+        <!-- =================================================
+             LOGIN CARD
+        ================================================== -->
 
         <div class="form-card">
-            <div class="form-symbol"><i class="bi bi-fingerprint"></i></div>
-            <p class="form-eyebrow">Protected financial operations</p>
-            <h2 id="login-title">Welcome back</h2>
-            <p class="form-intro">Sign in to continue to your school's financial workspace.</p>
+
+
+            <div class="form-symbol">
+
+                <i class="bi bi-fingerprint"></i>
+
+            </div>
+
+
+            <p class="form-eyebrow">
+
+                Protected financial operations
+
+            </p>
+
+
+            <h2 id="login-title">
+
+                Welcome back
+
+            </h2>
+
+
+            <p class="form-intro">
+
+                Sign in to continue to your school's
+                financial workspace.
+
+            </p>
+
+
+            <!-- =============================================
+                 DJANGO MESSAGES
+            ============================================== -->
 
             {% if messages %}
-            <div class="message-stack" aria-live="polite">
-                {% for message in messages %}
-                <div class="login-alert login-alert-{{ message.tags|default:'info' }}" role="alert">
-                    <i class="bi {% if message.tags == 'error' %}bi-exclamation-circle{% elif message.tags == 'success' %}bi-check-circle{% else %}bi-info-circle{% endif %}"></i>
-                    <span>{{ message }}</span>
+
+                <div
+                    class="message-stack"
+                    aria-live="polite"
+                >
+
+                    {% for message in messages %}
+
+                        <div
+                            class="
+                                login-alert
+                                login-alert-{{ message.tags|default:'info' }}
+                            "
+                            role="alert"
+                        >
+
+                            <i
+                                class="
+                                    bi
+                                    {% if message.tags == 'error' %}
+                                        bi-exclamation-circle
+                                    {% elif message.tags == 'success' %}
+                                        bi-check-circle
+                                    {% else %}
+                                        bi-info-circle
+                                    {% endif %}
+                                "
+                            ></i>
+
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+                    {% endfor %}
+
                 </div>
-                {% endfor %}
-            </div>
+
             {% endif %}
+
+
+            <!-- =============================================
+                 AUTHENTICATION ERROR
+            ============================================== -->
 
             {% if form.non_field_errors and not messages %}
-            <div class="login-alert login-alert-error" role="alert">
-                <i class="bi bi-exclamation-circle"></i>
-                <span>Invalid email or password.</span>
-            </div>
+
+                <div
+                    class="login-alert login-alert-error"
+                    role="alert"
+                >
+
+                    <i class="bi bi-exclamation-circle"></i>
+
+                    <span>
+                        Invalid email or password.
+                    </span>
+
+                </div>
+
             {% endif %}
 
-            <form method="post" action="{% url 'login' %}" class="login-form" id="login-form">
+
+            <!-- =============================================
+                 LOGIN FORM
+            ============================================== -->
+
+            <form
+                method="post"
+                action="{% url 'accounts:login' %}"
+                class="login-form"
+                id="login-form"
+            >
+
                 {% csrf_token %}
 
-                <div class="field-group{% if form.username.errors %} has-error{% endif %}">
-                    <label for="{{ form.username.id_for_label }}">Email address</label>
+
+                <!-- =========================================
+                     EMAIL
+                ========================================== -->
+
+                <div
+                    class="
+                        field-group
+                        {% if form.username.errors %}
+                            has-error
+                        {% endif %}
+                    "
+                >
+
+                    <label
+                        for="{{ form.username.id_for_label }}"
+                    >
+                        Email address
+                    </label>
+
+
                     <div class="field-control">
+
                         <i class="bi bi-envelope"></i>
+
                         {{ form.username }}
+
                     </div>
-                    {% for error in form.username.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+
+                    {% for error in form.username.errors %}
+
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
                 </div>
 
-                <div class="field-group{% if form.password.errors %} has-error{% endif %}">
+
+                <!-- =========================================
+                     PASSWORD
+                ========================================== -->
+
+                <div
+                    class="
+                        field-group
+                        {% if form.password.errors %}
+                            has-error
+                        {% endif %}
+                    "
+                >
+
                     <div class="label-row">
-                        <label for="{{ form.password.id_for_label }}">Password</label>
-                        <a href="{% url 'password_reset' %}">Forgot password?</a>
+
+                        <label
+                            for="{{ form.password.id_for_label }}"
+                        >
+                            Password
+                        </label>
+
+
+                        <a
+                            href="{% url 'accounts:password_reset' %}"
+                        >
+                            Forgot password?
+                        </a>
+
                     </div>
-                    <div class="field-control password-control">
+
+
+                    <div
+                        class="
+                            field-control
+                            password-control
+                        "
+                    >
+
                         <i class="bi bi-key"></i>
+
+
                         {{ form.password }}
-                        <button type="button" class="password-toggle" id="password-toggle" aria-label="Show password" aria-pressed="false">
+
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="password-toggle"
+                            aria-label="Show password"
+                            aria-pressed="false"
+                        >
+
                             <i class="bi bi-eye"></i>
+
                         </button>
+
                     </div>
-                    {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+
+                    {% for error in form.password.errors %}
+
+                        <p class="field-error">
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
                 </div>
 
-                <button type="submit" class="sign-in-button" id="sign-in-button">
-                    <span class="button-label">Sign in securely</span>
-                    <span class="button-loading"><i class="bi bi-arrow-repeat"></i> Signing in</span>
-                    <i class="bi bi-arrow-right button-arrow"></i>
+
+                <!-- =========================================
+                     SIGN IN
+                ========================================== -->
+
+                <button
+                    type="submit"
+                    class="sign-in-button"
+                    id="sign-in-button"
+                >
+
+                    <span class="button-label">
+
+                        Sign in securely
+
+                    </span>
+
+
+                    <span class="button-loading">
+
+                        <i class="bi bi-arrow-repeat"></i>
+
+                        Signing in
+
+                    </span>
+
+
+                    <i
+                        class="
+                            bi
+                            bi-arrow-right
+                            button-arrow
+                        "
+                    ></i>
+
                 </button>
+
             </form>
 
+
+            <!-- =============================================
+                 SECURITY NOTE
+            ============================================== -->
+
             <div class="security-note">
+
                 <i class="bi bi-shield-lock"></i>
-                <span>Secure access to your school's financial workspace.</span>
+
+                <span>
+
+                    Secure access to your school's
+                    financial workspace.
+
+                </span>
+
             </div>
+
         </div>
 
-        <p class="login-support">Having trouble signing in? Contact your system administrator.</p>
+
+        <p class="login-support">
+
+            Having trouble signing in?
+            Contact your system administrator.
+
+        </p>
+
     </section>
+
 </main>
 
-<script src="{% static 'js/login.js' %}" defer></script>
+
+<script
+    src="{% static 'js/login.js' %}"
+    defer
+></script>
+
+
 </body>
+
 </html>

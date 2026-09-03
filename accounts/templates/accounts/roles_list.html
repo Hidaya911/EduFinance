@@ -1,77 +1,5492 @@
 {% extends 'base.html' %}
 
+{% block title %}
+Roles & Permissions | EduFinance
+{% endblock %}
+
+
 {% block content %}
-<div class="container-fluid p-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h3 class="fw-bold mb-1">System Roles & Permissions</h3>
-      <p class="text-muted small">Manage system access tiers and module permissions.</p>
+
+<style>
+
+/* =========================================================
+   EDUFINANCE — ACCESS GOVERNANCE COMMAND CENTER
+========================================================= */
+
+:root {
+    --rb-bg: #f4f7fb;
+    --rb-surface: #ffffff;
+    --rb-surface-soft: #f8faff;
+
+    --rb-navy-950: #07172b;
+    --rb-navy-900: #091f39;
+    --rb-navy-800: #0d3157;
+
+    --rb-blue: #0d6efd;
+    --rb-blue-dark: #0759dc;
+    --rb-blue-soft: #edf4ff;
+
+    --rb-green: #0a9f5c;
+    --rb-green-dark: #087743;
+    --rb-green-soft: #e6f8ef;
+
+    --rb-orange: #e68a14;
+    --rb-orange-dark: #b66a0a;
+    --rb-orange-soft: #fff2df;
+
+    --rb-red: #df445a;
+    --rb-red-dark: #bb3045;
+    --rb-red-soft: #ffecef;
+
+    --rb-purple: #7552df;
+    --rb-purple-soft: #f1edff;
+
+    --rb-cyan: #0897ba;
+    --rb-cyan-soft: #e8f8fc;
+
+    --rb-text: #101d2e;
+    --rb-text-2: #42516a;
+    --rb-text-3: #7c899d;
+
+    --rb-border: #dfe7f1;
+    --rb-border-soft: #edf1f6;
+
+    --rb-radius-sm: 12px;
+    --rb-radius-md: 17px;
+    --rb-radius-lg: 23px;
+    --rb-radius-xl: 31px;
+
+    --rb-shadow-sm:
+        0 7px 24px rgba(18, 47, 84, .05);
+
+    --rb-shadow:
+        0 20px 55px rgba(15, 42, 76, .085);
+
+    --rb-shadow-lg:
+        0 34px 90px rgba(8, 34, 70, .16);
+
+    --rb-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.rb-page {
+    position: relative;
+
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(25px, 3vw, 44px)
+        clamp(20px, 3vw, 46px)
+        70px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 93% 4%,
+            rgba(28, 111, 246, .11),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 6% 24%,
+            rgba(77, 193, 255, .065),
+            transparent 20%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            var(--rb-bg) 58%,
+            #f5f7fb 100%
+        );
+}
+
+.rb-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 630px;
+    height: 630px;
+
+    top: -395px;
+    right: -210px;
+
+    border: 1px solid rgba(27, 104, 227, .10);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.rb-page::after {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    top: -270px;
+    right: -100px;
+
+    border: 1px solid rgba(27, 104, 227, .08);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.rb-shell {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1600px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   DJANGO MESSAGES
+========================================================= */
+
+.rb-message-stack {
+    display: grid;
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+.rb-message {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-height: 58px;
+
+    padding: 13px 48px 13px 15px;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.94);
+
+    box-shadow: var(--rb-shadow-sm);
+
+    backdrop-filter: blur(15px);
+}
+
+.rb-message-icon {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--rb-blue-soft);
+
+    color: var(--rb-blue);
+}
+
+.rb-message-success .rb-message-icon {
+    background: var(--rb-green-soft);
+    color: var(--rb-green);
+}
+
+.rb-message-error .rb-message-icon {
+    background: var(--rb-red-soft);
+    color: var(--rb-red);
+}
+
+.rb-message-warning .rb-message-icon {
+    background: var(--rb-orange-soft);
+    color: var(--rb-orange);
+}
+
+.rb-message-copy {
+    min-width: 0;
+}
+
+.rb-message-copy strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: var(--rb-text);
+
+    font-size: .77rem;
+}
+
+.rb-message-copy span {
+    color: var(--rb-text-2);
+
+    font-size: .7rem;
+}
+
+.rb-message-close {
+    position: absolute;
+
+    top: 50%;
+    right: 13px;
+
+    transform: translateY(-50%);
+
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: var(--rb-text-3);
+}
+
+.rb-message-close:hover {
+    background: #f1f4f8;
+
+    color: var(--rb-text);
+}
+
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+.rb-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+
+    margin-bottom: 20px;
+
+    color: var(--rb-text-3);
+
+    font-size: .75rem;
+    font-weight: 650;
+}
+
+.rb-breadcrumb a {
+    color: var(--rb-text-3);
+
+    text-decoration: none;
+}
+
+.rb-breadcrumb a:hover {
+    color: var(--rb-blue);
+}
+
+.rb-breadcrumb i {
+    font-size: .61rem;
+}
+
+.rb-breadcrumb .current {
+    color: var(--rb-blue);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.rb-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.4fr)
+        minmax(300px, .6fr);
+
+    gap: 30px;
+
+    min-height: 255px;
+
+    margin-bottom: 23px;
+
+    padding:
+        clamp(30px, 3vw, 44px);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(213, 224, 239, .9);
+
+    border-radius:
+        var(--rb-radius-xl);
+
+    background:
+        linear-gradient(
+            118deg,
+            rgba(255,255,255,.99),
+            rgba(247,250,255,.97)
+        );
+
+    box-shadow: var(--rb-shadow);
+}
+
+.rb-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 560px;
+    height: 560px;
+
+    top: -340px;
+    right: -130px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(32, 113, 243, .16),
+            transparent 70%
+        );
+}
+
+.rb-hero::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    opacity: .35;
+
+    background-image:
+        linear-gradient(
+            rgba(26, 100, 225, .032) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(26, 100, 225, .032) 1px,
+            transparent 1px
+        );
+
+    background-size: 31px 31px;
+
+    mask-image:
+        linear-gradient(
+            90deg,
+            transparent,
+            #000 54%
+        );
+
+    pointer-events: none;
+}
+
+.rb-hero-copy {
+    position: relative;
+    z-index: 2;
+
+    align-self: center;
+}
+
+.rb-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 15px;
+
+    padding: 7px 11px;
+
+    border: 1px solid #d8e5fa;
+
+    border-radius: 999px;
+
+    background: #f5f9ff;
+
+    color: var(--rb-blue-dark);
+
+    font-size: .68rem;
+    font-weight: 850;
+
+    letter-spacing: .055em;
+
+    text-transform: uppercase;
+}
+
+.rb-eyebrow-pulse {
+    position: relative;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--rb-green);
+}
+
+.rb-eyebrow-pulse::after {
+    content: "";
+
+    position: absolute;
+    inset: -5px;
+
+    border: 1px solid rgba(10,159,92,.32);
+
+    border-radius: 50%;
+
+    animation:
+        rbPulse 2.2s infinite;
+}
+
+@keyframes rbPulse {
+
+    0% {
+        opacity: .85;
+        transform: scale(.75);
+    }
+
+    70%,
+    100% {
+        opacity: 0;
+        transform: scale(1.65);
+    }
+
+}
+
+.rb-title-row {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.rb-title-icon {
+    width: 66px;
+    height: 66px;
+
+    flex: 0 0 66px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid #d4e3fb;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--rb-blue);
+
+    font-size: 1.55rem;
+
+    box-shadow:
+        0 13px 31px
+        rgba(29, 104, 219, .12);
+}
+
+.rb-hero h1 {
+    margin: 0;
+
+    color: var(--rb-text);
+
+    font-size:
+        clamp(2rem, 3vw, 3.15rem);
+
+    font-weight: 850;
+
+    letter-spacing: -.047em;
+
+    line-height: 1.05;
+}
+
+.rb-hero-description {
+    max-width: 750px;
+
+    margin:
+        15px 0 0
+        83px;
+
+    color: var(--rb-text-2);
+
+    font-size: .92rem;
+
+    line-height: 1.75;
+}
+
+
+/* =========================================================
+   HERO SECURITY VISUAL
+========================================================= */
+
+.rb-hero-security {
+    position: relative;
+    z-index: 2;
+
+    align-self: center;
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+.rb-security-console {
+    width: min(100%, 310px);
+
+    padding: 18px;
+
+    border: 1px solid #dbe6f5;
+
+    border-radius: 19px;
+
+    background:
+        rgba(255,255,255,.83);
+
+    box-shadow:
+        0 16px 40px
+        rgba(16, 48, 88, .07);
+
+    backdrop-filter: blur(15px);
+}
+
+.rb-security-console-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 16px;
+}
+
+.rb-security-console-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.rb-security-console-title-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--rb-blue-soft);
+
+    color: var(--rb-blue);
+}
+
+.rb-security-console-title span {
+    display: block;
+
+    color: var(--rb-text-3);
+
+    font-size: .59rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+}
+
+.rb-security-console-title strong {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--rb-text);
+
+    font-size: .74rem;
+}
+
+.rb-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    background: var(--rb-green-soft);
+
+    color: var(--rb-green-dark);
+
+    font-size: .6rem;
+    font-weight: 800;
+}
+
+.rb-live-badge::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: var(--rb-green);
+}
+
+.rb-console-metric-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 9px;
+}
+
+.rb-console-metric {
+    min-height: 66px;
+
+    padding: 11px 12px;
+
+    border: 1px solid var(--rb-border-soft);
+
+    border-radius: 12px;
+
+    background: #fafcff;
+}
+
+.rb-console-metric span {
+    display: block;
+
+    color: var(--rb-text-3);
+
+    font-size: .57rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.rb-console-metric strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--rb-text);
+
+    font-size: .88rem;
+}
+
+.rb-console-foot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    margin-top: 13px;
+
+    color: var(--rb-text-3);
+
+    font-size: .61rem;
+
+    line-height: 1.45;
+}
+
+.rb-console-foot i {
+    color: var(--rb-green);
+}
+
+
+/* =========================================================
+   KPI CARDS
+========================================================= */
+
+.rb-kpi-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 23px;
+}
+
+.rb-kpi {
+    position: relative;
+
+    min-height: 159px;
+
+    padding: 19px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 20px;
+
+    background: var(--rb-surface);
+
+    box-shadow: var(--rb-shadow-sm);
+
+    transition:
+        transform var(--rb-transition),
+        box-shadow var(--rb-transition),
+        border-color var(--rb-transition);
+}
+
+.rb-kpi:hover {
+    transform: translateY(-4px);
+
+    border-color: #d1ddec;
+
+    box-shadow:
+        0 20px 44px
+        rgba(16, 46, 83, .09);
+}
+
+.rb-kpi::after {
+    content: "";
+
+    position: absolute;
+
+    width: 125px;
+    height: 125px;
+
+    right: -58px;
+    bottom: -58px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            var(--kpi-glow),
+            transparent 70%
+        );
+}
+
+.rb-kpi-blue {
+    --kpi-color: var(--rb-blue);
+    --kpi-soft: var(--rb-blue-soft);
+    --kpi-glow: rgba(20,110,245,.17);
+}
+
+.rb-kpi-purple {
+    --kpi-color: var(--rb-purple);
+    --kpi-soft: var(--rb-purple-soft);
+    --kpi-glow: rgba(117,82,223,.15);
+}
+
+.rb-kpi-green {
+    --kpi-color: var(--rb-green);
+    --kpi-soft: var(--rb-green-soft);
+    --kpi-glow: rgba(10,159,92,.15);
+}
+
+.rb-kpi-orange {
+    --kpi-color: var(--rb-orange);
+    --kpi-soft: var(--rb-orange-soft);
+    --kpi-glow: rgba(230,138,20,.16);
+}
+
+.rb-kpi-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.rb-kpi-caption {
+    color: var(--rb-text-3);
+
+    font-size: .65rem;
+    font-weight: 850;
+
+    letter-spacing: .045em;
+
+    text-transform: uppercase;
+}
+
+.rb-kpi-value {
+    margin-top: 5px;
+
+    color: var(--rb-text);
+
+    font-size: 2rem;
+    font-weight: 850;
+
+    letter-spacing: -.045em;
+
+    line-height: 1;
+}
+
+.rb-kpi-icon {
+    width: 43px;
+    height: 43px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 13px;
+
+    background: var(--kpi-soft);
+
+    color: var(--kpi-color);
+
+    font-size: 1rem;
+}
+
+.rb-kpi-foot {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.rb-kpi-note {
+    color: var(--rb-text-3);
+
+    font-size: .65rem;
+}
+
+.rb-kpi-signal {
+    color: var(--kpi-color);
+
+    font-size: .64rem;
+    font-weight: 850;
+}
+
+.rb-kpi-track {
+    height: 5px;
+
+    margin-top: 12px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: #edf1f5;
+}
+
+.rb-kpi-progress {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: var(--kpi-color);
+
+    transition:
+        width .85s
+        cubic-bezier(.2,.8,.25,1);
+}
+
+
+/* =========================================================
+   MAIN WORKSPACE
+========================================================= */
+
+.rb-workspace {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        305px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   ROLE COMMAND CENTER
+========================================================= */
+
+.rb-command-center {
+    min-width: 0;
+
+    overflow: hidden;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: var(--rb-radius-lg);
+
+    background: var(--rb-surface);
+
+    box-shadow: var(--rb-shadow);
+}
+
+.rb-command-header {
+    padding: 20px;
+
+    border-bottom: 1px solid var(--rb-border-soft);
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fbfcfe
+        );
+}
+
+.rb-command-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 16px;
+}
+
+.rb-command-heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.rb-command-icon {
+    width: 40px;
+    height: 40px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background: var(--rb-blue-soft);
+
+    color: var(--rb-blue);
+}
+
+.rb-command-heading h2 {
+    margin: 0;
+
+    color: var(--rb-text);
+
+    font-size: .88rem;
+    font-weight: 850;
+}
+
+.rb-command-heading p {
+    margin: 3px 0 0;
+
+    color: var(--rb-text-3);
+
+    font-size: .64rem;
+}
+
+.rb-command-count {
+    min-height: 33px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 10px;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: var(--rb-text-2);
+
+    font-size: .65rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FILTER TOOLBAR
+========================================================= */
+
+.rb-filter-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(240px, 1.5fr)
+        minmax(155px, .7fr)
+        minmax(170px, .75fr)
+        minmax(165px, .7fr);
+
+    gap: 10px;
+}
+
+.rb-control {
+    position: relative;
+}
+
+.rb-control > i {
+    position: absolute;
+
+    top: 50%;
+    left: 14px;
+
+    transform: translateY(-50%);
+
+    color: #8592a6;
+
+    font-size: .82rem;
+
+    pointer-events: none;
+}
+
+.rb-search,
+.rb-select {
+    width: 100%;
+
+    min-height: 43px;
+
+    border: 1px solid #dce4ef;
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color: var(--rb-text);
+
+    font-size: .73rem;
+
+    outline: none;
+
+    transition:
+        border-color var(--rb-transition),
+        box-shadow var(--rb-transition);
+}
+
+.rb-search {
+    padding:
+        10px 13px
+        10px 40px;
+}
+
+.rb-select {
+    padding:
+        10px 35px
+        10px 12px;
+
+    cursor: pointer;
+}
+
+.rb-search::placeholder {
+    color: #98a4b5;
+}
+
+.rb-search:focus,
+.rb-select:focus {
+    border-color: #89b9ff;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(39,126,255,.10);
+}
+
+.rb-filter-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 13px;
+}
+
+.rb-result-copy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--rb-text-3);
+
+    font-size: .64rem;
+}
+
+.rb-result-copy strong {
+    color: var(--rb-text);
+}
+
+.rb-result-dot {
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #bdc7d4;
+}
+
+.rb-clear-filters {
+    display: none;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--rb-blue);
+
+    font-size: .64rem;
+    font-weight: 800;
+}
+
+.rb-clear-filters.visible {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+/* =========================================================
+   ROLES LIST
+========================================================= */
+
+.rb-role-list {
+    display: grid;
+}
+
+.rb-role-card {
+    position: relative;
+
+    padding: 22px;
+
+    border-bottom: 1px solid var(--rb-border-soft);
+
+    background: #fff;
+
+    transition:
+        background var(--rb-transition),
+        box-shadow var(--rb-transition);
+}
+
+.rb-role-card:last-child {
+    border-bottom: 0;
+}
+
+.rb-role-card:hover {
+    z-index: 2;
+
+    background:
+        linear-gradient(
+            90deg,
+            #fbfdff,
+            #f8fbff
+        );
+
+    box-shadow:
+        inset 3px 0 0
+        var(--role-accent, var(--rb-blue));
+}
+
+.rb-role-card.rb-hidden {
+    display: none;
+}
+
+.rb-role-main {
+    display: grid;
+
+    grid-template-columns:
+        minmax(220px, .9fr)
+        minmax(250px, 1.25fr)
+        minmax(220px, .9fr)
+        auto;
+
+    gap: 20px;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   ROLE IDENTITY
+========================================================= */
+
+.rb-role-identity {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    min-width: 0;
+}
+
+.rb-role-icon {
+    width: 50px;
+    height: 50px;
+
+    flex: 0 0 50px;
+
+    display: grid;
+    place-items: center;
+
+    border: 1px solid
+        color-mix(
+            in srgb,
+            var(--role-accent, var(--rb-blue)) 20%,
+            #ffffff
+        );
+
+    border-radius: 15px;
+
+    background:
+        color-mix(
+            in srgb,
+            var(--role-accent, var(--rb-blue)) 10%,
+            #ffffff
+        );
+
+    color:
+        var(--role-accent, var(--rb-blue));
+
+    font-size: 1.08rem;
+}
+
+.rb-role-copy {
+    min-width: 0;
+}
+
+.rb-role-copy h3 {
+    margin: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color: var(--rb-text);
+
+    font-size: .83rem;
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+.rb-role-subtitle {
+    margin-top: 4px;
+
+    color: var(--rb-text-3);
+
+    font-size: .61rem;
+}
+
+.rb-role-health {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    margin-top: 8px;
+
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    font-size: .59rem;
+    font-weight: 800;
+}
+
+.rb-role-health-good {
+    background: var(--rb-green-soft);
+    color: var(--rb-green-dark);
+}
+
+.rb-role-health-warning {
+    background: var(--rb-orange-soft);
+    color: var(--rb-orange-dark);
+}
+
+.rb-role-health-critical {
+    background: var(--rb-red-soft);
+    color: var(--rb-red-dark);
+}
+
+.rb-role-health::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* =========================================================
+   USERS
+========================================================= */
+
+.rb-users-block {
+    min-width: 0;
+}
+
+.rb-block-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--rb-text-3);
+
+    font-size: .57rem;
+    font-weight: 850;
+
+    letter-spacing: .045em;
+
+    text-transform: uppercase;
+}
+
+.rb-user-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.rb-avatar-stack {
+    display: flex;
+    align-items: center;
+
+    padding-left: 5px;
+}
+
+.rb-user-avatar {
+    position: relative;
+
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    margin-left: -5px;
+
+    border: 2px solid #fff;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--avatar-start, #186ef0),
+            var(--avatar-end, #184cb6)
+        );
+
+    color: #fff;
+
+    font-size: .58rem;
+    font-weight: 850;
+
+    box-shadow:
+        0 5px 13px
+        rgba(18,65,130,.13);
+}
+
+.rb-user-info {
+    min-width: 0;
+}
+
+.rb-user-count {
+    display: block;
+
+    color: var(--rb-text);
+
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.rb-user-preview {
+    display: block;
+
+    max-width: 250px;
+
+    margin-top: 3px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color: var(--rb-text-3);
+
+    font-size: .61rem;
+
+    white-space: nowrap;
+}
+
+.rb-no-users {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    min-height: 34px;
+
+    padding: 7px 10px;
+
+    border: 1px dashed #d7dfeb;
+
+    border-radius: 10px;
+
+    background: #fafbfd;
+
+    color: var(--rb-text-3);
+
+    font-size: .63rem;
+}
+
+.rb-no-users i {
+    color: var(--rb-orange);
+}
+
+
+/* =========================================================
+   PERMISSIONS
+========================================================= */
+
+.rb-permission-block {
+    min-width: 0;
+}
+
+.rb-permission-number-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+}
+
+.rb-permission-value {
+    color: var(--rb-text);
+
+    font-size: .75rem;
+    font-weight: 850;
+}
+
+.rb-permission-relative {
+    color: var(--rb-text-3);
+
+    font-size: .58rem;
+}
+
+.rb-permission-track {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: #edf1f5;
+}
+
+.rb-permission-progress {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--role-accent, var(--rb-blue)),
+            color-mix(
+                in srgb,
+                var(--role-accent, var(--rb-blue)) 72%,
+                #72b5ff
+            )
+        );
+
+    transition:
+        width .8s cubic-bezier(.2,.8,.25,1);
+}
+
+.rb-permission-caption {
+    margin-top: 7px;
+
+    color: var(--rb-text-3);
+
+    font-size: .59rem;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.rb-role-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.rb-role-btn {
+    min-height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 8px 11px;
+
+    border-radius: 10px;
+
+    font-size: .66rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition:
+        transform var(--rb-transition),
+        background var(--rb-transition),
+        color var(--rb-transition),
+        border-color var(--rb-transition);
+}
+
+.rb-role-btn:hover {
+    transform: translateY(-1px);
+}
+
+.rb-edit-btn {
+    border: 1px solid #afd0ff;
+
+    background: #fff;
+
+    color: var(--rb-blue-dark);
+}
+
+.rb-edit-btn:hover {
+    border-color: #7bb2ff;
+
+    background: var(--rb-blue-soft);
+
+    color: var(--rb-blue-dark);
+}
+
+.rb-delete-btn {
+    width: 38px;
+
+    padding: 0;
+
+    border: 1px solid #f0bbc4;
+
+    background: #fff;
+
+    color: var(--rb-red);
+}
+
+.rb-delete-btn:hover {
+    border-color: #e98595;
+
+    background: var(--rb-red-soft);
+
+    color: var(--rb-red-dark);
+}
+
+.rb-unavailable-btn {
+    border: 1px solid var(--rb-border);
+
+    background: #f5f7fa;
+
+    color: #9aa5b4;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   EXPANDED USER DRAWER
+========================================================= */
+
+.rb-user-drawer {
+    display: none;
+
+    margin-top: 18px;
+
+    padding-top: 17px;
+
+    border-top: 1px solid var(--rb-border-soft);
+}
+
+.rb-user-drawer.open {
+    display: block;
+
+    animation:
+        rbDrawerIn
+        .2s ease-out;
+}
+
+@keyframes rbDrawerIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+.rb-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.rb-drawer-head strong {
+    color: var(--rb-text);
+
+    font-size: .69rem;
+}
+
+.rb-drawer-close {
+    border: 0;
+
+    background: transparent;
+
+    color: var(--rb-text-3);
+
+    font-size: .63rem;
+    font-weight: 700;
+}
+
+.rb-user-chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rb-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    min-height: 32px;
+
+    padding: 6px 9px;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 10px;
+
+    background: #fbfcfe;
+
+    color: var(--rb-text-2);
+
+    font-size: .62rem;
+}
+
+.rb-chip-avatar {
+    width: 20px;
+    height: 20px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 6px;
+
+    background: var(--role-accent, var(--rb-blue));
+
+    color: #fff;
+
+    font-size: .52rem;
+    font-weight: 850;
+}
+
+.rb-view-users {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    margin-top: 7px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--rb-blue);
+
+    font-size: .58rem;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   EMPTY / NO RESULTS
+========================================================= */
+
+.rb-empty,
+.rb-no-results {
+    padding: 55px 20px;
+
+    text-align: center;
+}
+
+.rb-no-results {
+    display: none;
+}
+
+.rb-no-results.visible {
+    display: block;
+}
+
+.rb-empty-icon {
+    position: relative;
+
+    width: 76px;
+    height: 76px;
+
+    display: grid;
+    place-items: center;
+
+    margin: 0 auto 17px;
+
+    border: 1px solid #dce7f6;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eef5ff,
+            #fff
+        );
+
+    color: var(--rb-blue);
+
+    font-size: 1.55rem;
+}
+
+.rb-empty h3,
+.rb-no-results h3 {
+    margin: 0 0 7px;
+
+    color: var(--rb-text);
+
+    font-size: .9rem;
+    font-weight: 850;
+}
+
+.rb-empty p,
+.rb-no-results p {
+    max-width: 430px;
+
+    margin: 0 auto;
+
+    color: var(--rb-text-3);
+
+    font-size: .68rem;
+
+    line-height: 1.65;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.rb-command-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    min-height: 62px;
+
+    padding: 13px 19px;
+
+    border-top: 1px solid var(--rb-border-soft);
+
+    background: #fbfcfe;
+}
+
+.rb-footer-copy {
+    color: var(--rb-text-3);
+
+    font-size: .63rem;
+}
+
+.rb-footer-copy strong {
+    color: var(--rb-text);
+}
+
+.rb-footer-badges {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.rb-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 9px;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 9px;
+
+    background: #fff;
+
+    color: var(--rb-text-2);
+
+    font-size: .59rem;
+    font-weight: 700;
+}
+
+.rb-footer-badge i {
+    color: var(--rb-blue);
+}
+
+
+/* =========================================================
+   INTELLIGENCE RAIL
+========================================================= */
+
+.rb-intelligence {
+    position: sticky;
+    top: 90px;
+
+    display: grid;
+    gap: 16px;
+}
+
+.rb-side-card {
+    overflow: hidden;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow: var(--rb-shadow-sm);
+}
+
+.rb-side-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 17px 18px;
+
+    border-bottom: 1px solid var(--rb-border-soft);
+
+    background: #fbfcfe;
+}
+
+.rb-side-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--rb-blue-soft);
+
+    color: var(--rb-blue);
+}
+
+.rb-side-head h3 {
+    margin: 0;
+
+    color: var(--rb-text);
+
+    font-size: .75rem;
+    font-weight: 850;
+}
+
+.rb-side-head p {
+    margin: 2px 0 0;
+
+    color: var(--rb-text-3);
+
+    font-size: .58rem;
+}
+
+.rb-side-body {
+    padding: 18px;
+}
+
+
+/* =========================================================
+   HEALTH RING
+========================================================= */
+
+.rb-health-layout {
+    display: grid;
+
+    grid-template-columns:
+        90px 1fr;
+
+    gap: 13px;
+
+    align-items: center;
+}
+
+.rb-health-ring {
+    position: relative;
+
+    width: 86px;
+    height: 86px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            var(--rb-blue) 0deg,
+            var(--rb-blue) var(--health-angle, 0deg),
+            #e8edf4 var(--health-angle, 0deg),
+            #e8edf4 360deg
+        );
+}
+
+.rb-health-ring::before {
+    content: "";
+
+    position: absolute;
+    inset: 8px;
+
+    border-radius: 50%;
+
+    background: #fff;
+}
+
+.rb-health-ring-value {
+    position: relative;
+    z-index: 2;
+
+    text-align: center;
+}
+
+.rb-health-ring-value strong {
+    display: block;
+
+    color: var(--rb-text);
+
+    font-size: 1.05rem;
+}
+
+.rb-health-ring-value span {
+    display: block;
+
+    color: var(--rb-text-3);
+
+    font-size: .53rem;
+}
+
+.rb-health-copy span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--rb-text-3);
+
+    font-size: .56rem;
+    font-weight: 750;
+
+    text-transform: uppercase;
+}
+
+.rb-health-copy strong {
+    display: block;
+
+    color: var(--rb-text);
+
+    font-size: .76rem;
+}
+
+.rb-health-copy small {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--rb-text-3);
+
+    font-size: .58rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   REVIEW QUEUE
+========================================================= */
+
+.rb-review-list {
+    display: grid;
+    gap: 10px;
+}
+
+.rb-review-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    padding: 10px;
+
+    border: 1px solid var(--rb-border-soft);
+
+    border-radius: 11px;
+
+    background: #fbfcfe;
+}
+
+.rb-review-item-icon {
+    width: 27px;
+    height: 27px;
+
+    flex: 0 0 27px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 8px;
+
+    background: var(--rb-orange-soft);
+
+    color: var(--rb-orange);
+
+    font-size: .68rem;
+}
+
+.rb-review-item strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: var(--rb-text);
+
+    font-size: .62rem;
+}
+
+.rb-review-item span {
+    display: block;
+
+    color: var(--rb-text-3);
+
+    font-size: .56rem;
+
+    line-height: 1.45;
+}
+
+.rb-review-empty {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--rb-text-3);
+
+    font-size: .61rem;
+}
+
+.rb-review-empty i {
+    color: var(--rb-green);
+}
+
+
+/* =========================================================
+   POLICY NOTE
+========================================================= */
+
+.rb-policy {
+    padding: 17px;
+
+    border: 1px solid #dbe7f8;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f6f9ff,
+            #fff
+        );
+}
+
+.rb-policy-icon {
+    width: 37px;
+    height: 37px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 11px;
+
+    background: var(--rb-purple-soft);
+
+    color: var(--rb-purple);
+}
+
+.rb-policy h4 {
+    margin: 0 0 6px;
+
+    color: var(--rb-text);
+
+    font-size: .72rem;
+    font-weight: 850;
+}
+
+.rb-policy p {
+    margin: 0;
+
+    color: var(--rb-text-3);
+
+    font-size: .6rem;
+
+    line-height: 1.62;
+}
+
+
+/* =========================================================
+   DELETE MODAL
+========================================================= */
+
+.rb-modal-backdrop {
+    position: fixed;
+    z-index: 10100;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(4, 17, 35, .62);
+
+    backdrop-filter: blur(8px);
+}
+
+.rb-modal-backdrop.open {
+    display: flex;
+
+    animation:
+        rbBackdropIn
+        .18s ease-out;
+}
+
+@keyframes rbBackdropIn {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+.rb-modal {
+    width: min(100%, 490px);
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255,255,255,.4);
+
+    border-radius: 24px;
+
+    background: #fff;
+
+    box-shadow: var(--rb-shadow-lg);
+
+    animation:
+        rbModalIn
+        .22s cubic-bezier(.2,.8,.25,1);
+}
+
+@keyframes rbModalIn {
+
+    from {
+        opacity: 0;
+        transform:
+            scale(.96)
+            translateY(7px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            scale(1)
+            translateY(0);
+    }
+
+}
+
+.rb-modal-danger-line {
+    height: 5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #dc4055,
+            #ef6677
+        );
+}
+
+.rb-modal-body {
+    padding: 27px;
+}
+
+.rb-modal-symbol {
+    width: 54px;
+    height: 54px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 17px;
+
+    border-radius: 16px;
+
+    background: var(--rb-red-soft);
+
+    color: var(--rb-red);
+
+    font-size: 1.15rem;
+}
+
+.rb-modal h3 {
+    margin: 0 0 8px;
+
+    color: var(--rb-text);
+
+    font-size: 1.12rem;
+    font-weight: 850;
+
+    letter-spacing: -.025em;
+}
+
+.rb-modal > .rb-modal-body > p {
+    margin: 0;
+
+    color: var(--rb-text-2);
+
+    font-size: .72rem;
+
+    line-height: 1.7;
+}
+
+.rb-modal-role {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    margin: 19px 0;
+
+    padding: 13px;
+
+    border: 1px solid var(--rb-border);
+
+    border-radius: 13px;
+
+    background: #f9fbfe;
+}
+
+.rb-modal-role-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background: var(--rb-navy-900);
+
+    color: #fff;
+}
+
+.rb-modal-role strong {
+    display: block;
+
+    color: var(--rb-text);
+
+    font-size: .72rem;
+}
+
+.rb-modal-role span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--rb-text-3);
+
+    font-size: .6rem;
+}
+
+.rb-modal-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    padding: 12px;
+
+    border: 1px solid #f2c4ca;
+
+    border-radius: 12px;
+
+    background: #fff5f6;
+
+    color: #9f3342;
+
+    font-size: .62rem;
+
+    line-height: 1.55;
+}
+
+.rb-modal-warning i {
+    margin-top: 2px;
+
+    color: var(--rb-red);
+}
+
+.rb-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+
+    margin-top: 22px;
+}
+
+.rb-modal-btn {
+    min-height: 41px;
+
+    padding: 9px 15px;
+
+    border-radius: 11px;
+
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.rb-modal-cancel {
+    border: 1px solid var(--rb-border);
+
+    background: #fff;
+
+    color: var(--rb-text-2);
+}
+
+.rb-modal-delete {
+    min-width: 130px;
+
+    border: 1px solid #cf3349;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e54b60,
+            #c93248
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 10px 24px
+        rgba(204,51,72,.20);
+}
+
+.rb-modal-delete.loading {
+    pointer-events: none;
+
+    opacity: .72;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.rb-spin {
+    animation:
+        rbSpin
+        .8s linear infinite;
+}
+
+@keyframes rbSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1450px) {
+
+    .rb-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-intelligence {
+        position: static;
+
+        grid-template-columns:
+            repeat(3, minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 1120px) {
+
+    .rb-role-main {
+        grid-template-columns:
+            minmax(220px, 1fr)
+            minmax(240px, 1fr);
+    }
+
+    .rb-role-actions {
+        justify-content: flex-start;
+    }
+
+    .rb-kpi-grid {
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .rb-page {
+        margin: -16px;
+
+        padding:
+            22px 16px
+            55px;
+    }
+
+    .rb-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-hero-description {
+        margin-left: 0;
+    }
+
+    .rb-hero-security {
+        justify-content: flex-start;
+    }
+
+    .rb-security-console {
+        width: 100%;
+    }
+
+    .rb-filter-grid {
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+    }
+
+    .rb-control-search {
+        grid-column: 1 / -1;
+    }
+
+    .rb-intelligence {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 680px) {
+
+    .rb-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-role-main {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rb-control-search {
+        grid-column: auto;
+    }
+
+    .rb-command-title-row,
+    .rb-filter-summary,
+    .rb-command-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rb-role-actions {
+        width: 100%;
+    }
+
+    .rb-edit-btn {
+        flex: 1;
+    }
+
+    .rb-title-icon {
+        width: 52px;
+        height: 52px;
+
+        flex-basis: 52px;
+    }
+
+    .rb-hero h1 {
+        font-size: 1.75rem;
+    }
+
+}
+
+</style>
+
+
+
+<div class="rb-page">
+
+    <div class="rb-shell">
+
+
+        <!-- =================================================
+             DJANGO MESSAGES
+        ================================================== -->
+
+        {% if messages %}
+
+            <div class="rb-message-stack">
+
+                {% for message in messages %}
+
+                    <div
+                        class="
+                            rb-message
+                            rb-message-{{ message.tags|default:'info' }}
+                        "
+                    >
+
+                        <div class="rb-message-icon">
+
+                            {% if message.tags == 'success' %}
+
+                                <i class="bi bi-check2-circle"></i>
+
+                            {% elif message.tags == 'error' %}
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                            {% elif message.tags == 'warning' %}
+
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                            {% else %}
+
+                                <i class="bi bi-info-circle"></i>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="rb-message-copy">
+
+                            <strong>
+
+                                {% if message.tags == 'success' %}
+
+                                    Access control updated
+
+                                {% elif message.tags == 'error' %}
+
+                                    Action requires attention
+
+                                {% else %}
+
+                                    System access notification
+
+                                {% endif %}
+
+                            </strong>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="rb-message-close"
+                            onclick="this.closest('.rb-message').remove()"
+                            aria-label="Dismiss"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- =================================================
+             BREADCRUMB
+        ================================================== -->
+
+        <div class="rb-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span>
+                Management
+            </span>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="current">
+                Roles & Permissions
+            </span>
+
+        </div>
+
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="rb-hero">
+
+            <div class="rb-hero-copy">
+
+                <div class="rb-eyebrow">
+
+                    <span class="rb-eyebrow-pulse"></span>
+
+                    Role-Based Access Control
+
+                </div>
+
+
+                <div class="rb-title-row">
+
+                    <div class="rb-title-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+
+                    <h1>
+                        System Roles & Permissions
+                    </h1>
+
+                </div>
+
+
+                <p class="rb-hero-description">
+
+                    Govern access across EduFinance from one
+                    security-focused workspace. Review role usage,
+                    inspect permission depth, identify access gaps,
+                    and maintain controlled authorization for every
+                    financial function.
+
+                </p>
+
+            </div>
+
+
+            <!-- SECURITY CONSOLE -->
+
+            <div class="rb-hero-security">
+
+                <div class="rb-security-console">
+
+                    <div class="rb-security-console-head">
+
+                        <div class="rb-security-console-title">
+
+                            <div class="rb-security-console-title-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Governance
+                                </span>
+
+                                <strong>
+                                    Security Console
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="rb-live-badge">
+                            Live
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-console-metric-grid">
+
+                        <div class="rb-console-metric">
+
+                            <span>
+                                Roles
+                            </span>
+
+                            <strong id="rb-console-role-count">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rb-console-metric">
+
+                            <span>
+                                Review items
+                            </span>
+
+                            <strong id="rb-console-review-count">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-console-foot">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        Access remains governed by configured
+                        role permissions.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             KPI GRID
+        ================================================== -->
+
+        <section class="rb-kpi-grid">
+
+
+            <!-- ROLES -->
+
+            <article class="rb-kpi rb-kpi-blue">
+
+                <div class="rb-kpi-head">
+
+                    <div>
+
+                        <div class="rb-kpi-caption">
+                            System Roles
+                        </div>
+
+                        <div
+                            class="rb-kpi-value"
+                            id="rb-total-roles"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-kpi-icon">
+                        <i class="bi bi-shield-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rb-kpi-foot">
+
+                    <span class="rb-kpi-note">
+                        Access tiers configured
+                    </span>
+
+                    <span class="rb-kpi-signal">
+                        RBAC
+                    </span>
+
+                </div>
+
+
+                <div class="rb-kpi-track">
+
+                    <div
+                        class="rb-kpi-progress"
+                        id="rb-role-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- USER ASSIGNMENTS -->
+
+            <article class="rb-kpi rb-kpi-purple">
+
+                <div class="rb-kpi-head">
+
+                    <div>
+
+                        <div class="rb-kpi-caption">
+                            Role Assignments
+                        </div>
+
+                        <div
+                            class="rb-kpi-value"
+                            id="rb-total-assignments"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-kpi-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rb-kpi-foot">
+
+                    <span class="rb-kpi-note">
+                        User-to-role assignments
+                    </span>
+
+                    <span class="rb-kpi-signal">
+                        USERS
+                    </span>
+
+                </div>
+
+
+                <div class="rb-kpi-track">
+
+                    <div
+                        class="rb-kpi-progress"
+                        id="rb-assignment-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- PERMISSIONS -->
+
+            <article class="rb-kpi rb-kpi-green">
+
+                <div class="rb-kpi-head">
+
+                    <div>
+
+                        <div class="rb-kpi-caption">
+                            Permission Assignments
+                        </div>
+
+                        <div
+                            class="rb-kpi-value"
+                            id="rb-total-permissions"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-kpi-icon">
+                        <i class="bi bi-key-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rb-kpi-foot">
+
+                    <span class="rb-kpi-note">
+                        Permissions across roles
+                    </span>
+
+                    <span class="rb-kpi-signal">
+                        CONTROL
+                    </span>
+
+                </div>
+
+
+                <div class="rb-kpi-track">
+
+                    <div
+                        class="rb-kpi-progress"
+                        id="rb-permission-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- REVIEW -->
+
+            <article class="rb-kpi rb-kpi-orange">
+
+                <div class="rb-kpi-head">
+
+                    <div>
+
+                        <div class="rb-kpi-caption">
+                            Review Required
+                        </div>
+
+                        <div
+                            class="rb-kpi-value"
+                            id="rb-review-total"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="rb-kpi-icon">
+                        <i class="bi bi-exclamation-diamond-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rb-kpi-foot">
+
+                    <span class="rb-kpi-note">
+                        Roles with access gaps
+                    </span>
+
+                    <span
+                        class="rb-kpi-signal"
+                        id="rb-review-label"
+                    >
+                        REVIEW
+                    </span>
+
+                </div>
+
+
+                <div class="rb-kpi-track">
+
+                    <div
+                        class="rb-kpi-progress"
+                        id="rb-review-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- =================================================
+             WORKSPACE
+        ================================================== -->
+
+        <section class="rb-workspace">
+
+
+            <!-- =============================================
+                 ACCESS GOVERNANCE CENTER
+            ============================================== -->
+
+            <div class="rb-command-center">
+
+
+                <!-- COMMAND HEADER -->
+
+                <div class="rb-command-header">
+
+
+                    <div class="rb-command-title-row">
+
+                        <div class="rb-command-heading">
+
+                            <div class="rb-command-icon">
+                                <i class="bi bi-diagram-3-fill"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Access Governance
+                                </h2>
+
+                                <p>
+                                    Review and maintain configured
+                                    system authorization roles.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="rb-command-count">
+
+                            <i class="bi bi-shield"></i>
+
+                            <span id="rb-visible-role-label">
+                                0 roles
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- FILTERS -->
+
+                    <div class="rb-filter-grid">
+
+
+                        <div class="rb-control rb-control-search">
+
+                            <i class="bi bi-search"></i>
+
+                            <input
+                                type="search"
+                                id="rb-search"
+                                class="rb-search"
+                                placeholder="Search role or assigned user..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="rb-control">
+
+                            <select
+                                id="rb-user-filter"
+                                class="rb-select"
+                            >
+
+                                <option value="">
+                                    All Assignments
+                                </option>
+
+                                <option value="assigned">
+                                    Has Users
+                                </option>
+
+                                <option value="unassigned">
+                                    No Users
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="rb-control">
+
+                            <select
+                                id="rb-permission-filter"
+                                class="rb-select"
+                            >
+
+                                <option value="">
+                                    All Permission States
+                                </option>
+
+                                <option value="configured">
+                                    Configured
+                                </option>
+
+                                <option value="empty">
+                                    No Permissions
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="rb-control">
+
+                            <select
+                                id="rb-sort"
+                                class="rb-select"
+                            >
+
+                                <option value="name-asc">
+                                    Name A–Z
+                                </option>
+
+                                <option value="name-desc">
+                                    Name Z–A
+                                </option>
+
+                                <option value="users-desc">
+                                    Most Users
+                                </option>
+
+                                <option value="permissions-desc">
+                                    Most Permissions
+                                </option>
+
+                                <option value="attention-first">
+                                    Attention First
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="rb-filter-summary">
+
+                        <div class="rb-result-copy">
+
+                            <span>
+
+                                Showing
+
+                                <strong id="rb-visible-count">
+                                    0
+                                </strong>
+
+                                of
+
+                                <strong id="rb-total-count-inline">
+                                    0
+                                </strong>
+
+                                roles
+
+                            </span>
+
+
+                            <span class="rb-result-dot"></span>
+
+
+                            <span id="rb-filter-description">
+                                Complete access model
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="rb-clear-filters"
+                            class="rb-clear-filters"
+                        >
+
+                            <i class="bi bi-x-circle"></i>
+
+                            Clear filters
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =========================================
+                     ROLES
+                ========================================== -->
+
+                <div
+                    class="rb-role-list"
+                    id="rb-role-list"
+                >
+
+                    {% for role in roles %}
+
+                        <article
+                            class="rb-role-card"
+                            data-role-name="{{ role.name|escape }}"
+                            data-users="{{ role.users_count }}"
+                            data-permissions="{{ role.permissions_count }}"
+                        >
+
+
+                            <div class="rb-role-main">
+
+
+                                <!-- =========================
+                                     ROLE IDENTITY
+                                ========================== -->
+
+                                <div class="rb-role-identity">
+
+
+                                    <div
+                                        class="rb-role-icon"
+                                        data-role-icon
+                                    >
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                    </div>
+
+
+                                    <div class="rb-role-copy">
+
+                                        <h3>
+                                            {{ role.name }}
+                                        </h3>
+
+
+                                        <div class="rb-role-subtitle">
+
+                                            System authorization role
+
+                                        </div>
+
+
+                                        {% if role.users_count > 0 and role.permissions_count > 0 %}
+
+                                            <span
+                                                class="
+                                                    rb-role-health
+                                                    rb-role-health-good
+                                                "
+                                            >
+                                                Operational
+                                            </span>
+
+                                        {% elif role.users_count == 0 and role.permissions_count == 0 %}
+
+                                            <span
+                                                class="
+                                                    rb-role-health
+                                                    rb-role-health-critical
+                                                "
+                                            >
+                                                Requires configuration
+                                            </span>
+
+                                        {% else %}
+
+                                            <span
+                                                class="
+                                                    rb-role-health
+                                                    rb-role-health-warning
+                                                "
+                                            >
+                                                Review suggested
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- =========================
+                                     ASSIGNED USERS
+                                ========================== -->
+
+                                <div class="rb-users-block">
+
+                                    <span class="rb-block-label">
+                                        Assigned Users
+                                    </span>
+
+
+                                    {% if role.assigned_users %}
+
+                                        <div class="rb-user-summary">
+
+
+                                            <div class="rb-avatar-stack">
+
+                                                {% for user_name in role.assigned_users|slice:":4" %}
+
+                                                    <span
+                                                        class="rb-user-avatar"
+                                                        data-avatar-name="{{ user_name|escape }}"
+                                                        title="{{ user_name }}"
+                                                    >
+
+                                                        {{ user_name|slice:":1"|upper }}
+
+                                                    </span>
+
+                                                {% endfor %}
+
+                                            </div>
+
+
+                                            <div class="rb-user-info">
+
+                                                <span class="rb-user-count">
+
+                                                    {{ role.users_count }}
+
+                                                    {% if role.users_count == 1 %}
+                                                        user
+                                                    {% else %}
+                                                        users
+                                                    {% endif %}
+
+                                                </span>
+
+
+                                                <span class="rb-user-preview">
+
+                                                    {{ role.assigned_users|slice:":3"|join:", " }}
+
+                                                    {% if role.users_count > 3 %}
+                                                        …
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <button
+                                            type="button"
+                                            class="rb-view-users"
+                                            data-user-toggle
+                                        >
+
+                                            <i class="bi bi-chevron-down"></i>
+
+                                            View assigned users
+
+                                        </button>
+
+
+                                    {% else %}
+
+                                        <div class="rb-no-users">
+
+                                            <i class="bi bi-person-dash"></i>
+
+                                            No users assigned
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+
+                                <!-- =========================
+                                     PERMISSIONS
+                                ========================== -->
+
+                                <div class="rb-permission-block">
+
+                                    <span class="rb-block-label">
+                                        Permission Depth
+                                    </span>
+
+
+                                    <div class="rb-permission-number-row">
+
+                                        <span class="rb-permission-value">
+
+                                            {{ role.permissions_count }}
+
+                                            {% if role.permissions_count == 1 %}
+                                                permission
+                                            {% else %}
+                                                permissions
+                                            {% endif %}
+
+                                        </span>
+
+
+                                        <span
+                                            class="rb-permission-relative"
+                                            data-permission-relative
+                                        >
+                                            —
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="rb-permission-track">
+
+                                        <div
+                                            class="rb-permission-progress"
+                                            data-permission-progress
+                                        ></div>
+
+                                    </div>
+
+
+                                    <div class="rb-permission-caption">
+
+                                        {% if role.permissions_count > 0 %}
+
+                                            Authorization rules configured
+
+                                        {% else %}
+
+                                            No explicit permissions assigned
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- =========================
+                                     ACTIONS
+                                ========================== -->
+
+                                <div class="rb-role-actions">
+
+                                    {% if role.id %}
+
+                                        <a
+                                            href="{% url 'accounts:role_permissions' role.id %}"
+                                            class="
+                                                rb-role-btn
+                                                rb-edit-btn
+                                            "
+                                        >
+
+                                            <i class="bi bi-shield-check"></i>
+
+                                            Edit Permissions
+
+                                        </a>
+
+
+                                        <a
+                                            href="{% url 'accounts:delete_role' role.id %}"
+                                            class="
+                                                rb-role-btn
+                                                rb-delete-btn
+                                                rb-delete-trigger
+                                            "
+                                            title="Delete role"
+                                            aria-label="Delete {{ role.name }}"
+                                            data-delete-url="{% url 'accounts:delete_role' role.id %}"
+                                            data-role-name="{{ role.name|escape }}"
+                                            data-role-users="{{ role.users_count }}"
+                                            data-role-permissions="{{ role.permissions_count }}"
+                                        >
+
+                                            <i class="bi bi-trash3"></i>
+
+                                        </a>
+
+                                    {% else %}
+
+                                        <button
+                                            type="button"
+                                            class="
+                                                rb-role-btn
+                                                rb-unavailable-btn
+                                            "
+                                            disabled
+                                        >
+                                            Unavailable
+                                        </button>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- =============================
+                                 USER DRAWER
+                            ============================== -->
+
+                            {% if role.assigned_users %}
+
+                                <div
+                                    class="rb-user-drawer"
+                                    data-user-drawer
+                                >
+
+                                    <div class="rb-drawer-head">
+
+                                        <strong>
+                                            Users assigned to {{ role.name }}
+                                        </strong>
+
+
+                                        <button
+                                            type="button"
+                                            class="rb-drawer-close"
+                                            data-drawer-close
+                                        >
+                                            Close
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="rb-user-chip-grid">
+
+                                        {% for user_name in role.assigned_users %}
+
+                                            <span class="rb-user-chip">
+
+                                                <span class="rb-chip-avatar">
+
+                                                    {{ user_name|slice:":1"|upper }}
+
+                                                </span>
+
+                                                {{ user_name }}
+
+                                            </span>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+                        </article>
+
+
+                    {% empty %}
+
+                        <div class="rb-empty">
+
+                            <div class="rb-empty-icon">
+                                <i class="bi bi-shield-slash"></i>
+                            </div>
+
+
+                            <h3>
+                                No security roles found
+                            </h3>
+
+
+                            <p>
+
+                                EduFinance does not currently have
+                                any system roles available for access
+                                governance.
+
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+
+                <!-- NO FILTER RESULTS -->
+
+                <div
+                    class="rb-no-results"
+                    id="rb-no-results"
+                >
+
+                    <div class="rb-empty-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+
+                    <h3>
+                        No matching roles
+                    </h3>
+
+
+                    <p>
+
+                        No security role matches the current search
+                        and filter combination. Clear one or more
+                        filters to restore the access model.
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- FOOTER -->
+
+                <footer class="rb-command-footer">
+
+                    <div class="rb-footer-copy">
+
+                        Access model contains
+
+                        <strong id="rb-footer-role-count">
+                            0
+                        </strong>
+
+                        configured roles.
+
+                    </div>
+
+
+                    <div class="rb-footer-badges">
+
+                        <span class="rb-footer-badge">
+
+                            <i class="bi bi-lock-fill"></i>
+
+                            RBAC governed
+
+                        </span>
+
+
+                        <span class="rb-footer-badge">
+
+                            <i class="bi bi-database-check"></i>
+
+                            Live assignments
+
+                        </span>
+
+                    </div>
+
+                </footer>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 INTELLIGENCE RAIL
+            ============================================== -->
+
+            <aside class="rb-intelligence">
+
+
+                <!-- GOVERNANCE HEALTH -->
+
+                <section class="rb-side-card">
+
+                    <header class="rb-side-head">
+
+                        <div class="rb-side-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Governance Health
+                            </h3>
+
+                            <p>
+                                Role configuration quality
+                            </p>
+
+                        </div>
+
+                    </header>
+
+
+                    <div class="rb-side-body">
+
+                        <div class="rb-health-layout">
+
+                            <div
+                                class="rb-health-ring"
+                                id="rb-health-ring"
+                            >
+
+                                <div class="rb-health-ring-value">
+
+                                    <strong id="rb-health-percent">
+                                        0%
+                                    </strong>
+
+                                    <span>
+                                        configured
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rb-health-copy">
+
+                                <span>
+                                    Healthy roles
+                                </span>
+
+                                <strong id="rb-health-fraction">
+                                    0 of 0
+                                </strong>
+
+                                <small>
+
+                                    Roles with both user assignments
+                                    and permission configuration.
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- REVIEW QUEUE -->
+
+                <section class="rb-side-card">
+
+                    <header class="rb-side-head">
+
+                        <div class="rb-side-icon">
+                            <i class="bi bi-exclamation-diamond"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Review Queue
+                            </h3>
+
+                            <p>
+                                Potential access gaps
+                            </p>
+
+                        </div>
+
+                    </header>
+
+
+                    <div
+                        class="rb-side-body"
+                        id="rb-review-list"
+                    >
+                    </div>
+
+                </section>
+
+
+
+                <!-- POLICY -->
+
+                <div class="rb-policy">
+
+                    <div class="rb-policy-icon">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+
+
+                    <h4>
+                        Least-privilege principle
+                    </h4>
+
+
+                    <p>
+
+                        Roles should provide only the permissions
+                        required for their operational responsibilities.
+                        Review unused roles and unusually broad
+                        permission assignments regularly.
+
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </section>
+
     </div>
-  </div>
 
-  <div class="card border-0 shadow-sm rounded-3">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-light">
-            <tr>
-              <th class="ps-4">Role Name</th>
-              <th>Assigned Users</th>
-              <th>Permissions Assigned</th>
-              <th class="text-end pe-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for role in roles %}
-            <tr>
-              <!-- Role Name -->
-              <td class="ps-4 fw-bold text-dark">{{ role.name }}</td>
-
-              <!-- Assigned Users (Shows Count + Names) -->
-              <td>
-                {% if role.assigned_users %}
-                  <span class="badge bg-info text-dark rounded-pill">{{ role.users_count }} Users</span>
-                  <small class="text-muted d-block mt-1">
-                    {{ role.assigned_users|slice:":3"|join:", " }}
-                    {% if role.users_count > 3 %}...{% endif %}
-                  </small>
-                {% else %}
-                  <span class="text-muted small fst-italic">No users assigned</span>
-                {% endif %}
-              </td>
-
-              <!-- Permissions Assigned Count -->
-              <td>
-                {% if role.permissions_count > 0 %}
-                  <span class="badge bg-secondary rounded-pill">{{ role.permissions_count }} Permissions</span>
-                {% else %}
-                  <span class="text-muted small fst-italic">None</span>
-                {% endif %}
-              </td>
-
-              <!-- Actions (Edit Permissions & Delete Role) -->
-              <td class="text-end pe-4">
-                {% if role.id %}
-                  <a href="{% url 'role_permissions' role.id %}" class="btn btn-sm btn-outline-primary me-1">
-                    <i class="bi bi-shield-lock me-1"></i> Edit Permissions
-                  </a>
-                  <a href="{% url 'delete_role' role.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this role?');">
-                    <i class="bi bi-trash me-1"></i> Delete
-                  </a>
-                {% else %}
-                  <button class="btn btn-sm btn-outline-secondary" disabled>Unavailable</button>
-                {% endif %}
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center py-4 text-muted">No security roles found.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 </div>
+
+
+
+<!-- =========================================================
+     DELETE ROLE MODAL
+========================================================= -->
+
+<div
+    class="rb-modal-backdrop"
+    id="rb-delete-modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="rb-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rb-modal-title"
+    >
+
+        <div class="rb-modal-danger-line"></div>
+
+
+        <div class="rb-modal-body">
+
+
+            <div class="rb-modal-symbol">
+                <i class="bi bi-trash3-fill"></i>
+            </div>
+
+
+            <h3 id="rb-modal-title">
+                Delete this system role?
+            </h3>
+
+
+            <p>
+
+                This is a sensitive access-control operation.
+                Review the role details carefully before continuing.
+
+            </p>
+
+
+            <div class="rb-modal-role">
+
+                <div class="rb-modal-role-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+
+
+                <div>
+
+                    <strong id="rb-modal-role-name">
+                        Role
+                    </strong>
+
+                    <span id="rb-modal-role-meta">
+                        0 users · 0 permissions
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="rb-modal-warning">
+
+                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                <span id="rb-modal-warning-text">
+
+                    Deleting this role removes the role definition
+                    from EduFinance. This action should only be
+                    performed when the role is no longer required.
+
+                </span>
+
+            </div>
+
+
+            <div class="rb-modal-actions">
+
+                <button
+                    type="button"
+                    class="
+                        rb-modal-btn
+                        rb-modal-cancel
+                    "
+                    id="rb-modal-cancel"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="button"
+                    class="
+                        rb-modal-btn
+                        rb-modal-delete
+                    "
+                    id="rb-modal-delete"
+                >
+
+                    <span id="rb-modal-delete-label">
+
+                        <i class="bi bi-trash3 me-1"></i>
+
+                        Delete Role
+
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* =================================================
+           ELEMENTS
+        ================================================= */
+
+        const list =
+            document.getElementById(
+                "rb-role-list"
+            );
+
+
+        if (!list) {
+            return;
+        }
+
+
+        const cards =
+            Array.from(
+                list.querySelectorAll(
+                    ".rb-role-card"
+                )
+            );
+
+
+        const search =
+            document.getElementById(
+                "rb-search"
+            );
+
+
+        const userFilter =
+            document.getElementById(
+                "rb-user-filter"
+            );
+
+
+        const permissionFilter =
+            document.getElementById(
+                "rb-permission-filter"
+            );
+
+
+        const sort =
+            document.getElementById(
+                "rb-sort"
+            );
+
+
+        const clearFilters =
+            document.getElementById(
+                "rb-clear-filters"
+            );
+
+
+        const noResults =
+            document.getElementById(
+                "rb-no-results"
+            );
+
+
+        /* =================================================
+           HELPERS
+        ================================================= */
+
+        function normalize(value) {
+
+            return String(
+                value || ""
+            )
+            .trim()
+            .toLowerCase();
+
+        }
+
+
+        function debounce(
+            callback,
+            wait
+        ) {
+
+            let timer;
+
+
+            return function (...args) {
+
+                clearTimeout(
+                    timer
+                );
+
+
+                timer =
+                    setTimeout(
+                        () =>
+                            callback.apply(
+                                this,
+                                args
+                            ),
+                        wait
+                    );
+
+            };
+
+        }
+
+
+        function number(value) {
+
+            const parsed =
+                parseInt(
+                    value,
+                    10
+                );
+
+
+            return Number.isFinite(
+                parsed
+            )
+                ? parsed
+                : 0;
+
+        }
+
+
+
+        /* =================================================
+           ROLE ACCENT COLORS
+        ================================================= */
+
+        const palettes = [
+
+            "#126cf0",
+            "#7350df",
+            "#0796b7",
+            "#e28311",
+            "#d54870",
+            "#10935a",
+            "#5664da",
+            "#c54d56"
+
+        ];
+
+
+        cards.forEach(
+            function (
+                card,
+                index
+            ) {
+
+                const name =
+                    card.dataset.roleName ||
+                    "Role";
+
+
+                let hash = 0;
+
+
+                for (
+                    let i = 0;
+                    i < name.length;
+                    i++
+                ) {
+
+                    hash =
+                        name.charCodeAt(i) +
+                        (
+                            (hash << 5) -
+                            hash
+                        );
+
+                }
+
+
+                const accent =
+                    palettes[
+                        Math.abs(hash) %
+                        palettes.length
+                    ];
+
+
+                card.style.setProperty(
+                    "--role-accent",
+                    accent
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           AVATAR COLORS
+        ================================================= */
+
+        const avatarPalettes = [
+
+            ["#156bf0", "#174ab5"],
+            ["#774ddd", "#5730b8"],
+            ["#079caf", "#076f80"],
+            ["#df8512", "#b35f06"],
+            ["#d94c72", "#ad3056"],
+            ["#11905a", "#08703f"]
+
+        ];
+
+
+        document
+            .querySelectorAll(
+                ".rb-user-avatar"
+            )
+            .forEach(
+                function (
+                    avatar
+                ) {
+
+                    const name =
+                        avatar.dataset.avatarName ||
+                        "User";
+
+
+                    let hash = 0;
+
+
+                    for (
+                        let i = 0;
+                        i < name.length;
+                        i++
+                    ) {
+
+                        hash =
+                            name.charCodeAt(i) +
+                            (
+                                (hash << 5) -
+                                hash
+                            );
+
+                    }
+
+
+                    const palette =
+                        avatarPalettes[
+                            Math.abs(hash) %
+                            avatarPalettes.length
+                        ];
+
+
+                    avatar.style
+                        .setProperty(
+                            "--avatar-start",
+                            palette[0]
+                        );
+
+
+                    avatar.style
+                        .setProperty(
+                            "--avatar-end",
+                            palette[1]
+                        );
+
+                }
+            );
+
+
+
+        /* =================================================
+           METRICS
+        ================================================= */
+
+        const totalRoles =
+            cards.length;
+
+
+        const totalAssignments =
+            cards.reduce(
+                (
+                    sum,
+                    card
+                ) =>
+                    sum +
+                    number(
+                        card.dataset.users
+                    ),
+                0
+            );
+
+
+        const totalPermissions =
+            cards.reduce(
+                (
+                    sum,
+                    card
+                ) =>
+                    sum +
+                    number(
+                        card.dataset.permissions
+                    ),
+                0
+            );
+
+
+        const maxPermissions =
+            Math.max(
+                0,
+                ...cards.map(
+                    card =>
+                        number(
+                            card.dataset.permissions
+                        )
+                )
+            );
+
+
+        const healthyRoles =
+            cards.filter(
+                card =>
+                    number(
+                        card.dataset.users
+                    ) > 0 &&
+                    number(
+                        card.dataset.permissions
+                    ) > 0
+            ).length;
+
+
+        const reviewRoles =
+            cards.filter(
+                card =>
+                    number(
+                        card.dataset.users
+                    ) === 0 ||
+                    number(
+                        card.dataset.permissions
+                    ) === 0
+            );
+
+
+        const reviewCount =
+            reviewRoles.length;
+
+
+        const healthPercent =
+            totalRoles
+                ? Math.round(
+                    healthyRoles /
+                    totalRoles *
+                    100
+                )
+                : 0;
+
+
+
+        /* =================================================
+           WRITE METRICS
+        ================================================= */
+
+        document.getElementById(
+            "rb-total-roles"
+        ).textContent =
+            totalRoles;
+
+
+        document.getElementById(
+            "rb-total-assignments"
+        ).textContent =
+            totalAssignments;
+
+
+        document.getElementById(
+            "rb-total-permissions"
+        ).textContent =
+            totalPermissions;
+
+
+        document.getElementById(
+            "rb-review-total"
+        ).textContent =
+            reviewCount;
+
+
+        document.getElementById(
+            "rb-console-role-count"
+        ).textContent =
+            totalRoles;
+
+
+        document.getElementById(
+            "rb-console-review-count"
+        ).textContent =
+            reviewCount;
+
+
+        document.getElementById(
+            "rb-total-count-inline"
+        ).textContent =
+            totalRoles;
+
+
+        document.getElementById(
+            "rb-footer-role-count"
+        ).textContent =
+            totalRoles;
+
+
+        document.getElementById(
+            "rb-health-percent"
+        ).textContent =
+            healthPercent +
+            "%";
+
+
+        document.getElementById(
+            "rb-health-fraction"
+        ).textContent =
+            healthyRoles +
+            " of " +
+            totalRoles;
+
+
+        document.getElementById(
+            "rb-health-ring"
+        ).style.setProperty(
+            "--health-angle",
+            (
+                healthPercent *
+                3.6
+            ) +
+            "deg"
+        );
+
+
+
+        /* =================================================
+           KPI ANIMATION
+        ================================================= */
+
+        requestAnimationFrame(
+            function () {
+
+                document.getElementById(
+                    "rb-role-progress"
+                ).style.width =
+                    totalRoles
+                        ? "100%"
+                        : "0%";
+
+
+                document.getElementById(
+                    "rb-assignment-progress"
+                ).style.width =
+                    totalRoles
+                        ? Math.min(
+                            totalAssignments /
+                            Math.max(
+                                totalRoles * 3,
+                                1
+                            ) *
+                            100,
+                            100
+                        ) + "%"
+                        : "0%";
+
+
+                document.getElementById(
+                    "rb-permission-progress"
+                ).style.width =
+                    totalPermissions
+                        ? "100%"
+                        : "0%";
+
+
+                document.getElementById(
+                    "rb-review-progress"
+                ).style.width =
+                    totalRoles
+                        ? (
+                            reviewCount /
+                            totalRoles *
+                            100
+                        ) + "%"
+                        : "0%";
+
+            }
+        );
+
+
+
+        /* =================================================
+           PERMISSION DEPTH METERS
+        ================================================= */
+
+        cards.forEach(
+            function (card) {
+
+                const permissionCount =
+                    number(
+                        card.dataset.permissions
+                    );
+
+
+                const relative =
+                    maxPermissions
+                        ? Math.round(
+                            permissionCount /
+                            maxPermissions *
+                            100
+                        )
+                        : 0;
+
+
+                const progress =
+                    card.querySelector(
+                        "[data-permission-progress]"
+                    );
+
+
+                const label =
+                    card.querySelector(
+                        "[data-permission-relative]"
+                    );
+
+
+                if (label) {
+
+                    label.textContent =
+                        relative + "% relative depth";
+
+                }
+
+
+                requestAnimationFrame(
+                    function () {
+
+                        if (progress) {
+
+                            progress.style.width =
+                                relative + "%";
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* =================================================
+           REVIEW QUEUE
+        ================================================= */
+
+        const reviewList =
+            document.getElementById(
+                "rb-review-list"
+            );
+
+
+        if (
+            reviewList
+        ) {
+
+            if (
+                reviewRoles.length === 0
+            ) {
+
+                reviewList.innerHTML = `
+
+                    <div class="rb-review-empty">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        <span>
+                            No role configuration gaps detected.
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+
+            else {
+
+                reviewRoles
+                    .slice(
+                        0,
+                        5
+                    )
+                    .forEach(
+                        function (
+                            card
+                        ) {
+
+                            const role =
+                                card.dataset.roleName;
+
+
+                            const users =
+                                number(
+                                    card.dataset.users
+                                );
+
+
+                            const permissions =
+                                number(
+                                    card.dataset.permissions
+                                );
+
+
+                            let reason = "";
+
+
+                            if (
+                                users === 0 &&
+                                permissions === 0
+                            ) {
+
+                                reason =
+                                    "No users and no permissions.";
+
+                            }
+
+                            else if (
+                                users === 0
+                            ) {
+
+                                reason =
+                                    "No users currently assigned.";
+
+                            }
+
+                            else {
+
+                                reason =
+                                    "No explicit permissions configured.";
+
+                            }
+
+
+                            const item =
+                                document.createElement(
+                                    "div"
+                                );
+
+
+                            item.className =
+                                "rb-review-item";
+
+
+                            item.innerHTML = `
+
+                                <div class="rb-review-item-icon">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+
+                                <div>
+                                    <strong>${role}</strong>
+                                    <span>${reason}</span>
+                                </div>
+
+                            `;
+
+
+                            reviewList.appendChild(
+                                item
+                            );
+
+                        }
+                    );
+
+            }
+
+        }
+
+
+
+        /* =================================================
+           FILTERING
+        ================================================= */
+
+        function applyFilters() {
+
+            const query =
+                normalize(
+                    search.value
+                );
+
+
+            const userState =
+                userFilter.value;
+
+
+            const permissionState =
+                permissionFilter.value;
+
+
+            let shown = 0;
+
+
+            cards.forEach(
+                function (card) {
+
+                    const users =
+                        number(
+                            card.dataset.users
+                        );
+
+
+                    const permissions =
+                        number(
+                            card.dataset.permissions
+                        );
+
+
+                    const searchable =
+                        normalize(
+                            card.textContent
+                        );
+
+
+                    const searchMatch =
+                        !query ||
+                        searchable.includes(
+                            query
+                        );
+
+
+                    const usersMatch =
+                        !userState ||
+
+                        (
+                            userState === "assigned" &&
+                            users > 0
+                        ) ||
+
+                        (
+                            userState === "unassigned" &&
+                            users === 0
+                        );
+
+
+                    const permissionsMatch =
+                        !permissionState ||
+
+                        (
+                            permissionState === "configured" &&
+                            permissions > 0
+                        ) ||
+
+                        (
+                            permissionState === "empty" &&
+                            permissions === 0
+                        );
+
+
+                    const visible =
+                        searchMatch &&
+                        usersMatch &&
+                        permissionsMatch;
+
+
+                    card.classList.toggle(
+                        "rb-hidden",
+                        !visible
+                    );
+
+
+                    if (visible) {
+                        shown++;
+                    }
+
+                }
+            );
+
+
+            document.getElementById(
+                "rb-visible-count"
+            ).textContent =
+                shown;
+
+
+            document.getElementById(
+                "rb-visible-role-label"
+            ).textContent =
+                shown +
+                (
+                    shown === 1
+                        ? " role"
+                        : " roles"
+                );
+
+
+            noResults.classList.toggle(
+                "visible",
+                totalRoles > 0 &&
+                shown === 0
+            );
+
+
+            const filtersActive =
+                Boolean(
+                    query ||
+                    userState ||
+                    permissionState
+                );
+
+
+            clearFilters.classList.toggle(
+                "visible",
+                filtersActive
+            );
+
+
+            const description = [];
+
+
+            if (query) {
+
+                description.push(
+                    `Search: "${search.value.trim()}"`
+                );
+
+            }
+
+
+            if (userState) {
+
+                description.push(
+                    userState === "assigned"
+                        ? "Has users"
+                        : "No users"
+                );
+
+            }
+
+
+            if (permissionState) {
+
+                description.push(
+                    permissionState === "configured"
+                        ? "Permissions configured"
+                        : "No permissions"
+                );
+
+            }
+
+
+            document.getElementById(
+                "rb-filter-description"
+            ).textContent =
+                description.length
+                    ? description.join(
+                        " · "
+                    )
+                    : "Complete access model";
+
+        }
+
+
+
+        const debouncedSearch =
+            debounce(
+                applyFilters,
+                320
+            );
+
+
+        search.addEventListener(
+            "input",
+            debouncedSearch
+        );
+
+
+        userFilter.addEventListener(
+            "change",
+            applyFilters
+        );
+
+
+        permissionFilter.addEventListener(
+            "change",
+            applyFilters
+        );
+
+
+        clearFilters.addEventListener(
+            "click",
+            function () {
+
+                search.value = "";
+                userFilter.value = "";
+                permissionFilter.value = "";
+
+                applyFilters();
+
+                search.focus();
+
+            }
+        );
+
+
+
+        /* =================================================
+           SORTING
+        ================================================= */
+
+        function sortCards() {
+
+            const mode =
+                sort.value;
+
+
+            const sorted =
+                [...cards].sort(
+                    function (
+                        a,
+                        b
+                    ) {
+
+                        const nameA =
+                            normalize(
+                                a.dataset.roleName
+                            );
+
+
+                        const nameB =
+                            normalize(
+                                b.dataset.roleName
+                            );
+
+
+                        const usersA =
+                            number(
+                                a.dataset.users
+                            );
+
+
+                        const usersB =
+                            number(
+                                b.dataset.users
+                            );
+
+
+                        const permissionsA =
+                            number(
+                                a.dataset.permissions
+                            );
+
+
+                        const permissionsB =
+                            number(
+                                b.dataset.permissions
+                            );
+
+
+                        const attentionA =
+                            (
+                                usersA === 0 ||
+                                permissionsA === 0
+                            )
+                                ? 1
+                                : 0;
+
+
+                        const attentionB =
+                            (
+                                usersB === 0 ||
+                                permissionsB === 0
+                            )
+                                ? 1
+                                : 0;
+
+
+                        if (
+                            mode ===
+                            "name-desc"
+                        ) {
+
+                            return (
+                                nameB.localeCompare(
+                                    nameA
+                                )
+                            );
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "users-desc"
+                        ) {
+
+                            return (
+                                usersB -
+                                usersA ||
+                                nameA.localeCompare(
+                                    nameB
+                                )
+                            );
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "permissions-desc"
+                        ) {
+
+                            return (
+                                permissionsB -
+                                permissionsA ||
+                                nameA.localeCompare(
+                                    nameB
+                                )
+                            );
+
+                        }
+
+
+                        if (
+                            mode ===
+                            "attention-first"
+                        ) {
+
+                            return (
+                                attentionB -
+                                attentionA ||
+                                nameA.localeCompare(
+                                    nameB
+                                )
+                            );
+
+                        }
+
+
+                        return (
+                            nameA.localeCompare(
+                                nameB
+                            )
+                        );
+
+                    }
+                );
+
+
+            sorted.forEach(
+                card =>
+                    list.appendChild(
+                        card
+                    )
+            );
+
+        }
+
+
+        sort.addEventListener(
+            "change",
+            sortCards
+        );
+
+
+
+        /* =================================================
+           USER DRAWERS
+        ================================================= */
+
+        document
+            .querySelectorAll(
+                "[data-user-toggle]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const card =
+                                button.closest(
+                                    ".rb-role-card"
+                                );
+
+
+                            const drawer =
+                                card.querySelector(
+                                    "[data-user-drawer]"
+                                );
+
+
+                            if (!drawer) {
+                                return;
+                            }
+
+
+                            const opening =
+                                !drawer.classList.contains(
+                                    "open"
+                                );
+
+
+                            drawer.classList.toggle(
+                                "open",
+                                opening
+                            );
+
+
+                            button.innerHTML =
+                                opening
+                                    ? (
+                                        '<i class="bi bi-chevron-up"></i>' +
+                                        ' Hide assigned users'
+                                    )
+                                    : (
+                                        '<i class="bi bi-chevron-down"></i>' +
+                                        ' View assigned users'
+                                    );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-drawer-close]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const card =
+                                button.closest(
+                                    ".rb-role-card"
+                                );
+
+
+                            const drawer =
+                                card.querySelector(
+                                    "[data-user-drawer]"
+                                );
+
+
+                            const toggle =
+                                card.querySelector(
+                                    "[data-user-toggle]"
+                                );
+
+
+                            if (drawer) {
+
+                                drawer.classList.remove(
+                                    "open"
+                                );
+
+                            }
+
+
+                            if (toggle) {
+
+                                toggle.innerHTML =
+                                    '<i class="bi bi-chevron-down"></i>' +
+                                    ' View assigned users';
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* =================================================
+           DELETE MODAL
+        ================================================= */
+
+        const modal =
+            document.getElementById(
+                "rb-delete-modal"
+            );
+
+
+        const modalCancel =
+            document.getElementById(
+                "rb-modal-cancel"
+            );
+
+
+        const modalDelete =
+            document.getElementById(
+                "rb-modal-delete"
+            );
+
+
+        const modalDeleteLabel =
+            document.getElementById(
+                "rb-modal-delete-label"
+            );
+
+
+        const modalRoleName =
+            document.getElementById(
+                "rb-modal-role-name"
+            );
+
+
+        const modalRoleMeta =
+            document.getElementById(
+                "rb-modal-role-meta"
+            );
+
+
+        const modalWarning =
+            document.getElementById(
+                "rb-modal-warning-text"
+            );
+
+
+        let pendingDeleteUrl =
+            null;
+
+
+
+        function openDeleteModal(
+            trigger
+        ) {
+
+            const roleName =
+                trigger.dataset.roleName;
+
+
+            const users =
+                number(
+                    trigger.dataset.roleUsers
+                );
+
+
+            const permissions =
+                number(
+                    trigger.dataset.rolePermissions
+                );
+
+
+            pendingDeleteUrl =
+                trigger.dataset.deleteUrl;
+
+
+            modalRoleName.textContent =
+                roleName;
+
+
+            modalRoleMeta.textContent =
+                users +
+                (
+                    users === 1
+                        ? " assigned user"
+                        : " assigned users"
+                ) +
+                " · " +
+                permissions +
+                (
+                    permissions === 1
+                        ? " permission"
+                        : " permissions"
+                );
+
+
+            if (
+                users > 0
+            ) {
+
+                modalWarning.textContent =
+                    "This role currently has " +
+                    users +
+                    (
+                        users === 1
+                            ? " assigned user. "
+                            : " assigned users. "
+                    ) +
+                    "Deleting it may affect their access configuration. " +
+                    "Confirm that the role is no longer required before continuing.";
+
+            }
+
+            else {
+
+                modalWarning.textContent =
+                    "Deleting this role permanently removes the role definition from EduFinance. " +
+                    "Continue only if this access tier is no longer required.";
+
+            }
+
+
+            modal.classList.add(
+                "open"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            setTimeout(
+                () =>
+                    modalCancel.focus(),
+                40
+            );
+
+        }
+
+
+
+        function closeDeleteModal() {
+
+            if (
+                modalDelete.classList.contains(
+                    "loading"
+                )
+            ) {
+                return;
+            }
+
+
+            modal.classList.remove(
+                "open"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            pendingDeleteUrl =
+                null;
+
+        }
+
+
+
+        document
+            .querySelectorAll(
+                ".rb-delete-trigger"
+            )
+            .forEach(
+                function (
+                    trigger
+                ) {
+
+                    trigger.addEventListener(
+                        "click",
+                        function (
+                            event
+                        ) {
+
+                            event.preventDefault();
+
+                            openDeleteModal(
+                                trigger
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+        modalCancel.addEventListener(
+            "click",
+            closeDeleteModal
+        );
+
+
+        modal.addEventListener(
+            "click",
+            function (
+                event
+            ) {
+
+                if (
+                    event.target ===
+                    modal
+                ) {
+
+                    closeDeleteModal();
+
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            function (
+                event
+            ) {
+
+                if (
+                    event.key ===
+                    "Escape" &&
+                    modal.classList.contains(
+                        "open"
+                    )
+                ) {
+
+                    closeDeleteModal();
+
+                }
+
+            }
+        );
+
+
+        modalDelete.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    !pendingDeleteUrl
+                ) {
+                    return;
+                }
+
+
+                modalDelete.classList.add(
+                    "loading"
+                );
+
+
+                modalDeleteLabel.innerHTML =
+                    '<i class="bi bi-arrow-repeat rb-spin me-1"></i>' +
+                    ' Deleting role...';
+
+
+                window.location.href =
+                    pendingDeleteUrl;
+
+            }
+        );
+
+
+
+        /* =================================================
+           INITIALIZATION
+        ================================================= */
+
+        sortCards();
+
+        applyFilters();
+
+    }
+);
+
+</script>
+
 {% endblock %}

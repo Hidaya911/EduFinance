@@ -1,0 +1,4735 @@
+{% extends 'base.html' %}
+
+{% block title %}
+User Management | EduFinance
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+/* ==========================================================
+   EDUFINANCE — USER MANAGEMENT COMMAND CENTER
+   ========================================================== */
+
+:root {
+    --um-bg: #f4f7fb;
+    --um-surface: #ffffff;
+    --um-surface-soft: #f8faff;
+    --um-surface-blue: #f3f7ff;
+
+    --um-navy-950: #06172b;
+    --um-navy-900: #081d35;
+    --um-navy-850: #0b2544;
+    --um-navy-800: #0e2d50;
+
+    --um-blue-700: #0758dd;
+    --um-blue-650: #0868f5;
+    --um-blue-600: #1473ff;
+    --um-blue-500: #3288ff;
+    --um-blue-100: #e7f0ff;
+    --um-blue-50: #f3f7ff;
+
+    --um-cyan-600: #089fc6;
+    --um-purple-600: #7b55eb;
+
+    --um-green-700: #078149;
+    --um-green-600: #0aa35e;
+    --um-green-100: #dcf8e9;
+
+    --um-red-700: #c9344b;
+    --um-red-600: #e74358;
+    --um-red-100: #ffe7eb;
+
+    --um-orange-700: #c56b06;
+    --um-orange-600: #ed850b;
+    --um-orange-100: #fff0d8;
+
+    --um-text: #101c2e;
+    --um-text-2: #41506a;
+    --um-text-3: #78859a;
+
+    --um-border: #e2e8f2;
+    --um-border-soft: #edf1f7;
+
+    --um-shadow-sm:
+        0 5px 18px rgba(18, 45, 80, .055);
+
+    --um-shadow:
+        0 18px 50px rgba(15, 42, 75, .09);
+
+    --um-shadow-xl:
+        0 30px 80px rgba(16, 44, 82, .14);
+
+    --um-radius-sm: 12px;
+    --um-radius-md: 17px;
+    --um-radius-lg: 24px;
+    --um-radius-xl: 32px;
+
+    --um-transition:
+        180ms cubic-bezier(.2, .7, .3, 1);
+}
+
+
+/* ==========================================================
+   PAGE
+   ========================================================== */
+
+.user-management-page {
+    position: relative;
+    min-height: calc(100vh - 70px);
+    margin: -24px;
+    padding:
+        clamp(24px, 3vw, 42px)
+        clamp(20px, 3vw, 46px)
+        60px;
+    background:
+        radial-gradient(
+            circle at 88% 2%,
+            rgba(43, 126, 255, .10),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 7% 16%,
+            rgba(92, 195, 255, .075),
+            transparent 22%
+        ),
+        linear-gradient(
+            180deg,
+            #f8fbff 0%,
+            var(--um-bg) 54%,
+            #f6f8fc 100%
+        );
+    overflow: hidden;
+}
+
+.user-management-page::before {
+    content: "";
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    top: -250px;
+    right: -170px;
+    border-radius: 50%;
+    border: 1px solid rgba(36, 115, 242, .11);
+    pointer-events: none;
+}
+
+.user-management-page::after {
+    content: "";
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    top: -165px;
+    right: -70px;
+    border-radius: 50%;
+    border: 1px solid rgba(36, 115, 242, .10);
+    pointer-events: none;
+}
+
+.um-shell {
+    position: relative;
+    z-index: 2;
+    max-width: 1720px;
+    margin: 0 auto;
+}
+
+
+/* ==========================================================
+   MESSAGE CENTER
+   ========================================================== */
+
+.um-message-stack {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.um-message {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-height: 58px;
+    padding: 13px 48px 13px 16px;
+    border: 1px solid var(--um-border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: var(--um-shadow-sm);
+    backdrop-filter: blur(16px);
+}
+
+.um-message-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--um-blue-100);
+    color: var(--um-blue-700);
+}
+
+.um-message-success .um-message-icon {
+    background: var(--um-green-100);
+    color: var(--um-green-700);
+}
+
+.um-message-error .um-message-icon {
+    background: var(--um-red-100);
+    color: var(--um-red-700);
+}
+
+.um-message-warning .um-message-icon {
+    background: var(--um-orange-100);
+    color: var(--um-orange-700);
+}
+
+.um-message-copy {
+    min-width: 0;
+    flex: 1;
+}
+
+.um-message-copy strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: .86rem;
+    color: var(--um-text);
+}
+
+.um-message-copy span {
+    font-size: .82rem;
+    color: var(--um-text-2);
+}
+
+.um-message-close {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    transform: translateY(-50%);
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--um-text-3);
+    transition: var(--um-transition);
+}
+
+.um-message-close:hover {
+    background: #f0f4fa;
+    color: var(--um-text);
+}
+
+
+/* ==========================================================
+   BREADCRUMB
+   ========================================================== */
+
+.um-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 22px;
+    color: var(--um-text-3);
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.um-breadcrumb a {
+    color: var(--um-text-3);
+    text-decoration: none;
+    transition: color var(--um-transition);
+}
+
+.um-breadcrumb a:hover {
+    color: var(--um-blue-650);
+}
+
+.um-breadcrumb .current {
+    color: var(--um-blue-650);
+}
+
+.um-breadcrumb i {
+    font-size: .65rem;
+}
+
+
+/* ==========================================================
+   HERO
+   ========================================================== */
+
+.um-hero {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.5fr)
+        minmax(300px, .5fr);
+    gap: 30px;
+    min-height: 260px;
+    margin-bottom: 24px;
+    padding:
+        clamp(28px, 3vw, 44px);
+    border: 1px solid rgba(215, 225, 240, .88);
+    border-radius: var(--um-radius-xl);
+    background:
+        linear-gradient(
+            118deg,
+            rgba(255,255,255,.98),
+            rgba(247,250,255,.97)
+        );
+    box-shadow:
+        0 24px 64px rgba(15, 44, 84, .085);
+}
+
+.um-hero::before {
+    content: "";
+    position: absolute;
+    width: 560px;
+    height: 560px;
+    top: -335px;
+    right: -150px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(33, 113, 244, .15),
+            rgba(33, 113, 244, 0) 67%
+        );
+}
+
+.um-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .35;
+    background-image:
+        linear-gradient(
+            rgba(27, 102, 230, .03) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(27, 102, 230, .03) 1px,
+            transparent 1px
+        );
+    background-size: 30px 30px;
+    mask-image:
+        linear-gradient(
+            90deg,
+            transparent,
+            #000 55%
+        );
+}
+
+.um-hero-copy {
+    position: relative;
+    z-index: 2;
+    align-self: center;
+}
+
+.um-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 15px;
+    padding: 7px 11px;
+    border: 1px solid #dce8fb;
+    border-radius: 999px;
+    background: #f6f9ff;
+    color: var(--um-blue-700);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.um-eyebrow-pulse {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--um-green-600);
+}
+
+.um-eyebrow-pulse::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 1px solid rgba(10, 163, 94, .32);
+    border-radius: 50%;
+    animation: umPulse 2.2s infinite;
+}
+
+@keyframes umPulse {
+    0% {
+        transform: scale(.75);
+        opacity: .8;
+    }
+
+    70%,
+    100% {
+        transform: scale(1.65);
+        opacity: 0;
+    }
+}
+
+.um-hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.um-hero-symbol {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #d6e4fd;
+    border-radius: 20px;
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #ffffff
+        );
+    color: var(--um-blue-650);
+    font-size: 1.65rem;
+    box-shadow:
+        inset 0 1px 0 #fff,
+        0 13px 32px rgba(45, 116, 227, .12);
+}
+
+.um-hero h1 {
+    margin: 0;
+    color: var(--um-navy-950);
+    font-size:
+        clamp(2rem, 3vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.04;
+}
+
+.um-hero-description {
+    max-width: 760px;
+    margin: 16px 0 0 80px;
+    color: var(--um-text-2);
+    font-size: clamp(.92rem, 1vw, 1.02rem);
+    line-height: 1.75;
+}
+
+.um-hero-actions {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+.um-add-user {
+    position: relative;
+    min-width: 190px;
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 13px 18px;
+    border: 1px solid #0663ec;
+    border-radius: 14px;
+    background:
+        linear-gradient(
+            135deg,
+            #0b6df7,
+            #0758e0
+        );
+    color: #fff;
+    text-decoration: none;
+    font-size: .88rem;
+    font-weight: 700;
+    box-shadow:
+        0 13px 29px rgba(9, 99, 231, .24);
+    transition:
+        transform var(--um-transition),
+        box-shadow var(--um-transition),
+        filter var(--um-transition);
+}
+
+.um-add-user:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow:
+        0 18px 38px rgba(9, 99, 231, .31);
+}
+
+.um-add-user.loading {
+    pointer-events: none;
+    filter: saturate(.7);
+}
+
+.um-add-user .loading-content {
+    display: none;
+}
+
+.um-add-user.loading .normal-content {
+    display: none;
+}
+
+.um-add-user.loading .loading-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.um-spin {
+    animation: umSpin .85s linear infinite;
+}
+
+@keyframes umSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.um-hero-mini {
+    width: min(100%, 290px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.um-hero-mini-item {
+    min-height: 62px;
+    padding: 11px 13px;
+    border: 1px solid var(--um-border);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .75);
+    backdrop-filter: blur(8px);
+}
+
+.um-hero-mini-item span {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--um-text-3);
+    font-size: .66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.um-hero-mini-item strong {
+    color: var(--um-text);
+    font-size: .86rem;
+}
+
+
+/* ==========================================================
+   KPI CARDS
+   ========================================================== */
+
+.um-kpi-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.um-kpi {
+    position: relative;
+    overflow: hidden;
+    min-height: 166px;
+    padding: 20px;
+    border: 1px solid var(--um-border);
+    border-radius: 20px;
+    background: var(--um-surface);
+    box-shadow: var(--um-shadow-sm);
+    transition:
+        transform var(--um-transition),
+        box-shadow var(--um-transition),
+        border-color var(--um-transition);
+}
+
+.um-kpi:hover {
+    transform: translateY(-4px);
+    border-color: #d3dff0;
+    box-shadow: var(--um-shadow);
+}
+
+.um-kpi::after {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    right: -60px;
+    bottom: -60px;
+    border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            var(--kpi-glow),
+            transparent 72%
+        );
+    opacity: .8;
+}
+
+.um-kpi-blue {
+    --kpi-color: var(--um-blue-650);
+    --kpi-soft: #edf4ff;
+    --kpi-glow: rgba(44, 126, 255, .18);
+}
+
+.um-kpi-green {
+    --kpi-color: var(--um-green-600);
+    --kpi-soft: #eafaf2;
+    --kpi-glow: rgba(12, 169, 99, .16);
+}
+
+.um-kpi-orange {
+    --kpi-color: var(--um-orange-600);
+    --kpi-soft: #fff5e8;
+    --kpi-glow: rgba(237, 133, 11, .17);
+}
+
+.um-kpi-purple {
+    --kpi-color: var(--um-purple-600);
+    --kpi-soft: #f3efff;
+    --kpi-glow: rgba(123, 85, 235, .17);
+}
+
+.um-kpi-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.um-kpi-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: var(--kpi-soft);
+    color: var(--kpi-color);
+    font-size: 1rem;
+}
+
+.um-kpi-caption {
+    color: var(--um-text-3);
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.um-kpi-value {
+    margin-top: 2px;
+    color: var(--um-text);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.04em;
+}
+
+.um-kpi-foot {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.um-kpi-note {
+    color: var(--um-text-3);
+    font-size: .72rem;
+}
+
+.um-kpi-percent {
+    color: var(--kpi-color);
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.um-kpi-track {
+    height: 5px;
+    margin-top: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf1f6;
+}
+
+.um-kpi-progress {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--kpi-color);
+    transition:
+        width .8s cubic-bezier(.2,.8,.25,1);
+}
+
+
+/* ==========================================================
+   MAIN GRID
+   ========================================================== */
+
+.um-workspace {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        310px;
+    gap: 20px;
+    align-items: start;
+}
+
+
+/* ==========================================================
+   TABLE COMMAND CENTER
+   ========================================================== */
+
+.um-command-center {
+    min-width: 0;
+    border: 1px solid var(--um-border);
+    border-radius: var(--um-radius-lg);
+    background: var(--um-surface);
+    box-shadow: var(--um-shadow);
+    overflow: hidden;
+}
+
+.um-command-toolbar {
+    padding: 17px;
+    border-bottom: 1px solid var(--um-border-soft);
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fbfcfe
+        );
+}
+
+.um-toolbar-top {
+    display: grid;
+    grid-template-columns:
+        minmax(240px, 1.5fr)
+        minmax(150px, .65fr)
+        minmax(145px, .62fr)
+        minmax(155px, .72fr)
+        auto;
+    gap: 10px;
+}
+
+.um-control {
+    position: relative;
+}
+
+.um-control > i {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: #8391a7;
+    font-size: .88rem;
+    pointer-events: none;
+}
+
+.um-search-input,
+.um-select {
+    width: 100%;
+    min-height: 43px;
+    border: 1px solid #dce4ef;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--um-text);
+    font-size: .79rem;
+    outline: 0;
+    transition:
+        border-color var(--um-transition),
+        box-shadow var(--um-transition),
+        background var(--um-transition);
+}
+
+.um-search-input {
+    padding: 10px 14px 10px 40px;
+}
+
+.um-search-input::placeholder {
+    color: #98a4b6;
+}
+
+.um-select {
+    padding: 10px 36px 10px 13px;
+    cursor: pointer;
+}
+
+.um-search-input:focus,
+.um-select:focus {
+    border-color: #8bb9ff;
+    box-shadow:
+        0 0 0 4px rgba(47, 127, 255, .10);
+}
+
+.um-tool-btn {
+    min-height: 43px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 13px;
+    border: 1px solid #dce4ef;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--um-text-2);
+    font-size: .76rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: var(--um-transition);
+}
+
+.um-tool-btn:hover {
+    border-color: #b9c9df;
+    background: #f9fbff;
+    color: var(--um-blue-700);
+}
+
+.um-toolbar-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.um-result-info {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: var(--um-text-3);
+    font-size: .72rem;
+}
+
+.um-result-info strong {
+    color: var(--um-text);
+}
+
+.um-result-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #b9c4d2;
+}
+
+.um-clear-filters {
+    display: none;
+    border: 0;
+    background: transparent;
+    color: var(--um-blue-650);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.um-clear-filters.visible {
+    display: inline-flex;
+}
+
+
+/* ==========================================================
+   BULK SELECTION
+   ========================================================== */
+
+.um-selection-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 13px;
+    padding: 11px 13px;
+    border: 1px solid #d6e4fa;
+    border-radius: 12px;
+    background:
+        linear-gradient(
+            90deg,
+            #f4f8ff,
+            #f8fbff
+        );
+}
+
+.um-selection-bar.visible {
+    display: flex;
+}
+
+.um-selection-copy {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--um-text-2);
+    font-size: .75rem;
+}
+
+.um-selection-copy i {
+    color: var(--um-blue-650);
+}
+
+.um-selection-copy strong {
+    color: var(--um-text);
+}
+
+.um-selection-clear {
+    border: 0;
+    background: transparent;
+    color: var(--um-blue-650);
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+
+/* ==========================================================
+   TABLE
+   ========================================================== */
+
+.um-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.um-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 980px;
+}
+
+.um-table thead th {
+    height: 50px;
+    padding: 0 13px;
+    border-bottom: 1px solid var(--um-border);
+    background: #fbfcfe;
+    color: #65748c;
+    font-size: .66rem;
+    font-weight: 800;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.um-table thead th:first-child {
+    padding-left: 18px;
+}
+
+.um-table thead th:last-child {
+    padding-right: 18px;
+}
+
+.um-table tbody tr {
+    position: relative;
+    background: #fff;
+    transition:
+        background var(--um-transition),
+        box-shadow var(--um-transition);
+}
+
+.um-table tbody tr:not(.um-hidden):hover {
+    background: #f9fbff;
+}
+
+.um-table tbody td {
+    height: 70px;
+    padding: 10px 13px;
+    border-bottom: 1px solid #edf1f5;
+    vertical-align: middle;
+}
+
+.um-table tbody td:first-child {
+    padding-left: 18px;
+}
+
+.um-table tbody td:last-child {
+    padding-right: 18px;
+}
+
+.um-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 195px;
+}
+
+.um-avatar {
+    position: relative;
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background:
+        linear-gradient(
+            145deg,
+            #0e6bf3,
+            #164cc0
+        );
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 800;
+    box-shadow:
+        0 7px 18px rgba(25, 96, 213, .19);
+}
+
+.um-avatar::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid rgba(255,255,255,.23);
+    border-radius: 10px;
+}
+
+.um-user-meta {
+    min-width: 0;
+}
+
+.um-user-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--um-text);
+    font-size: .79rem;
+    font-weight: 750;
+}
+
+.um-user-sub {
+    margin-top: 3px;
+    color: var(--um-text-3);
+    font-size: .66rem;
+}
+
+.um-username {
+    color: #ea4960;
+    font-size: .76rem;
+    font-weight: 600;
+}
+
+.um-email {
+    display: inline-block;
+    max-width: 225px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--um-text-2);
+    font-size: .74rem;
+}
+
+.um-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 165px;
+    min-height: 27px;
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: #edf4ff;
+    color: var(--um-blue-700);
+    font-size: .67rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.um-role-pill::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    flex: 0 0 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .65;
+}
+
+.um-role-pill[data-role*="School"] {
+    background: #f2edff;
+    color: #7450dd;
+}
+
+.um-role-pill[data-role*="Accountant"] {
+    background: #e7f8fc;
+    color: #087f9c;
+}
+
+.um-role-pill[data-role*="Cashier"] {
+    background: #f2ebff;
+    color: #8155da;
+}
+
+.um-role-pill[data-role*="Auditor"] {
+    background: #fff1df;
+    color: #b56808;
+}
+
+.um-role-pill[data-role="No Role"],
+.um-role-pill[data-role=""] {
+    background: #eef1f5;
+    color: #6e798b;
+}
+
+.um-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 27px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: .66rem;
+    font-weight: 800;
+}
+
+.um-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.um-status-active {
+    background: var(--um-green-100);
+    color: var(--um-green-700);
+}
+
+.um-status-active::before {
+    background: var(--um-green-600);
+    box-shadow:
+        0 0 0 3px rgba(10, 163, 94, .11);
+}
+
+.um-status-inactive {
+    background: var(--um-red-100);
+    color: var(--um-red-700);
+}
+
+.um-status-inactive::before {
+    background: var(--um-red-600);
+    box-shadow:
+        0 0 0 3px rgba(231, 67, 88, .10);
+}
+
+.um-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.um-action-btn {
+    min-height: 33px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid #dce4ef;
+    border-radius: 9px;
+    background: #fff;
+    color: var(--um-text-2);
+    text-decoration: none;
+    font-size: .69rem;
+    font-weight: 750;
+    transition:
+        transform var(--um-transition),
+        border-color var(--um-transition),
+        background var(--um-transition),
+        color var(--um-transition);
+}
+
+.um-action-btn:hover {
+    transform: translateY(-1px);
+}
+
+.um-action-edit {
+    border-color: #b9d5ff;
+    color: var(--um-blue-650);
+}
+
+.um-action-edit:hover {
+    background: #f2f7ff;
+    border-color: #8bb9ff;
+    color: var(--um-blue-700);
+}
+
+.um-action-toggle-active {
+    border-color: #f2ca92;
+    color: #ad690f;
+}
+
+.um-action-toggle-active:hover {
+    background: #fff8ee;
+    border-color: #e9af5c;
+    color: #955708;
+}
+
+.um-action-toggle-inactive {
+    border-color: #a9ddc1;
+    color: #087b48;
+}
+
+.um-action-toggle-inactive:hover {
+    background: #effbf5;
+    border-color: #79c79f;
+    color: #076f41;
+}
+
+
+/* ==========================================================
+   CHECKBOX
+   ========================================================== */
+
+.um-check {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #cdd7e5;
+    border-radius: 5px;
+    cursor: pointer;
+    accent-color: var(--um-blue-650);
+}
+
+
+/* ==========================================================
+   EMPTY / NO RESULTS
+   ========================================================== */
+
+.um-native-empty,
+.um-no-results {
+    padding: 54px 20px;
+    text-align: center;
+}
+
+.um-empty-visual {
+    position: relative;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 17px;
+    border: 1px solid #dce7f7;
+    border-radius: 24px;
+    background:
+        linear-gradient(
+            145deg,
+            #f1f6ff,
+            #fff
+        );
+    color: var(--um-blue-650);
+    font-size: 1.55rem;
+}
+
+.um-empty-visual::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    right: -4px;
+    bottom: -3px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #ccd7e8;
+}
+
+.um-native-empty h3,
+.um-no-results h3 {
+    margin: 0 0 7px;
+    color: var(--um-text);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.um-native-empty p,
+.um-no-results p {
+    max-width: 430px;
+    margin: 0 auto;
+    color: var(--um-text-3);
+    font-size: .76rem;
+    line-height: 1.65;
+}
+
+.um-no-results {
+    display: none;
+}
+
+.um-no-results.visible {
+    display: block;
+}
+
+.um-hidden {
+    display: none !important;
+}
+
+
+/* ==========================================================
+   TABLE FOOTER
+   ========================================================== */
+
+.um-table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    min-height: 64px;
+    padding: 13px 18px;
+    border-top: 1px solid var(--um-border-soft);
+    background: #fbfcfe;
+}
+
+.um-footer-count {
+    color: var(--um-text-3);
+    font-size: .71rem;
+}
+
+.um-footer-count strong {
+    color: var(--um-text);
+}
+
+.um-footer-meta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.um-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 6px 9px;
+    border: 1px solid #e0e7f0;
+    border-radius: 9px;
+    background: #fff;
+    color: var(--um-text-2);
+    font-size: .67rem;
+    font-weight: 650;
+}
+
+.um-footer-badge i {
+    color: var(--um-blue-650);
+}
+
+
+/* ==========================================================
+   INTELLIGENCE SIDEBAR
+   ========================================================== */
+
+.um-intelligence {
+    display: grid;
+    gap: 16px;
+    position: sticky;
+    top: 90px;
+}
+
+.um-side-card {
+    position: relative;
+    overflow: hidden;
+    padding: 19px;
+    border: 1px solid var(--um-border);
+    border-radius: 20px;
+    background: var(--um-surface);
+    box-shadow: var(--um-shadow-sm);
+}
+
+.um-side-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+.um-side-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #edf4ff;
+    color: var(--um-blue-650);
+}
+
+.um-side-head h3 {
+    margin: 0;
+    color: var(--um-text);
+    font-size: .81rem;
+    font-weight: 800;
+}
+
+.um-side-head p {
+    margin: 2px 0 0;
+    color: var(--um-text-3);
+    font-size: .64rem;
+}
+
+.um-health {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 13px;
+    align-items: center;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--um-border-soft);
+}
+
+.um-health-ring {
+    position: relative;
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+        conic-gradient(
+            var(--um-blue-600) 0deg,
+            var(--um-blue-600) var(--health-angle, 0deg),
+            #e7edf5 var(--health-angle, 0deg),
+            #e7edf5 360deg
+        );
+}
+
+.um-health-ring::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.um-health-value {
+    position: relative;
+    z-index: 2;
+    color: var(--um-text);
+    text-align: center;
+}
+
+.um-health-value strong {
+    display: block;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.um-health-value span {
+    font-size: .58rem;
+    color: var(--um-text-3);
+}
+
+.um-health-copy span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--um-text-3);
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.um-health-copy strong {
+    display: block;
+    color: var(--um-text);
+    font-size: .88rem;
+}
+
+.um-health-copy small {
+    display: block;
+    margin-top: 4px;
+    color: var(--um-text-3);
+    font-size: .63rem;
+    line-height: 1.45;
+}
+
+.um-role-distribution {
+    display: grid;
+    gap: 11px;
+    margin-top: 16px;
+}
+
+.um-role-line {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.um-role-line-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--um-text-2);
+    font-size: .68rem;
+}
+
+.um-role-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: var(--um-blue-600);
+}
+
+.um-role-line-value {
+    min-width: 22px;
+    text-align: right;
+    color: var(--um-text);
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.um-side-callout {
+    padding: 17px;
+    border: 1px solid #dce7f9;
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            145deg,
+            #f7faff,
+            #fff
+        );
+}
+
+.um-callout-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 13px;
+    border: 1px solid #d7e5fb;
+    border-radius: 12px;
+    background: #edf4ff;
+    color: var(--um-blue-650);
+}
+
+.um-side-callout h4 {
+    margin: 0 0 7px;
+    color: var(--um-text);
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.um-side-callout p {
+    margin: 0;
+    color: var(--um-text-3);
+    font-size: .68rem;
+    line-height: 1.65;
+}
+
+.um-security-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.um-security-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--um-text-2);
+    font-size: .65rem;
+    line-height: 1.5;
+}
+
+.um-security-item i {
+    margin-top: 2px;
+    color: var(--um-green-600);
+}
+
+
+/* ==========================================================
+   MODAL
+   ========================================================== */
+
+.um-modal-backdrop {
+    position: fixed;
+    z-index: 10090;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background:
+        rgba(4, 18, 36, .58);
+    backdrop-filter: blur(8px);
+}
+
+.um-modal-backdrop.open {
+    display: flex;
+    animation:
+        umBackdropIn .18s ease-out;
+}
+
+@keyframes umBackdropIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.um-modal {
+    position: relative;
+    width: min(100%, 470px);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.5);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow:
+        0 34px 95px rgba(0, 18, 45, .28);
+    transform-origin: center;
+    animation:
+        umModalIn .24s cubic-bezier(.2,.8,.25,1);
+}
+
+@keyframes umModalIn {
+    from {
+        opacity: 0;
+        transform: scale(.96) translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.um-modal-top {
+    height: 5px;
+    background:
+        linear-gradient(
+            90deg,
+            #116df2,
+            #2e8dff
+        );
+}
+
+.um-modal-body {
+    padding: 27px;
+}
+
+.um-modal-symbol {
+    width: 53px;
+    height: 53px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 17px;
+    border-radius: 16px;
+    background: #fff4e6;
+    color: #d5790a;
+    font-size: 1.15rem;
+}
+
+.um-modal-symbol.activate {
+    background: #e8f8ef;
+    color: #07834a;
+}
+
+.um-modal h3 {
+    margin: 0 0 8px;
+    color: var(--um-text);
+    font-size: 1.16rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+.um-modal p {
+    margin: 0;
+    color: var(--um-text-2);
+    font-size: .78rem;
+    line-height: 1.7;
+}
+
+.um-modal-user {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 19px 0;
+    padding: 13px;
+    border: 1px solid var(--um-border);
+    border-radius: 13px;
+    background: #f8fafe;
+}
+
+.um-modal-user-avatar {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: var(--um-navy-850);
+    color: #fff;
+    font-size: .68rem;
+    font-weight: 800;
+}
+
+.um-modal-user strong {
+    display: block;
+    color: var(--um-text);
+    font-size: .75rem;
+}
+
+.um-modal-user span {
+    display: block;
+    margin-top: 2px;
+    color: var(--um-text-3);
+    font-size: .65rem;
+}
+
+.um-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 21px;
+}
+
+.um-modal-btn {
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 11px;
+    font-size: .73rem;
+    font-weight: 800;
+    transition: var(--um-transition);
+}
+
+.um-modal-cancel {
+    border: 1px solid var(--um-border);
+    background: #fff;
+    color: var(--um-text-2);
+}
+
+.um-modal-confirm {
+    border: 1px solid #d67908;
+    background:
+        linear-gradient(
+            135deg,
+            #ee8a10,
+            #d97804
+        );
+    color: #fff;
+}
+
+.um-modal-confirm.activate {
+    border-color: #07864b;
+    background:
+        linear-gradient(
+            135deg,
+            #0ba35e,
+            #078049
+        );
+}
+
+.um-modal-confirm.loading {
+    pointer-events: none;
+    opacity: .75;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 1400px) {
+
+    .um-workspace {
+        grid-template-columns:
+            minmax(0, 1fr)
+            280px;
+    }
+
+    .um-toolbar-top {
+        grid-template-columns:
+            minmax(220px, 1.4fr)
+            150px
+            145px
+            155px;
+    }
+
+    .um-export-btn {
+        grid-column: 4;
+    }
+
+}
+
+@media (max-width: 1180px) {
+
+    .um-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .um-intelligence {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        position: static;
+    }
+
+    .um-kpi-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .user-management-page {
+        margin: -16px;
+        padding:
+            22px 16px
+            50px;
+    }
+
+    .um-hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .um-hero-actions {
+        align-items: flex-start;
+    }
+
+    .um-hero-mini {
+        width: 100%;
+    }
+
+    .um-hero-description {
+        margin-left: 0;
+    }
+
+    .um-toolbar-top {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .um-control-search {
+        grid-column:
+            1 / -1;
+    }
+
+    .um-export-btn {
+        grid-column: auto;
+    }
+
+    .um-intelligence {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .um-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .um-toolbar-top {
+        grid-template-columns: 1fr;
+    }
+
+    .um-control-search,
+    .um-export-btn {
+        grid-column: auto;
+    }
+
+    .um-hero-title-row {
+        align-items: flex-start;
+    }
+
+    .um-hero-symbol {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+        border-radius: 16px;
+        font-size: 1.25rem;
+    }
+
+    .um-hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .um-toolbar-bottom,
+    .um-table-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .um-selection-bar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
+
+/* ==========================================================
+   FINAL DESKTOP / LAPTOP LAYOUT POLISH
+   ========================================================== */
+
+/*
+   Wide monitors:
+   Table + intelligence rail side-by-side.
+*/
+@media (min-width: 1551px) {
+
+    .um-workspace {
+        grid-template-columns:
+            minmax(0, 1fr)
+            300px;
+        gap: 22px;
+    }
+
+}
+
+
+/*
+   Normal laptops / desktop screens:
+   Give the user directory the full width.
+*/
+@media (max-width: 1550px) {
+
+    .um-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .um-intelligence {
+        position: static;
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+        margin-top: 2px;
+    }
+
+    .um-command-center {
+        width: 100%;
+    }
+
+}
+
+
+/* ==========================================================
+   TABLE WIDTH REFINEMENT
+   ========================================================== */
+
+.um-table {
+    min-width: 900px;
+}
+
+
+/* Give important columns predictable space */
+
+.um-table th:nth-child(2),
+.um-table td:nth-child(2) {
+    min-width: 185px;
+}
+
+.um-table th:nth-child(3),
+.um-table td:nth-child(3) {
+    min-width: 130px;
+}
+
+.um-table th:nth-child(4),
+.um-table td:nth-child(4) {
+    min-width: 190px;
+}
+
+.um-table th:nth-child(5),
+.um-table td:nth-child(5) {
+    min-width: 125px;
+}
+
+.um-table th:nth-child(6),
+.um-table td:nth-child(6) {
+    min-width: 105px;
+}
+
+.um-table th:nth-child(7),
+.um-table td:nth-child(7) {
+    min-width: 170px;
+}
+
+
+/* ==========================================================
+   TOOLBAR POLISH
+   ========================================================== */
+
+@media (min-width: 1050px) {
+
+    .um-toolbar-top {
+        grid-template-columns:
+            minmax(270px, 1.7fr)
+            minmax(145px, .7fr)
+            minmax(145px, .7fr)
+            minmax(150px, .75fr)
+            auto;
+        align-items: center;
+    }
+
+    .um-export-btn {
+        grid-column: auto;
+    }
+
+}
+
+
+/* ==========================================================
+   DIRECTORY TABLE VISUAL IMPROVEMENTS
+   ========================================================== */
+
+.um-table tbody tr {
+    isolation: isolate;
+}
+
+.um-table tbody tr:hover {
+    position: relative;
+    z-index: 2;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(240, 246, 255, .92),
+            rgba(249, 252, 255, .96)
+        );
+}
+
+.um-table tbody tr:hover td:first-child {
+    box-shadow:
+        inset 3px 0 0
+        var(--um-blue-600);
+}
+
+
+/* Make table headings more premium */
+
+.um-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+
+    height: 53px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fbfdff,
+            #f7f9fc
+        );
+
+    box-shadow:
+        inset 0 -1px 0
+        var(--um-border);
+}
+
+
+/* ==========================================================
+   ACTIONS IMPROVEMENT
+   ========================================================== */
+
+.um-actions {
+    min-width: 155px;
+}
+
+.um-action-btn {
+    min-height: 35px;
+}
+
+
+/* ==========================================================
+   HERO PROPORTION POLISH
+   ========================================================== */
+
+.um-hero {
+    min-height: 230px;
+}
+
+.um-hero-description {
+    max-width: 700px;
+}
+
+
+/* ==========================================================
+   KPI VISUAL DEPTH
+   ========================================================== */
+
+.um-kpi {
+    box-shadow:
+        0 8px 25px rgba(18, 45, 80, .055),
+        inset 0 1px 0 rgba(255, 255, 255, .95);
+}
+
+.um-kpi:hover {
+    transform:
+        translateY(-5px)
+        scale(1.005);
+
+    box-shadow:
+        0 22px 46px
+        rgba(21, 53, 92, .105);
+}
+
+
+/* ==========================================================
+   INTELLIGENCE CARDS WHEN UNDER TABLE
+   ========================================================== */
+
+@media (max-width: 1550px) and (min-width: 901px) {
+
+    .um-intelligence {
+        margin-top: 0;
+    }
+
+    .um-side-card,
+    .um-side-callout {
+        min-height: 100%;
+    }
+
+}
+
+
+/* ==========================================================
+   TABLE SCROLLBAR
+   ========================================================== */
+
+.um-table-scroll {
+    scrollbar-width: thin;
+    scrollbar-color:
+        #aebdce
+        #eef2f7;
+}
+
+.um-table-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.um-table-scroll::-webkit-scrollbar-track {
+    background: #eef2f7;
+}
+
+.um-table-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #b6c4d4;
+}
+
+.um-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: #93a6bc;
+}
+
+
+/* ==========================================================
+   MID-SIZE SCREEN
+   ========================================================== */
+
+@media (max-width: 1050px) {
+
+    .um-intelligence {
+        grid-template-columns: 1fr;
+    }
+
+    .um-toolbar-top {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .um-control-search {
+        grid-column: 1 / -1;
+    }
+
+    .um-export-btn {
+        grid-column: auto;
+    }
+
+}
+
+
+</style>
+
+
+<div class="user-management-page">
+
+    <div class="um-shell">
+
+
+        <!-- =================================================
+             DJANGO MESSAGES
+        ================================================== -->
+
+        {% if messages %}
+
+            <div class="um-message-stack">
+
+                {% for message in messages %}
+
+                    <div
+                        class="
+                            um-message
+                            um-message-{{ message.tags|default:'info' }}
+                        "
+                    >
+
+                        <div class="um-message-icon">
+
+                            {% if message.tags == 'success' %}
+                                <i class="bi bi-check2-circle"></i>
+
+                            {% elif message.tags == 'error' %}
+                                <i class="bi bi-exclamation-circle"></i>
+
+                            {% elif message.tags == 'warning' %}
+                                <i class="bi bi-exclamation-triangle"></i>
+
+                            {% else %}
+                                <i class="bi bi-info-circle"></i>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="um-message-copy">
+
+                            <strong>
+                                {% if message.tags == 'success' %}
+                                    Operation completed
+
+                                {% elif message.tags == 'error' %}
+                                    Something needs attention
+
+                                {% elif message.tags == 'warning' %}
+                                    Please review
+
+                                {% else %}
+                                    EduFinance notification
+                                {% endif %}
+                            </strong>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="um-message-close"
+                            aria-label="Dismiss"
+                            onclick="this.closest('.um-message').remove()"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- =================================================
+             BREADCRUMB
+        ================================================== -->
+
+        <div class="um-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span>
+                Management
+            </span>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="current">
+                Users
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="um-hero">
+
+            <div class="um-hero-copy">
+
+                <div class="um-hero-eyebrow">
+
+                    <span class="um-eyebrow-pulse"></span>
+
+                    Identity & Access Control
+
+                </div>
+
+
+                <div class="um-hero-title-row">
+
+                    <div class="um-hero-symbol">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+
+                    <h1>
+                        User Management
+                    </h1>
+
+                </div>
+
+
+                <p class="um-hero-description">
+
+                    Manage EduFinance identities, role assignments,
+                    and account availability from one centralized
+                    administrative workspace. Search, audit, activate,
+                    and maintain access with clear operational visibility.
+
+                </p>
+
+            </div>
+
+
+            <div class="um-hero-actions">
+
+                <a
+                    href="{% url 'accounts:user_create' %}"
+                    class="um-add-user"
+                    id="um-add-user"
+                >
+
+                    <span class="normal-content">
+
+                        <i class="bi bi-person-plus-fill me-1"></i>
+
+                        Add New User
+
+                    </span>
+
+
+                    <span class="loading-content">
+
+                        <i class="bi bi-arrow-repeat um-spin"></i>
+
+                        Opening workspace
+
+                    </span>
+
+                </a>
+
+
+                <div class="um-hero-mini">
+
+                    <div class="um-hero-mini-item">
+
+                        <span>
+                            Directory
+                        </span>
+
+                        <strong>
+                            Live accounts
+                        </strong>
+
+                    </div>
+
+
+                    <div class="um-hero-mini-item">
+
+                        <span>
+                            Control
+                        </span>
+
+                        <strong>
+                            Role governed
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             KPI GRID
+        ================================================== -->
+
+        <section class="um-kpi-grid">
+
+
+            <!-- TOTAL USERS -->
+
+            <article class="um-kpi um-kpi-blue">
+
+                <div class="um-kpi-head">
+
+                    <div>
+
+                        <div class="um-kpi-caption">
+                            Total Users
+                        </div>
+
+                        <div
+                            class="um-kpi-value"
+                            id="um-total-users"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-kpi-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="um-kpi-foot">
+
+                    <span class="um-kpi-note">
+                        All registered accounts
+                    </span>
+
+                    <span
+                        class="um-kpi-percent"
+                        id="um-total-label"
+                    >
+                        Directory
+                    </span>
+
+                </div>
+
+
+                <div class="um-kpi-track">
+
+                    <div
+                        class="um-kpi-progress"
+                        id="um-total-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+            <!-- ACTIVE -->
+
+            <article class="um-kpi um-kpi-green">
+
+                <div class="um-kpi-head">
+
+                    <div>
+
+                        <div class="um-kpi-caption">
+                            Active Users
+                        </div>
+
+                        <div
+                            class="um-kpi-value"
+                            id="um-active-users"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-kpi-icon">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="um-kpi-foot">
+
+                    <span class="um-kpi-note">
+                        Available for access
+                    </span>
+
+                    <span
+                        class="um-kpi-percent"
+                        id="um-active-percent"
+                    >
+                        0%
+                    </span>
+
+                </div>
+
+
+                <div class="um-kpi-track">
+
+                    <div
+                        class="um-kpi-progress"
+                        id="um-active-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+            <!-- INACTIVE -->
+
+            <article class="um-kpi um-kpi-orange">
+
+                <div class="um-kpi-head">
+
+                    <div>
+
+                        <div class="um-kpi-caption">
+                            Inactive Users
+                        </div>
+
+                        <div
+                            class="um-kpi-value"
+                            id="um-inactive-users"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-kpi-icon">
+                        <i class="bi bi-person-dash-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="um-kpi-foot">
+
+                    <span class="um-kpi-note">
+                        Access currently paused
+                    </span>
+
+                    <span
+                        class="um-kpi-percent"
+                        id="um-inactive-percent"
+                    >
+                        0%
+                    </span>
+
+                </div>
+
+
+                <div class="um-kpi-track">
+
+                    <div
+                        class="um-kpi-progress"
+                        id="um-inactive-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+            <!-- ROLES -->
+
+            <article class="um-kpi um-kpi-purple">
+
+                <div class="um-kpi-head">
+
+                    <div>
+
+                        <div class="um-kpi-caption">
+                            Roles in Use
+                        </div>
+
+                        <div
+                            class="um-kpi-value"
+                            id="um-role-count"
+                        >
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-kpi-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="um-kpi-foot">
+
+                    <span class="um-kpi-note">
+                        Access profiles represented
+                    </span>
+
+                    <span class="um-kpi-percent">
+                        RBAC
+                    </span>
+
+                </div>
+
+
+                <div class="um-kpi-track">
+
+                    <div
+                        class="um-kpi-progress"
+                        id="um-role-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             WORKSPACE
+        ================================================== -->
+
+        <section class="um-workspace">
+
+
+            <!-- =============================================
+                 USER COMMAND CENTER
+            ============================================== -->
+
+            <div class="um-command-center">
+
+
+                <!-- =========================================
+                     TOOLBAR
+                ========================================== -->
+
+                <div class="um-command-toolbar">
+
+
+                    <div class="um-toolbar-top">
+
+
+                        <!-- SEARCH -->
+
+                        <div class="um-control um-control-search">
+
+                            <i class="bi bi-search"></i>
+
+                            <input
+                                type="search"
+                                id="um-search"
+                                class="um-search-input"
+                                placeholder="Search name, username or email..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <!-- ROLE -->
+
+                        <div class="um-control">
+
+                            <select
+                                id="um-role-filter"
+                                class="um-select"
+                                aria-label="Filter users by role"
+                            >
+
+                                <option value="">
+                                    All Roles
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="um-control">
+
+                            <select
+                                id="um-status-filter"
+                                class="um-select"
+                                aria-label="Filter users by status"
+                            >
+
+                                <option value="">
+                                    All Statuses
+                                </option>
+
+                                <option value="active">
+                                    Active
+                                </option>
+
+                                <option value="inactive">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- SORT -->
+
+                        <div class="um-control">
+
+                            <select
+                                id="um-sort"
+                                class="um-select"
+                                aria-label="Sort users"
+                            >
+
+                                <option value="name-asc">
+                                    Name A–Z
+                                </option>
+
+                                <option value="name-desc">
+                                    Name Z–A
+                                </option>
+
+                                <option value="role-asc">
+                                    Role A–Z
+                                </option>
+
+                                <option value="active-first">
+                                    Active first
+                                </option>
+
+                                <option value="inactive-first">
+                                    Inactive first
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- EXPORT -->
+
+                        <button
+                            type="button"
+                            class="um-tool-btn um-export-btn"
+                            id="um-export"
+                        >
+
+                            <i class="bi bi-download"></i>
+
+                            Export
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- TOOLBAR INFO -->
+
+                    <div class="um-toolbar-bottom">
+
+                        <div class="um-result-info">
+
+                            <span>
+                                Showing
+                                <strong id="um-visible-count">
+                                    0
+                                </strong>
+                                of
+                                <strong id="um-total-count-inline">
+                                    0
+                                </strong>
+                                users
+                            </span>
+
+                            <span class="um-result-dot"></span>
+
+                            <span id="um-filter-description">
+                                Complete directory
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="um-clear-filters"
+                            id="um-clear-filters"
+                        >
+
+                            <i class="bi bi-x-circle me-1"></i>
+
+                            Clear filters
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- SELECTION -->
+
+                    <div
+                        class="um-selection-bar"
+                        id="um-selection-bar"
+                    >
+
+                        <div class="um-selection-copy">
+
+                            <i class="bi bi-check2-square"></i>
+
+                            <span>
+
+                                <strong id="um-selected-count">
+                                    0
+                                </strong>
+
+                                users selected for review.
+
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="um-selection-clear"
+                            id="um-clear-selection"
+                        >
+                            Clear selection
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     TABLE
+                ========================================== -->
+
+                <div
+                    class="um-table-scroll"
+                    id="um-table-container"
+                >
+
+                    <table class="um-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th style="width: 42px;">
+
+                                    <input
+                                        type="checkbox"
+                                        class="um-check"
+                                        id="um-select-all"
+                                        aria-label="Select all visible users"
+                                    >
+
+                                </th>
+
+                                <th>
+                                    User
+                                </th>
+
+                                <th>
+                                    Username
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th style="text-align: right;">
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="um-user-body">
+
+                            {% for u in users %}
+
+                                <tr
+                                    class="um-user-row"
+                                    data-user-id="{{ u.id }}"
+                                    data-name="{{ u.full_name|default:''|escape }}"
+                                    data-username="{{ u.username|default:''|escape }}"
+                                    data-email="{{ u.email|default:''|escape }}"
+                                    data-role="{{ u.role_name|default:'No Role'|escape }}"
+                                    data-status="{% if u.is_active %}active{% else %}inactive{% endif %}"
+                                >
+
+
+                                    <!-- SELECT -->
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            class="um-check um-row-check"
+                                            aria-label="Select {{ u.full_name }}"
+                                        >
+
+                                    </td>
+
+
+                                    <!-- USER -->
+
+                                    <td>
+
+                                        <div class="um-user-cell">
+
+                                            <div
+                                                class="um-avatar"
+                                                data-avatar-name="{{ u.full_name|default:u.username|escape }}"
+                                            >
+
+                                                {% if u.full_name %}
+
+                                                    {{ u.full_name|slice:":1"|upper }}
+
+                                                {% else %}
+
+                                                    {{ u.username|slice:":1"|upper }}
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <div class="um-user-meta">
+
+                                                <div class="um-user-name">
+
+                                                    {{ u.full_name|default:u.username }}
+
+                                                </div>
+
+
+                                                <div class="um-user-sub">
+
+                                                    User ID ·
+                                                    {{ u.id|stringformat:"s"|slice:":8" }}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- USERNAME -->
+
+                                    <td>
+
+                                        <span class="um-username">
+
+                                            @{{ u.username }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- EMAIL -->
+
+                                    <td>
+
+                                        <span
+                                            class="um-email"
+                                            title="{{ u.email|default:'No email address' }}"
+                                        >
+
+                                            {{ u.email|default:"—" }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- ROLE -->
+
+                                    <td>
+
+                                        <span
+                                            class="um-role-pill"
+                                            data-role="{{ u.role_name|default:'No Role' }}"
+                                        >
+
+                                            {{ u.role_name|default:"No Role" }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        {% if u.is_active %}
+
+                                            <span
+                                                class="
+                                                    um-status
+                                                    um-status-active
+                                                "
+                                            >
+                                                Active
+                                            </span>
+
+                                        {% else %}
+
+                                            <span
+                                                class="
+                                                    um-status
+                                                    um-status-inactive
+                                                "
+                                            >
+                                                Inactive
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- ACTIONS -->
+
+                                    <td>
+
+                                        <div class="um-actions">
+
+                                            <a
+                                                href="{% url 'accounts:user_edit' u.id %}"
+                                                class="
+                                                    um-action-btn
+                                                    um-action-edit
+                                                "
+                                            >
+
+                                                <i class="bi bi-pencil-square"></i>
+
+                                                Edit
+
+                                            </a>
+
+
+                                            <a
+                                                href="{% url 'accounts:user_toggle_status' u.id %}"
+                                                class="
+                                                    um-action-btn
+                                                    um-toggle-trigger
+                                                    {% if u.is_active %}
+                                                        um-action-toggle-active
+                                                    {% else %}
+                                                        um-action-toggle-inactive
+                                                    {% endif %}
+                                                "
+                                                data-toggle-url="{% url 'accounts:user_toggle_status' u.id %}"
+                                                data-user-name="{{ u.full_name|default:u.username|escape }}"
+                                                data-user-username="{{ u.username|escape }}"
+                                                data-user-status="{% if u.is_active %}active{% else %}inactive{% endif %}"
+                                            >
+
+                                                {% if u.is_active %}
+
+                                                    <i class="bi bi-person-dash"></i>
+
+                                                    Deactivate
+
+                                                {% else %}
+
+                                                    <i class="bi bi-person-check"></i>
+
+                                                    Activate
+
+                                                {% endif %}
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="7"
+                                        class="um-native-empty"
+                                    >
+
+                                        <div class="um-empty-visual">
+                                            <i class="bi bi-people"></i>
+                                        </div>
+
+                                        <h3>
+                                            Your user directory is empty
+                                        </h3>
+
+                                        <p>
+                                            No EduFinance accounts have been
+                                            created yet. Add your first user
+                                            to begin assigning system access
+                                            and financial responsibilities.
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+
+                    <!-- NO FILTER RESULTS -->
+
+                    <div
+                        class="um-no-results"
+                        id="um-no-results"
+                    >
+
+                        <div class="um-empty-visual">
+                            <i class="bi bi-search"></i>
+                        </div>
+
+                        <h3>
+                            No matching users
+                        </h3>
+
+                        <p>
+                            We could not find a user matching the
+                            current search and filter combination.
+                            Try clearing one or more filters.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     FOOTER
+                ========================================== -->
+
+                <div class="um-table-footer">
+
+                    <div class="um-footer-count">
+
+                        Directory contains
+
+                        <strong id="um-footer-total">
+                            0
+                        </strong>
+
+                        registered accounts.
+
+                    </div>
+
+
+                    <div class="um-footer-meta">
+
+                        <span class="um-footer-badge">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            Access controlled
+
+                        </span>
+
+
+                        <span class="um-footer-badge">
+
+                            <i class="bi bi-arrow-repeat"></i>
+
+                            Live directory
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =============================================
+                 INTELLIGENCE RAIL
+            ============================================== -->
+
+            <aside class="um-intelligence">
+
+
+                <!-- ACCESS OVERVIEW -->
+
+                <div class="um-side-card">
+
+                    <div class="um-side-head">
+
+                        <div class="um-side-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Access Overview
+                            </h3>
+
+                            <p>
+                                Current directory health
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="um-health">
+
+                        <div
+                            class="um-health-ring"
+                            id="um-health-ring"
+                        >
+
+                            <div class="um-health-value">
+
+                                <strong id="um-health-percent">
+                                    0%
+                                </strong>
+
+                                <span>
+                                    active
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="um-health-copy">
+
+                            <span>
+                                Active accounts
+                            </span>
+
+                            <strong id="um-health-fraction">
+                                0 of 0
+                            </strong>
+
+                            <small>
+                                Users currently able to access
+                                assigned system functions.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="um-role-distribution"
+                        id="um-role-distribution"
+                    >
+                    </div>
+
+                </div>
+
+
+                <!-- SECURITY -->
+
+                <div class="um-side-callout">
+
+                    <div class="um-callout-icon">
+
+                        <i class="bi bi-shield-lock"></i>
+
+                    </div>
+
+
+                    <h4>
+                        Access security
+                    </h4>
+
+
+                    <p>
+                        Maintain clean role assignments and review
+                        inactive accounts periodically to reduce
+                        unnecessary system access.
+                    </p>
+
+
+                    <div class="um-security-list">
+
+                        <div class="um-security-item">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            <span>
+                                Keep each user assigned only to the
+                                permissions required by their job.
+                            </span>
+
+                        </div>
+
+
+                        <div class="um-security-item">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            <span>
+                                Deactivate accounts that no longer
+                                need platform access.
+                            </span>
+
+                        </div>
+
+
+                        <div class="um-security-item">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            <span>
+                                Review role changes as part of your
+                                regular finance access audit.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DIRECTORY SIGNAL -->
+
+                <div class="um-side-callout">
+
+                    <div class="um-callout-icon">
+
+                        <i class="bi bi-activity"></i>
+
+                    </div>
+
+
+                    <h4>
+                        Directory intelligence
+                    </h4>
+
+
+                    <p id="um-intelligence-copy">
+
+                        User metrics are calculated from the current
+                        EduFinance directory and update automatically
+                        as you search or filter the workspace.
+
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     STATUS CONFIRMATION MODAL
+========================================================= -->
+
+<div
+    class="um-modal-backdrop"
+    id="um-status-modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="um-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="um-modal-title"
+    >
+
+        <div class="um-modal-top"></div>
+
+
+        <div class="um-modal-body">
+
+            <div
+                class="um-modal-symbol"
+                id="um-modal-symbol"
+            >
+
+                <i
+                    class="bi bi-person-dash-fill"
+                    id="um-modal-symbol-icon"
+                ></i>
+
+            </div>
+
+
+            <h3 id="um-modal-title">
+                Deactivate user?
+            </h3>
+
+
+            <p id="um-modal-description">
+
+                This user will no longer be able to sign in
+                until their account is activated again.
+
+            </p>
+
+
+            <div class="um-modal-user">
+
+                <div
+                    class="um-modal-user-avatar"
+                    id="um-modal-avatar"
+                >
+                    U
+                </div>
+
+
+                <div>
+
+                    <strong id="um-modal-user-name">
+                        User
+                    </strong>
+
+                    <span id="um-modal-username">
+                        @username
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="um-modal-actions">
+
+                <button
+                    type="button"
+                    class="
+                        um-modal-btn
+                        um-modal-cancel
+                    "
+                    id="um-modal-cancel"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="button"
+                    class="
+                        um-modal-btn
+                        um-modal-confirm
+                    "
+                    id="um-modal-confirm"
+                >
+
+                    <span id="um-modal-confirm-label">
+                        Deactivate user
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* ======================================================
+       ELEMENTS
+       ====================================================== */
+
+    const body = document.getElementById("um-user-body");
+
+    if (!body) {
+        return;
+    }
+
+    const rows = Array.from(
+        body.querySelectorAll(".um-user-row")
+    );
+
+    const searchInput =
+        document.getElementById("um-search");
+
+    const roleFilter =
+        document.getElementById("um-role-filter");
+
+    const statusFilter =
+        document.getElementById("um-status-filter");
+
+    const sortSelect =
+        document.getElementById("um-sort");
+
+    const exportButton =
+        document.getElementById("um-export");
+
+    const clearFiltersButton =
+        document.getElementById("um-clear-filters");
+
+    const noResults =
+        document.getElementById("um-no-results");
+
+    const visibleCount =
+        document.getElementById("um-visible-count");
+
+    const inlineTotal =
+        document.getElementById("um-total-count-inline");
+
+    const footerTotal =
+        document.getElementById("um-footer-total");
+
+    const filterDescription =
+        document.getElementById("um-filter-description");
+
+    const selectAll =
+        document.getElementById("um-select-all");
+
+    const selectionBar =
+        document.getElementById("um-selection-bar");
+
+    const selectedCount =
+        document.getElementById("um-selected-count");
+
+    const clearSelection =
+        document.getElementById("um-clear-selection");
+
+
+    /* ======================================================
+       HELPERS
+       ====================================================== */
+
+    function normalize(value) {
+        return String(value || "")
+            .trim()
+            .toLowerCase();
+    }
+
+
+    function escapeCsv(value) {
+
+        const stringValue =
+            String(value || "");
+
+        return (
+            '"' +
+            stringValue.replace(/"/g, '""') +
+            '"'
+        );
+    }
+
+
+    function debounce(callback, wait) {
+
+        let timer;
+
+        return function (...args) {
+
+            clearTimeout(timer);
+
+            timer = setTimeout(
+                () => callback.apply(this, args),
+                wait
+            );
+
+        };
+
+    }
+
+
+    /* ======================================================
+       AVATAR PALETTES
+       ====================================================== */
+
+    const avatarPalettes = [
+        ["#1268ed", "#164ab6"],
+        ["#7549e8", "#5931bd"],
+        ["#0aa38b", "#087466"],
+        ["#e28517", "#bb6507"],
+        ["#d84c73", "#b53059"],
+        ["#099bc1", "#08728f"],
+        ["#5165df", "#3447b7"],
+        ["#169252", "#0a703b"]
+    ];
+
+    document
+        .querySelectorAll(".um-avatar")
+        .forEach(function (avatar) {
+
+            const name =
+                avatar.dataset.avatarName || "User";
+
+            let hash = 0;
+
+            for (
+                let index = 0;
+                index < name.length;
+                index++
+            ) {
+                hash =
+                    name.charCodeAt(index) +
+                    ((hash << 5) - hash);
+            }
+
+            const palette =
+                avatarPalettes[
+                    Math.abs(hash) %
+                    avatarPalettes.length
+                ];
+
+            avatar.style.background =
+                "linear-gradient(145deg, " +
+                palette[0] +
+                ", " +
+                palette[1] +
+                ")";
+
+        });
+
+
+    /* ======================================================
+       DIRECTORY METRICS
+       ====================================================== */
+
+    const totalUsers =
+        rows.length;
+
+    const activeUsers =
+        rows.filter(
+            row =>
+                row.dataset.status === "active"
+        ).length;
+
+    const inactiveUsers =
+        totalUsers - activeUsers;
+
+    const roles =
+        [
+            ...new Set(
+                rows.map(
+                    row =>
+                        row.dataset.role ||
+                        "No Role"
+                )
+            )
+        ].sort(
+            (a, b) =>
+                a.localeCompare(b)
+        );
+
+    const activePercent =
+        totalUsers
+            ? Math.round(
+                activeUsers /
+                totalUsers *
+                100
+            )
+            : 0;
+
+    const inactivePercent =
+        totalUsers
+            ? Math.round(
+                inactiveUsers /
+                totalUsers *
+                100
+            )
+            : 0;
+
+
+    document.getElementById(
+        "um-total-users"
+    ).textContent = totalUsers;
+
+    document.getElementById(
+        "um-active-users"
+    ).textContent = activeUsers;
+
+    document.getElementById(
+        "um-inactive-users"
+    ).textContent = inactiveUsers;
+
+    document.getElementById(
+        "um-role-count"
+    ).textContent = roles.length;
+
+    document.getElementById(
+        "um-active-percent"
+    ).textContent =
+        activePercent + "%";
+
+    document.getElementById(
+        "um-inactive-percent"
+    ).textContent =
+        inactivePercent + "%";
+
+    inlineTotal.textContent =
+        totalUsers;
+
+    footerTotal.textContent =
+        totalUsers;
+
+    document.getElementById(
+        "um-health-percent"
+    ).textContent =
+        activePercent + "%";
+
+    document.getElementById(
+        "um-health-fraction"
+    ).textContent =
+        activeUsers +
+        " of " +
+        totalUsers;
+
+    document.getElementById(
+        "um-health-ring"
+    ).style.setProperty(
+        "--health-angle",
+        (
+            activePercent *
+            3.6
+        ) + "deg"
+    );
+
+
+    requestAnimationFrame(
+        function () {
+
+            document.getElementById(
+                "um-total-progress"
+            ).style.width = "100%";
+
+            document.getElementById(
+                "um-active-progress"
+            ).style.width =
+                activePercent + "%";
+
+            document.getElementById(
+                "um-inactive-progress"
+            ).style.width =
+                inactivePercent + "%";
+
+            document.getElementById(
+                "um-role-progress"
+            ).style.width =
+                Math.min(
+                    roles.length * 14,
+                    100
+                ) + "%";
+
+        }
+    );
+
+
+    /* ======================================================
+       ROLE FILTER
+       ====================================================== */
+
+    roles.forEach(
+        function (role) {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                normalize(role);
+
+            option.textContent =
+                role;
+
+            roleFilter.appendChild(option);
+
+        }
+    );
+
+
+    /* ======================================================
+       ROLE DISTRIBUTION
+       ====================================================== */
+
+    const roleDistribution =
+        document.getElementById(
+            "um-role-distribution"
+        );
+
+    const roleColorSet = [
+        "#156ef1",
+        "#704bdc",
+        "#0b9fbf",
+        "#ec8913",
+        "#db4d74",
+        "#14a263",
+        "#5364df"
+    ];
+
+    roles
+        .map(function (role) {
+
+            return {
+                role: role,
+                count:
+                    rows.filter(
+                        row =>
+                            row.dataset.role === role
+                    ).length
+            };
+
+        })
+        .sort(
+            (a, b) =>
+                b.count - a.count
+        )
+        .slice(0, 6)
+        .forEach(
+            function (item, index) {
+
+                const line =
+                    document.createElement("div");
+
+                line.className =
+                    "um-role-line";
+
+                line.innerHTML = `
+                    <div class="um-role-line-name">
+                        <span
+                            class="um-role-dot"
+                            style="
+                                background:
+                                ${roleColorSet[
+                                    index %
+                                    roleColorSet.length
+                                ]}
+                            "
+                        ></span>
+
+                        <span>
+                            ${item.role}
+                        </span>
+                    </div>
+
+                    <span class="um-role-line-value">
+                        ${item.count}
+                    </span>
+                `;
+
+                roleDistribution.appendChild(
+                    line
+                );
+
+            }
+        );
+
+
+    /* ======================================================
+       FILTERING
+       ====================================================== */
+
+    function applyFilters() {
+
+        const query =
+            normalize(searchInput.value);
+
+        const selectedRole =
+            roleFilter.value;
+
+        const selectedStatus =
+            statusFilter.value;
+
+        let shown = 0;
+
+
+        rows.forEach(
+            function (row) {
+
+                const searchable =
+                    normalize(
+                        [
+                            row.dataset.name,
+                            row.dataset.username,
+                            row.dataset.email,
+                            row.dataset.role
+                        ].join(" ")
+                    );
+
+                const matchesSearch =
+                    !query ||
+                    searchable.includes(query);
+
+                const matchesRole =
+                    !selectedRole ||
+                    normalize(
+                        row.dataset.role
+                    ) === selectedRole;
+
+                const matchesStatus =
+                    !selectedStatus ||
+                    row.dataset.status ===
+                    selectedStatus;
+
+                const visible =
+                    matchesSearch &&
+                    matchesRole &&
+                    matchesStatus;
+
+                row.classList.toggle(
+                    "um-hidden",
+                    !visible
+                );
+
+                if (visible) {
+                    shown++;
+                }
+
+            }
+        );
+
+
+        visibleCount.textContent =
+            shown;
+
+
+        noResults.classList.toggle(
+            "visible",
+            totalUsers > 0 &&
+            shown === 0
+        );
+
+
+        const filtersActive =
+            Boolean(
+                query ||
+                selectedRole ||
+                selectedStatus
+            );
+
+
+        clearFiltersButton.classList.toggle(
+            "visible",
+            filtersActive
+        );
+
+
+        const description = [];
+
+        if (query) {
+            description.push(
+                `Search: "${searchInput.value.trim()}"`
+            );
+        }
+
+        if (selectedRole) {
+
+            const selectedOption =
+                roleFilter.options[
+                    roleFilter.selectedIndex
+                ];
+
+            description.push(
+                selectedOption.textContent.trim()
+            );
+
+        }
+
+        if (selectedStatus) {
+            description.push(
+                selectedStatus === "active"
+                    ? "Active accounts"
+                    : "Inactive accounts"
+            );
+        }
+
+
+        filterDescription.textContent =
+            description.length
+                ? description.join(" · ")
+                : "Complete directory";
+
+
+        syncSelectAll();
+
+    }
+
+
+    const debouncedSearch =
+        debounce(
+            applyFilters,
+            320
+        );
+
+
+    searchInput.addEventListener(
+        "input",
+        debouncedSearch
+    );
+
+
+    roleFilter.addEventListener(
+        "change",
+        applyFilters
+    );
+
+
+    statusFilter.addEventListener(
+        "change",
+        applyFilters
+    );
+
+
+    clearFiltersButton.addEventListener(
+        "click",
+        function () {
+
+            searchInput.value = "";
+            roleFilter.value = "";
+            statusFilter.value = "";
+
+            applyFilters();
+
+            searchInput.focus();
+
+        }
+    );
+
+
+    /* ======================================================
+       SORTING
+       ====================================================== */
+
+    function sortRows() {
+
+        const mode =
+            sortSelect.value;
+
+        const sorted =
+            [...rows].sort(
+                function (a, b) {
+
+                    const nameA =
+                        normalize(a.dataset.name);
+
+                    const nameB =
+                        normalize(b.dataset.name);
+
+                    const roleA =
+                        normalize(a.dataset.role);
+
+                    const roleB =
+                        normalize(b.dataset.role);
+
+                    const statusA =
+                        a.dataset.status;
+
+                    const statusB =
+                        b.dataset.status;
+
+
+                    if (
+                        mode === "name-desc"
+                    ) {
+                        return (
+                            nameB.localeCompare(
+                                nameA
+                            )
+                        );
+                    }
+
+
+                    if (
+                        mode === "role-asc"
+                    ) {
+
+                        return (
+                            roleA.localeCompare(
+                                roleB
+                            ) ||
+                            nameA.localeCompare(
+                                nameB
+                            )
+                        );
+
+                    }
+
+
+                    if (
+                        mode === "active-first"
+                    ) {
+
+                        if (
+                            statusA !== statusB
+                        ) {
+                            return (
+                                statusA === "active"
+                                    ? -1
+                                    : 1
+                            );
+                        }
+
+                        return (
+                            nameA.localeCompare(
+                                nameB
+                            )
+                        );
+
+                    }
+
+
+                    if (
+                        mode === "inactive-first"
+                    ) {
+
+                        if (
+                            statusA !== statusB
+                        ) {
+                            return (
+                                statusA === "inactive"
+                                    ? -1
+                                    : 1
+                            );
+                        }
+
+                        return (
+                            nameA.localeCompare(
+                                nameB
+                            )
+                        );
+
+                    }
+
+
+                    return (
+                        nameA.localeCompare(
+                            nameB
+                        )
+                    );
+
+                }
+            );
+
+
+        sorted.forEach(
+            row =>
+                body.appendChild(row)
+        );
+
+    }
+
+
+    sortSelect.addEventListener(
+        "change",
+        sortRows
+    );
+
+
+    /* ======================================================
+       SELECTION
+       ====================================================== */
+
+    function visibleRows() {
+
+        return rows.filter(
+            row =>
+                !row.classList.contains(
+                    "um-hidden"
+                )
+        );
+
+    }
+
+
+    function checkedRows() {
+
+        return rows.filter(
+            row => {
+
+                const checkbox =
+                    row.querySelector(
+                        ".um-row-check"
+                    );
+
+                return (
+                    checkbox &&
+                    checkbox.checked
+                );
+
+            }
+        );
+
+    }
+
+
+    function updateSelection() {
+
+        const checked =
+            checkedRows();
+
+        selectedCount.textContent =
+            checked.length;
+
+        selectionBar.classList.toggle(
+            "visible",
+            checked.length > 0
+        );
+
+        syncSelectAll();
+
+    }
+
+
+    function syncSelectAll() {
+
+        const visible =
+            visibleRows();
+
+        const visibleChecks =
+            visible.map(
+                row =>
+                    row.querySelector(
+                        ".um-row-check"
+                    )
+            );
+
+        const checkedVisible =
+            visibleChecks.filter(
+                checkbox =>
+                    checkbox &&
+                    checkbox.checked
+            );
+
+        selectAll.checked =
+            visibleChecks.length > 0 &&
+            checkedVisible.length ===
+            visibleChecks.length;
+
+        selectAll.indeterminate =
+            checkedVisible.length > 0 &&
+            checkedVisible.length <
+            visibleChecks.length;
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".um-row-check"
+        )
+        .forEach(
+            checkbox => {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateSelection
+                );
+
+            }
+        );
+
+
+    selectAll.addEventListener(
+        "change",
+        function () {
+
+            visibleRows().forEach(
+                row => {
+
+                    const checkbox =
+                        row.querySelector(
+                            ".um-row-check"
+                        );
+
+                    if (checkbox) {
+                        checkbox.checked =
+                            selectAll.checked;
+                    }
+
+                }
+            );
+
+            updateSelection();
+
+        }
+    );
+
+
+    clearSelection.addEventListener(
+        "click",
+        function () {
+
+            rows.forEach(
+                row => {
+
+                    const checkbox =
+                        row.querySelector(
+                            ".um-row-check"
+                        );
+
+                    if (checkbox) {
+                        checkbox.checked =
+                            false;
+                    }
+
+                }
+            );
+
+            updateSelection();
+
+        }
+    );
+
+
+    /* ======================================================
+       CSV EXPORT
+       ====================================================== */
+
+    exportButton.addEventListener(
+        "click",
+        function () {
+
+            const exportRows =
+                visibleRows();
+
+            if (!exportRows.length) {
+                return;
+            }
+
+            const csvRows = [
+                [
+                    "Name",
+                    "Username",
+                    "Email",
+                    "Role",
+                    "Status"
+                ]
+            ];
+
+
+            exportRows.forEach(
+                function (row) {
+
+                    csvRows.push(
+                        [
+                            row.dataset.name,
+                            row.dataset.username,
+                            row.dataset.email,
+                            row.dataset.role,
+                            row.dataset.status
+                        ]
+                    );
+
+                }
+            );
+
+
+            const csv =
+                csvRows
+                    .map(
+                        row =>
+                            row
+                                .map(
+                                    escapeCsv
+                                )
+                                .join(",")
+                    )
+                    .join("\n");
+
+
+            const blob =
+                new Blob(
+                    [csv],
+                    {
+                        type:
+                            "text/csv;charset=utf-8;"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+            link.href = url;
+
+            link.download =
+                "edufinance-users.csv";
+
+            document.body.appendChild(
+                link
+            );
+
+            link.click();
+
+            link.remove();
+
+            URL.revokeObjectURL(url);
+
+        }
+    );
+
+
+    /* ======================================================
+       ADD USER LOADING STATE
+       ====================================================== */
+
+    const addUser =
+        document.getElementById(
+            "um-add-user"
+        );
+
+    if (addUser) {
+
+        addUser.addEventListener(
+            "click",
+            function () {
+
+                addUser.classList.add(
+                    "loading"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ======================================================
+       STATUS CONFIRMATION MODAL
+       ====================================================== */
+
+    const modal =
+        document.getElementById(
+            "um-status-modal"
+        );
+
+    const modalTitle =
+        document.getElementById(
+            "um-modal-title"
+        );
+
+    const modalDescription =
+        document.getElementById(
+            "um-modal-description"
+        );
+
+    const modalSymbol =
+        document.getElementById(
+            "um-modal-symbol"
+        );
+
+    const modalSymbolIcon =
+        document.getElementById(
+            "um-modal-symbol-icon"
+        );
+
+    const modalAvatar =
+        document.getElementById(
+            "um-modal-avatar"
+        );
+
+    const modalUserName =
+        document.getElementById(
+            "um-modal-user-name"
+        );
+
+    const modalUsername =
+        document.getElementById(
+            "um-modal-username"
+        );
+
+    const modalCancel =
+        document.getElementById(
+            "um-modal-cancel"
+        );
+
+    const modalConfirm =
+        document.getElementById(
+            "um-modal-confirm"
+        );
+
+    const modalConfirmLabel =
+        document.getElementById(
+            "um-modal-confirm-label"
+        );
+
+    let pendingStatusUrl = null;
+
+
+    function openStatusModal(trigger) {
+
+        const currentStatus =
+            trigger.dataset.userStatus;
+
+        const userName =
+            trigger.dataset.userName ||
+            "User";
+
+        const username =
+            trigger.dataset.userUsername ||
+            "";
+
+        const activating =
+            currentStatus === "inactive";
+
+        pendingStatusUrl =
+            trigger.dataset.toggleUrl;
+
+
+        modalTitle.textContent =
+            activating
+                ? "Activate this user?"
+                : "Deactivate this user?";
+
+
+        modalDescription.textContent =
+            activating
+                ? (
+                    "This account will regain access " +
+                    "to EduFinance according to its " +
+                    "assigned role and permissions."
+                )
+                : (
+                    "This account will no longer be " +
+                    "able to sign in until an authorized " +
+                    "administrator activates it again."
+                );
+
+
+        modalUserName.textContent =
+            userName;
+
+        modalUsername.textContent =
+            "@" + username;
+
+        modalAvatar.textContent =
+            userName
+                .trim()
+                .slice(0, 1)
+                .toUpperCase() || "U";
+
+
+        modalConfirmLabel.textContent =
+            activating
+                ? "Activate user"
+                : "Deactivate user";
+
+
+        modalConfirm.classList.toggle(
+            "activate",
+            activating
+        );
+
+        modalSymbol.classList.toggle(
+            "activate",
+            activating
+        );
+
+
+        modalSymbolIcon.className =
+            activating
+                ? (
+                    "bi " +
+                    "bi-person-check-fill"
+                )
+                : (
+                    "bi " +
+                    "bi-person-dash-fill"
+                );
+
+
+        modal.classList.add(
+            "open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+
+        setTimeout(
+            () =>
+                modalCancel.focus(),
+            40
+        );
+
+    }
+
+
+    function closeStatusModal() {
+
+        if (
+            modalConfirm.classList.contains(
+                "loading"
+            )
+        ) {
+            return;
+        }
+
+        modal.classList.remove(
+            "open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        pendingStatusUrl = null;
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".um-toggle-trigger"
+        )
+        .forEach(
+            function (trigger) {
+
+                trigger.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+                        openStatusModal(
+                            trigger
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+    modalCancel.addEventListener(
+        "click",
+        closeStatusModal
+    );
+
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target === modal
+            ) {
+                closeStatusModal();
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                modal.classList.contains(
+                    "open"
+                )
+            ) {
+                closeStatusModal();
+            }
+
+        }
+    );
+
+
+    modalConfirm.addEventListener(
+        "click",
+        function () {
+
+            if (!pendingStatusUrl) {
+                return;
+            }
+
+            modalConfirm.classList.add(
+                "loading"
+            );
+
+            modalConfirmLabel.innerHTML =
+                '<i class="bi bi-arrow-repeat um-spin me-1"></i> Updating account';
+
+            window.location.href =
+                pendingStatusUrl;
+
+        }
+    );
+
+
+    /* ======================================================
+       INITIALIZATION
+       ====================================================== */
+
+    sortRows();
+
+    applyFilters();
+
+    updateSelection();
+
+});
+
+</script>
+
+{% endblock %}

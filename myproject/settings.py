@@ -116,6 +116,12 @@ TEMPLATES = [
                     "django.contrib.messages."
                     "context_processors.messages"
                 ),
+
+                # Added from teammate branch.
+                (
+                    "accounts.context_processors."
+                    "unread_notifications"
+                ),
             ],
         },
     },
@@ -139,7 +145,6 @@ MONGO_DB_NAME = os.getenv(
     "MONGO_DB_NAME",
     "edufinance",
 )
-
 
 if not MONGO_URI:
     raise RuntimeError(
@@ -253,14 +258,6 @@ EMAIL_BACKEND = (
 )
 
 
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-# Authentication
-
 # ============================================================
 # AUTHENTICATION BACKENDS
 # ============================================================
@@ -273,6 +270,13 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+
+# ============================================================
+# AUTHENTICATION ROUTES
+# ============================================================
+
 LOGIN_URL = "login"
+
 LOGIN_REDIRECT_URL = "/"
+
 LOGOUT_REDIRECT_URL = "/login/"

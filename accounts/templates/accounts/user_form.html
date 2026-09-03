@@ -1,0 +1,3307 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if request.resolver_match.url_name == 'user_edit' %}
+Edit User | EduFinance
+{% else %}
+Create User | EduFinance
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   EDUFINANCE — USER PROVISIONING WORKSPACE
+========================================================= */
+
+:root {
+    --uf-bg: #f4f7fb;
+    --uf-card: #ffffff;
+    --uf-card-soft: #f8faff;
+
+    --uf-navy: #081d35;
+    --uf-navy-2: #0d2948;
+
+    --uf-blue: #0d6efd;
+    --uf-blue-dark: #0759db;
+    --uf-blue-soft: #eef5ff;
+
+    --uf-green: #0aa35e;
+    --uf-green-soft: #e9f9f1;
+
+    --uf-orange: #e98a16;
+    --uf-orange-soft: #fff3e3;
+
+    --uf-red: #df4458;
+    --uf-red-soft: #ffedf0;
+
+    --uf-purple: #7550df;
+    --uf-purple-soft: #f2edff;
+
+    --uf-text: #101d2f;
+    --uf-text-2: #42526c;
+    --uf-text-3: #7b899d;
+
+    --uf-border: #dfe7f1;
+    --uf-border-soft: #edf1f6;
+
+    --uf-radius-sm: 12px;
+    --uf-radius-md: 17px;
+    --uf-radius-lg: 24px;
+    --uf-radius-xl: 30px;
+
+    --uf-shadow:
+        0 18px 50px rgba(15, 42, 74, .08);
+
+    --uf-shadow-lg:
+        0 28px 75px rgba(12, 40, 78, .13);
+
+    --uf-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.uf-page {
+    position: relative;
+    min-height: calc(100vh - 70px);
+    margin: -24px;
+
+    padding:
+        clamp(25px, 3vw, 44px)
+        clamp(20px, 3vw, 46px)
+        70px;
+
+    background:
+        radial-gradient(
+            circle at 90% 5%,
+            rgba(29, 112, 245, .11),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 7% 25%,
+            rgba(41, 174, 255, .07),
+            transparent 21%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            #f3f6fb 100%
+        );
+
+    overflow: hidden;
+}
+
+.uf-page::before {
+    content: "";
+    position: absolute;
+
+    width: 640px;
+    height: 640px;
+
+    top: -390px;
+    right: -210px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(23, 102, 225, .10);
+
+    pointer-events: none;
+}
+
+.uf-page::after {
+    content: "";
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    top: -250px;
+    right: -100px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(23, 102, 225, .08);
+
+    pointer-events: none;
+}
+
+
+.uf-shell {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+.uf-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    margin-bottom: 20px;
+
+    color: var(--uf-text-3);
+
+    font-size: .76rem;
+    font-weight: 650;
+}
+
+.uf-breadcrumb a {
+    color: var(--uf-text-3);
+    text-decoration: none;
+}
+
+.uf-breadcrumb a:hover {
+    color: var(--uf-blue);
+}
+
+.uf-breadcrumb .current {
+    color: var(--uf-blue);
+}
+
+.uf-breadcrumb i {
+    font-size: .62rem;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.uf-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    gap: 28px;
+
+    align-items: center;
+
+    min-height: 210px;
+
+    padding:
+        clamp(28px, 3vw, 42px);
+
+    margin-bottom: 22px;
+
+    border:
+        1px solid
+        rgba(215, 225, 239, .9);
+
+    border-radius: var(--uf-radius-xl);
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,255,255,.98),
+            rgba(247,250,255,.96)
+        );
+
+    box-shadow: var(--uf-shadow);
+
+    overflow: hidden;
+}
+
+
+.uf-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 460px;
+    height: 460px;
+
+    right: -170px;
+    top: -260px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(17, 111, 246, .17),
+            transparent 70%
+        );
+}
+
+
+.uf-hero-copy {
+    position: relative;
+    z-index: 2;
+}
+
+
+.uf-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    padding: 7px 11px;
+
+    border:
+        1px solid
+        #d8e6fa;
+
+    border-radius: 999px;
+
+    background: #f5f9ff;
+
+    color: var(--uf-blue-dark);
+
+    font-size: .68rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: .055em;
+}
+
+
+.uf-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--uf-green);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(10, 163, 94, .10);
+}
+
+
+.uf-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+
+.uf-title-icon {
+    width: 62px;
+    height: 62px;
+
+    flex: 0 0 62px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #d6e4fa;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--uf-blue);
+
+    font-size: 1.5rem;
+
+    box-shadow:
+        0 12px 30px
+        rgba(32, 105, 218, .12);
+}
+
+
+.uf-hero h1 {
+    margin: 0;
+
+    color: var(--uf-text);
+
+    font-size:
+        clamp(2rem, 3vw, 3rem);
+
+    font-weight: 850;
+
+    letter-spacing: -.045em;
+}
+
+
+.uf-hero-description {
+    max-width: 720px;
+
+    margin:
+        13px 0 0
+        78px;
+
+    color: var(--uf-text-2);
+
+    font-size: .91rem;
+
+    line-height: 1.75;
+}
+
+
+.uf-back-button {
+    position: relative;
+    z-index: 3;
+
+    min-height: 45px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 10px 15px;
+
+    border:
+        1px solid
+        #d9e2ee;
+
+    border-radius: 12px;
+
+    background:
+        rgba(255,255,255,.85);
+
+    color: var(--uf-text-2);
+
+    text-decoration: none;
+
+    font-size: .76rem;
+    font-weight: 750;
+
+    box-shadow:
+        0 6px 18px
+        rgba(20, 50, 88, .05);
+
+    transition: var(--uf-transition);
+}
+
+
+.uf-back-button:hover {
+    color: var(--uf-blue-dark);
+
+    border-color:
+        #b8cff2;
+
+    background: #fff;
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
+   PROGRESS / WORKFLOW BAR
+========================================================= */
+
+.uf-flow {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+}
+
+
+.uf-flow-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-height: 72px;
+
+    padding: 13px 15px;
+
+    border:
+        1px solid
+        var(--uf-border);
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.88);
+
+    box-shadow:
+        0 7px 20px
+        rgba(19, 50, 86, .04);
+}
+
+
+.uf-flow-number {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--uf-blue-soft);
+
+    color:
+        var(--uf-blue);
+
+    font-size: .69rem;
+    font-weight: 850;
+}
+
+
+.uf-flow-item:nth-child(2)
+.uf-flow-number {
+    background:
+        var(--uf-purple-soft);
+
+    color:
+        var(--uf-purple);
+}
+
+
+.uf-flow-item:nth-child(3)
+.uf-flow-number {
+    background:
+        var(--uf-green-soft);
+
+    color:
+        var(--uf-green);
+}
+
+
+.uf-flow-copy strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: var(--uf-text);
+
+    font-size: .72rem;
+}
+
+
+.uf-flow-copy span {
+    color:
+        var(--uf-text-3);
+
+    font-size: .63rem;
+}
+
+
+/* =========================================================
+   WORKSPACE GRID
+========================================================= */
+
+.uf-workspace {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        330px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   FORM PANEL
+========================================================= */
+
+.uf-form-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--uf-border);
+
+    border-radius:
+        var(--uf-radius-lg);
+
+    background:
+        var(--uf-card);
+
+    box-shadow:
+        var(--uf-shadow);
+}
+
+
+.uf-form-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    padding:
+        22px 25px;
+
+    border-bottom:
+        1px solid
+        var(--uf-border-soft);
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fbfcfe
+        );
+}
+
+
+.uf-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.uf-header-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        var(--uf-blue-soft);
+
+    color:
+        var(--uf-blue);
+
+    font-size: 1rem;
+}
+
+
+.uf-form-card-header h2 {
+    margin: 0;
+
+    color: var(--uf-text);
+
+    font-size: .92rem;
+    font-weight: 800;
+}
+
+
+.uf-form-card-header p {
+    margin: 3px 0 0;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .67rem;
+}
+
+
+.uf-required-note {
+    color:
+        var(--uf-text-3);
+
+    font-size: .65rem;
+}
+
+
+.uf-required-note strong {
+    color:
+        var(--uf-red);
+}
+
+
+/* =========================================================
+   FORM BODY
+========================================================= */
+
+.uf-form-body {
+    padding:
+        28px 25px;
+}
+
+
+.uf-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+
+.uf-section-heading-icon {
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 9px;
+
+    background:
+        #f1f5fb;
+
+    color:
+        var(--uf-text-2);
+}
+
+
+.uf-section-heading h3 {
+    margin: 0;
+
+    color:
+        var(--uf-text);
+
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+
+.uf-section-heading p {
+    margin: 2px 0 0;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .63rem;
+}
+
+
+.uf-fields-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        20px 18px;
+}
+
+
+/* =========================================================
+   FIELD
+========================================================= */
+
+.uf-field {
+    position: relative;
+}
+
+
+.uf-field-full {
+    grid-column:
+        1 / -1;
+}
+
+
+.uf-field label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 9px;
+
+    margin-bottom: 8px;
+
+    color:
+        var(--uf-text);
+
+    font-size: .75rem;
+    font-weight: 750;
+}
+
+
+.uf-field-required {
+    margin-left: 3px;
+
+    color:
+        var(--uf-red);
+}
+
+
+.uf-field-frame {
+    position: relative;
+}
+
+
+.uf-field-frame input:not([type="checkbox"]),
+.uf-field-frame select,
+.uf-field-frame textarea {
+    width: 100%;
+
+    min-height: 48px;
+
+    padding:
+        11px 13px;
+
+    border:
+        1px solid
+        #d9e2ed;
+
+    border-radius:
+        12px;
+
+    background:
+        #fff;
+
+    color:
+        var(--uf-text);
+
+    font-size: .79rem;
+
+    outline: none;
+
+    transition:
+        border-color
+        var(--uf-transition),
+        box-shadow
+        var(--uf-transition),
+        background
+        var(--uf-transition);
+}
+
+
+.uf-field-frame textarea {
+    min-height: 120px;
+
+    resize: vertical;
+}
+
+
+.uf-field-frame input:focus,
+.uf-field-frame select:focus,
+.uf-field-frame textarea:focus {
+    border-color:
+        #83b5ff;
+
+    background:
+        #fff;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(34, 120, 255, .10);
+}
+
+
+.uf-field-frame input::placeholder,
+.uf-field-frame textarea::placeholder {
+    color:
+        #9ca8b9;
+}
+
+
+.uf-field-help {
+    margin-top: 7px;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .64rem;
+
+    line-height: 1.5;
+}
+
+
+.uf-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+
+    margin-top: 7px;
+
+    color:
+        var(--uf-red);
+
+    font-size: .65rem;
+    font-weight: 650;
+}
+
+
+.uf-error i {
+    margin-top: 1px;
+}
+
+
+/* =========================================================
+   FIELD ERROR STATE
+========================================================= */
+
+.uf-field.has-error
+input:not([type="checkbox"]),
+
+.uf-field.has-error
+select,
+
+.uf-field.has-error
+textarea {
+    border-color:
+        #ef9baa;
+
+    background:
+        #fffafb;
+}
+
+
+.uf-field.has-error
+input:focus,
+
+.uf-field.has-error
+select:focus,
+
+.uf-field.has-error
+textarea:focus {
+    border-color:
+        var(--uf-red);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(223, 68, 88, .09);
+}
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+.uf-password-wrapper {
+    position: relative;
+}
+
+
+.uf-password-wrapper input {
+    padding-right: 47px !important;
+}
+
+
+.uf-password-toggle {
+    position: absolute;
+
+    right: 8px;
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background:
+        #f3f6fa;
+
+    color:
+        #718097;
+
+    cursor: pointer;
+
+    transition:
+        var(--uf-transition);
+}
+
+
+.uf-password-toggle:hover {
+    background:
+        var(--uf-blue-soft);
+
+    color:
+        var(--uf-blue);
+}
+
+
+.uf-password-strength {
+    display: none;
+
+    margin-top: 10px;
+}
+
+
+.uf-password-strength.visible {
+    display: block;
+}
+
+
+.uf-strength-bars {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 5px;
+
+    margin-bottom: 6px;
+}
+
+
+.uf-strength-bar {
+    height: 4px;
+
+    border-radius: 999px;
+
+    background:
+        #e8edf3;
+}
+
+
+.uf-strength-text {
+    color:
+        var(--uf-text-3);
+
+    font-size: .62rem;
+}
+
+
+/* =========================================================
+   CHECKBOX / ACTIVE ACCOUNT
+========================================================= */
+
+.uf-checkbox-card {
+    grid-column:
+        1 / -1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    padding:
+        16px 17px;
+
+    border:
+        1px solid
+        var(--uf-border);
+
+    border-radius:
+        15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fafcff,
+            #fff
+        );
+}
+
+
+.uf-checkbox-copy {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+
+.uf-checkbox-symbol {
+    width: 39px;
+    height: 39px;
+
+    flex: 0 0 39px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius:
+        11px;
+
+    background:
+        var(--uf-green-soft);
+
+    color:
+        var(--uf-green);
+}
+
+
+.uf-checkbox-copy strong {
+    display: block;
+
+    color:
+        var(--uf-text);
+
+    font-size: .75rem;
+}
+
+
+.uf-checkbox-copy span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .63rem;
+}
+
+
+.uf-checkbox-input
+input[type="checkbox"] {
+    width: 42px;
+    height: 22px;
+
+    cursor: pointer;
+
+    accent-color:
+        var(--uf-blue);
+}
+
+
+/* =========================================================
+   NON FIELD ERROR
+========================================================= */
+
+.uf-form-error-summary {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        #f2bdc5;
+
+    border-radius:
+        14px;
+
+    background:
+        var(--uf-red-soft);
+
+    color:
+        #a62c3c;
+}
+
+
+.uf-form-error-summary i {
+    font-size: 1rem;
+}
+
+
+.uf-form-error-summary strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: .72rem;
+}
+
+
+.uf-form-error-summary div {
+    font-size: .66rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ACTION DOCK
+========================================================= */
+
+.uf-action-dock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+
+    padding:
+        18px 25px;
+
+    border-top:
+        1px solid
+        var(--uf-border-soft);
+
+    background:
+        #fafbfd;
+}
+
+
+.uf-action-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .64rem;
+}
+
+
+.uf-action-note i {
+    color:
+        var(--uf-green);
+}
+
+
+.uf-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+
+.uf-cancel-btn,
+.uf-submit-btn {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        10px 17px;
+
+    border-radius:
+        11px;
+
+    font-size: .74rem;
+    font-weight: 800;
+
+    transition:
+        var(--uf-transition);
+}
+
+
+.uf-cancel-btn {
+    border:
+        1px solid
+        var(--uf-border);
+
+    background:
+        #fff;
+
+    color:
+        var(--uf-text-2);
+
+    text-decoration: none;
+}
+
+
+.uf-cancel-btn:hover {
+    color:
+        var(--uf-text);
+
+    background:
+        #f7f9fc;
+
+    border-color:
+        #cbd6e4;
+}
+
+
+.uf-submit-btn {
+    min-width: 145px;
+
+    border:
+        1px solid
+        #075ce3;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0e73ff,
+            #0758dc
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 11px 25px
+        rgba(13, 105, 238, .23);
+}
+
+
+.uf-submit-btn:hover {
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 16px 32px
+        rgba(13, 105, 238, .29);
+}
+
+
+.uf-submit-btn:disabled {
+    cursor: wait;
+
+    opacity: .75;
+
+    transform: none;
+}
+
+
+.uf-submit-loading {
+    display: none;
+}
+
+
+.uf-submit-btn.loading
+.uf-submit-normal {
+    display: none;
+}
+
+
+.uf-submit-btn.loading
+.uf-submit-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+
+/* =========================================================
+   SIDE RAIL
+========================================================= */
+
+.uf-side-rail {
+    position: sticky;
+
+    top: 90px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+
+.uf-side-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--uf-border);
+
+    border-radius:
+        20px;
+
+    background:
+        var(--uf-card);
+
+    box-shadow:
+        0 10px 30px
+        rgba(17, 46, 80, .055);
+}
+
+
+.uf-side-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding:
+        17px 18px;
+
+    border-bottom:
+        1px solid
+        var(--uf-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+
+.uf-side-card-icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius:
+        10px;
+
+    background:
+        var(--uf-blue-soft);
+
+    color:
+        var(--uf-blue);
+}
+
+
+.uf-side-card-header h3 {
+    margin: 0;
+
+    color:
+        var(--uf-text);
+
+    font-size: .77rem;
+    font-weight: 800;
+}
+
+
+.uf-side-card-header p {
+    margin: 2px 0 0;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .61rem;
+}
+
+
+.uf-side-card-body {
+    padding:
+        18px;
+}
+
+
+/* =========================================================
+   LIVE PROFILE
+========================================================= */
+
+.uf-profile {
+    text-align: center;
+}
+
+
+.uf-profile-avatar {
+    width: 72px;
+    height: 72px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        2px auto
+        13px;
+
+    border:
+        4px solid
+        #fff;
+
+    border-radius:
+        21px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #126ef5,
+            #1749bd
+        );
+
+    color: #fff;
+
+    font-size: 1.2rem;
+    font-weight: 850;
+
+    box-shadow:
+        0 14px 30px
+        rgba(19, 91, 207, .22);
+}
+
+
+.uf-profile h4 {
+    margin: 0 0 4px;
+
+    color:
+        var(--uf-text);
+
+    font-size: .86rem;
+    font-weight: 800;
+}
+
+
+.uf-profile-username {
+    color:
+        #e54d63;
+
+    font-size: .67rem;
+    font-weight: 650;
+}
+
+
+.uf-profile-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-top: 12px;
+
+    padding:
+        6px 9px;
+
+    border-radius:
+        8px;
+
+    background:
+        var(--uf-blue-soft);
+
+    color:
+        var(--uf-blue-dark);
+
+    font-size: .64rem;
+    font-weight: 750;
+}
+
+
+.uf-profile-role::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius:
+        50%;
+
+    background:
+        currentColor;
+}
+
+
+.uf-profile-divider {
+    height: 1px;
+
+    margin:
+        18px 0;
+
+    background:
+        var(--uf-border-soft);
+}
+
+
+.uf-profile-meta {
+    display: grid;
+
+    gap: 11px;
+
+    text-align: left;
+}
+
+
+.uf-profile-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+
+.uf-profile-meta-row span {
+    color:
+        var(--uf-text-3);
+
+    font-size: .63rem;
+}
+
+
+.uf-profile-meta-row strong {
+    max-width: 170px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color:
+        var(--uf-text);
+
+    font-size: .64rem;
+}
+
+
+/* =========================================================
+   SECURITY CARD
+========================================================= */
+
+.uf-security-list {
+    display: grid;
+
+    gap: 13px;
+}
+
+
+.uf-security-item {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 9px;
+}
+
+
+.uf-security-check {
+    width: 24px;
+    height: 24px;
+
+    flex: 0 0 24px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius:
+        7px;
+
+    background:
+        var(--uf-green-soft);
+
+    color:
+        var(--uf-green);
+
+    font-size: .68rem;
+}
+
+
+.uf-security-item strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color:
+        var(--uf-text);
+
+    font-size: .67rem;
+}
+
+
+.uf-security-item span {
+    display: block;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .61rem;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ROLE GUIDANCE
+========================================================= */
+
+.uf-role-guide {
+    padding:
+        16px;
+
+    border:
+        1px solid
+        #dbe8fa;
+
+    border-radius:
+        16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f5f9ff,
+            #fff
+        );
+}
+
+
+.uf-role-guide-icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 11px;
+
+    border-radius:
+        10px;
+
+    background:
+        var(--uf-purple-soft);
+
+    color:
+        var(--uf-purple);
+}
+
+
+.uf-role-guide h4 {
+    margin:
+        0 0 6px;
+
+    color:
+        var(--uf-text);
+
+    font-size: .73rem;
+    font-weight: 800;
+}
+
+
+.uf-role-guide p {
+    margin: 0;
+
+    color:
+        var(--uf-text-3);
+
+    font-size: .62rem;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.uf-spinner {
+    animation:
+        ufSpin .8s
+        linear infinite;
+}
+
+
+@keyframes ufSpin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1180px) {
+
+    .uf-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .uf-side-rail {
+        position: static;
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .uf-page {
+        margin: -16px;
+
+        padding:
+            22px 16px
+            55px;
+    }
+
+
+    .uf-hero {
+        grid-template-columns: 1fr;
+    }
+
+
+    .uf-hero-description {
+        margin-left: 0;
+    }
+
+
+    .uf-flow {
+        grid-template-columns: 1fr;
+    }
+
+
+    .uf-side-rail {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .uf-fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .uf-field-full,
+    .uf-field {
+        grid-column: 1;
+    }
+
+
+    .uf-title-icon {
+        width: 50px;
+        height: 50px;
+
+        flex-basis: 50px;
+    }
+
+
+    .uf-hero h1 {
+        font-size: 1.75rem;
+    }
+
+
+    .uf-form-card-header,
+    .uf-action-dock {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .uf-action-buttons {
+        width: 100%;
+    }
+
+
+    .uf-cancel-btn,
+    .uf-submit-btn {
+        flex: 1;
+    }
+
+}
+
+</style>
+
+
+
+<div class="uf-page">
+
+    <div class="uf-shell">
+
+
+        <!-- ===============================================
+             BREADCRUMB
+        ================================================ -->
+
+        <div class="uf-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <a href="{% url 'accounts:users_list' %}">
+                User Management
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="current">
+
+                {% if request.resolver_match.url_name == 'user_edit' %}
+                    Edit User
+                {% else %}
+                    Create User
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+
+        <!-- ===============================================
+             HERO
+        ================================================ -->
+
+        <section class="uf-hero">
+
+            <div class="uf-hero-copy">
+
+                <div class="uf-eyebrow">
+
+                    <span class="uf-eyebrow-dot"></span>
+
+                    Identity Provisioning
+
+                </div>
+
+
+                <div class="uf-title-row">
+
+                    <div class="uf-title-icon">
+
+                        {% if request.resolver_match.url_name == 'user_edit' %}
+
+                            <i class="bi bi-person-gear"></i>
+
+                        {% else %}
+
+                            <i class="bi bi-person-plus-fill"></i>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <h1>
+
+                        {% if request.resolver_match.url_name == 'user_edit' %}
+
+                            Edit User Account
+
+                        {% else %}
+
+                            Create New User
+
+                        {% endif %}
+
+                    </h1>
+
+                </div>
+
+
+                <p class="uf-hero-description">
+
+                    {% if request.resolver_match.url_name == 'user_edit' %}
+
+                        Update identity information, role assignment,
+                        security credentials, and account availability
+                        while maintaining controlled EduFinance access.
+
+                    {% else %}
+
+                        Provision a secure EduFinance account by defining
+                        the user's identity, credentials, system role,
+                        and access status in one controlled workflow.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+
+            <a
+                href="{% url 'accounts:users_list' %}"
+                class="uf-back-button"
+            >
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Users
+
+            </a>
+
+        </section>
+
+
+
+        <!-- ===============================================
+             WORKFLOW
+        ================================================ -->
+
+        <section class="uf-flow">
+
+            <div class="uf-flow-item">
+
+                <div class="uf-flow-number">
+                    01
+                </div>
+
+                <div class="uf-flow-copy">
+
+                    <strong>
+                        Identity
+                    </strong>
+
+                    <span>
+                        Define the user profile
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="uf-flow-item">
+
+                <div class="uf-flow-number">
+                    02
+                </div>
+
+                <div class="uf-flow-copy">
+
+                    <strong>
+                        Access
+                    </strong>
+
+                    <span>
+                        Assign role and availability
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="uf-flow-item">
+
+                <div class="uf-flow-number">
+                    03
+                </div>
+
+                <div class="uf-flow-copy">
+
+                    <strong>
+                        Security
+                    </strong>
+
+                    <span>
+                        Review credentials and save
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ===============================================
+             MAIN WORKSPACE
+        ================================================ -->
+
+        <div class="uf-workspace">
+
+
+            <!-- ===========================================
+                 FORM
+            ============================================ -->
+
+            <form
+                method="post"
+                id="uf-user-form"
+                novalidate
+                enctype="multipart/form-data"
+            >
+
+                {% csrf_token %}
+
+
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+
+                <section class="uf-form-card">
+
+
+                    <!-- FORM HEADER -->
+
+                    <header class="uf-form-card-header">
+
+                        <div class="uf-header-left">
+
+                            <div class="uf-header-icon">
+                                <i class="bi bi-person-vcard"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Account Information
+                                </h2>
+
+                                <p>
+                                    Enter the information required
+                                    for this EduFinance account.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="uf-required-note">
+
+                            <strong>*</strong>
+                            Required fields
+
+                        </div>
+
+                    </header>
+
+
+
+                    <!-- FORM BODY -->
+
+                    <div class="uf-form-body">
+
+
+                        {% if form.non_field_errors %}
+
+                            <div class="uf-form-error-summary">
+
+                                <i class="bi bi-exclamation-circle-fill"></i>
+
+                                <div>
+
+                                    <strong>
+                                        We couldn't save this account
+                                    </strong>
+
+                                    {% for error in form.non_field_errors %}
+                                        <div>
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+
+                        <div class="uf-section-heading">
+
+                            <div class="uf-section-heading-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    User details
+                                </h3>
+
+                                <p>
+                                    Identity, credentials, and
+                                    system access configuration.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="uf-fields-grid">
+
+
+                            {% for field in form.visible_fields %}
+
+
+                                {% if field.field.widget.input_type == "checkbox" %}
+
+
+                                    <!-- =====================
+                                         CHECKBOX
+                                    ====================== -->
+
+                                    <div class="uf-checkbox-card">
+
+                                        <div class="uf-checkbox-copy">
+
+                                            <div class="uf-checkbox-symbol">
+                                                <i class="bi bi-shield-check"></i>
+                                            </div>
+
+
+                                            <div>
+
+                                                <strong>
+                                                    {{ field.label }}
+                                                </strong>
+
+
+                                                <span>
+
+                                                    {% if field.help_text %}
+
+                                                        {{ field.help_text }}
+
+                                                    {% else %}
+
+                                                        Controls whether
+                                                        this account can
+                                                        access EduFinance.
+
+                                                    {% endif %}
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="uf-checkbox-input">
+
+                                            {{ field }}
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {% for error in field.errors %}
+
+                                        <div class="uf-error uf-field-full">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            <span>
+                                                {{ error }}
+                                            </span>
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                {% else %}
+
+
+                                    <!-- =====================
+                                         STANDARD FIELD
+                                    ====================== -->
+
+                                    <div
+                                        class="
+                                            uf-field
+
+                                            {% if field.errors %}
+                                                has-error
+                                            {% endif %}
+
+                                            {% if field.field.widget.input_type == 'textarea' %}
+                                                uf-field-full
+                                            {% endif %}
+                                        "
+                                        data-field-name="{{ field.name }}"
+                                    >
+
+
+                                        <label
+                                            for="{{ field.id_for_label }}"
+                                        >
+
+                                            <span>
+
+                                                {{ field.label }}
+
+                                                {% if field.field.required %}
+
+                                                    <span class="uf-field-required">
+                                                        *
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </span>
+
+                                        </label>
+
+
+
+                                        <div
+                                            class="
+                                                uf-field-frame
+
+                                                {% if field.field.widget.input_type == 'password' %}
+                                                    uf-password-wrapper
+                                                {% endif %}
+                                            "
+                                        >
+
+                                            {{ field }}
+
+
+                                            {% if field.field.widget.input_type == "password" %}
+
+                                                <button
+                                                    type="button"
+                                                    class="uf-password-toggle"
+                                                    aria-label="Show password"
+                                                >
+
+                                                    <i class="bi bi-eye"></i>
+
+                                                </button>
+
+                                            {% endif %}
+
+                                        </div>
+
+
+
+                                        {% if field.field.widget.input_type == "password" %}
+
+                                            <div
+                                                class="uf-password-strength"
+                                                data-password-strength
+                                            >
+
+                                                <div class="uf-strength-bars">
+
+                                                    <span class="uf-strength-bar"></span>
+                                                    <span class="uf-strength-bar"></span>
+                                                    <span class="uf-strength-bar"></span>
+                                                    <span class="uf-strength-bar"></span>
+
+                                                </div>
+
+
+                                                <div class="uf-strength-text">
+                                                    Enter a secure password.
+                                                </div>
+
+                                            </div>
+
+                                        {% endif %}
+
+
+
+                                        {% if field.help_text %}
+
+                                            <div class="uf-field-help">
+                                                {{ field.help_text|safe }}
+                                            </div>
+
+                                        {% endif %}
+
+
+
+                                        {% for error in field.errors %}
+
+                                            <div class="uf-error">
+
+                                                <i class="bi bi-exclamation-circle"></i>
+
+                                                <span>
+                                                    {{ error }}
+                                                </span>
+
+                                            </div>
+
+                                        {% endfor %}
+
+
+                                    </div>
+
+                                {% endif %}
+
+
+                            {% endfor %}
+
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ===================================
+                         ACTION DOCK
+                    ==================================== -->
+
+                    <footer class="uf-action-dock">
+
+
+                        <div class="uf-action-note">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            Changes are applied only after
+                            successful validation.
+
+                        </div>
+
+
+
+                        <div class="uf-action-buttons">
+
+                            <a
+                                href="{% url 'accounts:users_list' %}"
+                                class="uf-cancel-btn"
+                            >
+
+                                Cancel
+
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="uf-submit-btn"
+                                id="uf-submit-btn"
+                            >
+
+                                <span class="uf-submit-normal">
+
+                                    {% if request.resolver_match.url_name == 'user_edit' %}
+
+                                        <i class="bi bi-check2-circle"></i>
+
+                                        Save Changes
+
+                                    {% else %}
+
+                                        <i class="bi bi-person-check-fill"></i>
+
+                                        Create User
+
+                                    {% endif %}
+
+                                </span>
+
+
+                                <span class="uf-submit-loading">
+
+                                    <i class="bi bi-arrow-repeat uf-spinner"></i>
+
+                                    Saving account...
+
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </footer>
+
+
+                </section>
+
+            </form>
+
+
+
+            <!-- ===========================================
+                 SIDE RAIL
+            ============================================ -->
+
+            <aside class="uf-side-rail">
+
+
+                <!-- =======================================
+                     LIVE ACCOUNT PREVIEW
+                ======================================== -->
+
+                <section class="uf-side-card">
+
+                    <header class="uf-side-card-header">
+
+                        <div class="uf-side-card-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Account Preview
+                            </h3>
+
+                            <p>
+                                Live identity summary
+                            </p>
+
+                        </div>
+
+                    </header>
+
+
+                    <div class="uf-side-card-body">
+
+                        <div class="uf-profile">
+
+
+                            <div
+                                class="uf-profile-avatar"
+                                id="uf-preview-avatar"
+                            >
+                                U
+                            </div>
+
+
+                            <h4 id="uf-preview-name">
+                                New EduFinance User
+                            </h4>
+
+
+                            <div
+                                class="uf-profile-username"
+                                id="uf-preview-username"
+                            >
+                                @username
+                            </div>
+
+
+                            <div
+                                class="uf-profile-role"
+                                id="uf-preview-role"
+                            >
+                                No role selected
+                            </div>
+
+
+
+                            <div class="uf-profile-divider"></div>
+
+
+
+                            <div class="uf-profile-meta">
+
+
+                                <div class="uf-profile-meta-row">
+
+                                    <span>
+                                        Email
+                                    </span>
+
+                                    <strong id="uf-preview-email">
+                                        Not provided
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="uf-profile-meta-row">
+
+                                    <span>
+                                        Account
+                                    </span>
+
+                                    <strong id="uf-preview-status">
+                                        Active
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="uf-profile-meta-row">
+
+                                    <span>
+                                        Workspace
+                                    </span>
+
+                                    <strong>
+                                        EduFinance
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =======================================
+                     SECURITY
+                ======================================== -->
+
+                <section class="uf-side-card">
+
+                    <header class="uf-side-card-header">
+
+                        <div class="uf-side-card-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Security Review
+                            </h3>
+
+                            <p>
+                                Before saving
+                            </p>
+
+                        </div>
+
+                    </header>
+
+
+                    <div class="uf-side-card-body">
+
+                        <div class="uf-security-list">
+
+
+                            <div class="uf-security-item">
+
+                                <div class="uf-security-check">
+                                    <i class="bi bi-check2"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Unique identity
+                                    </strong>
+
+                                    <span>
+                                        Use a unique username and
+                                        verified email address.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="uf-security-item">
+
+                                <div class="uf-security-check">
+                                    <i class="bi bi-check2"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Least-privilege access
+                                    </strong>
+
+                                    <span>
+                                        Assign only the system role
+                                        required for this user's work.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="uf-security-item">
+
+                                <div class="uf-security-check">
+                                    <i class="bi bi-check2"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Secure credentials
+                                    </strong>
+
+                                    <span>
+                                        Prefer a strong password with
+                                        mixed character types.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =======================================
+                     ROLE GUIDE
+                ======================================== -->
+
+                <div class="uf-role-guide">
+
+                    <div class="uf-role-guide-icon">
+                        <i class="bi bi-diagram-3-fill"></i>
+                    </div>
+
+
+                    <h4>
+                        Role-driven access
+                    </h4>
+
+
+                    <p id="uf-role-guidance">
+
+                        The selected system role determines which
+                        EduFinance functions this account can access.
+                        Review the assignment carefully before saving.
+
+                    </p>
+
+                </div>
+
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* =================================================
+           FORM
+        ================================================= */
+
+        const form =
+            document.getElementById(
+                "uf-user-form"
+            );
+
+        const submitButton =
+            document.getElementById(
+                "uf-submit-btn"
+            );
+
+
+        if (!form) {
+            return;
+        }
+
+
+
+        /* =================================================
+           PASSWORD VISIBILITY
+        ================================================= */
+
+        document
+            .querySelectorAll(
+                ".uf-password-toggle"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const wrapper =
+                                button.closest(
+                                    ".uf-password-wrapper"
+                                );
+
+                            const input =
+                                wrapper
+                                    ? wrapper.querySelector(
+                                        'input[type="password"], input[type="text"]'
+                                    )
+                                    : null;
+
+
+                            if (!input) {
+                                return;
+                            }
+
+
+                            const showing =
+                                input.type === "text";
+
+
+                            input.type =
+                                showing
+                                    ? "password"
+                                    : "text";
+
+
+                            button.innerHTML =
+                                showing
+                                    ? '<i class="bi bi-eye"></i>'
+                                    : '<i class="bi bi-eye-slash"></i>';
+
+
+                            button.setAttribute(
+                                "aria-label",
+                                showing
+                                    ? "Show password"
+                                    : "Hide password"
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* =================================================
+           PASSWORD STRENGTH
+        ================================================= */
+
+        const passwordInput =
+            form.querySelector(
+                'input[type="password"]'
+            );
+
+
+        const strengthBox =
+            document.querySelector(
+                "[data-password-strength]"
+            );
+
+
+        if (
+            passwordInput &&
+            strengthBox
+        ) {
+
+            const bars =
+                Array.from(
+                    strengthBox.querySelectorAll(
+                        ".uf-strength-bar"
+                    )
+                );
+
+            const text =
+                strengthBox.querySelector(
+                    ".uf-strength-text"
+                );
+
+
+            function evaluatePassword() {
+
+                const value =
+                    passwordInput.value || "";
+
+
+                if (!value) {
+
+                    strengthBox.classList.remove(
+                        "visible"
+                    );
+
+                    return;
+                }
+
+
+                strengthBox.classList.add(
+                    "visible"
+                );
+
+
+                let score = 0;
+
+
+                if (
+                    value.length >= 8
+                ) {
+                    score++;
+                }
+
+
+                if (
+                    /[A-Z]/.test(value) &&
+                    /[a-z]/.test(value)
+                ) {
+                    score++;
+                }
+
+
+                if (
+                    /\d/.test(value)
+                ) {
+                    score++;
+                }
+
+
+                if (
+                    /[^A-Za-z0-9]/.test(value)
+                ) {
+                    score++;
+                }
+
+
+                const states = [
+                    {
+                        label:
+                            "Weak password",
+                        color:
+                            "#df4458"
+                    },
+                    {
+                        label:
+                            "Fair password",
+                        color:
+                            "#ed8913"
+                    },
+                    {
+                        label:
+                            "Good password",
+                        color:
+                            "#3086f5"
+                    },
+                    {
+                        label:
+                            "Strong password",
+                        color:
+                            "#0aa35e"
+                    }
+                ];
+
+
+                const state =
+                    states[
+                        Math.max(
+                            0,
+                            score - 1
+                        )
+                    ];
+
+
+                bars.forEach(
+                    function (
+                        bar,
+                        index
+                    ) {
+
+                        bar.style.background =
+                            index < score
+                                ? state.color
+                                : "#e8edf3";
+
+                    }
+                );
+
+
+                text.textContent =
+                    state.label;
+
+                text.style.color =
+                    state.color;
+
+            }
+
+
+            passwordInput.addEventListener(
+                "input",
+                evaluatePassword
+            );
+
+        }
+
+
+
+        /* =================================================
+           LIVE PREVIEW FIELD DISCOVERY
+        ================================================= */
+
+        function fieldByName(name) {
+
+            return form.querySelector(
+                '[name="' +
+                name +
+                '"]'
+            );
+
+        }
+
+
+        const firstName =
+            fieldByName(
+                "first_name"
+            );
+
+        const lastName =
+            fieldByName(
+                "last_name"
+            );
+
+        const username =
+            fieldByName(
+                "username"
+            );
+
+        const email =
+            fieldByName(
+                "email"
+            );
+
+        const role =
+            fieldByName(
+                "role"
+            );
+
+        const active =
+            fieldByName(
+                "is_active"
+            );
+
+
+        const previewAvatar =
+            document.getElementById(
+                "uf-preview-avatar"
+            );
+
+        const previewName =
+            document.getElementById(
+                "uf-preview-name"
+            );
+
+        const previewUsername =
+            document.getElementById(
+                "uf-preview-username"
+            );
+
+        const previewEmail =
+            document.getElementById(
+                "uf-preview-email"
+            );
+
+        const previewRole =
+            document.getElementById(
+                "uf-preview-role"
+            );
+
+        const previewStatus =
+            document.getElementById(
+                "uf-preview-status"
+            );
+
+
+
+        /* =================================================
+           PREVIEW
+        ================================================= */
+
+        function updatePreview() {
+
+            const first =
+                firstName
+                    ? firstName.value.trim()
+                    : "";
+
+            const last =
+                lastName
+                    ? lastName.value.trim()
+                    : "";
+
+            const completeName =
+                (
+                    first +
+                    " " +
+                    last
+                ).trim();
+
+
+            const usernameValue =
+                username
+                    ? username.value.trim()
+                    : "";
+
+
+            const emailValue =
+                email
+                    ? email.value.trim()
+                    : "";
+
+
+            let roleValue =
+                "No role selected";
+
+
+            if (
+                role &&
+                role.options &&
+                role.selectedIndex >= 0
+            ) {
+
+                const text =
+                    role.options[
+                        role.selectedIndex
+                    ].textContent.trim();
+
+
+                if (
+                    text &&
+                    !text
+                        .toLowerCase()
+                        .includes(
+                            "select"
+                        )
+                ) {
+                    roleValue =
+                        text;
+                }
+
+            }
+
+
+            previewName.textContent =
+                completeName ||
+                usernameValue ||
+                "New EduFinance User";
+
+
+            previewUsername.textContent =
+                usernameValue
+                    ? "@" + usernameValue
+                    : "@username";
+
+
+            previewEmail.textContent =
+                emailValue ||
+                "Not provided";
+
+
+            previewRole.textContent =
+                roleValue;
+
+
+            if (active) {
+
+                previewStatus.textContent =
+                    active.checked
+                        ? "Active"
+                        : "Inactive";
+
+                previewStatus.style.color =
+                    active.checked
+                        ? "#078149"
+                        : "#c9344b";
+
+            }
+
+
+            const avatarSource =
+                completeName ||
+                usernameValue ||
+                "User";
+
+
+            const words =
+                avatarSource
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean);
+
+
+            let initials = "U";
+
+
+            if (
+                words.length >= 2
+            ) {
+
+                initials =
+                    (
+                        words[0][0] +
+                        words[1][0]
+                    ).toUpperCase();
+
+            }
+
+            else if (
+                words.length === 1
+            ) {
+
+                initials =
+                    words[0][0]
+                        .toUpperCase();
+
+            }
+
+
+            previewAvatar.textContent =
+                initials;
+
+        }
+
+
+
+        [
+            firstName,
+            lastName,
+            username,
+            email
+        ]
+        .filter(Boolean)
+        .forEach(
+            function (field) {
+
+                field.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+        if (role) {
+
+            role.addEventListener(
+                "change",
+                updatePreview
+            );
+
+        }
+
+
+        if (active) {
+
+            active.addEventListener(
+                "change",
+                updatePreview
+            );
+
+        }
+
+
+        updatePreview();
+
+
+
+        /* =================================================
+           FORM FIELD MICRO INTERACTION
+        ================================================= */
+
+        form
+            .querySelectorAll(
+                "input, select, textarea"
+            )
+            .forEach(
+                function (field) {
+
+                    field.addEventListener(
+                        "focus",
+                        function () {
+
+                            const wrapper =
+                                field.closest(
+                                    ".uf-field"
+                                );
+
+                            if (wrapper) {
+
+                                wrapper.style
+                                    .transform =
+                                        "translateY(-1px)";
+
+                            }
+
+                        }
+                    );
+
+
+                    field.addEventListener(
+                        "blur",
+                        function () {
+
+                            const wrapper =
+                                field.closest(
+                                    ".uf-field"
+                                );
+
+                            if (wrapper) {
+
+                                wrapper.style
+                                    .transform =
+                                        "";
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* =================================================
+           SUBMIT LOADING STATE
+        ================================================= */
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+
+                if (
+                    submitButton.disabled
+                ) {
+                    return;
+                }
+
+
+                submitButton.disabled =
+                    true;
+
+
+                submitButton.classList.add(
+                    "loading"
+                );
+
+
+                form
+                    .querySelectorAll(
+                        "input, select, textarea"
+                    )
+                    .forEach(
+                        function (field) {
+
+                            field.setAttribute(
+                                "aria-busy",
+                                "true"
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

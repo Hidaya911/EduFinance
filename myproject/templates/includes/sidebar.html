@@ -1,96 +1,405 @@
 {% load static %}
+
 <!-- Sidebar -->
 <aside class="sidebar d-flex flex-column justify-content-between p-3">
+
   <div>
-    <!-- Brand Logo -->
+
+    <!-- =====================================================
+         BRAND
+    ====================================================== -->
+
     <div class="sidebar-brand mb-4 p-0">
-      <img src="{% static 'images/EduFinance_Logo.png' %}" alt="EduFinance Logo" style="height: 69px; width: auto; display: block;">
+      <img
+        src="{% static 'images/EduFinance_Logo.png' %}"
+        alt="EduFinance Logo"
+        style="
+          height: 69px;
+          width: auto;
+          display: block;
+        "
+      >
     </div>
 
-    <!-- Navigation Menu -->
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
     <nav class="sidebar-nav">
-      
-      <!-- OVERVIEW -->
-      <div class="nav-section-label">OVERVIEW</div>
-      <a href="{% url 'dashboard' %}" class="nav-link-custom {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-        <i class="bi bi-grid-fill me-2"></i> Dashboard
+
+
+      <!-- ===================================================
+           OVERVIEW
+      ==================================================== -->
+
+      <div class="nav-section-label">
+        OVERVIEW
+      </div>
+
+      <a
+        href="{% url 'dashboard' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.url_name == 'dashboard' %}
+          active
+        {% endif %}"
+      >
+        <i class="bi bi-grid-fill me-2"></i>
+        Dashboard
       </a>
 
-      <!-- STUDENTS -->
-      <div class="nav-section-label">STUDENTS</div>
-      <a href="#" class="nav-link-custom {% if 'student' in request.path %}active{% endif %}">
-        <i class="bi bi-people-fill me-2"></i> Students
-      </a>
-      <a href="#" class="nav-link-custom">
-        <i class="bi bi-person-badge-fill me-2"></i> Guardians
-      </a>
 
-      <!-- FINANCE -->
-      <div class="nav-section-label">FINANCE</div>
-      <a href="#" class="nav-link-custom">Fee Structures</a>
-      <a href="#" class="nav-link-custom">Invoices</a>
-      <a href="#" class="nav-link-custom">Payments</a>
-      <a href="#" class="nav-link-custom">Installments</a>
-      <a href="{% url 'payables:scholarship_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'scholarship_' in request.resolver_match.url_name %}active{% endif %}">Scholarships</a>
-      <a href="{% url 'payables:discount_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'discount_' in request.resolver_match.url_name %}active{% endif %}">Discounts</a>
-      <a href="{% url 'payables:financial_assistance_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'financial_assistance_' in request.resolver_match.url_name %}active{% endif %}">Financial Assistance</a>
-      <a href="#" class="nav-link-custom">Refunds</a>
+      <!-- ===================================================
+           STUDENTS
+      ==================================================== -->
 
-      <!-- EXPENSES -->
-      <div class="nav-section-label">EXPENSES</div>
-      <a href="{% url 'payables:expense_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'expense_' in request.resolver_match.url_name %}active{% endif %}">Expenses</a>
-      <a href="{% url 'payables:supplier_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'supplier_' in request.resolver_match.url_name %}active{% endif %}">Suppliers</a>
+      <div class="nav-section-label">
+        STUDENTS
+      </div>
 
-      <!-- REPORTING -->
-      <div class="nav-section-label">REPORTING</div>
-      <a href="#" class="nav-link-custom {% if 'reports' in request.path %}active{% endif %}">
-        <i class="bi bi-bar-chart-line-fill me-2"></i> Reports
-      </a>
-      <a href="#" class="nav-link-custom">
-        <i class="bi bi-file-text-fill me-2"></i> Statements
+      <a
+        href="#"
+        class="nav-link-custom
+        {% if 'student' in request.path %}
+          active
+        {% endif %}"
+      >
+        <i class="bi bi-people-fill me-2"></i>
+        Students
       </a>
 
-      <!-- MANAGEMENT (Visible to Admins / Managers / Staff) -->
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        <i class="bi bi-person-badge-fill me-2"></i>
+        Guardians
+      </a>
+
+
+      <!-- ===================================================
+           FINANCE
+      ==================================================== -->
+
+      <div class="nav-section-label">
+        FINANCE
+      </div>
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        Fee Structures
+      </a>
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        Invoices
+      </a>
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        Payments
+      </a>
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        Installments
+      </a>
+
+
+      <!-- Scholarships -->
+
+      <a
+        href="{% url 'payables:scholarship_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'scholarship_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        Scholarships
+      </a>
+
+
+      <!-- Discounts -->
+
+      <a
+        href="{% url 'payables:discount_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'discount_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        Discounts
+      </a>
+
+
+      <!-- Financial Assistance -->
+
+      <a
+        href="{% url 'payables:financial_assistance_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'financial_assistance_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        Financial Assistance
+      </a>
+
+
+      <!-- Refunds -->
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        Refunds
+      </a>
+
+
+      <!-- ===================================================
+           EXPENSES
+      ==================================================== -->
+
+      <div class="nav-section-label">
+        EXPENSES
+      </div>
+
+
+      <a
+        href="{% url 'payables:expense_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'expense_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        Expenses
+      </a>
+
+
+      <a
+        href="{% url 'payables:supplier_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'supplier_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        Suppliers
+      </a>
+
+
+      <!-- ===================================================
+           REPORTING
+      ==================================================== -->
+
+      <div class="nav-section-label">
+        REPORTING
+      </div>
+
+
+      <a
+        href="#"
+        class="nav-link-custom
+        {% if 'reports' in request.path %}
+          active
+        {% endif %}"
+      >
+        <i class="bi bi-bar-chart-line-fill me-2"></i>
+        Reports
+      </a>
+
+
+      <a
+        href="#"
+        class="nav-link-custom"
+      >
+        <i class="bi bi-file-text-fill me-2"></i>
+        Statements
+      </a>
+
+
+      <!-- ===================================================
+           MANAGEMENT
+           Keep visibility generic.
+           Actual access remains protected by Dev1 views /
+           permissions rather than hard-coded group names.
+      ==================================================== -->
+
       {% if user.is_staff or user.is_superuser %}
-      <div class="nav-section-label">MANAGEMENT</div>
-      <a href="#" class="nav-link-custom">
-        <i class="bi bi-people-fill me-2"></i> Users
-      </a>
-      <a href="{% url 'roles_list' %}" class="nav-link-custom {% if 'roles' in request.path %}active{% endif %}">
-        <i class="bi bi-shield-check me-2"></i> Roles & Permissions
-      </a>
-      <a href="{% url 'payables:approval_list' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'payables' and 'approval_' in request.resolver_match.url_name %}active{% endif %}">
-        <i class="bi bi-check-circle-fill me-2"></i> Approvals
-      </a>
-      <a href="#" class="nav-link-custom">
-        <i class="bi bi-journal-text me-2"></i> Audit Log
-      </a>
+
+        <div class="nav-section-label">
+          MANAGEMENT
+        </div>
+
+
+        <!-- Users — teammate functionality -->
+
+        <a
+          href="{% url 'accounts:users_list' %}"
+          class="nav-link-custom
+          {% if request.resolver_match.namespace == 'accounts' and request.resolver_match.url_name == 'users_list' %}
+            active
+          {% endif %}"
+        >
+          <i class="bi bi-people-fill me-2"></i>
+          Users
+        </a>
+
+
+        <!-- Roles & Permissions — teammate functionality -->
+
+        <a
+          href="{% url 'accounts:roles_list' %}"
+          class="nav-link-custom
+          {% if request.resolver_match.namespace == 'accounts' and 'role' in request.resolver_match.url_name %}
+            active
+          {% endif %}"
+        >
+          <i class="bi bi-shield-check me-2"></i>
+          Roles & Permissions
+        </a>
+
+
+        <!-- Approvals — preserve Developer 3 integration -->
+
+        <a
+          href="{% url 'payables:approval_list' %}"
+          class="nav-link-custom
+          {% if request.resolver_match.namespace == 'payables' and 'approval_' in request.resolver_match.url_name %}
+            active
+          {% endif %}"
+        >
+          <i class="bi bi-check-circle-fill me-2"></i>
+          Approvals
+        </a>
+
+
+        <!-- Audit Log placeholder -->
+
+        <a
+          href="#"
+          class="nav-link-custom"
+        >
+          <i class="bi bi-journal-text me-2"></i>
+          Audit Log
+        </a>
+
       {% endif %}
 
-      <!-- CONFIGURATION (Visible to Super Admins) -->
+
+      <!-- ===================================================
+           CONFIGURATION
+      ==================================================== -->
+
       {% if user.is_superuser %}
-      <div class="nav-section-label">CONFIGURATION</div>
-      <a href="#" class="nav-link-custom">Academic Years</a>
-      <a href="{% url 'school_config:school_settings' %}" class="nav-link-custom {% if request.resolver_match.namespace == 'school_config' %}active{% endif %}">School Settings</a>
+
+        <div class="nav-section-label">
+          CONFIGURATION
+        </div>
+
+
+        <a
+          href="#"
+          class="nav-link-custom"
+        >
+          Academic Years
+        </a>
+
+
+        <!-- Preserve real School Settings route -->
+
+        <a
+          href="{% url 'school_config:school_settings' %}"
+          class="nav-link-custom
+          {% if request.resolver_match.namespace == 'school_config' %}
+            active
+          {% endif %}"
+        >
+          School Settings
+        </a>
+
       {% endif %}
+
 
     </nav>
+
   </div>
 
-  <!-- User Profile Badge at Bottom -->
-  <div class="sidebar-user pt-3 border-top border-secondary-subtle d-flex align-items-center gap-2">
+
+  <!-- =======================================================
+       USER PROFILE
+  ======================================================== -->
+
+  <div
+    class="
+      sidebar-user
+      pt-3
+      border-top
+      border-secondary-subtle
+      d-flex
+      align-items-center
+      gap-2
+    "
+  >
+
     <div class="user-avatar-sm">
-      {{ user.first_name|default:"A"|slice:":1" }}{{ user.last_name|default:"R"|slice:":1" }}
-    </div>
-    <div class="user-info text-truncate">
-      <div class="user-name">{{ user.get_full_name|default:"Amal Rahal" }}</div>
-      <div class="user-role">
-        {% if user.is_superuser %}
-          Super Admin
-        {% else %}
-          {{ user.groups.first.name|default:"Accountant" }}
+
+      {% if user.first_name %}
+
+        {{ user.first_name|slice:":1"|upper }}
+
+        {% if user.last_name %}
+          {{ user.last_name|slice:":1"|upper }}
         {% endif %}
-      </div>
+
+      {% else %}
+
+        {{ user.username|slice:":1"|upper }}
+
+      {% endif %}
+
     </div>
+
+
+    <div class="user-info text-truncate">
+
+      <div class="user-name fw-bold">
+
+        {% if user.get_full_name %}
+
+          {{ user.get_full_name }}
+
+        {% else %}
+
+          {{ user.username }}
+
+        {% endif %}
+
+      </div>
+
+
+      <div class="user-role text-white small">
+
+        {% if user.is_superuser %}
+
+          Super Admin
+
+        {% else %}
+
+          {{ user.groups.first.name|default:"User" }}
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
   </div>
+
 </aside>
