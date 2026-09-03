@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md-6">
+            <h1 class="h3 mb-1 text-gray-800">Classes & Sections</h1>
+            <p class="text-muted small">Manage sections under each grade level</p>
+        </div>
+        <div class="col-12 col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'school_config:class_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Add New Class
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Grade</th>
+                            <th>Class Section</th>
+                            <th>Status</th>
+                            <th class="text-center" style="width: 180px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cls in classes %}
+                        <tr>
+                            <td class="fw-bold">{{ cls.grade.name }}</td>
+                            <td>{{ cls.name }}</td>
+                            <td>
+                                {% if cls.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'school_config:class_edit' cls.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a href="{% url 'school_config:class_delete' cls.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this class section?');">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No classes configured yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

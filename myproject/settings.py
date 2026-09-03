@@ -58,6 +58,9 @@ INSTALLED_APPS = [
     "payables.apps.PayablesConfig",
 
     "school_config",
+
+    "accounts.core.apps.CoreConfig",
+    "audit_log.apps.AuditLogConfig",
 ]
 
 
@@ -79,6 +82,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
 
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'audit_log.middleware.CurrentUserMiddleware',
 ]
 
 
@@ -109,7 +113,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
-
+                 'accounts.context_processors.notification_badge',
                 "django.contrib.auth.context_processors.auth",
 
                 (

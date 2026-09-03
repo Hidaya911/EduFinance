@@ -14,8 +14,10 @@ from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
-
+from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from .models import Notification, NotificationPreference
+
 from .forms import (
     EmailLoginForm, 
     CustomPasswordResetForm, 
@@ -26,6 +28,23 @@ from .forms import (
 )
 
 User = get_user_model()
+
+
+def _mongo_id_variants(value):
+    """Return the forms an identifier may have in old/new Mongo records."""
+    variants = [value, str(value)]
+    if str(value).isdigit():
+        variants.append(int(value))
+    if ObjectId.is_valid(str(value)):
+        variants.append(ObjectId(str(value)))
+    return variants
+
+
+def _role_id_variants(role):
+    variants = _mongo_id_variants(role.pk)
+    if getattr(role, 'id', None) != role.pk:
+        variants.extend(_mongo_id_variants(role.id))
+    return variants
 
 # Disconnect update_last_login to prevent Djongo write issues on login
 user_logged_in.disconnect(dispatch_uid='update_last_login')
@@ -133,7 +152,7 @@ def _create_notification(db, user_id, title, message, preference_name='system_al
 # EDIT: Role-permission changes affect all members of a role, so collect their
 # MongoDB user IDs and notify each person once.
 def _role_member_ids(db, role):
-    role_ids = {str(role.id), str(role.pk)}
+    role_ids = {str(value) for value in _role_id_variants(role)}
     member_ids = set()
     for link in db['auth_user_groups'].find({}):
         if str(link.get('group_id')) in role_ids and link.get('user_id') is not None:
@@ -160,6 +179,8 @@ def login_view(request):
 
 
 def logout_view(request):
+    storage = messages.get_messages(request)
+    storage.used = True
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('accounts:login')
@@ -220,11 +241,11 @@ def is_super_admin(user):
         super_admin_groups = list(db['auth_group'].find({'$or': [
             {'_id': {'$in': group_ids}},
             {'id': {'$in': group_ids}},
-            {'name': 'Super Admin'}
-        ]})) if group_ids else list(db['auth_group'].find({'name': 'Super Admin'}))
+            {'name': {'$in': ['Super Admin', 'Super Administrator']}}
+        ]})) if group_ids else list(db['auth_group'].find({'name': {'$in': ['Super Admin', 'Super Administrator']}}))
         
-        super_admin_group_ids = {str(g.get('_id')) for g in super_admin_groups if g.get('name') == 'Super Admin'}.union(
-            {str(g.get('id')) for g in super_admin_groups if g.get('name') == 'Super Admin'}
+        super_admin_group_ids = {str(g.get('_id')) for g in super_admin_groups if g.get('name') in {'Super Admin', 'Super Administrator'}}.union(
+            {str(g.get('id')) for g in super_admin_groups if g.get('name') in {'Super Admin', 'Super Administrator'}}
         )
         
         for link in m2m_links:
@@ -237,9 +258,9 @@ def is_super_admin(user):
                     continue
                 items = val if isinstance(val, list) else [val]
                 for item in items:
-                    if isinstance(item, dict) and item.get('name') == 'Super Admin':
+                    if isinstance(item, dict) and item.get('name') in {'Super Admin', 'Super Administrator'}:
                         return True
-                    elif str(item) in {'Super Admin', '1'}:
+                    elif str(item) in {'Super Admin', 'Super Administrator', '1'}:
                         return True
     except Exception:
         pass
@@ -252,6 +273,14 @@ def is_super_admin(user):
 def roles_list(request):
     roles = Group.objects.all()
     roles_data = []
+    role_name_set = {role.name for role in roles}
+    # A superuser without an explicit group should appear once, under the
+    # installation's canonical super-admin role, not under both aliases.
+    default_super_admin_role = (
+        'Super Administrator'
+        if 'Super Administrator' in role_name_set
+        else 'Super Admin'
+    )
 
     client = MongoClient(
         settings.MONGO_URI if hasattr(settings, 'MONGO_URI') 
@@ -266,43 +295,43 @@ def roles_list(request):
 
     total_system_perms = Permission.objects.count()
 
-    all_orm_users = list(User.objects.all())
-    orm_users_by_group = {}
-    for u in all_orm_users:
-        display_name = u.get_full_name().strip() if u.get_full_name().strip() else u.username
-        try:
-            for g in u.groups.all():
-                orm_users_by_group.setdefault(g.id, []).append(display_name)
-                orm_users_by_group.setdefault(g.name, []).append(display_name)
-        except Exception:
-            pass
+    # Build one canonical membership map.  Historical records use a mix of
+    # MongoDB ObjectIds, strings and legacy numeric ``id`` fields, so comparing
+    # one representation (as the old code did) omitted most role members.
+    group_name_by_id = {}
+    for group in raw_groups:
+        name = group.get('name')
+        if not name:
+            continue
+        for identifier in (group.get('_id'), group.get('id'), name):
+            if identifier is not None:
+                group_name_by_id[str(identifier)] = name
+
+    role_names_by_user_id = {}
+    for link in raw_user_groups_m2m:
+        user_id = link.get('user_id')
+        group_name = group_name_by_id.get(str(link.get('group_id')))
+        if user_id is not None and group_name:
+            role_names_by_user_id.setdefault(str(user_id), set()).add(group_name)
 
     for role in roles:
         assigned_users = []
+        assigned_user_keys = set()
         role_str_id = str(role.pk)
 
-        m2m_user_ids = set()
-        for link in raw_user_groups_m2m:
-            link_group_id = str(link.get('group_id', ''))
-            if link_group_id in {role_str_id, str(role.id), role.name}:
-                m2m_user_ids.add(str(link.get('user_id', '')))
-
         for u in raw_users:
-            user_id_str = str(u.get('_id', u.get('id', '')))
+            user_id_values = {
+                str(value) for value in (u.get('_id'), u.get('id'), u.get('username'))
+                if value is not None
+            }
             
             user_display_name = u.get('username', '')
             if u.get('first_name') or u.get('last_name'):
                 user_display_name = f"{u.get('first_name', '')} {u.get('last_name', '')}".strip()
 
-            if role.name == 'Super Admin' and u.get('is_superuser'):
-                if user_display_name not in assigned_users:
-                    assigned_users.append(user_display_name)
-                    continue
-
-            if user_id_str in m2m_user_ids:
-                if user_display_name not in assigned_users:
-                    assigned_users.append(user_display_name)
-                    continue
+            user_role_names = set()
+            for user_id in user_id_values:
+                user_role_names.update(role_names_by_user_id.get(user_id, set()))
 
             raw_role_vals = [
                 u.get('role'),
@@ -320,24 +349,26 @@ def roles_list(request):
 
                 for item in items:
                     if isinstance(item, dict):
-                        user_group_identifiers.add(str(item.get('name', '')))
+                        user_role_names.add(str(item.get('name', '')))
                         user_group_identifiers.add(str(item.get('id', '')))
                         user_group_identifiers.add(str(item.get('_id', '')))
                     else:
+                        user_role_names.add(str(item))
                         user_group_identifiers.add(str(item))
 
-            role_match_keys = {role_str_id, str(role.id), role.name, role.name.lower()}
-
-            if bool(user_group_identifiers.intersection(role_match_keys)):
-                if user_display_name not in assigned_users:
+            role_match_keys = {str(value) for value in _role_id_variants(role)} | {role.name}
+            is_default_super_admin_role = role.name == default_super_admin_role
+            if (
+                role.name in user_role_names or
+                bool(user_group_identifiers.intersection(role_match_keys)) or
+                (is_default_super_admin_role and u.get('is_superuser'))
+            ):
+                user_key = str(u.get('_id', u.get('id', u.get('username'))))
+                if user_key not in assigned_user_keys:
+                    assigned_user_keys.add(user_key)
                     assigned_users.append(user_display_name)
 
-        orm_names = orm_users_by_group.get(role.id, []) + orm_users_by_group.get(role.name, [])
-        for name in orm_names:
-            if name not in assigned_users:
-                assigned_users.append(name)
-
-        group_id_values = {role.id, str(role.id), role_str_id}
+        group_id_values = _role_id_variants(role)
         perm_count = db['auth_group_permissions'].count_documents({
             'group_id': {'$in': list(group_id_values)}
         })
@@ -371,6 +402,7 @@ def delete_role(request, role_id):
 
 
 @login_required
+@user_passes_test(is_super_admin)
 def role_permissions(request, role_id):
     try:
         role = Group.objects.get(pk=role_id)
@@ -384,14 +416,29 @@ def role_permissions(request, role_id):
     db = client[settings.DATABASES['default']['NAME']]
 
     if request.method == 'POST':
-        selected_ids = [int(pid) for pid in request.POST.getlist('permissions') if pid.isdigit()]
+        # MongoDB permission identifiers may be ObjectIds, not integers.
+        # Preserve the posted identifiers exactly as rendered by the form.
+        selected_ids = []
+        for permission_id in request.POST.getlist('permissions'):
+            if not permission_id:
+                continue
+            permission = db['auth_permission'].find_one({'$or': [
+                {'_id': {'$in': _mongo_id_variants(permission_id)}},
+                {'id': {'$in': _mongo_id_variants(permission_id)}},
+            ]})
+            # Store the identifier type used by the permission document so
+            # Django's permission backend can resolve the relation as well.
+            selected_ids.append(
+                permission.get('id', permission.get('_id', permission_id))
+                if permission else permission_id
+            )
 
         db['auth_group_permissions'].delete_many({
-            'group_id': {'$in': [role.id, str(role.id)]}
+            'group_id': {'$in': _role_id_variants(role)}
         })
         if selected_ids:
             db['auth_group_permissions'].insert_many([
-                {'group_id': role.id, 'permission_id': pid} for pid in selected_ids
+                {'group_id': role.pk, 'permission_id': pid} for pid in selected_ids
             ])
         # EDIT: Inform users whose role changed, and the administrator who made
         # the change, after the new permission links were saved successfully.
@@ -424,11 +471,7 @@ def role_permissions(request, role_id):
     ]
 
     role_permission_ids = set()
-    query_conditions = [{'group_id': role.id}]
-    
-    if str(role.id).isdigit():
-        query_conditions.append({'group_id': int(role.id)})
-    query_conditions.append({'group_id': str(role.id)})
+    query_conditions = [{'group_id': value} for value in _role_id_variants(role)]
     query_conditions.append({'group_name': role.name})
 
     perm_links = db['auth_group_permissions'].find({'$or': query_conditions})
@@ -611,7 +654,7 @@ def user_edit(request, user_id):
             # EDIT: Preserve the old values so the notification accurately
             # describes the account update after MongoDB has been changed.
             old_role_link = db['auth_user_groups'].find_one({
-                'user_id': {'$in': [raw_user['_id'], str(raw_user['_id'])]}
+                'user_id': {'$in': _mongo_id_variants(raw_user['_id']) + _mongo_id_variants(raw_user.get('id', raw_user['_id']))}
             })
             update_data = {
                 'username': form.cleaned_data.get('username'),
@@ -630,19 +673,19 @@ def user_edit(request, user_id):
 
             role = form.cleaned_data.get('role')
             db['auth_user_groups'].delete_many({
-                'user_id': {'$in': [raw_user['_id'], str(raw_user['_id'])]}
+                'user_id': {'$in': _mongo_id_variants(raw_user['_id']) + _mongo_id_variants(raw_user.get('id', raw_user['_id']))}
             })
             if role:
                 db['auth_user_groups'].insert_one({
                     'user_id': raw_user['_id'],
-                    'group_id': role.id
+                    'group_id': role.pk
                 })
 
             # EDIT: Create an in-app record for the edited user and a separate
             # audit alert for the admin performing the update. This is written
             # directly to accounts_notification and therefore appears in the UI.
             role_changed = (str(old_role_link.get('group_id')) if old_role_link else None) != (
-                str(role.id) if role else None
+                str(role.pk) if role else None
             )
             target_title = 'Your role was updated' if role_changed else 'Your account was updated'
             target_message = (
@@ -673,11 +716,14 @@ def user_edit(request, user_id):
         storage.used = True
         
         current_group_link = db['auth_user_groups'].find_one({
-            'user_id': {'$in': [raw_user['_id'], str(raw_user['_id'])]}
+            'user_id': {'$in': _mongo_id_variants(raw_user['_id']) + _mongo_id_variants(raw_user.get('id', raw_user['_id']))}
         })
         initial_role = None
         if current_group_link:
-            group_doc = db['auth_group'].find_one({'$or': [{'_id': current_group_link['group_id']}, {'id': current_group_link['group_id']}]})
+            group_doc = db['auth_group'].find_one({'$or': [
+                {'_id': {'$in': _mongo_id_variants(current_group_link['group_id'])}},
+                {'id': {'$in': _mongo_id_variants(current_group_link['group_id'])}},
+            ]})
             if group_doc:
                 initial_role = Group.objects.filter(name=group_doc.get('name')).first()
 
@@ -817,3 +863,57 @@ def notification_settings(request):
     return render(request, 'accounts/notification_settings.html', {
         'form': form
     })
+
+@login_required
+def profile_settings_view(request):
+    User = get_user_model()
+    password_form = PasswordChangeForm(request.user)
+
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            user = request.user
+            new_username = request.POST.get('username', '').strip()
+            
+            if new_username and new_username != user.username:
+                if User.objects.filter(username=new_username).exists():
+                    messages.error(request, "This username is already taken.")
+                    return redirect('accounts:profile_settings')
+                user.username = new_username
+
+            user.first_name = request.POST.get('first_name', '')
+            user.last_name = request.POST.get('last_name', '')
+            user.email = request.POST.get('email', '')
+            user.save()
+            
+            # Trigger notification for the notification side panel
+            # Notification.objects.create(
+            #     user=user, 
+            #     title="Profile Updated", 
+            #     message="Your account credentials and personal details were modified successfully."
+            # )
+
+            messages.success(request, "Your profile settings have been updated successfully.")
+            return redirect('accounts:profile_settings')
+
+        elif 'change_password' in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)  # Keep user logged in
+                
+                # Trigger notification for password change
+                # Notification.objects.create(
+                #     user=user, 
+                #     title="Password Changed", 
+                #     message="Your account security password was recently updated."
+                # )
+
+                messages.success(request, "Your password has been changed successfully.")
+                return redirect('accounts:profile_settings')
+            else:
+                messages.error(request, "Please check the password error messages below.")
+
+    context = {
+        'password_form': password_form,
+    }
+    return render(request, 'accounts/profile_settings.html', context)

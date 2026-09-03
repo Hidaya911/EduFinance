@@ -52,7 +52,8 @@ urlpatterns = [
     path('users/create/', views.user_create, name='user_create'),
     path('users/<str:user_id>/edit/', views.user_edit, name='user_edit'),
     path('users/<str:user_id>/toggle-status/', views.user_toggle_status, name='user_toggle_status'),
-
+    #profile settings
+    path('profile/', views.profile_settings_view, name='profile_settings'),
     # Notifications
     path('notifications/', views.notifications_list, name='notifications_list'),
     path('notifications/settings/', views.notification_settings, name='notification_settings'),

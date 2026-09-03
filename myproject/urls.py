@@ -73,4 +73,12 @@ urlpatterns = [
         "school/",
         include("school_config.urls"),
     ),
+
+    path(
+        "audit-log/",
+        include("audit_log.urls"),
+    ),
+
+
+    path('', include('accounts.core.urls')),
 ]

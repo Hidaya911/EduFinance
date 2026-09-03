@@ -4,6 +4,8 @@ from django import forms
 
 from .models import School
 
+from .models import FeeCategory
+from .models import Grade, SchoolClass
 
 class SchoolForm(forms.ModelForm):
 
@@ -197,3 +199,33 @@ class SchoolForm(forms.ModelForm):
             )
 
         return logo
+
+
+class FeeCategoryForm(forms.ModelForm):
+    class Meta:
+        model = FeeCategory
+        fields = ['name', 'description', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Transportation, Books'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional details about this fee category...'}),
+            'is_active': forms.Form.checkbox_input if hasattr(forms, 'checkbox_input') else forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Grade
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Grade 8'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional details...'}),
+        }
+
+class SchoolClassForm(forms.ModelForm):
+    class Meta:
+        model = SchoolClass
+        fields = ['grade', 'name', 'is_active']
+        widgets = {
+            'grade': forms.Select(attrs={'class': 'form-select'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 8A, 8B'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
