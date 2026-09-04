@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "payables.apps.PayablesConfig",
 
     "school_config",
+
+    "students",
 ]
 
 

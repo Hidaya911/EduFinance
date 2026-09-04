@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid px-2 px-sm-3 px-lg-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">
+            {{ page_title }}
+        </h3>
+
+        <p class="text-muted mb-0">
+            Manage student personal and enrollment information.
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                Please correct the errors below.
+            </div>
+        {% endif %}
+
+
+        <!-- Student Information -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0">
+                    Student Information
+                </h6>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    {% if is_edit %}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Student ID
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ student.student_number }}"
+                            disabled
+                        >
+
+                        <small class="text-muted">
+                            Generated automatically.
+                        </small>
+                    </div>
+                    {% endif %}
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Admission Number
+                        </label>
+
+                        {{ form.admission_number }}
+                        {{ form.admission_number.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            First Name
+                        </label>
+
+                        {{ form.first_name }}
+                        {{ form.first_name.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Last Name
+                        </label>
+
+                        {{ form.last_name }}
+                        {{ form.last_name.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Date of Birth
+                        </label>
+
+                        {{ form.date_of_birth }}
+                        {{ form.date_of_birth.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Gender
+                        </label>
+
+                        {{ form.gender }}
+                        {{ form.gender.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Enrollment -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0">
+                    Enrollment
+                </h6>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Enrollment Date
+                        </label>
+
+                        {{ form.enrollment_date }}
+                        {{ form.enrollment_date.errors }}
+                    </div>
+
+                </div>
+
+                <div class="alert alert-light border mt-3 mb-0">
+                    Academic year, grade and classroom will be connected
+                    once the shared academic configuration models are available.
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Contact -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0">
+                    Contact Information
+                </h6>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Phone
+                        </label>
+
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">
+                            Email
+                        </label>
+
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Address
+                        </label>
+
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Additional -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0">
+                    Additional Information
+                </h6>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Profile Picture
+                        </label>
+
+                        {{ form.profile_picture }}
+                        {{ form.profile_picture.errors }}
+                    </div>
+
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Notes
+                        </label>
+
+                        {{ form.notes }}
+                        {{ form.notes.errors }}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Actions -->
+        <div
+            class="d-flex flex-column flex-sm-row
+                   justify-content-end gap-2"
+        >
+
+            <a
+                href="{% url 'students:student_list' %}"
+                class="btn btn-outline-secondary"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                {{ button_text }}
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
