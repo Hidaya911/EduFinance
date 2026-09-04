@@ -1,0 +1,306 @@
+<!-- ========================= -->
+<!-- DESKTOP TABLE -->
+<!-- ========================= -->
+
+<div class="d-none d-md-block">
+    <div class="table-responsive">
+
+        <table class="table align-middle mb-0">
+
+            <thead class="table-light">
+                <tr>
+                    <th>Student</th>
+                    <th>Student ID</th>
+                    <th>Admission No.</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div
+                                class="rounded-circle bg-primary text-white
+                                       d-flex align-items-center
+                                       justify-content-center flex-shrink-0"
+                                style="width: 40px; height: 40px;"
+                            >
+                                {{ student.first_name|first }}
+                                {{ student.last_name|first }}
+                            </div>
+
+                            <div>
+                                <div class="fw-semibold">
+                                    {{ student.full_name }}
+                                </div>
+
+                                <small class="text-muted">
+                                    {{ student.email|default:"No email" }}
+                                </small>
+                            </div>
+
+                        </div>
+                    </td>
+
+                    <td>
+                        {{ student.student_number }}
+                    </td>
+
+                    <td>
+                        {{ student.admission_number }}
+                    </td>
+
+                    <td>
+                        {{ student.phone|default:"—" }}
+                    </td>
+
+                    <td>
+
+                        {% if student.status == "active" %}
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+
+                        {% elif student.status == "graduated" %}
+                            <span class="badge bg-primary">
+                                Graduated
+                            </span>
+
+                        {% elif student.status == "withdrawn" %}
+                            <span class="badge bg-warning text-dark">
+                                Withdrawn
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                Inactive
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td class="text-end">
+
+                        <div class="d-inline-flex gap-1">
+
+                            <a
+                                href="{% url 'students:student_financial_profile' student.pk %}"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+                                View
+                            </a>
+
+                            {% if can_manage_students %}
+
+                                <a
+                                    href="{% url 'students:student_edit' student.pk %}"
+                                    class="btn btn-sm btn-outline-secondary"
+                                >
+                                    Edit
+                                </a>
+
+                                {% if student.status != "inactive" %}
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'students:student_delete' student.pk %}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Deactivate {{ student.full_name }}?');"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Deactivate
+                                        </button>
+                                    </form>
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        No students found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ========================= -->
+<!-- MOBILE CARDS -->
+<!-- ========================= -->
+
+<div class="d-md-none p-3">
+
+    {% for student in students %}
+
+    <div class="card border mb-3">
+
+        <div class="card-body">
+
+            <div class="d-flex align-items-start gap-3 mb-3">
+
+                <div
+                    class="rounded-circle bg-primary text-white
+                           d-flex align-items-center
+                           justify-content-center flex-shrink-0"
+                    style="width: 42px; height: 42px;"
+                >
+                    {{ student.first_name|first }}
+                    {{ student.last_name|first }}
+                </div>
+
+                <div class="flex-grow-1">
+
+                    <div class="fw-bold">
+                        {{ student.full_name }}
+                    </div>
+
+                    <small class="text-muted">
+                        {{ student.student_number }}
+                    </small>
+
+                </div>
+
+
+                {% if student.status == "active" %}
+
+                    <span class="badge bg-success">
+                        Active
+                    </span>
+
+                {% elif student.status == "graduated" %}
+
+                    <span class="badge bg-primary">
+                        Graduated
+                    </span>
+
+                {% elif student.status == "withdrawn" %}
+
+                    <span class="badge bg-warning text-dark">
+                        Withdrawn
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-secondary">
+                        Inactive
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="small mb-2">
+                <span class="text-muted">
+                    Admission:
+                </span>
+
+                {{ student.admission_number }}
+            </div>
+
+
+            <div class="small mb-2">
+                <span class="text-muted">
+                    Phone:
+                </span>
+
+                {{ student.phone|default:"—" }}
+            </div>
+
+
+            <div class="small mb-3 text-break">
+                <span class="text-muted">
+                    Email:
+                </span>
+
+                {{ student.email|default:"—" }}
+            </div>
+
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <a
+                    href="{% url 'students:student_financial_profile' student.pk %}"
+                    class="btn btn-sm btn-outline-primary"
+                >
+                    View
+                </a>
+
+
+                {% if can_manage_students %}
+
+                    <a
+                        href="{% url 'students:student_edit' student.pk %}"
+                        class="btn btn-sm btn-outline-secondary"
+                    >
+                        Edit
+                    </a>
+
+
+                    {% if student.status != "inactive" %}
+
+                    <form
+                        method="post"
+                        action="{% url 'students:student_delete' student.pk %}"
+                        onsubmit="return confirm('Deactivate {{ student.full_name }}?');"
+                    >
+                        {% csrf_token %}
+
+                        <button
+                            class="btn btn-sm btn-outline-danger"
+                            type="submit"
+                        >
+                            Deactivate
+                        </button>
+
+                    </form>
+
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {% empty %}
+
+    <div class="text-center text-muted py-5">
+        No students found.
+    </div>
+
+    {% endfor %}
+
+</div>

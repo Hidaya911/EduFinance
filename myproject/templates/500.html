@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}
+Server Error | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card border-0 shadow-sm text-center">
+
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="display-4 fw-bold text-danger mb-3">
+                        500
+                    </div>
+
+                    <h2 class="fw-bold">
+                        Something Went Wrong
+                    </h2>
+
+                    <p class="text-muted">
+                        An unexpected error occurred.
+                        Please try again later.
+                    </p>
+
+                    <a
+                        href="/"
+                        class="btn btn-primary"
+                    >
+                        Back to Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

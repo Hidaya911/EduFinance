@@ -58,9 +58,9 @@
       </div>
 
       <a
-        href="#"
+        href="{% url 'students:student_list' %}"
         class="nav-link-custom
-        {% if 'student' in request.path %}
+        {% if request.resolver_match.namespace == 'students' and 'guardian' not in request.resolver_match.url_name %}
           active
         {% endif %}"
       >
@@ -69,8 +69,11 @@
       </a>
 
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'students:guardian_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'students' and 'guardian' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
         <i class="bi bi-person-badge-fill me-2"></i>
         Guardians
@@ -171,7 +174,6 @@
         EXPENSES
       </div>
 
-
       <a
         href="{% url 'payables:expense_list' %}"
         class="nav-link-custom
@@ -181,7 +183,6 @@
       >
         Expenses
       </a>
-
 
       <a
         href="{% url 'payables:supplier_list' %}"
@@ -202,7 +203,6 @@
         REPORTING
       </div>
 
-
       <a
         href="#"
         class="nav-link-custom
@@ -213,7 +213,6 @@
         <i class="bi bi-bar-chart-line-fill me-2"></i>
         Reports
       </a>
-
 
       <a
         href="#"
@@ -226,9 +225,6 @@
 
       <!-- ===================================================
            MANAGEMENT
-           Keep visibility generic.
-           Actual access remains protected by Dev1 views /
-           permissions rather than hard-coded group names.
       ==================================================== -->
 
       {% if user.is_staff or user.is_superuser %}
@@ -236,9 +232,6 @@
         <div class="nav-section-label">
           MANAGEMENT
         </div>
-
-
-        <!-- Users — teammate functionality -->
 
         <a
           href="{% url 'accounts:users_list' %}"
@@ -251,9 +244,6 @@
           Users
         </a>
 
-
-        <!-- Roles & Permissions — teammate functionality -->
-
         <a
           href="{% url 'accounts:roles_list' %}"
           class="nav-link-custom
@@ -265,9 +255,6 @@
           Roles & Permissions
         </a>
 
-
-        <!-- Approvals — preserve Developer 3 integration -->
-
         <a
           href="{% url 'payables:approval_list' %}"
           class="nav-link-custom
@@ -278,9 +265,6 @@
           <i class="bi bi-check-circle-fill me-2"></i>
           Approvals
         </a>
-
-
-        <!-- Audit Log placeholder -->
 
         <a
           href="{% url 'audit_log:audit_log_list' %}"
@@ -306,7 +290,6 @@
           CONFIGURATION
         </div>
 
-
         <a
           href="{% url 'academic_years_list' %}"
           class="nav-link-custom
@@ -316,9 +299,6 @@
         >
           Academic Years
         </a>
-
-
-        <!-- Preserve real School Settings route -->
 
         <a
           href="{% url 'school_config:school_settings' %}"

@@ -61,6 +61,8 @@ INSTALLED_APPS = [
 
     "accounts.core.apps.CoreConfig",
     "audit_log.apps.AuditLogConfig",
+
+    "students",
 ]
 
 

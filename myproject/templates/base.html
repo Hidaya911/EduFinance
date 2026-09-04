@@ -146,6 +146,41 @@
 </head>
 <body>
 
+    {% if messages %}
+<div
+    class="position-fixed top-0 end-0 p-3"
+    style="z-index: 9999;"
+>
+    {% for message in messages %}
+
+        <div
+            class="toast show border-0 shadow"
+            role="alert"
+        >
+            <div class="toast-header">
+
+                <strong class="me-auto">
+                    EduFinance
+                </strong>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="toast"
+                ></button>
+
+            </div>
+
+            <div class="toast-body">
+                {{ message }}
+            </div>
+
+        </div>
+
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="app-layout">
     <!-- Include Sidebar -->
     {% include 'includes/sidebar.html' %}

@@ -18,20 +18,14 @@ urlpatterns = [
         admin.site.urls,
     ),
 
-
     # ========================================================
     # DEVELOPER 1 — ACCOUNTS / AUTHENTICATION
     # ========================================================
-    #
-    # Keep Accounts mounted at the project root.
-    # Any new routes added by the teammate inside
-    # accounts/urls.py are automatically included here.
-    #
+
     path(
         "",
         include("accounts.urls"),
     ),
-
 
     # ========================================================
     # SHARED BASE PREVIEW
@@ -43,7 +37,6 @@ urlpatterns = [
         name="base_preview",
     ),
 
-
     # ========================================================
     # DASHBOARD
     # ========================================================
@@ -54,6 +47,14 @@ urlpatterns = [
         name="dashboard",
     ),
 
+    # ========================================================
+    # DEVELOPER 2 — STUDENTS / GUARDIANS
+    # ========================================================
+
+    path(
+        "students/",
+        include("students.urls"),
+    ),
 
     # ========================================================
     # DEVELOPER 3 — FINANCE / PAYABLES
@@ -63,7 +64,6 @@ urlpatterns = [
         "finance/",
         include("payables.urls"),
     ),
-
 
     # ========================================================
     # SCHOOL CONFIGURATION

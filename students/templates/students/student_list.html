@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid px-2 px-sm-3 px-lg-4">
+
+    <!-- Header -->
+    <div
+        class="d-flex flex-column flex-sm-row
+               justify-content-between
+               align-items-sm-center gap-3 mb-4"
+    >
+
+        <div>
+            <h3 class="fw-bold mb-1">
+                Students
+            </h3>
+
+            <p class="text-muted mb-0">
+                Manage student records and financial accounts.
+            </p>
+        </div>
+
+        {% if can_manage_students %}
+
+        <a
+            href="{% url 'students:student_create' %}"
+            class="btn btn-primary"
+        >
+            + Add Student
+        </a>
+
+        {% endif %}
+
+    </div>
+
+    <!-- Search / Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-12 col-md-8">
+
+                    <label class="form-label small fw-semibold">
+                        Search Students
+                    </label>
+
+                    <input
+                        id="student-search"
+                        type="search"
+                        class="form-control"
+                        placeholder="Name, student ID or admission number..."
+                        value="{{ search }}"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <div class="col-12 col-md-3">
+
+                    <label class="form-label small fw-semibold">
+                        Status
+                    </label>
+
+                    <select
+                        id="student-status"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if selected_status == "active" %}selected{% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if selected_status == "inactive" %}selected{% endif %}
+                        >
+                            Inactive
+                        </option>
+
+                        <option
+                            value="graduated"
+                            {% if selected_status == "graduated" %}selected{% endif %}
+                        >
+                            Graduated
+                        </option>
+
+                        <option
+                            value="withdrawn"
+                            {% if selected_status == "withdrawn" %}selected{% endif %}
+                        >
+                            Withdrawn
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-12 col-md-1 d-flex align-items-end">
+
+                    <button
+                        id="student-reset"
+                        type="button"
+                        class="btn btn-outline-secondary w-100"
+                    >
+                        Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                id="student-loading"
+                class="small text-muted mt-3 d-none"
+            >
+                Searching...
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Results -->
+    <div
+        id="student-results"
+        class="card border-0 shadow-sm"
+    >
+
+        {% include "students/partials/student_results.html" %}
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput =
+        document.getElementById("student-search");
+
+    const statusSelect =
+        document.getElementById("student-status");
+
+    const resetButton =
+        document.getElementById("student-reset");
+
+    const results =
+        document.getElementById("student-results");
+
+    const loading =
+        document.getElementById("student-loading");
+
+    let timer = null;
+    let controller = null;
+
+    function loadStudents() {
+
+        const search = searchInput.value.trim();
+        const status = statusSelect.value;
+
+        const params = new URLSearchParams();
+
+        if (search) {
+            params.set("search", search);
+        }
+
+        if (status) {
+            params.set("status", status);
+        }
+
+        if (controller) {
+            controller.abort();
+        }
+
+        controller = new AbortController();
+
+        loading.classList.remove("d-none");
+
+        fetch(
+            `${window.location.pathname}?${params.toString()}`,
+            {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                signal: controller.signal
+            }
+        )
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Request failed");
+            }
+
+            return response.text();
+
+        })
+        .then(html => {
+
+            results.innerHTML = html;
+
+            const newUrl =
+                params.toString()
+                ? `${window.location.pathname}?${params.toString()}`
+                : window.location.pathname;
+
+            window.history.replaceState(
+                {},
+                "",
+                newUrl
+            );
+
+        })
+        .catch(error => {
+
+            if (error.name !== "AbortError") {
+
+                results.innerHTML = `
+                    <div class="alert alert-danger m-3">
+                        Could not load students.
+                        Please try again.
+                    </div>
+                `;
+
+            }
+
+        })
+        .finally(() => {
+            loading.classList.add("d-none");
+        });
+    }
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(timer);
+
+            timer = setTimeout(
+                loadStudents,
+                300
+            );
+
+        }
+    );
+
+    statusSelect.addEventListener(
+        "change",
+        loadStudents
+    );
+
+    resetButton.addEventListener(
+        "click",
+        function () {
+
+            searchInput.value = "";
+            statusSelect.value = "";
+
+            loadStudents();
+
+        }
+    );
+
+});
+</script>
+
+{% endblock %}  
