@@ -1,0 +1,3873 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ refund.refund_number }} | Refund | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — REFUND DETAIL / CONTROL ROOM
+============================================================ */
+
+:root {
+    --rfd-bg: #f4f7fb;
+    --rfd-white: #ffffff;
+
+    --rfd-blue: #176ff2;
+    --rfd-blue-dark: #0b59cb;
+    --rfd-blue-soft: #edf4ff;
+
+    --rfd-green: #07945b;
+    --rfd-green-soft: #e9f8f0;
+
+    --rfd-orange: #df8713;
+    --rfd-orange-soft: #fff4e4;
+
+    --rfd-red: #dc4459;
+    --rfd-red-soft: #fff0f2;
+
+    --rfd-purple: #7250d8;
+    --rfd-purple-soft: #f2efff;
+
+    --rfd-cyan: #0c96b3;
+    --rfd-cyan-soft: #eaf9fc;
+
+    --rfd-gray: #778699;
+    --rfd-gray-soft: #eef2f6;
+
+    --rfd-text: #122136;
+    --rfd-text-2: #46586f;
+    --rfd-text-3: #7d8a9d;
+
+    --rfd-border: #dfe7f1;
+    --rfd-border-soft: #edf1f6;
+
+    --rfd-shadow-sm:
+        0 8px 25px rgba(17, 46, 81, .05);
+
+    --rfd-shadow:
+        0 23px 65px rgba(12, 40, 75, .085);
+
+    --rfd-shadow-lg:
+        0 38px 100px rgba(8, 29, 61, .18);
+
+    --rfd-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.rfd-page {
+    position: relative;
+
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(24px, 3vw, 44px)
+        clamp(18px, 3vw, 46px)
+        70px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 96% 2%,
+            rgba(28, 110, 241, .12),
+            transparent 29%
+        ),
+        radial-gradient(
+            circle at 2% 47%,
+            rgba(16, 151, 179, .05),
+            transparent 22%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            var(--rfd-bg) 59%,
+            #f4f7fb 100%
+        );
+}
+
+.rfd-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 610px;
+    height: 610px;
+
+    top: -400px;
+    right: -190px;
+
+    border:
+        1px solid
+        rgba(25, 108, 225, .12);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.rfd-shell {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1600px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.rfd-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-bottom: 19px;
+
+    color: var(--rfd-text-3);
+
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.rfd-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rfd-breadcrumb a:hover {
+    color: var(--rfd-blue);
+}
+
+.rfd-breadcrumb i {
+    font-size: .58rem;
+}
+
+.rfd-breadcrumb-current {
+    color: var(--rfd-blue);
+}
+
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+
+.rfd-messages {
+    display: grid;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.rfd-message {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    min-height: 56px;
+
+    padding:
+        12px 45px
+        12px 13px;
+
+    border:
+        1px solid
+        var(--rfd-border);
+
+    border-radius: 14px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rfd-shadow-sm);
+}
+
+.rfd-message-icon {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue);
+}
+
+.rfd-message-success .rfd-message-icon {
+    background: var(--rfd-green-soft);
+    color: var(--rfd-green);
+}
+
+.rfd-message-error .rfd-message-icon {
+    background: var(--rfd-red-soft);
+    color: var(--rfd-red);
+}
+
+.rfd-message-warning .rfd-message-icon {
+    background: var(--rfd-orange-soft);
+    color: var(--rfd-orange);
+}
+
+.rfd-message strong {
+    display: block;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .65rem;
+}
+
+.rfd-message span {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--rfd-text-2);
+
+    font-size: .59rem;
+}
+
+.rfd-message-close {
+    position: absolute;
+
+    top: 50%;
+    right: 12px;
+
+    transform:
+        translateY(-50%);
+
+    width: 30px;
+    height: 30px;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color:
+        var(--rfd-text-3);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.rfd-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    gap: 28px;
+
+    margin-bottom: 21px;
+
+    padding:
+        clamp(26px, 3vw, 38px);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rfd-border);
+
+    border-radius: 29px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #fff,
+            #f7faff
+        );
+
+    box-shadow:
+        var(--rfd-shadow);
+}
+
+.rfd-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 460px;
+    height: 460px;
+
+    right: -125px;
+    top: -315px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(26, 109, 237, .16),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+.rfd-hero-main,
+.rfd-hero-actions {
+    position: relative;
+    z-index: 2;
+}
+
+.rfd-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 13px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid
+        #d8e6f9;
+
+    border-radius: 999px;
+
+    background:
+        #f4f8ff;
+
+    color:
+        var(--rfd-blue-dark);
+
+    font-size: .6rem;
+    font-weight: 850;
+
+    letter-spacing: .055em;
+
+    text-transform: uppercase;
+}
+
+.rfd-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--rfd-green);
+}
+
+.rfd-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.rfd-title-icon {
+    width: 57px;
+    height: 57px;
+
+    flex: 0 0 57px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #d6e4f8;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color:
+        var(--rfd-blue);
+
+    font-size: 1.25rem;
+}
+
+.rfd-title-copy h1 {
+    margin: 0;
+
+    color:
+        var(--rfd-text);
+
+    font-size:
+        clamp(1.8rem, 3vw, 2.75rem);
+
+    font-weight: 900;
+
+    letter-spacing: -.045em;
+}
+
+.rfd-title-copy p {
+    margin:
+        5px 0 0;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .66rem;
+}
+
+.rfd-hero-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin:
+        17px 0 0
+        72px;
+}
+
+.rfd-meta-chip {
+    min-height: 31px;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 9px;
+
+    border:
+        1px solid
+        var(--rfd-border);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.85);
+
+    color:
+        var(--rfd-text-2);
+
+    font-size: .57rem;
+    font-weight: 750;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.rfd-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 31px;
+
+    padding:
+        6px 10px;
+
+    border-radius: 999px;
+
+    font-size: .58rem;
+    font-weight: 900;
+}
+
+.rfd-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background:
+        currentColor;
+}
+
+.rfd-status-requested {
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue-dark);
+}
+
+.rfd-status-pending_approval {
+    background:
+        var(--rfd-orange-soft);
+
+    color:
+        #b36d0e;
+}
+
+.rfd-status-approved {
+    background:
+        var(--rfd-green-soft);
+
+    color:
+        #087746;
+}
+
+.rfd-status-rejected {
+    background:
+        var(--rfd-red-soft);
+
+    color:
+        #bb3448;
+}
+
+.rfd-status-processed {
+    background:
+        var(--rfd-purple-soft);
+
+    color:
+        #6041bd;
+}
+
+.rfd-status-cancelled {
+    background:
+        var(--rfd-gray-soft);
+
+    color:
+        #66758a;
+}
+
+
+/* ============================================================
+   HERO ACTIONS
+============================================================ */
+
+.rfd-hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
+
+.rfd-btn {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding:
+        9px 14px;
+
+    border-radius: 11px;
+
+    font-size: .63rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition:
+        transform var(--rfd-transition),
+        box-shadow var(--rfd-transition),
+        border-color var(--rfd-transition);
+}
+
+.rfd-btn-primary {
+    border:
+        1px solid
+        #0d5bd0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1b74f2,
+            #0b58ca
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 11px 25px
+        rgba(20,100,220,.2);
+}
+
+.rfd-btn-primary:hover {
+    color: #fff;
+
+    transform:
+        translateY(-2px);
+}
+
+.rfd-btn-secondary {
+    border:
+        1px solid
+        var(--rfd-border);
+
+    background: #fff;
+
+    color:
+        var(--rfd-text-2);
+}
+
+.rfd-btn-secondary:hover {
+    border-color:
+        #b5cef2;
+
+    color:
+        var(--rfd-blue);
+}
+
+.rfd-btn-danger {
+    border:
+        1px solid
+        #efbac3;
+
+    background:
+        #fff;
+
+    color:
+        var(--rfd-red);
+
+    cursor: pointer;
+}
+
+.rfd-btn-danger:hover {
+    background:
+        var(--rfd-red-soft);
+}
+
+.rfd-btn-disabled {
+    border:
+        1px solid
+        var(--rfd-border);
+
+    background:
+        #f4f6f9;
+
+    color:
+        #9aa6b6;
+
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   METRICS
+============================================================ */
+
+.rfd-kpis {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+
+    gap: 15px;
+
+    margin-bottom: 21px;
+}
+
+.rfd-kpi {
+    min-height: 130px;
+
+    padding: 17px;
+
+    border:
+        1px solid
+        var(--rfd-border);
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rfd-shadow-sm);
+}
+
+.rfd-kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.rfd-kpi-label {
+    color:
+        var(--rfd-text-3);
+
+    font-size: .56rem;
+    font-weight: 850;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+}
+
+.rfd-kpi-value {
+    margin-top: 7px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: 1.2rem;
+    font-weight: 900;
+
+    letter-spacing: -.03em;
+}
+
+.rfd-kpi-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue);
+}
+
+.rfd-kpi-note {
+    margin-top: 15px;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .55rem;
+
+    line-height: 1.45;
+}
+
+.rfd-kpi-orange .rfd-kpi-icon {
+    background: var(--rfd-orange-soft);
+    color: var(--rfd-orange);
+}
+
+.rfd-kpi-green .rfd-kpi-icon {
+    background: var(--rfd-green-soft);
+    color: var(--rfd-green);
+}
+
+.rfd-kpi-purple .rfd-kpi-icon {
+    background: var(--rfd-purple-soft);
+    color: var(--rfd-purple);
+}
+
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+
+.rfd-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        345px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+.rfd-main {
+    display: grid;
+
+    gap: 18px;
+}
+
+.rfd-side {
+    position: sticky;
+
+    top: 88px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.rfd-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rfd-border);
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rfd-shadow-sm);
+}
+
+.rfd-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        16px 18px;
+
+    border-bottom:
+        1px solid
+        var(--rfd-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.rfd-card-title {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.rfd-card-icon {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue);
+}
+
+.rfd-card-title h2 {
+    margin: 0;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .72rem;
+    font-weight: 850;
+}
+
+.rfd-card-title p {
+    margin:
+        2px 0 0;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .54rem;
+}
+
+.rfd-card-body {
+    padding: 18px;
+}
+
+
+/* ============================================================
+   FINANCIAL DATA GRID
+============================================================ */
+
+.rfd-data-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 11px;
+}
+
+.rfd-data {
+    min-height: 78px;
+
+    padding: 12px;
+
+    border:
+        1px solid
+        var(--rfd-border-soft);
+
+    border-radius: 12px;
+
+    background:
+        #fbfcfe;
+}
+
+.rfd-data-wide {
+    grid-column:
+        1 / -1;
+}
+
+.rfd-data-label {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .53rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: .035em;
+}
+
+.rfd-data-label i {
+    color:
+        var(--rfd-blue);
+}
+
+.rfd-data-value {
+    margin-top: 7px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .69rem;
+    font-weight: 800;
+
+    word-break: break-word;
+}
+
+.rfd-data-value-money {
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   REASON
+============================================================ */
+
+.rfd-reason {
+    padding: 16px;
+
+    border:
+        1px solid
+        #dbe6f5;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f8fbff,
+            #fff
+        );
+}
+
+.rfd-reason-label {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 8px;
+
+    color:
+        var(--rfd-blue-dark);
+
+    font-size: .57rem;
+    font-weight: 850;
+
+    text-transform: uppercase;
+}
+
+.rfd-reason p {
+    margin: 0;
+
+    color:
+        var(--rfd-text-2);
+
+    font-size: .67rem;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+}
+
+
+/* ============================================================
+   LIFECYCLE
+============================================================ */
+
+.rfd-lifecycle {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+
+    gap: 0;
+}
+
+.rfd-life-step {
+    position: relative;
+
+    text-align: center;
+}
+
+.rfd-life-step:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    top: 20px;
+    left: calc(50% + 20px);
+    right: calc(-50% + 20px);
+
+    height: 2px;
+
+    background:
+        #dfe6ef;
+}
+
+.rfd-life-step.complete:not(:last-child)::after {
+    background:
+        var(--rfd-green);
+}
+
+.rfd-life-dot {
+    position: relative;
+    z-index: 2;
+
+    width: 41px;
+    height: 41px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto 9px;
+
+    border:
+        2px solid
+        #dce5ef;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .73rem;
+}
+
+.rfd-life-step.complete .rfd-life-dot {
+    border-color:
+        var(--rfd-green);
+
+    background:
+        var(--rfd-green-soft);
+
+    color:
+        var(--rfd-green);
+}
+
+.rfd-life-step.current .rfd-life-dot {
+    border-color:
+        var(--rfd-blue);
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue);
+
+    box-shadow:
+        0 0 0 6px
+        rgba(23,111,242,.07);
+}
+
+.rfd-life-step.rejected .rfd-life-dot {
+    border-color:
+        var(--rfd-red);
+
+    background:
+        var(--rfd-red-soft);
+
+    color:
+        var(--rfd-red);
+}
+
+.rfd-life-step.cancelled .rfd-life-dot {
+    border-color:
+        #9aa6b5;
+
+    background:
+        var(--rfd-gray-soft);
+
+    color:
+        #738195;
+}
+
+.rfd-life-title {
+    color:
+        var(--rfd-text);
+
+    font-size: .58rem;
+    font-weight: 850;
+}
+
+.rfd-life-sub {
+    margin-top: 3px;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .5rem;
+}
+
+
+/* ============================================================
+   APPROVAL
+============================================================ */
+
+.rfd-approval-summary {
+    display: grid;
+
+    gap: 10px;
+}
+
+.rfd-approval-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 13px;
+
+    min-height: 46px;
+
+    padding:
+        10px 11px;
+
+    border:
+        1px solid
+        var(--rfd-border-soft);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+}
+
+.rfd-approval-row span {
+    color:
+        var(--rfd-text-3);
+
+    font-size: .55rem;
+}
+
+.rfd-approval-row strong {
+    max-width: 190px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .6rem;
+    font-weight: 850;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+.rfd-approval-link {
+    width: 100%;
+
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    margin-top: 11px;
+
+    border:
+        1px solid
+        #b7cef2;
+
+    border-radius: 11px;
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue-dark);
+
+    font-size: .59rem;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+
+/* ============================================================
+   AUDIT
+============================================================ */
+
+.rfd-audit {
+    display: grid;
+
+    gap: 0;
+}
+
+.rfd-audit-item {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        34px 1fr;
+
+    gap: 10px;
+
+    min-height: 60px;
+}
+
+.rfd-audit-item:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    left: 16px;
+    top: 32px;
+    bottom: -2px;
+
+    width: 1px;
+
+    background:
+        #e1e7ef;
+}
+
+.rfd-audit-dot {
+    position: relative;
+    z-index: 2;
+
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #dce5ef;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .65rem;
+}
+
+.rfd-audit-content strong {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .6rem;
+}
+
+.rfd-audit-content span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .53rem;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   PROCESSING PROTECTION
+============================================================ */
+
+.rfd-integrity {
+    padding: 17px;
+
+    border:
+        1px solid
+        #dcd9f6;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f7f5ff,
+            #fff
+        );
+}
+
+.rfd-integrity-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 11px;
+
+    border-radius: 11px;
+
+    background:
+        var(--rfd-purple-soft);
+
+    color:
+        var(--rfd-purple);
+}
+
+.rfd-integrity h3 {
+    margin:
+        0 0 6px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.rfd-integrity p {
+    margin: 0;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .56rem;
+
+    line-height: 1.62;
+}
+
+.rfd-lock-state {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 12px;
+
+    padding:
+        6px 9px;
+
+    border-radius: 999px;
+
+    background:
+        var(--rfd-purple-soft);
+
+    color:
+        var(--rfd-purple);
+
+    font-size: .54rem;
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   TERMINAL NOTICE
+============================================================ */
+
+.rfd-terminal {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    padding: 15px;
+
+    border-radius: 14px;
+}
+
+.rfd-terminal-rejected {
+    border:
+        1px solid
+        #f1c5cd;
+
+    background:
+        var(--rfd-red-soft);
+}
+
+.rfd-terminal-cancelled {
+    border:
+        1px solid
+        #dce3eb;
+
+    background:
+        #f5f7f9;
+}
+
+.rfd-terminal i {
+    margin-top: 1px;
+}
+
+.rfd-terminal-rejected i {
+    color:
+        var(--rfd-red);
+}
+
+.rfd-terminal-cancelled i {
+    color:
+        var(--rfd-gray);
+}
+
+.rfd-terminal strong {
+    display: block;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .62rem;
+}
+
+.rfd-terminal p {
+    margin:
+        4px 0 0;
+
+    color:
+        var(--rfd-text-2);
+
+    font-size: .56rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   MODALS
+============================================================ */
+
+.rfd-modal {
+    position: fixed;
+
+    z-index: 11000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(7,24,45,.46);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+.rfd-modal.active {
+    display: flex;
+}
+
+.rfd-modal-card {
+    width:
+        min(100%, 470px);
+
+    overflow: hidden;
+
+    border-radius: 21px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rfd-shadow-lg);
+
+    animation:
+        rfdModalIn
+        .2s ease-out;
+}
+
+@keyframes rfdModalIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(12px)
+            scale(.985);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+.rfd-modal-body {
+    padding:
+        22px 21px 18px;
+
+    text-align: center;
+}
+
+.rfd-modal-icon {
+    width: 53px;
+    height: 53px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto 12px;
+
+    border-radius: 16px;
+
+    background:
+        var(--rfd-blue-soft);
+
+    color:
+        var(--rfd-blue);
+
+    font-size: 1.2rem;
+}
+
+.rfd-modal-danger .rfd-modal-icon {
+    background:
+        var(--rfd-red-soft);
+
+    color:
+        var(--rfd-red);
+}
+
+.rfd-modal h3 {
+    margin: 0;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.rfd-modal p {
+    margin:
+        7px 0 0;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .59rem;
+
+    line-height: 1.6;
+}
+
+.rfd-modal-detail {
+    margin-top: 13px;
+
+    padding:
+        11px;
+
+    border:
+        1px solid
+        var(--rfd-border-soft);
+
+    border-radius: 12px;
+
+    background:
+        #fbfcfe;
+
+    text-align: left;
+}
+
+.rfd-modal-detail span {
+    display: block;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .51rem;
+}
+
+.rfd-modal-detail strong {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .62rem;
+}
+
+.rfd-modal textarea {
+    width: 100%;
+
+    min-height: 100px;
+
+    margin-top: 13px;
+
+    padding: 11px;
+
+    border:
+        1px solid
+        #dbe4ee;
+
+    border-radius: 11px;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .64rem;
+
+    resize: vertical;
+
+    outline: none;
+}
+
+.rfd-modal textarea:focus {
+    border-color:
+        #8ab8f8;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(23,111,242,.08);
+}
+
+.rfd-modal-actions {
+    display: flex;
+
+    gap: 9px;
+
+    padding:
+        14px 20px 20px;
+
+    border-top:
+        1px solid
+        var(--rfd-border-soft);
+}
+
+.rfd-modal-actions button {
+    flex: 1;
+
+    min-height: 42px;
+
+    border-radius: 11px;
+
+    font-size: .62rem;
+    font-weight: 850;
+}
+
+.rfd-modal-back {
+    border:
+        1px solid
+        var(--rfd-border);
+
+    background: #fff;
+
+    color:
+        var(--rfd-text-2);
+}
+
+.rfd-modal-confirm {
+    border:
+        1px solid
+        #0d5bd0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1b74f2,
+            #0b58ca
+        );
+
+    color: #fff;
+}
+
+.rfd-modal-confirm-danger {
+    border:
+        1px solid
+        #c9384c;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e14b5f,
+            #bf3044
+        );
+
+    color: #fff;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.rfd-loading {
+    position: fixed;
+
+    z-index: 12000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(7,24,45,.43);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+.rfd-loading.active {
+    display: flex;
+}
+
+.rfd-loading-card {
+    min-width: 245px;
+
+    padding: 24px;
+
+    border-radius: 19px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        var(--rfd-shadow-lg);
+}
+
+.rfd-spinner {
+    width: 35px;
+    height: 35px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid
+        #e4eaf2;
+
+    border-top-color:
+        var(--rfd-blue);
+
+    border-radius: 50%;
+
+    animation:
+        rfdSpin
+        .7s linear infinite;
+}
+
+@keyframes rfdSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rfd-loading-card strong {
+    display: block;
+
+    color:
+        var(--rfd-text);
+
+    font-size: .69rem;
+}
+
+.rfd-loading-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--rfd-text-3);
+
+    font-size: .55rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1250px) {
+
+    .rfd-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .rfd-side {
+        position: static;
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 1000px) {
+
+    .rfd-kpis {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .rfd-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .rfd-hero-actions {
+        justify-content: flex-start;
+    }
+
+    .rfd-side {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .rfd-page {
+        margin: -16px;
+
+        padding:
+            22px 16px 55px;
+    }
+
+    .rfd-kpis,
+    .rfd-data-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rfd-data-wide {
+        grid-column: auto;
+    }
+
+    .rfd-lifecycle {
+        grid-template-columns: 1fr;
+
+        gap: 13px;
+    }
+
+    .rfd-life-step {
+        display: grid;
+
+        grid-template-columns:
+            42px 1fr;
+
+        text-align: left;
+    }
+
+    .rfd-life-dot {
+        margin: 0;
+    }
+
+    .rfd-life-step:not(:last-child)::after {
+        left: 20px;
+        top: 41px;
+        bottom: -15px;
+        right: auto;
+
+        width: 2px;
+        height: auto;
+    }
+
+}
+
+@media (max-width: 560px) {
+
+    .rfd-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .rfd-hero-meta {
+        margin-left: 0;
+    }
+
+    .rfd-hero-actions {
+        width: 100%;
+    }
+
+    .rfd-btn {
+        flex: 1;
+    }
+
+}
+
+</style>
+
+
+
+<div class="rfd-page">
+
+    <div class="rfd-shell">
+
+
+        <!-- ====================================================
+             MESSAGES
+        ===================================================== -->
+
+        {% if messages %}
+
+            <div class="rfd-messages">
+
+                {% for message in messages %}
+
+                    <div class="rfd-message rfd-message-{{ message.tags|default:'info' }}">
+
+                        <div class="rfd-message-icon">
+
+                            {% if message.tags == "success" %}
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                            {% elif message.tags == "error" %}
+
+                                <i class="bi bi-exclamation-circle-fill"></i>
+
+                            {% elif message.tags == "warning" %}
+
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                            {% else %}
+
+                                <i class="bi bi-info-circle-fill"></i>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Refund Operations
+                            </strong>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="rfd-message-close"
+                            onclick="this.closest('.rfd-message').remove()"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="rfd-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <a href="{% url 'payables:refund_list' %}">
+                Refunds
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="rfd-breadcrumb-current">
+                {{ refund.refund_number }}
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="rfd-hero">
+
+            <div class="rfd-hero-main">
+
+                <div class="rfd-eyebrow">
+
+                    <span class="rfd-eyebrow-dot"></span>
+
+                    Controlled Student Refund
+
+                </div>
+
+
+                <div class="rfd-title-row">
+
+                    <div class="rfd-title-icon">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+
+
+                    <div class="rfd-title-copy">
+
+                        <h1>
+                            {{ refund.refund_number }}
+                        </h1>
+
+                        <p>
+
+                            Created
+                            {{ refund.created_at|date:"d M Y · H:i" }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="rfd-hero-meta">
+
+                    <span class="rfd-status rfd-status-{{ refund.status }}">
+                        {{ refund.get_status_display }}
+                    </span>
+
+
+                    <span class="rfd-meta-chip">
+
+                        <i class="bi bi-person"></i>
+
+                        {{ refund.student_reference }}
+
+                    </span>
+
+
+                    <span class="rfd-meta-chip">
+
+                        <i class="bi bi-receipt"></i>
+
+                        {{ refund.original_payment_reference }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 ACTIONS
+            ================================================== -->
+
+            <div class="rfd-hero-actions">
+
+
+                <a
+                    href="{% url 'payables:refund_list' %}"
+                    class="rfd-btn rfd-btn-secondary"
+                >
+                    <i class="bi bi-arrow-left"></i>
+
+                    Refund Register
+                </a>
+
+
+
+                {% if refund.status == "requested" and not refund.approval_request_id %}
+
+                    <a
+                        href="{% url 'payables:refund_edit' refund.pk %}"
+                        class="rfd-btn rfd-btn-secondary"
+                    >
+                        <i class="bi bi-pencil"></i>
+
+                        Edit
+                    </a>
+
+
+                    <button
+                        type="button"
+                        class="rfd-btn rfd-btn-danger"
+                        id="rfd-open-cancel"
+                    >
+                        <i class="bi bi-x-circle"></i>
+
+                        Cancel
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="rfd-btn rfd-btn-primary"
+                        id="rfd-open-submit"
+                    >
+                        <i class="bi bi-send-check"></i>
+
+                        Submit for Approval
+                    </button>
+
+                {% endif %}
+
+
+
+                {% if approval %}
+
+                    <a
+                        href="{% url 'payables:approval_detail' approval.pk %}"
+                        class="rfd-btn rfd-btn-secondary"
+                    >
+                        <i class="bi bi-shield-check"></i>
+
+                        Approval Record
+                    </a>
+
+                {% endif %}
+
+
+
+                {% if refund.status == "approved" %}
+
+                    <span
+                        class="rfd-btn rfd-btn-disabled"
+                        title="Processing is protected until student payment integration is available."
+                    >
+                        <i class="bi bi-lock-fill"></i>
+
+                        Processing Locked
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             KPI CARDS
+        ===================================================== -->
+
+        <section class="rfd-kpis">
+
+
+            <div class="rfd-kpi">
+
+                <div class="rfd-kpi-top">
+
+                    <div>
+
+                        <div class="rfd-kpi-label">
+                            Refund Amount
+                        </div>
+
+                        <div class="rfd-kpi-value">
+
+                            {{ currency_code }}
+                            {{ refund.amount|floatformat:2 }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-kpi-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rfd-kpi-note">
+                    Requested return value
+                </div>
+
+            </div>
+
+
+
+            <div class="rfd-kpi rfd-kpi-orange">
+
+                <div class="rfd-kpi-top">
+
+                    <div>
+
+                        <div class="rfd-kpi-label">
+                            Refund Method
+                        </div>
+
+                        <div class="rfd-kpi-value">
+                            {{ refund.get_refund_method_display }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-kpi-icon">
+
+                        {% if refund.refund_method == "cash" %}
+                            <i class="bi bi-cash"></i>
+
+                        {% elif refund.refund_method == "bank_transfer" %}
+                            <i class="bi bi-bank"></i>
+
+                        {% elif refund.refund_method == "cheque" %}
+                            <i class="bi bi-file-earmark-text"></i>
+
+                        {% elif refund.refund_method == "card" %}
+                            <i class="bi bi-credit-card"></i>
+
+                        {% else %}
+                            <i class="bi bi-wallet2"></i>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="rfd-kpi-note">
+                    Intended return channel
+                </div>
+
+            </div>
+
+
+
+            <div class="rfd-kpi rfd-kpi-green">
+
+                <div class="rfd-kpi-top">
+
+                    <div>
+
+                        <div class="rfd-kpi-label">
+                            Approval State
+                        </div>
+
+                        <div class="rfd-kpi-value">
+
+                            {% if approval %}
+                                {{ approval.get_status_display }}
+                            {% else %}
+                                Not Submitted
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-kpi-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rfd-kpi-note">
+
+                    {% if approval %}
+                        Linked to {{ approval.request_number }}
+                    {% else %}
+                        No approval workflow yet
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+
+            <div class="rfd-kpi rfd-kpi-purple">
+
+                <div class="rfd-kpi-top">
+
+                    <div>
+
+                        <div class="rfd-kpi-label">
+                            Processing
+                        </div>
+
+                        <div class="rfd-kpi-value">
+
+                            {% if refund.status == "processed" %}
+                                Completed
+                            {% elif refund.status == "approved" %}
+                                Protected
+                            {% else %}
+                                Not Ready
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-kpi-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rfd-kpi-note">
+                    Financial integrity control
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             MAIN LAYOUT
+        ===================================================== -->
+
+        <div class="rfd-layout">
+
+
+            <main class="rfd-main">
+
+
+                <!-- =============================================
+                     REFUND INFORMATION
+                ============================================== -->
+
+                <section class="rfd-card">
+
+                    <div class="rfd-card-head">
+
+                        <div class="rfd-card-title">
+
+                            <div class="rfd-card-icon">
+                                <i class="bi bi-receipt-cutoff"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Refund Information
+                                </h2>
+
+                                <p>
+                                    Core financial request data
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="rfd-status rfd-status-{{ refund.status }}">
+                            {{ refund.get_status_display }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="rfd-card-body">
+
+                        <div class="rfd-data-grid">
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-hash"></i>
+                                    Refund Number
+                                </div>
+
+                                <div class="rfd-data-value">
+                                    {{ refund.refund_number }}
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-person"></i>
+                                    Student Reference
+                                </div>
+
+                                <div class="rfd-data-value">
+                                    {{ refund.student_reference }}
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-receipt"></i>
+                                    Original Payment
+                                </div>
+
+                                <div class="rfd-data-value">
+                                    {{ refund.original_payment_reference }}
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-currency-exchange"></i>
+                                    Refund Method
+                                </div>
+
+                                <div class="rfd-data-value">
+                                    {{ refund.get_refund_method_display }}
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-wallet2"></i>
+                                    Refund Value
+                                </div>
+
+                                <div class="rfd-data-value rfd-data-value-money">
+
+                                    {{ currency_code }}
+                                    {{ refund.amount|floatformat:2 }}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rfd-data">
+
+                                <div class="rfd-data-label">
+                                    <i class="bi bi-calendar3"></i>
+                                    Requested At
+                                </div>
+
+                                <div class="rfd-data-value">
+                                    {{ refund.requested_at|date:"d M Y · H:i" }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     REASON
+                ============================================== -->
+
+                <section class="rfd-card">
+
+                    <div class="rfd-card-head">
+
+                        <div class="rfd-card-title">
+
+                            <div class="rfd-card-icon">
+                                <i class="bi bi-chat-square-text"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Financial Justification
+                                </h2>
+
+                                <p>
+                                    Reason included in the approval trail
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-card-body">
+
+                        <div class="rfd-reason">
+
+                            <div class="rfd-reason-label">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                Refund Reason
+
+                            </div>
+
+
+                            <p>{{ refund.reason }}</p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     LIFECYCLE
+                ============================================== -->
+
+                <section class="rfd-card">
+
+                    <div class="rfd-card-head">
+
+                        <div class="rfd-card-title">
+
+                            <div class="rfd-card-icon">
+                                <i class="bi bi-diagram-3"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Refund Lifecycle
+                                </h2>
+
+                                <p>
+                                    Controlled financial progression
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-card-body">
+
+                        <div class="rfd-lifecycle">
+
+
+                            <!-- REQUESTED -->
+
+                            <div
+                                class="
+                                    rfd-life-step
+                                    {% if refund.status == 'requested' %}
+                                        current
+                                    {% elif refund.status != 'cancelled' %}
+                                        complete
+                                    {% else %}
+                                        cancelled
+                                    {% endif %}
+                                "
+                            >
+
+                                <div class="rfd-life-dot">
+                                    <i class="bi bi-pencil"></i>
+                                </div>
+
+                                <div>
+
+                                    <div class="rfd-life-title">
+                                        Requested
+                                    </div>
+
+                                    <div class="rfd-life-sub">
+                                        Request recorded
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- PENDING -->
+
+                            <div
+                                class="
+                                    rfd-life-step
+
+                                    {% if refund.status == 'pending_approval' %}
+                                        current
+
+                                    {% elif refund.status == 'approved' or refund.status == 'processed' %}
+                                        complete
+
+                                    {% elif refund.status == 'rejected' %}
+                                        rejected
+
+                                    {% endif %}
+                                "
+                            >
+
+                                <div class="rfd-life-dot">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
+
+                                <div>
+
+                                    <div class="rfd-life-title">
+                                        Approval Review
+                                    </div>
+
+                                    <div class="rfd-life-sub">
+
+                                        {% if refund.status == "rejected" %}
+                                            Rejected
+                                        {% else %}
+                                            Financial decision
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- APPROVED -->
+
+                            <div
+                                class="
+                                    rfd-life-step
+
+                                    {% if refund.status == 'approved' %}
+                                        current
+
+                                    {% elif refund.status == 'processed' %}
+                                        complete
+
+                                    {% endif %}
+                                "
+                            >
+
+                                <div class="rfd-life-dot">
+                                    <i class="bi bi-check2"></i>
+                                </div>
+
+                                <div>
+
+                                    <div class="rfd-life-title">
+                                        Approved
+                                    </div>
+
+                                    <div class="rfd-life-sub">
+                                        Authorization recorded
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- PROCESSED -->
+
+                            <div
+                                class="
+                                    rfd-life-step
+
+                                    {% if refund.status == 'processed' %}
+                                        complete current
+                                    {% endif %}
+                                "
+                            >
+
+                                <div class="rfd-life-dot">
+                                    <i class="bi bi-check2-all"></i>
+                                </div>
+
+                                <div>
+
+                                    <div class="rfd-life-title">
+                                        Processed
+                                    </div>
+
+                                    <div class="rfd-life-sub">
+                                        Financial completion
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     TERMINAL STATES
+                ============================================== -->
+
+                {% if refund.status == "rejected" %}
+
+                    <div class="rfd-terminal rfd-terminal-rejected">
+
+                        <i class="bi bi-x-circle-fill"></i>
+
+                        <div>
+
+                            <strong>
+                                Refund request rejected
+                            </strong>
+
+                            <p>
+
+                                This refund did not receive financial
+                                approval. Review the linked approval
+                                record for the decision details.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if refund.status == "cancelled" %}
+
+                    <div class="rfd-terminal rfd-terminal-cancelled">
+
+                        <i class="bi bi-slash-circle-fill"></i>
+
+                        <div>
+
+                            <strong>
+                                Refund request cancelled
+                            </strong>
+
+                            <p>
+
+                                {{ refund.cancellation_reason }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </main>
+
+
+
+            <!-- =================================================
+                 SIDE RAIL
+            ================================================== -->
+
+            <aside class="rfd-side">
+
+
+                <!-- =============================================
+                     APPROVAL
+                ============================================== -->
+
+                <section class="rfd-card">
+
+                    <div class="rfd-card-head">
+
+                        <div class="rfd-card-title">
+
+                            <div class="rfd-card-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Approval Control
+                                </h2>
+
+                                <p>
+                                    Sensitive financial authorization
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-card-body">
+
+                        {% if approval %}
+
+                            <div class="rfd-approval-summary">
+
+
+                                <div class="rfd-approval-row">
+
+                                    <span>
+                                        Request
+                                    </span>
+
+                                    <strong>
+                                        {{ approval.request_number }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="rfd-approval-row">
+
+                                    <span>
+                                        Status
+                                    </span>
+
+                                    <strong>
+                                        {{ approval.get_status_display }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="rfd-approval-row">
+
+                                    <span>
+                                        Requested By
+                                    </span>
+
+                                    <strong>
+                                        {{ approval.requester }}
+                                    </strong>
+
+                                </div>
+
+
+                                {% if approval.approver %}
+
+                                    <div class="rfd-approval-row">
+
+                                        <span>
+                                            Decision By
+                                        </span>
+
+                                        <strong>
+                                            {{ approval.approver }}
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if approval.decided_at %}
+
+                                    <div class="rfd-approval-row">
+
+                                        <span>
+                                            Decision Time
+                                        </span>
+
+                                        <strong>
+                                            {{ approval.decided_at|date:"d M Y · H:i" }}
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if approval.decision_comments %}
+
+                                    <div class="rfd-approval-row">
+
+                                        <span>
+                                            Comments
+                                        </span>
+
+                                        <strong>
+                                            {{ approval.decision_comments }}
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <a
+                                href="{% url 'payables:approval_detail' approval.pk %}"
+                                class="rfd-approval-link"
+                            >
+                                <i class="bi bi-box-arrow-up-right"></i>
+
+                                Open Approval Record
+                            </a>
+
+                        {% else %}
+
+                            <div class="rfd-integrity">
+
+                                <div class="rfd-integrity-icon">
+                                    <i class="bi bi-hourglass"></i>
+                                </div>
+
+                                <h3>
+                                    Not submitted
+                                </h3>
+
+                                <p>
+
+                                    This refund is still in the requested
+                                    stage and has not entered the formal
+                                    approval workflow.
+
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     AUDIT
+                ============================================== -->
+
+                <section class="rfd-card">
+
+                    <div class="rfd-card-head">
+
+                        <div class="rfd-card-title">
+
+                            <div class="rfd-card-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Audit Trail
+                                </h2>
+
+                                <p>
+                                    Key refund events
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rfd-card-body">
+
+                        <div class="rfd-audit">
+
+
+                            <!-- CREATED -->
+
+                            <div class="rfd-audit-item">
+
+                                <div class="rfd-audit-dot">
+                                    <i class="bi bi-plus"></i>
+                                </div>
+
+
+                                <div class="rfd-audit-content">
+
+                                    <strong>
+                                        Refund requested
+                                    </strong>
+
+                                    <span>
+
+                                        {{ refund.requested_at|date:"d M Y · H:i" }}
+
+                                        {% if refund.requested_by %}
+
+                                            · {{ refund.requested_by }}
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- APPROVAL -->
+
+                            {% if approval %}
+
+                                <div class="rfd-audit-item">
+
+                                    <div class="rfd-audit-dot">
+                                        <i class="bi bi-send"></i>
+                                    </div>
+
+
+                                    <div class="rfd-audit-content">
+
+                                        <strong>
+                                            Submitted for approval
+                                        </strong>
+
+                                        <span>
+
+                                            {% if approval.submitted_at %}
+
+                                                {{ approval.submitted_at|date:"d M Y · H:i" }}
+
+                                            {% else %}
+
+                                                Approval workflow created
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+
+
+                            <!-- APPROVED -->
+
+                            {% if refund.approved_at %}
+
+                                <div class="rfd-audit-item">
+
+                                    <div class="rfd-audit-dot">
+                                        <i class="bi bi-check2"></i>
+                                    </div>
+
+
+                                    <div class="rfd-audit-content">
+
+                                        <strong>
+                                            Refund approved
+                                        </strong>
+
+                                        <span>
+
+                                            {{ refund.approved_at|date:"d M Y · H:i" }}
+
+                                            {% if refund.approved_by %}
+
+                                                · {{ refund.approved_by }}
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+
+
+                            <!-- PROCESSED -->
+
+                            {% if refund.processed_at %}
+
+                                <div class="rfd-audit-item">
+
+                                    <div class="rfd-audit-dot">
+                                        <i class="bi bi-check2-all"></i>
+                                    </div>
+
+
+                                    <div class="rfd-audit-content">
+
+                                        <strong>
+                                            Refund processed
+                                        </strong>
+
+                                        <span>
+
+                                            {{ refund.processed_at|date:"d M Y · H:i" }}
+
+                                            {% if refund.processed_by %}
+
+                                                · {{ refund.processed_by }}
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+
+
+                            <!-- CANCELLED -->
+
+                            {% if refund.cancelled_at %}
+
+                                <div class="rfd-audit-item">
+
+                                    <div class="rfd-audit-dot">
+                                        <i class="bi bi-x"></i>
+                                    </div>
+
+
+                                    <div class="rfd-audit-content">
+
+                                        <strong>
+                                            Refund cancelled
+                                        </strong>
+
+                                        <span>
+
+                                            {{ refund.cancelled_at|date:"d M Y · H:i" }}
+
+                                            {% if refund.cancelled_by %}
+
+                                                · {{ refund.cancelled_by }}
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     FINANCIAL INTEGRITY
+                ============================================== -->
+
+                <div class="rfd-integrity">
+
+                    <div class="rfd-integrity-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+
+                    <h3>
+                        Processing integrity
+                    </h3>
+
+
+                    <p>
+
+                        The original student payment is preserved.
+                        Final processing remains protected until
+                        EduFinance can verify that payment, its
+                        ownership, prior refunds, and remaining
+                        refundable balance through the shared Student
+                        Financial Account integration.
+
+                    </p>
+
+
+                    {% if refund.status == "approved" %}
+
+                        <span class="rfd-lock-state">
+
+                            <i class="bi bi-lock-fill"></i>
+
+                            Processing currently locked
+
+                        </span>
+
+                    {% elif refund.status == "processed" %}
+
+                        <span class="rfd-lock-state">
+
+                            <i class="bi bi-check-circle-fill"></i>
+
+                            Processing completed
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="rfd-lock-state">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            Financial guard active
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     SUBMIT FOR APPROVAL MODAL
+============================================================ -->
+
+{% if refund.status == "requested" and not refund.approval_request_id %}
+
+<div
+    class="rfd-modal"
+    id="rfd-submit-modal"
+>
+
+    <div class="rfd-modal-card">
+
+        <div class="rfd-modal-body">
+
+            <div class="rfd-modal-icon">
+                <i class="bi bi-send-check"></i>
+            </div>
+
+
+            <h3>
+                Submit refund for approval?
+            </h3>
+
+
+            <p>
+
+                Once submitted, the refund enters the formal
+                financial approval workflow and can no longer
+                be edited as a requested record.
+
+            </p>
+
+
+            <div class="rfd-modal-detail">
+
+                <span>
+                    Refund
+                </span>
+
+                <strong>
+                    {{ refund.refund_number }}
+                </strong>
+
+            </div>
+
+
+            <div class="rfd-modal-detail">
+
+                <span>
+                    Requested Value
+                </span>
+
+                <strong>
+                    {{ currency_code }}
+                    {{ refund.amount|floatformat:2 }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="rfd-modal-actions">
+
+            <button
+                type="button"
+                class="rfd-modal-back"
+                data-close-modal="rfd-submit-modal"
+            >
+                Keep Editing
+            </button>
+
+
+            <form
+                method="post"
+                action="{% url 'payables:refund_submit' refund.pk %}"
+                class="rfd-action-form"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="rfd-modal-confirm"
+                >
+                    Submit for Approval
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     CANCEL MODAL
+============================================================ -->
+
+<div
+    class="rfd-modal"
+    id="rfd-cancel-modal"
+>
+
+    <div class="rfd-modal-card rfd-modal-danger">
+
+        <form
+            method="post"
+            action="{% url 'payables:refund_cancel' refund.pk %}"
+            class="rfd-action-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="rfd-modal-body">
+
+                <div class="rfd-modal-icon">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+
+
+                <h3>
+                    Cancel this refund request?
+                </h3>
+
+
+                <p>
+
+                    Cancellation preserves this record in the audit
+                    trail. It does not delete the refund request.
+
+                </p>
+
+
+                <textarea
+                    name="reason"
+                    required
+                    minlength="3"
+                    placeholder="Enter the reason for cancelling this refund..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="rfd-modal-actions">
+
+                <button
+                    type="button"
+                    class="rfd-modal-back"
+                    data-close-modal="rfd-cancel-modal"
+                >
+                    Go Back
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="rfd-modal-confirm-danger"
+                >
+                    Cancel Refund
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+
+<!-- ============================================================
+     LOADING
+============================================================ -->
+
+<div
+    class="rfd-loading"
+    id="rfd-loading"
+>
+
+    <div class="rfd-loading-card">
+
+        <div class="rfd-spinner"></div>
+
+        <strong>
+            Updating refund workflow
+        </strong>
+
+        <span>
+            Synchronizing financial state...
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           REFERENCES
+        ======================================================== */
+
+        const loading =
+            document.getElementById(
+                "rfd-loading"
+            );
+
+
+        let submitting =
+            false;
+
+
+
+        /* ========================================================
+           SHOW LOADING
+        ======================================================== */
+
+        function showLoading() {
+
+            if (loading) {
+
+                loading.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        /* ========================================================
+           MODAL OPENERS
+        ======================================================== */
+
+        const submitOpener =
+            document.getElementById(
+                "rfd-open-submit"
+            );
+
+
+        const cancelOpener =
+            document.getElementById(
+                "rfd-open-cancel"
+            );
+
+
+        const submitModal =
+            document.getElementById(
+                "rfd-submit-modal"
+            );
+
+
+        const cancelModal =
+            document.getElementById(
+                "rfd-cancel-modal"
+            );
+
+
+        if (
+            submitOpener
+            &&
+            submitModal
+        ) {
+
+            submitOpener.addEventListener(
+                "click",
+                function () {
+
+                    submitModal.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (
+            cancelOpener
+            &&
+            cancelModal
+        ) {
+
+            cancelOpener.addEventListener(
+                "click",
+                function () {
+
+                    cancelModal.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           CLOSE BUTTONS
+        ======================================================== */
+
+        document
+            .querySelectorAll(
+                "[data-close-modal]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const modal =
+                                document.getElementById(
+                                    button.dataset.closeModal
+                                );
+
+
+                            if (modal) {
+
+                                modal.classList.remove(
+                                    "active"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* ========================================================
+           CLICK BACKDROP
+        ======================================================== */
+
+        document
+            .querySelectorAll(
+                ".rfd-modal"
+            )
+            .forEach(
+                function (modal) {
+
+                    modal.addEventListener(
+                        "click",
+                        function (event) {
+
+                            if (
+                                event.target
+                                ===
+                                modal
+                            ) {
+
+                                modal.classList.remove(
+                                    "active"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* ========================================================
+           ESCAPE KEY
+        ======================================================== */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key
+                    ===
+                    "Escape"
+                ) {
+
+                    document
+                        .querySelectorAll(
+                            ".rfd-modal.active"
+                        )
+                        .forEach(
+                            function (modal) {
+
+                                modal.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+                }
+
+            }
+        );
+
+
+
+        /* ========================================================
+           FINANCIAL ACTION DOUBLE-SUBMIT PROTECTION
+        ======================================================== */
+
+        document
+            .querySelectorAll(
+                ".rfd-action-form"
+            )
+            .forEach(
+                function (form) {
+
+                    form.addEventListener(
+                        "submit",
+                        function (event) {
+
+                            if (submitting) {
+
+                                event.preventDefault();
+
+                                return;
+
+                            }
+
+
+                            if (
+                                typeof form.reportValidity
+                                ===
+                                "function"
+                                &&
+                                !form.reportValidity()
+                            ) {
+
+                                event.preventDefault();
+
+                                return;
+
+                            }
+
+
+                            submitting =
+                                true;
+
+
+                            form
+                                .querySelectorAll(
+                                    "button"
+                                )
+                                .forEach(
+                                    function (button) {
+
+                                        button.disabled =
+                                            true;
+
+                                    }
+                                );
+
+
+                            document
+                                .querySelectorAll(
+                                    ".rfd-modal.active"
+                                )
+                                .forEach(
+                                    function (modal) {
+
+                                        modal.classList.remove(
+                                            "active"
+                                        );
+
+                                    }
+                                );
+
+
+                            showLoading();
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* ========================================================
+           NORMAL NAVIGATION LOADING
+        ======================================================== */
+
+        document
+            .querySelectorAll(
+                "a.rfd-btn, .rfd-approval-link"
+            )
+            .forEach(
+                function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            if (
+                                !link.classList.contains(
+                                    "rfd-btn-disabled"
+                                )
+                            ) {
+
+                                showLoading();
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+);
+
+</script>
+
+{% endblock %}

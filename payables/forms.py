@@ -18,6 +18,7 @@ from .models import (
     Discount,
     Scholarship,
     FinancialAssistanceRequest,
+    Refund,
 )
 
 
@@ -2664,3 +2665,401 @@ class FinancialAssistanceForm(
             )
 
         return document
+
+
+# ============================================================
+# REFUND FORM
+# ============================================================
+
+class RefundForm(
+    forms.ModelForm
+):
+
+    class Meta:
+
+        model = Refund
+
+        # ----------------------------------------------------
+        # Only requester-editable business fields belong here.
+        #
+        # Workflow / audit fields such as:
+        #
+        # refund_number
+        # approval_request
+        # requested_by / requested_at
+        # approved_by / approved_at
+        # processed_by / processed_at
+        # status
+        # cancellation_reason
+        # cancelled_by / cancelled_at
+        #
+        # are deliberately excluded from the normal form.
+        # ----------------------------------------------------
+
+        fields = [
+            "student_reference",
+            "original_payment_reference",
+            "amount",
+            "refund_method",
+            "reason",
+        ]
+
+        widgets = {
+
+            "student_reference":
+                forms.TextInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            (
+                                "Enter student reference "
+                                "or student ID"
+                            ),
+
+                        "autocomplete":
+                            "off",
+                    }
+                ),
+
+            "original_payment_reference":
+                forms.TextInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            (
+                                "Enter original student "
+                                "payment / receipt reference"
+                            ),
+
+                        "autocomplete":
+                            "off",
+                    }
+                ),
+
+            "amount":
+                forms.NumberInput(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            "0.00",
+
+                        "min":
+                            "0.01",
+
+                        "step":
+                            "0.01",
+
+                        "inputmode":
+                            "decimal",
+                    }
+                ),
+
+            "refund_method":
+                forms.Select(
+                    attrs={
+                        "class":
+                            "form-control",
+                    }
+                ),
+
+            "reason":
+                forms.Textarea(
+                    attrs={
+                        "class":
+                            "form-control",
+
+                        "placeholder":
+                            (
+                                "Explain why this refund "
+                                "is being requested..."
+                            ),
+
+                        "rows":
+                            6,
+                    }
+                ),
+        }
+
+        labels = {
+
+            "student_reference":
+                "Student Reference",
+
+            "original_payment_reference":
+                "Original Payment Reference",
+
+            "amount":
+                "Refund Amount",
+
+            "refund_method":
+                "Refund Method",
+
+            "reason":
+                "Refund Reason",
+        }
+
+        help_texts = {
+
+            "student_reference":
+                (
+                    "Enter the student's current "
+                    "reference or student ID."
+                ),
+
+            "original_payment_reference":
+                (
+                    "Enter the reference of the original "
+                    "student payment being refunded. "
+                    "Do not use a supplier payment reference."
+                ),
+
+            "amount":
+                (
+                    "Enter the amount requested for refund. "
+                    "The amount must be greater than zero."
+                ),
+
+            "refund_method":
+                (
+                    "Select how the approved refund "
+                    "would be returned."
+                ),
+
+            "reason":
+                (
+                    "Provide a clear business reason so "
+                    "the approval reviewer can understand "
+                    "why the refund is being requested."
+                ),
+        }
+
+
+    # ========================================================
+    # INITIALIZATION
+    # ========================================================
+
+    def __init__(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        super().__init__(
+            *args,
+            **kwargs,
+        )
+
+        # ----------------------------------------------------
+        # REQUIRED REQUEST FIELDS
+        # ----------------------------------------------------
+
+        self.fields[
+            "student_reference"
+        ].required = True
+
+        self.fields[
+            "original_payment_reference"
+        ].required = True
+
+        self.fields[
+            "amount"
+        ].required = True
+
+        self.fields[
+            "refund_method"
+        ].required = True
+
+        self.fields[
+            "reason"
+        ].required = True
+
+
+        # ----------------------------------------------------
+        # FRIENDLY REFUND-METHOD PLACEHOLDER
+        # ----------------------------------------------------
+
+        self.fields[
+            "refund_method"
+        ].choices = [
+            (
+                "",
+                "Select refund method",
+            ),
+            *
+            Refund
+            .RefundMethod
+            .choices,
+        ]
+
+
+    # ========================================================
+    # STUDENT REFERENCE
+    # ========================================================
+
+    def clean_student_reference(
+        self,
+    ):
+
+        student_reference = (
+            self.cleaned_data
+            .get(
+                "student_reference",
+                "",
+            )
+            or ""
+        )
+
+        student_reference = (
+            student_reference
+            .strip()
+        )
+
+        if not student_reference:
+
+            raise ValidationError(
+                (
+                    "Student reference "
+                    "is required."
+                )
+            )
+
+        return student_reference
+
+
+    # ========================================================
+    # ORIGINAL PAYMENT REFERENCE
+    # ========================================================
+
+    def clean_original_payment_reference(
+        self,
+    ):
+
+        payment_reference = (
+            self.cleaned_data
+            .get(
+                "original_payment_reference",
+                "",
+            )
+            or ""
+        )
+
+        payment_reference = (
+            payment_reference
+            .strip()
+        )
+
+        if not payment_reference:
+
+            raise ValidationError(
+                (
+                    "Original payment reference "
+                    "is required."
+                )
+            )
+
+        return payment_reference
+
+
+    # ========================================================
+    # REFUND AMOUNT
+    # ========================================================
+
+    def clean_amount(
+        self,
+    ):
+
+        amount = (
+            self.cleaned_data
+            .get(
+                "amount"
+            )
+        )
+
+        if (
+            amount is None
+            or
+            amount <= Decimal("0.00")
+        ):
+
+            raise ValidationError(
+                (
+                    "Refund amount must be "
+                    "greater than zero."
+                )
+            )
+
+        return amount
+
+
+    # ========================================================
+    # REFUND REASON
+    # ========================================================
+
+    def clean_reason(
+        self,
+    ):
+
+        reason = (
+            self.cleaned_data
+            .get(
+                "reason",
+                "",
+            )
+            or ""
+        )
+
+        reason = (
+            reason
+            .strip()
+        )
+
+        if not reason:
+
+            raise ValidationError(
+                (
+                    "Refund reason "
+                    "is required."
+                )
+            )
+
+        return reason
+
+
+    # ========================================================
+    # CROSS-FIELD VALIDATION
+    # ========================================================
+
+    def clean(
+        self,
+    ):
+
+        cleaned_data = (
+            super().clean()
+        )
+
+        # ----------------------------------------------------
+        # IMPORTANT INTEGRATION NOTE
+        #
+        # The current project does not yet expose the shared
+        # student-payment model to this module. Therefore this
+        # form intentionally does NOT pretend to validate:
+        #
+        # - whether the payment exists,
+        # - whether it belongs to the selected student,
+        # - the payment's original amount,
+        # - previous partial refunds,
+        # - remaining refundable balance.
+        #
+        # Those checks must be performed by the Refund service
+        # when the real Student Payment / Student Financial
+        # Account integration becomes available.
+        # ----------------------------------------------------
+
+        return cleaned_data
+

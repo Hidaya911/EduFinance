@@ -3004,3 +3004,583 @@ class FinancialAssistanceRequest(models.Model):
             *args,
             **kwargs,
         )
+
+# ============================================================
+# REFUND NUMBER
+# ============================================================
+
+def generate_refund_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"REF-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# REFUND
+# ============================================================
+
+class Refund(models.Model):
+
+    # ========================================================
+    # REFUND METHOD
+    # ========================================================
+
+    class RefundMethod(models.TextChoices):
+
+        CASH = (
+            "cash",
+            "Cash",
+        )
+
+        BANK_TRANSFER = (
+            "bank_transfer",
+            "Bank Transfer",
+        )
+
+        CHEQUE = (
+            "cheque",
+            "Cheque",
+        )
+
+        CARD = (
+            "card",
+            "Card",
+        )
+
+        OTHER = (
+            "other",
+            "Other",
+        )
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    class Status(models.TextChoices):
+
+        REQUESTED = (
+            "requested",
+            "Requested",
+        )
+
+        PENDING_APPROVAL = (
+            "pending_approval",
+            "Pending Approval",
+        )
+
+        APPROVED = (
+            "approved",
+            "Approved",
+        )
+
+        REJECTED = (
+            "rejected",
+            "Rejected",
+        )
+
+        PROCESSED = (
+            "processed",
+            "Processed",
+        )
+
+        CANCELLED = (
+            "cancelled",
+            "Cancelled",
+        )
+
+
+    # ========================================================
+    # IDENTITY
+    # ========================================================
+
+    refund_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_refund_number,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # STUDENT / ORIGINAL PAYMENT REFERENCES
+    #
+    # The shared Student Payment model is not available in the
+    # project yet. Keep these as temporary references until the
+    # real shared Student / Payment models are integrated.
+    #
+    # Do NOT connect student refunds to SupplierPayment.
+    # ========================================================
+
+    student_reference = models.CharField(
+        max_length=120,
+    )
+
+    original_payment_reference = models.CharField(
+        max_length=120,
+    )
+
+
+    # ========================================================
+    # FINANCIAL INFORMATION
+    # ========================================================
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    reason = models.TextField()
+
+    refund_method = models.CharField(
+        max_length=30,
+        choices=RefundMethod.choices,
+    )
+
+
+    # ========================================================
+    # APPROVAL WORKFLOW
+    # ========================================================
+
+    approval_request = models.ForeignKey(
+        "ApprovalRequest",
+        on_delete=models.PROTECT,
+        related_name="refund_records",
+        blank=True,
+        null=True,
+    )
+
+
+    # ========================================================
+    # REQUEST AUDIT
+    # ========================================================
+
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="requested_refunds",
+    )
+
+    requested_at = models.DateTimeField(
+        default=timezone.now,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # APPROVAL AUDIT
+    # ========================================================
+
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="approved_refunds",
+        blank=True,
+        null=True,
+    )
+
+    approved_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # PROCESSING AUDIT
+    # ========================================================
+
+    processed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="processed_refunds",
+        blank=True,
+        null=True,
+    )
+
+    processed_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # STATUS
+    # ========================================================
+
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.REQUESTED,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # CANCELLATION AUDIT
+    # ========================================================
+
+    cancellation_reason = models.TextField(
+        blank=True,
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cancelled_refunds",
+        blank=True,
+        null=True,
+    )
+
+    cancelled_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+
+    # ========================================================
+    # SYSTEM TIMESTAMPS
+    # ========================================================
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    # ========================================================
+    # META
+    # ========================================================
+
+    class Meta:
+
+        db_table = "refunds"
+
+        ordering = [
+            "-created_at",
+        ]
+
+        verbose_name = "Refund"
+        verbose_name_plural = "Refunds"
+
+
+    # ========================================================
+    # STRING REPRESENTATION
+    # ========================================================
+
+    def __str__(self):
+
+        return (
+            f"{self.refund_number} - "
+            f"{self.student_reference}"
+        )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    def clean(self):
+
+        super().clean()
+
+        errors = {}
+
+
+        # ----------------------------------------------------
+        # STUDENT REFERENCE
+        # ----------------------------------------------------
+
+        if (
+            not self.student_reference
+            or
+            not self.student_reference.strip()
+        ):
+
+            errors["student_reference"] = (
+                "Student reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # ORIGINAL PAYMENT REFERENCE
+        # ----------------------------------------------------
+
+        if (
+            not self.original_payment_reference
+            or
+            not self.original_payment_reference.strip()
+        ):
+
+            errors["original_payment_reference"] = (
+                "Original payment reference is required."
+            )
+
+
+        # ----------------------------------------------------
+        # AMOUNT
+        # ----------------------------------------------------
+
+        if (
+            self.amount is None
+            or
+            self.amount <= Decimal("0.00")
+        ):
+
+            errors["amount"] = (
+                "Refund amount must be greater than zero."
+            )
+
+
+        # ----------------------------------------------------
+        # REASON
+        # ----------------------------------------------------
+
+        if (
+            not self.reason
+            or
+            not self.reason.strip()
+        ):
+
+            errors["reason"] = (
+                "Refund reason is required."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVAL REQUEST TYPE
+        # ----------------------------------------------------
+
+        if self.approval_request_id:
+
+            if (
+                self.approval_request.operation_type
+                !=
+                ApprovalRequest
+                .OperationType
+                .REFUND
+            ):
+
+                errors["approval_request"] = (
+                    "The linked approval request must "
+                    "be a Refund approval."
+                )
+
+
+        # ----------------------------------------------------
+        # PENDING APPROVAL
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.PENDING_APPROVAL
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before a refund can move to "
+                "Pending Approval."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVED / REJECTED REQUIRE APPROVAL
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            in {
+                self.Status.APPROVED,
+                self.Status.REJECTED,
+            }
+            and
+            not self.approval_request_id
+        ):
+
+            errors["approval_request"] = (
+                "An approval request is required "
+                "before a refund can be approved "
+                "or rejected."
+            )
+
+
+        # ----------------------------------------------------
+        # APPROVED STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.APPROVED
+        ):
+
+            if not self.approved_by_id:
+
+                errors["approved_by"] = (
+                    "An approved refund must record "
+                    "the approver."
+                )
+
+            if not self.approved_at:
+
+                errors["approved_at"] = (
+                    "An approved refund must record "
+                    "the approval time."
+                )
+
+
+        # ----------------------------------------------------
+        # PROCESSED STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.PROCESSED
+        ):
+
+            if not self.approval_request_id:
+
+                errors["approval_request"] = (
+                    "A processed refund must have "
+                    "a linked approval request."
+                )
+
+            if not self.approved_by_id:
+
+                errors["approved_by"] = (
+                    "A processed refund must first "
+                    "have been approved."
+                )
+
+            if not self.approved_at:
+
+                errors["approved_at"] = (
+                    "A processed refund must record "
+                    "its approval time."
+                )
+
+            if not self.processed_by_id:
+
+                errors["processed_by"] = (
+                    "A processed refund must record "
+                    "who processed it."
+                )
+
+            if not self.processed_at:
+
+                errors["processed_at"] = (
+                    "A processed refund must record "
+                    "when it was processed."
+                )
+
+
+        # ----------------------------------------------------
+        # CANCELLED STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.CANCELLED
+        ):
+
+            if (
+                not self.cancellation_reason
+                or
+                not self.cancellation_reason.strip()
+            ):
+
+                errors["cancellation_reason"] = (
+                    "A cancellation reason is required."
+                )
+
+            if not self.cancelled_by_id:
+
+                errors["cancelled_by"] = (
+                    "A cancelled refund must record "
+                    "who cancelled it."
+                )
+
+            if not self.cancelled_at:
+
+                errors["cancelled_at"] = (
+                    "A cancelled refund must record "
+                    "when it was cancelled."
+                )
+
+
+        # ----------------------------------------------------
+        # RAISE VALIDATION ERRORS
+        # ----------------------------------------------------
+
+        if errors:
+
+            raise ValidationError(
+                errors
+            )
+
+
+    # ========================================================
+    # SAVE NORMALIZATION
+    # ========================================================
+
+    def save(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        if self.student_reference:
+
+            self.student_reference = (
+                self.student_reference
+                .strip()
+            )
+
+        if self.original_payment_reference:
+
+            self.original_payment_reference = (
+                self.original_payment_reference
+                .strip()
+            )
+
+        if self.reason:
+
+            self.reason = (
+                self.reason
+                .strip()
+            )
+
+        if self.cancellation_reason:
+
+            self.cancellation_reason = (
+                self.cancellation_reason
+                .strip()
+            )
+
+        super().save(
+            *args,
+            **kwargs,
+        )
+

@@ -30,6 +30,7 @@ from .forms import (
     DiscountForm,
     ScholarshipForm,
     FinancialAssistanceForm,
+    RefundForm,
 )
 
 from .models import (
@@ -43,6 +44,7 @@ from .models import (
     Discount,
     Scholarship,
     FinancialAssistanceRequest,
+    Refund,
 )
 
 from .services import (
@@ -64,6 +66,10 @@ from .services import (
     approve_financial_assistance_approval,
     reject_financial_assistance_approval,
     cancel_financial_assistance,
+    create_refund,
+    update_refund,
+    submit_refund_for_approval,
+    cancel_refund,
 )
 
 from .forms import ApprovalRequestForm
@@ -77,6 +83,8 @@ from .services import (
     reject_discount_approval,
     approve_scholarship_approval,
     reject_scholarship_approval,
+    approve_refund_approval,
+    reject_refund_approval,
 )
 
 
@@ -3708,6 +3716,56 @@ def approval_approve(
 
 
         # ====================================================
+        # REFUND
+        # ====================================================
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .REFUND
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "refund"
+        ):
+
+            refund = (
+                approve_refund_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
+            )
+
+            messages.success(
+                request,
+                (
+                    "Refund "
+                    f"{refund.refund_number} "
+                    "was approved."
+                ),
+            )
+
+
+        # ====================================================
         # GENERIC APPROVAL
         # ====================================================
 
@@ -3915,6 +3973,56 @@ def approval_reject(
                 (
                     "Financial assistance request "
                     f"{assistance.assistance_number} "
+                    "was rejected."
+                ),
+            )
+
+
+        # ====================================================
+        # REFUND
+        # ====================================================
+
+        elif (
+            approval.operation_type
+            ==
+            ApprovalRequest
+            .OperationType
+            .REFUND
+            and
+            (
+                approval.related_entity_type
+                or ""
+            ).strip().lower()
+            ==
+            "refund"
+        ):
+
+            refund = (
+                reject_refund_approval(
+                    approval_request=
+                        approval,
+
+                    approver=
+                        request.user,
+
+                    comments=
+                        comments,
+                )
+            )
+
+            approval = (
+                ApprovalRequest
+                .objects
+                .get(
+                    pk=approval.pk
+                )
+            )
+
+            messages.success(
+                request,
+                (
+                    "Refund "
+                    f"{refund.refund_number} "
                     "was rejected."
                 ),
             )
@@ -6347,3 +6455,771 @@ def financial_assistance_cancel(
         ),
         pk=assistance.pk,
     )
+
+
+# ============================================================
+# REFUND — HELPERS
+# ============================================================
+
+def _refund_validation_message(
+    error,
+):
+
+    if (
+        hasattr(
+            error,
+            "messages",
+        )
+        and
+        error.messages
+    ):
+
+        return " ".join(
+            error.messages
+        )
+
+    return str(
+        error
+    )
+
+
+# ============================================================
+# REFUND — LIST
+# ============================================================
+
+@login_required
+def refund_list(
+    request,
+):
+
+    search = (
+        request.GET
+        .get(
+            "search",
+            "",
+        )
+        .strip()
+    )
+
+    status = (
+        request.GET
+        .get(
+            "status",
+            "",
+        )
+        .strip()
+    )
+
+    refund_method = (
+        request.GET
+        .get(
+            "refund_method",
+            "",
+        )
+        .strip()
+    )
+
+    refunds = (
+        Refund.objects
+        .all()
+        .order_by(
+            "-created_at"
+        )
+    )
+
+
+    # --------------------------------------------------------
+    # SEARCH
+    # --------------------------------------------------------
+
+    if search:
+
+        refunds = (
+            refunds
+            .filter(
+                Q(
+                    refund_number__icontains=
+                        search
+                )
+                |
+                Q(
+                    student_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    original_payment_reference__icontains=
+                        search
+                )
+                |
+                Q(
+                    reason__icontains=
+                        search
+                )
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS FILTER
+    # --------------------------------------------------------
+
+    valid_statuses = {
+        choice[0]
+        for choice
+        in Refund.Status.choices
+    }
+
+    if (
+        status
+        and
+        status in valid_statuses
+    ):
+
+        refunds = (
+            refunds.filter(
+                status=status
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # REFUND METHOD FILTER
+    # --------------------------------------------------------
+
+    valid_methods = {
+        choice[0]
+        for choice
+        in Refund.RefundMethod.choices
+    }
+
+    if (
+        refund_method
+        and
+        refund_method in valid_methods
+    ):
+
+        refunds = (
+            refunds.filter(
+                refund_method=
+                    refund_method
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # KPI DATA
+    #
+    # Python-side sums are used to stay predictable with the
+    # project's MongoDB backend.
+    # --------------------------------------------------------
+
+    all_refunds = list(
+        Refund.objects
+        .all()
+    )
+
+    requested_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.REQUESTED
+        )
+    ]
+
+    pending_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.PENDING_APPROVAL
+        )
+    ]
+
+    approved_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.APPROVED
+        )
+    ]
+
+    rejected_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.REJECTED
+        )
+    ]
+
+    processed_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.PROCESSED
+        )
+    ]
+
+    cancelled_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            ==
+            Refund.Status.CANCELLED
+        )
+    ]
+
+    active_refunds = [
+        refund
+        for refund
+        in all_refunds
+        if (
+            refund.status
+            !=
+            Refund.Status.CANCELLED
+        )
+    ]
+
+    total_requested_amount = sum(
+        (
+            refund.amount
+            for refund
+            in active_refunds
+        ),
+        Decimal("0.00"),
+    )
+
+    pending_amount = sum(
+        (
+            refund.amount
+            for refund
+            in pending_refunds
+        ),
+        Decimal("0.00"),
+    )
+
+    approved_amount = sum(
+        (
+            refund.amount
+            for refund
+            in approved_refunds
+        ),
+        Decimal("0.00"),
+    )
+
+    processed_amount = sum(
+        (
+            refund.amount
+            for refund
+            in processed_refunds
+        ),
+        Decimal("0.00"),
+    )
+
+
+    context = {
+
+        "refunds":
+            refunds,
+
+        "search":
+            search,
+
+        "status":
+            status,
+
+        "refund_method":
+            refund_method,
+
+        "status_choices":
+            Refund.Status.choices,
+
+        "refund_method_choices":
+            Refund.RefundMethod.choices,
+
+        "total_count":
+            len(all_refunds),
+
+        "requested_count":
+            len(requested_refunds),
+
+        "pending_count":
+            len(pending_refunds),
+
+        "approved_count":
+            len(approved_refunds),
+
+        "rejected_count":
+            len(rejected_refunds),
+
+        "processed_count":
+            len(processed_refunds),
+
+        "cancelled_count":
+            len(cancelled_refunds),
+
+        "total_requested_amount":
+            total_requested_amount,
+
+        "pending_amount":
+            pending_amount,
+
+        "approved_amount":
+            approved_amount,
+
+        "processed_amount":
+            processed_amount,
+
+        "currency_code":
+            get_school_currency(),
+    }
+
+    return render(
+        request,
+        "payables/refund_list.html",
+        context,
+    )
+
+
+# ============================================================
+# REFUND — CREATE
+# ============================================================
+
+@login_required
+def refund_create(
+    request,
+):
+
+    if request.method == "POST":
+
+        form = RefundForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            try:
+
+                refund = (
+                    create_refund(
+                        user=
+                            request.user,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        original_payment_reference=
+                            form.cleaned_data[
+                                "original_payment_reference"
+                            ],
+
+                        amount=
+                            form.cleaned_data[
+                                "amount"
+                            ],
+
+                        refund_method=
+                            form.cleaned_data[
+                                "refund_method"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+                    )
+                )
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        "Refund "
+                        f"{refund.refund_number} "
+                        "was created successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:refund_detail",
+                    pk=refund.pk,
+                )
+
+    else:
+
+        form = RefundForm()
+
+
+    return render(
+        request,
+        "payables/refund_form.html",
+        {
+            "form":
+                form,
+
+            "page_title":
+                "Create Refund Request",
+
+            "submit_text":
+                "Create Refund",
+
+            "is_edit":
+                False,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# REFUND — EDIT
+# ============================================================
+
+@login_required
+def refund_edit(
+    request,
+    pk,
+):
+
+    refund = (
+        get_object_or_404(
+            Refund,
+            pk=pk,
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.REQUESTED
+    ):
+
+        messages.error(
+            request,
+            (
+                "Only requested refunds "
+                "can be edited."
+            ),
+        )
+
+        return redirect(
+            "payables:refund_detail",
+            pk=refund.pk,
+        )
+
+    if refund.approval_request_id:
+
+        messages.error(
+            request,
+            (
+                "This refund cannot be edited "
+                "because its approval workflow "
+                "has already started."
+            ),
+        )
+
+        return redirect(
+            "payables:refund_detail",
+            pk=refund.pk,
+        )
+
+
+    if request.method == "POST":
+
+        form = RefundForm(
+            request.POST,
+            instance=refund,
+        )
+
+        if form.is_valid():
+
+            try:
+
+                refund = (
+                    update_refund(
+                        refund=
+                            refund,
+
+                        student_reference=
+                            form.cleaned_data[
+                                "student_reference"
+                            ],
+
+                        original_payment_reference=
+                            form.cleaned_data[
+                                "original_payment_reference"
+                            ],
+
+                        amount=
+                            form.cleaned_data[
+                                "amount"
+                            ],
+
+                        refund_method=
+                            form.cleaned_data[
+                                "refund_method"
+                            ],
+
+                        reason=
+                            form.cleaned_data[
+                                "reason"
+                            ],
+                    )
+                )
+
+            except ValidationError as error:
+
+                _add_validation_error_to_form(
+                    form,
+                    error,
+                )
+
+            else:
+
+                messages.success(
+                    request,
+                    (
+                        "Refund "
+                        f"{refund.refund_number} "
+                        "was updated successfully."
+                    ),
+                )
+
+                return redirect(
+                    "payables:refund_detail",
+                    pk=refund.pk,
+                )
+
+    else:
+
+        form = RefundForm(
+            instance=refund
+        )
+
+
+    return render(
+        request,
+        "payables/refund_form.html",
+        {
+            "form":
+                form,
+
+            "refund":
+                refund,
+
+            "page_title":
+                "Edit Refund Request",
+
+            "submit_text":
+                "Save Changes",
+
+            "is_edit":
+                True,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# REFUND — DETAIL
+# ============================================================
+
+@login_required
+def refund_detail(
+    request,
+    pk,
+):
+
+    refund = (
+        get_object_or_404(
+            Refund,
+            pk=pk,
+        )
+    )
+
+    approval = None
+
+    if refund.approval_request_id:
+
+        try:
+
+            approval = (
+                ApprovalRequest.objects
+                .get(
+                    pk=
+                        refund.approval_request_id
+                )
+            )
+
+        except ApprovalRequest.DoesNotExist:
+
+            approval = None
+
+
+    return render(
+        request,
+        "payables/refund_detail.html",
+        {
+            "refund":
+                refund,
+
+            "approval":
+                approval,
+
+            "currency_code":
+                get_school_currency(),
+        },
+    )
+
+
+# ============================================================
+# REFUND — SUBMIT FOR APPROVAL
+# ============================================================
+
+@login_required
+@require_POST
+def refund_submit(
+    request,
+    pk,
+):
+
+    refund = (
+        get_object_or_404(
+            Refund,
+            pk=pk,
+        )
+    )
+
+    try:
+
+        refund = (
+            submit_refund_for_approval(
+                refund=
+                    refund
+            )
+        )
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _refund_validation_message(
+                error
+            ),
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                "Refund "
+                f"{refund.refund_number} "
+                "was submitted for approval."
+            ),
+        )
+
+
+    return redirect(
+        "payables:refund_detail",
+        pk=refund.pk,
+    )
+
+
+# ============================================================
+# REFUND — CANCEL
+# ============================================================
+
+@login_required
+@require_POST
+def refund_cancel(
+    request,
+    pk,
+):
+
+    refund = (
+        get_object_or_404(
+            Refund,
+            pk=pk,
+        )
+    )
+
+    reason = (
+        request.POST
+        .get(
+            "reason",
+            "",
+        )
+        .strip()
+    )
+
+    try:
+
+        refund = (
+            cancel_refund(
+                refund=
+                    refund,
+
+                user=
+                    request.user,
+
+                reason=
+                    reason,
+            )
+        )
+
+    except ValidationError as error:
+
+        messages.error(
+            request,
+            _refund_validation_message(
+                error
+            ),
+        )
+
+    else:
+
+        messages.success(
+            request,
+            (
+                "Refund "
+                f"{refund.refund_number} "
+                "was cancelled."
+            ),
+        )
+
+
+    return redirect(
+        "payables:refund_detail",
+        pk=refund.pk,
+    )
+

@@ -1,0 +1,3780 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ page_title }} | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — REFUND REQUEST WORKSPACE
+============================================================ */
+
+:root {
+    --rff-bg: #f4f7fb;
+    --rff-white: #ffffff;
+    --rff-surface: #ffffff;
+    --rff-soft: #f8faff;
+
+    --rff-navy-950: #07182d;
+    --rff-navy-900: #09213d;
+    --rff-navy-800: #0d335b;
+
+    --rff-blue: #176ff2;
+    --rff-blue-dark: #0c58cc;
+    --rff-blue-soft: #edf4ff;
+
+    --rff-cyan: #1097b3;
+    --rff-cyan-soft: #ebf9fc;
+
+    --rff-green: #07945b;
+    --rff-green-soft: #e9f8f0;
+
+    --rff-orange: #e68a13;
+    --rff-orange-soft: #fff4e4;
+
+    --rff-red: #dc4459;
+    --rff-red-soft: #fff0f2;
+
+    --rff-purple: #7552db;
+    --rff-purple-soft: #f2efff;
+
+    --rff-text: #122136;
+    --rff-text-2: #46586f;
+    --rff-text-3: #7c8a9e;
+
+    --rff-border: #dfe7f1;
+    --rff-border-soft: #edf1f6;
+
+    --rff-radius-sm: 12px;
+    --rff-radius-md: 17px;
+    --rff-radius-lg: 22px;
+    --rff-radius-xl: 29px;
+
+    --rff-shadow-sm:
+        0 8px 24px rgba(18, 48, 82, .05);
+
+    --rff-shadow:
+        0 24px 64px rgba(13, 41, 76, .085);
+
+    --rff-shadow-lg:
+        0 38px 100px rgba(8, 30, 61, .18);
+
+    --rff-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.rff-page {
+    position: relative;
+
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(24px, 3vw, 44px)
+        clamp(18px, 3vw, 46px)
+        70px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 95% 3%,
+            rgba(24, 111, 242, .12),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 1% 55%,
+            rgba(32, 163, 204, .055),
+            transparent 21%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            var(--rff-bg) 60%,
+            #f4f7fb 100%
+        );
+}
+
+.rff-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 600px;
+    height: 600px;
+
+    top: -400px;
+    right: -180px;
+
+    border:
+        1px solid
+        rgba(28, 108, 228, .12);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.rff-shell {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1580px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.rff-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-bottom: 19px;
+
+    color: var(--rff-text-3);
+
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.rff-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rff-breadcrumb a:hover {
+    color: var(--rff-blue);
+}
+
+.rff-breadcrumb i {
+    font-size: .57rem;
+}
+
+.rff-breadcrumb-current {
+    color: var(--rff-blue);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.rff-hero {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 21px;
+
+    padding:
+        27px
+        30px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rff-border);
+
+    border-radius:
+        var(--rff-radius-xl);
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,255,255,.99),
+            rgba(246,250,255,.97)
+        );
+
+    box-shadow:
+        var(--rff-shadow);
+}
+
+.rff-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    right: -125px;
+    top: -275px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(26,110,239,.15),
+            transparent 70%
+        );
+}
+
+.rff-hero-left,
+.rff-hero-right {
+    position: relative;
+    z-index: 2;
+}
+
+.rff-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 12px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid
+        #d8e6fa;
+
+    border-radius: 999px;
+
+    background: #f4f8ff;
+
+    color: var(--rff-blue-dark);
+
+    font-size: .61rem;
+    font-weight: 850;
+
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.rff-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: var(--rff-green);
+}
+
+.rff-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+.rff-title-icon {
+    width: 55px;
+    height: 55px;
+
+    flex: 0 0 55px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #d7e4f8;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--rff-blue);
+
+    font-size: 1.25rem;
+}
+
+.rff-hero h1 {
+    margin: 0;
+
+    color: var(--rff-text);
+
+    font-size:
+        clamp(1.75rem, 2.8vw, 2.65rem);
+
+    font-weight: 850;
+
+    letter-spacing: -.045em;
+}
+
+.rff-hero p {
+    max-width: 720px;
+
+    margin:
+        11px 0 0
+        69px;
+
+    color: var(--rff-text-2);
+
+    font-size: .78rem;
+
+    line-height: 1.7;
+}
+
+.rff-back-btn {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        9px 14px;
+
+    border:
+        1px solid
+        var(--rff-border);
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color: var(--rff-text-2);
+
+    font-size: .65rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition:
+        var(--rff-transition);
+}
+
+.rff-back-btn:hover {
+    color: var(--rff-blue);
+
+    border-color: #b5cff5;
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+
+.rff-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        345px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+
+/* ============================================================
+   FORM CARD
+============================================================ */
+
+.rff-form-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rff-border);
+
+    border-radius:
+        var(--rff-radius-lg);
+
+    background: #fff;
+
+    box-shadow:
+        var(--rff-shadow);
+}
+
+.rff-form-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding:
+        19px 21px;
+
+    border-bottom:
+        1px solid
+        var(--rff-border-soft);
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fbfcfe
+        );
+}
+
+.rff-form-head-left {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+.rff-form-head-icon {
+    width: 39px;
+    height: 39px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue);
+}
+
+.rff-form-head h2 {
+    margin: 0;
+
+    color:
+        var(--rff-text);
+
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.rff-form-head p {
+    margin: 3px 0 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .59rem;
+}
+
+.rff-record-state {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 31px;
+
+    padding:
+        6px 9px;
+
+    border-radius: 999px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue-dark);
+
+    font-size: .58rem;
+    font-weight: 850;
+}
+
+.rff-record-state::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* ============================================================
+   ERRORS
+============================================================ */
+
+.rff-errors {
+    display: grid;
+
+    gap: 9px;
+
+    padding:
+        18px 21px 0;
+}
+
+.rff-error-box {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding:
+        11px 12px;
+
+    border:
+        1px solid
+        #f3cbd1;
+
+    border-radius: 12px;
+
+    background:
+        var(--rff-red-soft);
+
+    color:
+        #aa3244;
+
+    font-size: .63rem;
+
+    line-height: 1.55;
+}
+
+.rff-error-box i {
+    margin-top: 1px;
+}
+
+
+/* ============================================================
+   FORM BODY
+============================================================ */
+
+.rff-form-body {
+    padding:
+        22px;
+}
+
+.rff-stage {
+    position: relative;
+
+    margin-bottom: 20px;
+
+    padding:
+        19px;
+
+    border:
+        1px solid
+        var(--rff-border-soft);
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fcfdff
+        );
+}
+
+.rff-stage:last-child {
+    margin-bottom: 0;
+}
+
+.rff-stage-head {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+}
+
+.rff-stage-number {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue);
+
+    font-size: .65rem;
+    font-weight: 900;
+}
+
+.rff-stage-copy h3 {
+    margin: 0;
+
+    color:
+        var(--rff-text);
+
+    font-size: .74rem;
+    font-weight: 850;
+}
+
+.rff-stage-copy p {
+    margin:
+        4px 0 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .58rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   FIELD GRID
+============================================================ */
+
+.rff-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 15px;
+}
+
+.rff-grid-one {
+    grid-template-columns: 1fr;
+}
+
+.rff-field {
+    min-width: 0;
+}
+
+.rff-field-wide {
+    grid-column:
+        1 / -1;
+}
+
+.rff-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 7px;
+}
+
+.rff-label {
+    color:
+        var(--rff-text);
+
+    font-size: .62rem;
+    font-weight: 850;
+}
+
+.rff-required {
+    color:
+        var(--rff-red);
+}
+
+.rff-field-hint {
+    color:
+        var(--rff-text-3);
+
+    font-size: .54rem;
+}
+
+
+/* ============================================================
+   DJANGO INPUTS
+============================================================ */
+
+.rff-field .form-control {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding:
+        11px 13px;
+
+    border:
+        1px solid
+        #dbe4ef;
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color:
+        var(--rff-text);
+
+    font-size: .7rem;
+
+    outline: none;
+
+    box-shadow: none;
+
+    transition:
+        border-color
+        var(--rff-transition),
+        box-shadow
+        var(--rff-transition),
+        background
+        var(--rff-transition);
+}
+
+.rff-field textarea.form-control {
+    min-height: 145px;
+
+    resize: vertical;
+
+    line-height: 1.65;
+}
+
+.rff-field select.form-control {
+    cursor: pointer;
+}
+
+.rff-field .form-control:focus {
+    border-color:
+        #82b2fa;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(24,111,242,.085);
+
+    background:
+        #fff;
+}
+
+.rff-field .form-control::placeholder {
+    color:
+        #9ca8b8;
+}
+
+.rff-field.has-error .form-control {
+    border-color:
+        #e89aa6;
+
+    background:
+        #fffafb;
+}
+
+.rff-field-error {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 6px;
+
+    margin-top: 6px;
+
+    color:
+        #bd394c;
+
+    font-size: .57rem;
+
+    line-height: 1.45;
+}
+
+.rff-field-help {
+    margin-top: 6px;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .55rem;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   PAYMENT REFERENCE PANEL
+============================================================ */
+
+.rff-payment-context {
+    display: grid;
+
+    grid-template-columns:
+        42px 1fr;
+
+    gap: 11px;
+
+    margin-top: 12px;
+
+    padding:
+        12px;
+
+    border:
+        1px solid
+        #dbe6f6;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f6f9ff,
+            #fff
+        );
+}
+
+.rff-payment-context-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        var(--rff-cyan-soft);
+
+    color:
+        var(--rff-cyan);
+}
+
+.rff-payment-context strong {
+    display: block;
+
+    color:
+        var(--rff-text);
+
+    font-size: .62rem;
+}
+
+.rff-payment-context p {
+    margin:
+        4px 0 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .56rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   AMOUNT BOX
+============================================================ */
+
+.rff-amount-shell {
+    position: relative;
+}
+
+.rff-currency-pill {
+    position: absolute;
+
+    top: 50%;
+    left: 11px;
+
+    transform:
+        translateY(-50%);
+
+    min-width: 42px;
+
+    padding:
+        5px 7px;
+
+    border-radius: 8px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue-dark);
+
+    font-size: .55rem;
+    font-weight: 900;
+
+    text-align: center;
+
+    pointer-events: none;
+}
+
+.rff-amount-shell input {
+    padding-left: 62px !important;
+}
+
+
+/* ============================================================
+   METHOD SELECTOR PREVIEW
+============================================================ */
+
+.rff-method-preview {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5,minmax(0,1fr));
+
+    gap: 8px;
+
+    margin-top: 13px;
+}
+
+.rff-method-item {
+    min-height: 65px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        8px;
+
+    border:
+        1px solid
+        var(--rff-border);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+
+    color:
+        var(--rff-text-3);
+
+    text-align: center;
+
+    font-size: .51rem;
+    font-weight: 800;
+
+    transition:
+        var(--rff-transition);
+}
+
+.rff-method-item i {
+    font-size: .9rem;
+}
+
+.rff-method-item.active {
+    border-color:
+        #a6c8fa;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue-dark);
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(23,111,242,.06);
+}
+
+
+/* ============================================================
+   REASON COUNTER
+============================================================ */
+
+.rff-reason-footer {
+    display: flex;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 7px;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .54rem;
+}
+
+.rff-reason-count strong {
+    color:
+        var(--rff-text-2);
+}
+
+
+/* ============================================================
+   ACTION FOOTER
+============================================================ */
+
+.rff-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding:
+        17px 21px;
+
+    border-top:
+        1px solid
+        var(--rff-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.rff-footer-note {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    max-width: 500px;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .57rem;
+
+    line-height: 1.5;
+}
+
+.rff-footer-note i {
+    margin-top: 1px;
+
+    color:
+        var(--rff-green);
+}
+
+.rff-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.rff-cancel-btn,
+.rff-submit-btn {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        9px 15px;
+
+    border-radius: 12px;
+
+    font-size: .65rem;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+.rff-cancel-btn {
+    border:
+        1px solid
+        var(--rff-border);
+
+    background: #fff;
+
+    color:
+        var(--rff-text-2);
+}
+
+.rff-cancel-btn:hover {
+    color:
+        var(--rff-blue);
+
+    border-color:
+        #b7cef1;
+}
+
+.rff-submit-btn {
+    border:
+        1px solid
+        #0c5bcf;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1b74f2,
+            #0b58c9
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 12px 27px
+        rgba(20,101,220,.22);
+
+    cursor: pointer;
+
+    transition:
+        var(--rff-transition);
+}
+
+.rff-submit-btn:hover:not(:disabled) {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 17px 32px
+        rgba(20,101,220,.28);
+}
+
+.rff-submit-btn:disabled {
+    opacity: .65;
+
+    cursor: wait;
+}
+
+
+/* ============================================================
+   SIDE RAIL
+============================================================ */
+
+.rff-side {
+    position: sticky;
+
+    top: 88px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+.rff-side-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rff-border);
+
+    border-radius: 19px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rff-shadow-sm);
+}
+
+.rff-side-head {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        15px 16px;
+
+    border-bottom:
+        1px solid
+        var(--rff-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.rff-side-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue);
+}
+
+.rff-side-head h3 {
+    margin: 0;
+
+    color:
+        var(--rff-text);
+
+    font-size: .7rem;
+    font-weight: 850;
+}
+
+.rff-side-head p {
+    margin:
+        2px 0 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .54rem;
+}
+
+.rff-side-body {
+    padding:
+        16px;
+}
+
+
+/* ============================================================
+   LIVE SUMMARY
+============================================================ */
+
+.rff-preview {
+    display: grid;
+
+    gap: 11px;
+}
+
+.rff-preview-amount {
+    padding:
+        15px;
+
+    border:
+        1px solid
+        #d8e5f8;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+}
+
+.rff-preview-amount span {
+    display: block;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .55rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.rff-preview-amount strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--rff-text);
+
+    font-size: 1.45rem;
+    font-weight: 900;
+
+    letter-spacing: -.035em;
+}
+
+.rff-preview-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    min-height: 42px;
+
+    padding:
+        9px 10px;
+
+    border:
+        1px solid
+        var(--rff-border-soft);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+}
+
+.rff-preview-item span {
+    color:
+        var(--rff-text-3);
+
+    font-size: .55rem;
+}
+
+.rff-preview-item strong {
+    max-width: 170px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color:
+        var(--rff-text);
+
+    font-size: .59rem;
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   WORKFLOW
+============================================================ */
+
+.rff-workflow {
+    display: grid;
+
+    gap: 0;
+}
+
+.rff-workflow-step {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        33px 1fr;
+
+    gap: 10px;
+
+    min-height: 59px;
+}
+
+.rff-workflow-step:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    left: 16px;
+    top: 32px;
+    bottom: -3px;
+
+    width: 1px;
+
+    background:
+        #dfe6ef;
+}
+
+.rff-workflow-dot {
+    position: relative;
+
+    z-index: 2;
+
+    width: 33px;
+    height: 33px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #dce5f0;
+
+    border-radius: 50%;
+
+    background: #fff;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .67rem;
+}
+
+.rff-workflow-step.active .rff-workflow-dot {
+    border-color:
+        #accbfa;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue);
+}
+
+.rff-workflow-step strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--rff-text);
+
+    font-size: .61rem;
+}
+
+.rff-workflow-step span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .53rem;
+
+    line-height: 1.4;
+}
+
+
+/* ============================================================
+   INTEGRITY CARD
+============================================================ */
+
+.rff-integrity {
+    padding:
+        17px;
+
+    border:
+        1px solid
+        #dcd9f6;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f7f5ff,
+            #fff
+        );
+}
+
+.rff-integrity-icon {
+    width: 37px;
+    height: 37px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 11px;
+
+    border-radius: 11px;
+
+    background:
+        var(--rff-purple-soft);
+
+    color:
+        var(--rff-purple);
+}
+
+.rff-integrity h4 {
+    margin:
+        0 0 6px;
+
+    color:
+        var(--rff-text);
+
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.rff-integrity p {
+    margin: 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .56rem;
+
+    line-height: 1.62;
+}
+
+
+/* ============================================================
+   CONFIRM MODAL
+============================================================ */
+
+.rff-modal {
+    position: fixed;
+
+    z-index: 11000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(7,24,45,.45);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+.rff-modal.active {
+    display: flex;
+}
+
+.rff-modal-card {
+    width:
+        min(100%, 455px);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(255,255,255,.65);
+
+    border-radius: 22px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rff-shadow-lg);
+
+    animation:
+        rffModalIn
+        .22s ease-out;
+}
+
+@keyframes rffModalIn {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(12px)
+            scale(.985);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+.rff-modal-top {
+    padding:
+        20px 20px 15px;
+
+    text-align: center;
+}
+
+.rff-modal-icon {
+    width: 52px;
+    height: 52px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto 12px;
+
+    border-radius: 16px;
+
+    background:
+        var(--rff-blue-soft);
+
+    color:
+        var(--rff-blue);
+
+    font-size: 1.2rem;
+}
+
+.rff-modal h3 {
+    margin: 0;
+
+    color:
+        var(--rff-text);
+
+    font-size: .86rem;
+    font-weight: 850;
+}
+
+.rff-modal p {
+    margin:
+        7px 0 0;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .6rem;
+
+    line-height: 1.6;
+}
+
+.rff-modal-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 9px;
+
+    padding:
+        0 20px 18px;
+}
+
+.rff-modal-summary div {
+    padding:
+        10px;
+
+    border:
+        1px solid
+        var(--rff-border-soft);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+}
+
+.rff-modal-summary span {
+    display: block;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .51rem;
+}
+
+.rff-modal-summary strong {
+    display: block;
+
+    margin-top: 4px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color:
+        var(--rff-text);
+
+    font-size: .59rem;
+
+    white-space: nowrap;
+}
+
+.rff-modal-actions {
+    display: flex;
+
+    gap: 9px;
+
+    padding:
+        14px 20px 20px;
+
+    border-top:
+        1px solid
+        var(--rff-border-soft);
+}
+
+.rff-modal-actions button {
+    flex: 1;
+
+    min-height: 42px;
+
+    border-radius: 11px;
+
+    font-size: .62rem;
+    font-weight: 850;
+}
+
+.rff-modal-back {
+    border:
+        1px solid
+        var(--rff-border);
+
+    background: #fff;
+
+    color:
+        var(--rff-text-2);
+}
+
+.rff-modal-confirm {
+    border:
+        1px solid
+        #0d5bd0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1a73f1,
+            #0b58ca
+        );
+
+    color: #fff;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.rff-loading {
+    position: fixed;
+
+    z-index: 12000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(7,24,45,.43);
+
+    backdrop-filter:
+        blur(6px);
+}
+
+.rff-loading.active {
+    display: flex;
+}
+
+.rff-loading-card {
+    min-width: 240px;
+
+    padding:
+        24px;
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        var(--rff-shadow-lg);
+}
+
+.rff-spinner {
+    width: 35px;
+    height: 35px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid
+        #e4eaf2;
+
+    border-top-color:
+        var(--rff-blue);
+
+    border-radius: 50%;
+
+    animation:
+        rffSpin
+        .7s linear infinite;
+}
+
+@keyframes rffSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rff-loading-card strong {
+    display: block;
+
+    color:
+        var(--rff-text);
+
+    font-size: .7rem;
+}
+
+.rff-loading-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--rff-text-3);
+
+    font-size: .56rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1200px) {
+
+    .rff-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .rff-side {
+        position: static;
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .rff-page {
+        margin: -16px;
+
+        padding:
+            22px 16px 55px;
+    }
+
+    .rff-side {
+        grid-template-columns: 1fr;
+    }
+
+    .rff-method-preview {
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .rff-hero,
+    .rff-form-head,
+    .rff-form-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rff-hero p {
+        margin-left: 0;
+    }
+
+    .rff-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rff-field-wide {
+        grid-column: auto;
+    }
+
+    .rff-actions {
+        width: 100%;
+    }
+
+    .rff-cancel-btn,
+    .rff-submit-btn {
+        flex: 1;
+    }
+
+    .rff-modal-summary {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 520px) {
+
+    .rff-method-preview {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+}
+
+</style>
+
+
+
+<div class="rff-page">
+
+    <div class="rff-shell">
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="rff-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <a href="{% url 'payables:refund_list' %}">
+                Refunds
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="rff-breadcrumb-current">
+
+                {% if is_edit %}
+                    Edit Request
+                {% else %}
+                    New Request
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="rff-hero">
+
+            <div class="rff-hero-left">
+
+                <div class="rff-eyebrow">
+
+                    <span class="rff-eyebrow-dot"></span>
+
+                    Refund Request Workspace
+
+                </div>
+
+
+                <div class="rff-title-row">
+
+                    <div class="rff-title-icon">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+
+
+                    <h1>
+                        {{ page_title }}
+                    </h1>
+
+                </div>
+
+
+                <p>
+
+                    Record the student, original payment reference,
+                    refund value, return method and financial reason.
+                    Approval and processing information is controlled
+                    separately by EduFinance.
+
+                </p>
+
+            </div>
+
+
+            <div class="rff-hero-right">
+
+                {% if is_edit and refund %}
+
+                    <a
+                        href="{% url 'payables:refund_detail' refund.pk %}"
+                        class="rff-back-btn"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+
+                        Back to Refund
+                    </a>
+
+                {% else %}
+
+                    <a
+                        href="{% url 'payables:refund_list' %}"
+                        class="rff-back-btn"
+                    >
+                        <i class="bi bi-arrow-left"></i>
+
+                        Refund Register
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+
+        <div class="rff-layout">
+
+
+            <!-- =================================================
+                 FORM
+            ================================================== -->
+
+            <section class="rff-form-card">
+
+                <div class="rff-form-head">
+
+                    <div class="rff-form-head-left">
+
+                        <div class="rff-form-head-icon">
+
+                            {% if is_edit %}
+                                <i class="bi bi-pencil-square"></i>
+                            {% else %}
+                                <i class="bi bi-file-earmark-plus"></i>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <h2>
+
+                                {% if is_edit %}
+                                    Update Requested Refund
+                                {% else %}
+                                    Refund Request Details
+                                {% endif %}
+
+                            </h2>
+
+
+                            <p>
+
+                                {% if is_edit %}
+                                    Only requested refunds can be edited.
+                                {% else %}
+                                    Complete the financial request before submission.
+                                {% endif %}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="rff-record-state">
+
+                        {% if is_edit %}
+                            Requested
+                        {% else %}
+                            New Request
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     NON FIELD ERRORS
+                ============================================== -->
+
+                {% if form.non_field_errors %}
+
+                    <div class="rff-errors">
+
+                        {% for error in form.non_field_errors %}
+
+                            <div class="rff-error-box">
+
+                                <i class="bi bi-exclamation-circle-fill"></i>
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+
+
+                <form
+                    method="post"
+                    id="rff-refund-form"
+                    novalidate
+                >
+
+                    {% csrf_token %}
+
+
+                    <div class="rff-form-body">
+
+
+                        <!-- =====================================
+                             STAGE 1
+                        ====================================== -->
+
+                        <section class="rff-stage">
+
+                            <div class="rff-stage-head">
+
+                                <div class="rff-stage-number">
+                                    01
+                                </div>
+
+
+                                <div class="rff-stage-copy">
+
+                                    <h3>
+                                        Student & Original Payment
+                                    </h3>
+
+                                    <p>
+
+                                        Identify whose payment is involved
+                                        and preserve the reference of the
+                                        original student payment.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-grid">
+
+
+                                <!-- STUDENT -->
+
+                                <div
+                                    class="
+                                        rff-field
+                                        {% if form.student_reference.errors %}
+                                            has-error
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <div class="rff-label-row">
+
+                                        <label
+                                            class="rff-label"
+                                            for="{{ form.student_reference.id_for_label }}"
+                                        >
+                                            Student Reference
+                                            <span class="rff-required">*</span>
+                                        </label>
+
+                                        <span class="rff-field-hint">
+                                            Student ID / reference
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.student_reference }}
+
+
+                                    {% for error in form.student_reference.errors %}
+
+                                        <div class="rff-field-error">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            {{ error }}
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                    {% if form.student_reference.help_text %}
+
+                                        <div class="rff-field-help">
+                                            {{ form.student_reference.help_text }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+
+                                <!-- ORIGINAL PAYMENT -->
+
+                                <div
+                                    class="
+                                        rff-field
+                                        {% if form.original_payment_reference.errors %}
+                                            has-error
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <div class="rff-label-row">
+
+                                        <label
+                                            class="rff-label"
+                                            for="{{ form.original_payment_reference.id_for_label }}"
+                                        >
+                                            Original Payment Reference
+                                            <span class="rff-required">*</span>
+                                        </label>
+
+                                        <span class="rff-field-hint">
+                                            Receipt / payment number
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.original_payment_reference }}
+
+
+                                    {% for error in form.original_payment_reference.errors %}
+
+                                        <div class="rff-field-error">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            {{ error }}
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                    {% if form.original_payment_reference.help_text %}
+
+                                        <div class="rff-field-help">
+                                            {{ form.original_payment_reference.help_text }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="rff-payment-context">
+
+                                <div class="rff-payment-context-icon">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Original payment remains unchanged
+                                    </strong>
+
+                                    <p>
+
+                                        A refund request does not delete or
+                                        alter the historical payment record.
+                                        The payment reference is preserved for
+                                        audit and later financial verification.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+
+                        <!-- =====================================
+                             STAGE 2
+                        ====================================== -->
+
+                        <section class="rff-stage">
+
+                            <div class="rff-stage-head">
+
+                                <div class="rff-stage-number">
+                                    02
+                                </div>
+
+
+                                <div class="rff-stage-copy">
+
+                                    <h3>
+                                        Refund Value & Return Method
+                                    </h3>
+
+                                    <p>
+
+                                        Specify the monetary amount requested
+                                        and the method intended for returning
+                                        the funds.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-grid">
+
+
+                                <!-- AMOUNT -->
+
+                                <div
+                                    class="
+                                        rff-field
+                                        {% if form.amount.errors %}
+                                            has-error
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <div class="rff-label-row">
+
+                                        <label
+                                            class="rff-label"
+                                            for="{{ form.amount.id_for_label }}"
+                                        >
+                                            Refund Amount
+                                            <span class="rff-required">*</span>
+                                        </label>
+
+
+                                        <span class="rff-field-hint">
+                                            Greater than zero
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="rff-amount-shell">
+
+                                        <span class="rff-currency-pill">
+                                            {{ currency_code }}
+                                        </span>
+
+                                        {{ form.amount }}
+
+                                    </div>
+
+
+                                    {% for error in form.amount.errors %}
+
+                                        <div class="rff-field-error">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            {{ error }}
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                    {% if form.amount.help_text %}
+
+                                        <div class="rff-field-help">
+                                            {{ form.amount.help_text }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+
+                                <!-- METHOD -->
+
+                                <div
+                                    class="
+                                        rff-field
+                                        {% if form.refund_method.errors %}
+                                            has-error
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <div class="rff-label-row">
+
+                                        <label
+                                            class="rff-label"
+                                            for="{{ form.refund_method.id_for_label }}"
+                                        >
+                                            Refund Method
+                                            <span class="rff-required">*</span>
+                                        </label>
+
+
+                                        <span class="rff-field-hint">
+                                            Intended return channel
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.refund_method }}
+
+
+                                    {% for error in form.refund_method.errors %}
+
+                                        <div class="rff-field-error">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            {{ error }}
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                    {% if form.refund_method.help_text %}
+
+                                        <div class="rff-field-help">
+                                            {{ form.refund_method.help_text }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- METHOD PREVIEW -->
+
+                            <div class="rff-method-preview">
+
+                                <div
+                                    class="rff-method-item"
+                                    data-method="cash"
+                                >
+
+                                    <i class="bi bi-cash"></i>
+
+                                    Cash
+
+                                </div>
+
+
+                                <div
+                                    class="rff-method-item"
+                                    data-method="bank_transfer"
+                                >
+
+                                    <i class="bi bi-bank"></i>
+
+                                    Bank Transfer
+
+                                </div>
+
+
+                                <div
+                                    class="rff-method-item"
+                                    data-method="cheque"
+                                >
+
+                                    <i class="bi bi-file-earmark-text"></i>
+
+                                    Cheque
+
+                                </div>
+
+
+                                <div
+                                    class="rff-method-item"
+                                    data-method="card"
+                                >
+
+                                    <i class="bi bi-credit-card"></i>
+
+                                    Card
+
+                                </div>
+
+
+                                <div
+                                    class="rff-method-item"
+                                    data-method="other"
+                                >
+
+                                    <i class="bi bi-wallet2"></i>
+
+                                    Other
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+
+
+                        <!-- =====================================
+                             STAGE 3
+                        ====================================== -->
+
+                        <section class="rff-stage">
+
+                            <div class="rff-stage-head">
+
+                                <div class="rff-stage-number">
+                                    03
+                                </div>
+
+
+                                <div class="rff-stage-copy">
+
+                                    <h3>
+                                        Financial Reason
+                                    </h3>
+
+                                    <p>
+
+                                        Record enough context for the
+                                        approver to understand why the
+                                        refund has been requested.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-grid rff-grid-one">
+
+                                <div
+                                    class="
+                                        rff-field
+                                        {% if form.reason.errors %}
+                                            has-error
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <div class="rff-label-row">
+
+                                        <label
+                                            class="rff-label"
+                                            for="{{ form.reason.id_for_label }}"
+                                        >
+                                            Refund Reason
+                                            <span class="rff-required">*</span>
+                                        </label>
+
+
+                                        <span class="rff-field-hint">
+                                            Financial justification
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.reason }}
+
+
+                                    {% for error in form.reason.errors %}
+
+                                        <div class="rff-field-error">
+
+                                            <i class="bi bi-exclamation-circle"></i>
+
+                                            {{ error }}
+
+                                        </div>
+
+                                    {% endfor %}
+
+
+                                    <div class="rff-reason-footer">
+
+                                        <span>
+
+                                            This reason becomes part of
+                                            the approval audit trail.
+
+                                        </span>
+
+
+                                        <span class="rff-reason-count">
+
+                                            <strong id="rff-reason-count">
+                                                0
+                                            </strong>
+
+                                            characters
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         FORM FOOTER
+                    ========================================== -->
+
+                    <div class="rff-form-footer">
+
+                        <div class="rff-footer-note">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            <span>
+
+                                Saving this form creates or updates the
+                                refund request only. Approval and final
+                                processing occur through separate,
+                                controlled workflow actions.
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="rff-actions">
+
+                            {% if is_edit and refund %}
+
+                                <a
+                                    href="{% url 'payables:refund_detail' refund.pk %}"
+                                    class="rff-cancel-btn"
+                                >
+                                    Cancel
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{% url 'payables:refund_list' %}"
+                                    class="rff-cancel-btn"
+                                >
+                                    Cancel
+                                </a>
+
+                            {% endif %}
+
+
+                            <button
+                                type="button"
+                                id="rff-open-confirm"
+                                class="rff-submit-btn"
+                            >
+
+                                {% if is_edit %}
+
+                                    <i class="bi bi-check2-circle"></i>
+
+                                {% else %}
+
+                                    <i class="bi bi-plus-circle"></i>
+
+                                {% endif %}
+
+                                {{ submit_text }}
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SIDE RAIL
+            ================================================== -->
+
+            <aside class="rff-side">
+
+
+                <!-- LIVE SUMMARY -->
+
+                <section class="rff-side-card">
+
+                    <div class="rff-side-head">
+
+                        <div class="rff-side-icon">
+                            <i class="bi bi-activity"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Live Request Summary
+                            </h3>
+
+                            <p>
+                                Updates while you complete the form
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rff-side-body">
+
+                        <div class="rff-preview">
+
+                            <div class="rff-preview-amount">
+
+                                <span>
+                                    Refund Value
+                                </span>
+
+                                <strong>
+
+                                    {{ currency_code }}
+
+                                    <span id="rff-preview-amount">
+                                        0.00
+                                    </span>
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="rff-preview-item">
+
+                                <span>
+                                    Student
+                                </span>
+
+                                <strong id="rff-preview-student">
+                                    Not entered
+                                </strong>
+
+                            </div>
+
+
+                            <div class="rff-preview-item">
+
+                                <span>
+                                    Original Payment
+                                </span>
+
+                                <strong id="rff-preview-payment">
+                                    Not entered
+                                </strong>
+
+                            </div>
+
+
+                            <div class="rff-preview-item">
+
+                                <span>
+                                    Method
+                                </span>
+
+                                <strong id="rff-preview-method">
+                                    Not selected
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- WORKFLOW -->
+
+                <section class="rff-side-card">
+
+                    <div class="rff-side-head">
+
+                        <div class="rff-side-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Refund Lifecycle
+                            </h3>
+
+                            <p>
+                                Controlled financial progression
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rff-side-body">
+
+                        <div class="rff-workflow">
+
+
+                            <div class="rff-workflow-step active">
+
+                                <div class="rff-workflow-dot">
+                                    <i class="bi bi-pencil"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Requested
+                                    </strong>
+
+                                    <span>
+                                        Request can still be edited.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-workflow-step">
+
+                                <div class="rff-workflow-dot">
+                                    <i class="bi bi-hourglass"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Pending Approval
+                                    </strong>
+
+                                    <span>
+                                        Financial decision is required.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-workflow-step">
+
+                                <div class="rff-workflow-dot">
+                                    <i class="bi bi-check2"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Approved / Rejected
+                                    </strong>
+
+                                    <span>
+                                        Decision is permanently recorded.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rff-workflow-step">
+
+                                <div class="rff-workflow-dot">
+                                    <i class="bi bi-lock"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+                                        Processed
+                                    </strong>
+
+                                    <span>
+                                        Requires verified payment integration.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- INTEGRITY -->
+
+                <div class="rff-integrity">
+
+                    <div class="rff-integrity-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+
+
+                    <h4>
+                        Refund integrity rule
+                    </h4>
+
+
+                    <p>
+
+                        EduFinance does not treat a refund as a deletion
+                        of the original payment. The original payment
+                        reference remains part of the audit trail, and
+                        final processing stays blocked until the shared
+                        student-payment integration can verify remaining
+                        refundable balance.
+
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     SAVE CONFIRMATION MODAL
+============================================================ -->
+
+<div
+    class="rff-modal"
+    id="rff-confirm-modal"
+>
+
+    <div class="rff-modal-card">
+
+        <div class="rff-modal-top">
+
+            <div class="rff-modal-icon">
+
+                {% if is_edit %}
+                    <i class="bi bi-pencil-square"></i>
+                {% else %}
+                    <i class="bi bi-receipt"></i>
+                {% endif %}
+
+            </div>
+
+
+            <h3>
+
+                {% if is_edit %}
+                    Save refund changes?
+                {% else %}
+                    Create this refund request?
+                {% endif %}
+
+            </h3>
+
+
+            <p>
+
+                Review the request summary before it is
+                stored in the financial register.
+
+            </p>
+
+        </div>
+
+
+        <div class="rff-modal-summary">
+
+            <div>
+
+                <span>
+                    Student
+                </span>
+
+                <strong id="rff-modal-student">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Payment
+                </span>
+
+                <strong id="rff-modal-payment">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Amount
+                </span>
+
+                <strong>
+
+                    {{ currency_code }}
+
+                    <span id="rff-modal-amount">
+                        0.00
+                    </span>
+
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Method
+                </span>
+
+                <strong id="rff-modal-method">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="rff-modal-actions">
+
+            <button
+                type="button"
+                id="rff-modal-back"
+                class="rff-modal-back"
+            >
+                Go Back
+            </button>
+
+
+            <button
+                type="button"
+                id="rff-modal-confirm"
+                class="rff-modal-confirm"
+            >
+
+                {% if is_edit %}
+                    Save Changes
+                {% else %}
+                    Create Refund
+                {% endif %}
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     LOADING
+============================================================ -->
+
+<div
+    class="rff-loading"
+    id="rff-loading"
+>
+
+    <div class="rff-loading-card">
+
+        <div class="rff-spinner"></div>
+
+        <strong>
+
+            {% if is_edit %}
+                Saving refund changes
+            {% else %}
+                Creating refund request
+            {% endif %}
+
+        </strong>
+
+        <span>
+            Updating EduFinance financial records...
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           REFERENCES
+        ======================================================== */
+
+        const form =
+            document.getElementById(
+                "rff-refund-form"
+            );
+
+
+        const studentInput =
+            document.getElementById(
+                "id_student_reference"
+            );
+
+
+        const paymentInput =
+            document.getElementById(
+                "id_original_payment_reference"
+            );
+
+
+        const amountInput =
+            document.getElementById(
+                "id_amount"
+            );
+
+
+        const methodInput =
+            document.getElementById(
+                "id_refund_method"
+            );
+
+
+        const reasonInput =
+            document.getElementById(
+                "id_reason"
+            );
+
+
+        const openConfirm =
+            document.getElementById(
+                "rff-open-confirm"
+            );
+
+
+        const confirmModal =
+            document.getElementById(
+                "rff-confirm-modal"
+            );
+
+
+        const modalBack =
+            document.getElementById(
+                "rff-modal-back"
+            );
+
+
+        const modalConfirm =
+            document.getElementById(
+                "rff-modal-confirm"
+            );
+
+
+        const loading =
+            document.getElementById(
+                "rff-loading"
+            );
+
+
+        let isSubmitting = false;
+
+
+
+        /* ========================================================
+           SAFE TEXT
+        ======================================================== */
+
+        function valueOrFallback(
+            element,
+            fallback
+        ) {
+
+            if (!element) {
+                return fallback;
+            }
+
+
+            const value =
+                element.value.trim();
+
+
+            return value || fallback;
+
+        }
+
+
+
+        /* ========================================================
+           AMOUNT FORMAT
+        ======================================================== */
+
+        function formatAmount() {
+
+            if (!amountInput) {
+                return "0.00";
+            }
+
+
+            const raw =
+                parseFloat(
+                    amountInput.value
+                );
+
+
+            if (
+                Number.isNaN(raw)
+                ||
+                raw < 0
+            ) {
+
+                return "0.00";
+
+            }
+
+
+            return raw.toFixed(2);
+
+        }
+
+
+
+        /* ========================================================
+           SELECTED METHOD LABEL
+        ======================================================== */
+
+        function selectedMethodLabel() {
+
+            if (
+                !methodInput
+                ||
+                !methodInput.value
+            ) {
+
+                return "Not selected";
+
+            }
+
+
+            const option =
+                methodInput.options[
+                    methodInput.selectedIndex
+                ];
+
+
+            return option
+                ? option.text.trim()
+                : "Not selected";
+
+        }
+
+
+
+        /* ========================================================
+           LIVE SUMMARY
+        ======================================================== */
+
+        function updatePreview() {
+
+            const student =
+                valueOrFallback(
+                    studentInput,
+                    "Not entered"
+                );
+
+
+            const payment =
+                valueOrFallback(
+                    paymentInput,
+                    "Not entered"
+                );
+
+
+            const amount =
+                formatAmount();
+
+
+            const method =
+                selectedMethodLabel();
+
+
+            const previewStudent =
+                document.getElementById(
+                    "rff-preview-student"
+                );
+
+
+            const previewPayment =
+                document.getElementById(
+                    "rff-preview-payment"
+                );
+
+
+            const previewAmount =
+                document.getElementById(
+                    "rff-preview-amount"
+                );
+
+
+            const previewMethod =
+                document.getElementById(
+                    "rff-preview-method"
+                );
+
+
+            if (previewStudent) {
+                previewStudent.textContent =
+                    student;
+            }
+
+
+            if (previewPayment) {
+                previewPayment.textContent =
+                    payment;
+            }
+
+
+            if (previewAmount) {
+                previewAmount.textContent =
+                    amount;
+            }
+
+
+            if (previewMethod) {
+                previewMethod.textContent =
+                    method;
+            }
+
+
+
+            /* METHOD VISUAL */
+
+            document
+                .querySelectorAll(
+                    ".rff-method-item"
+                )
+                .forEach(
+                    function (item) {
+
+                        item.classList.toggle(
+                            "active",
+                            Boolean(
+                                methodInput
+                                &&
+                                methodInput.value
+                                &&
+                                item.dataset.method
+                                ===
+                                methodInput.value
+                            )
+                        );
+
+                    }
+                );
+
+        }
+
+
+
+        /* ========================================================
+           REASON COUNTER
+        ======================================================== */
+
+        function updateReasonCount() {
+
+            const counter =
+                document.getElementById(
+                    "rff-reason-count"
+                );
+
+
+            if (
+                !counter
+                ||
+                !reasonInput
+            ) {
+
+                return;
+
+            }
+
+
+            counter.textContent =
+                reasonInput.value.length;
+
+        }
+
+
+
+        /* ========================================================
+           WATCH INPUTS
+        ======================================================== */
+
+        [
+            studentInput,
+            paymentInput,
+            amountInput,
+            methodInput
+        ]
+        .filter(Boolean)
+        .forEach(
+            function (element) {
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+        if (reasonInput) {
+
+            reasonInput.addEventListener(
+                "input",
+                updateReasonCount
+            );
+
+        }
+
+
+
+        /* ========================================================
+           MODAL SUMMARY
+        ======================================================== */
+
+        function updateModalSummary() {
+
+            const student =
+                valueOrFallback(
+                    studentInput,
+                    "—"
+                );
+
+
+            const payment =
+                valueOrFallback(
+                    paymentInput,
+                    "—"
+                );
+
+
+            const amount =
+                formatAmount();
+
+
+            const method =
+                selectedMethodLabel();
+
+
+            const modalStudent =
+                document.getElementById(
+                    "rff-modal-student"
+                );
+
+
+            const modalPayment =
+                document.getElementById(
+                    "rff-modal-payment"
+                );
+
+
+            const modalAmount =
+                document.getElementById(
+                    "rff-modal-amount"
+                );
+
+
+            const modalMethod =
+                document.getElementById(
+                    "rff-modal-method"
+                );
+
+
+            if (modalStudent) {
+                modalStudent.textContent =
+                    student;
+            }
+
+
+            if (modalPayment) {
+                modalPayment.textContent =
+                    payment;
+            }
+
+
+            if (modalAmount) {
+                modalAmount.textContent =
+                    amount;
+            }
+
+
+            if (modalMethod) {
+                modalMethod.textContent =
+                    method;
+            }
+
+        }
+
+
+
+        /* ========================================================
+           OPEN CONFIRMATION
+        ======================================================== */
+
+        if (
+            openConfirm
+            &&
+            confirmModal
+            &&
+            form
+        ) {
+
+            openConfirm.addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * Browser-native constraints such as required,
+                     * min and number validation should run before
+                     * opening the financial confirmation dialog.
+                     */
+
+                    if (
+                        typeof form.reportValidity
+                        ===
+                        "function"
+                        &&
+                        !form.reportValidity()
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    updateModalSummary();
+
+
+                    confirmModal.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           CLOSE MODAL
+        ======================================================== */
+
+        function closeModal() {
+
+            if (confirmModal) {
+
+                confirmModal.classList.remove(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+        if (modalBack) {
+
+            modalBack.addEventListener(
+                "click",
+                closeModal
+            );
+
+        }
+
+
+        if (confirmModal) {
+
+            confirmModal.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target
+                        ===
+                        confirmModal
+                    ) {
+
+                        closeModal();
+
+                    }
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           FINAL SUBMIT — DOUBLE SUBMIT PROTECTION
+        ======================================================== */
+
+        if (
+            modalConfirm
+            &&
+            form
+        ) {
+
+            modalConfirm.addEventListener(
+                "click",
+                function () {
+
+                    if (isSubmitting) {
+                        return;
+                    }
+
+
+                    isSubmitting = true;
+
+
+                    modalConfirm.disabled =
+                        true;
+
+
+                    if (openConfirm) {
+
+                        openConfirm.disabled =
+                            true;
+
+                    }
+
+
+                    closeModal();
+
+
+                    if (loading) {
+
+                        loading.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    /*
+                     * requestSubmit() would retrigger submit-event
+                     * behavior. submit() performs the final native
+                     * form POST after our confirmation step.
+                     */
+
+                    form.submit();
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           ENTER KEY SAFETY
+        ======================================================== */
+
+        if (form) {
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    /*
+                     * Prevent direct Enter-key submission from
+                     * bypassing the confirmation workflow.
+                     */
+
+                    if (!isSubmitting) {
+
+                        event.preventDefault();
+
+
+                        if (
+                            openConfirm
+                        ) {
+
+                            openConfirm.click();
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           INITIAL STATE
+        ======================================================== */
+
+        updatePreview();
+
+        updateReasonCount();
+
+    }
+);
+
+</script>
+
+{% endblock %}

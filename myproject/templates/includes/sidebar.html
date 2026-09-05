@@ -159,8 +159,11 @@
       <!-- Refunds -->
 
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'payables:refund_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'payables' and 'refund_' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
         Refunds
       </a>

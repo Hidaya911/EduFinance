@@ -8,6 +8,7 @@ from .models import (
     Discount,
     Scholarship,
     FinancialAssistanceRequest,
+    Refund,
 )
 
 from .models import (
@@ -576,6 +577,62 @@ def process_approval_request(
                     "the student's financial account."
                 )
             )
+
+    # --------------------------------------------------------
+    # FINANCIAL ASSISTANCE PROCESSING PROTECTION
+    # --------------------------------------------------------
+
+    if (
+        approval_request.operation_type
+        ==
+        ApprovalRequest.OperationType.FINANCIAL_ASSISTANCE
+        and
+        (
+            approval_request.related_entity_type
+            or ""
+        ).strip().lower()
+        ==
+        "financialassistancerequest"
+    ):
+
+        get_financial_assistance_for_approval(
+            approval_request
+        )
+
+        raise ValidationError(
+            (
+                "This financial assistance request cannot "
+                "be marked as processed until the approved "
+                "assistance has been reflected in the "
+                "student's financial account."
+            )
+        )
+
+    # --------------------------------------------------------
+    # REFUND PROCESSING PROTECTION
+    # --------------------------------------------------------
+
+    if (
+        approval_request.operation_type
+        ==
+        ApprovalRequest.OperationType.REFUND
+        and
+        (
+            approval_request.related_entity_type
+            or ""
+        ).strip().lower()
+        ==
+        "refund"
+    ):
+
+        refund = get_refund_for_approval(
+            approval_request
+        )
+
+        process_refund(
+            refund=refund,
+            user=user,
+        )
 
     approval_request.status = (
         ApprovalRequest.Status.PROCESSED
@@ -2693,3 +2750,618 @@ def cancel_financial_assistance(
     assistance.save()
 
     return assistance
+
+
+# ============================================================
+# REFUND — CREATE
+# ============================================================
+
+def create_refund(
+    *,
+    user,
+    student_reference,
+    original_payment_reference,
+    amount,
+    refund_method,
+    reason,
+):
+
+    amount = Decimal(
+        str(amount)
+    )
+
+    refund = Refund(
+        student_reference=student_reference,
+        original_payment_reference=original_payment_reference,
+        amount=amount,
+        refund_method=refund_method,
+        reason=reason,
+        requested_by=user,
+        status=Refund.Status.REQUESTED,
+    )
+
+    refund.full_clean()
+    refund.save()
+
+    return refund
+
+
+# ============================================================
+# REFUND — UPDATE REQUESTED RECORD
+# ============================================================
+
+def update_refund(
+    *,
+    refund,
+    student_reference,
+    original_payment_reference,
+    amount,
+    refund_method,
+    reason,
+):
+
+    refund = (
+        Refund.objects
+        .get(
+            pk=refund.pk
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.REQUESTED
+    ):
+
+        raise ValidationError(
+            "Only requested refunds can be edited."
+        )
+
+    if refund.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This refund cannot be edited because "
+                "an approval workflow has already started."
+            )
+        )
+
+    refund.student_reference = (
+        student_reference
+    )
+
+    refund.original_payment_reference = (
+        original_payment_reference
+    )
+
+    refund.amount = Decimal(
+        str(amount)
+    )
+
+    refund.refund_method = (
+        refund_method
+    )
+
+    refund.reason = (
+        reason
+    )
+
+    refund.full_clean()
+    refund.save()
+
+    return refund
+
+
+# ============================================================
+# REFUND — APPROVAL DESCRIPTION
+# ============================================================
+
+def _refund_approval_description(
+    refund,
+):
+
+    return (
+        f"Refund {refund.refund_number} "
+        f"for student {refund.student_reference}. "
+        f"Original payment reference: "
+        f"{refund.original_payment_reference}. "
+        f"Amount: {refund.amount:.2f}. "
+        f"Refund method: "
+        f"{refund.get_refund_method_display()}. "
+        f"Reason: {refund.reason}"
+    )
+
+
+# ============================================================
+# REFUND — SUBMIT FOR APPROVAL
+# ============================================================
+
+def submit_refund_for_approval(
+    *,
+    refund,
+):
+
+    refund = (
+        Refund.objects
+        .get(
+            pk=refund.pk
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.REQUESTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only requested refunds "
+                "can be submitted for approval."
+            )
+        )
+
+    if refund.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This refund already has "
+                "an approval request."
+            )
+        )
+
+    approval_request = ApprovalRequest(
+        operation_type=(
+            ApprovalRequest
+            .OperationType
+            .REFUND
+        ),
+        title=(
+            "Refund approval — "
+            f"{refund.refund_number}"
+        ),
+        description=(
+            _refund_approval_description(
+                refund
+            )
+        ),
+        amount=refund.amount,
+        related_entity_type="Refund",
+        related_entity_id=str(
+            refund.pk
+        ),
+        requester=refund.requested_by,
+        request_reason=refund.reason,
+        status=(
+            ApprovalRequest
+            .Status
+            .REQUESTED
+        ),
+    )
+
+    approval_request.full_clean()
+    approval_request.save()
+
+    try:
+
+        approval_request = (
+            submit_approval_request(
+                approval_request
+            )
+        )
+
+        refund.approval_request = (
+            approval_request
+        )
+
+        refund.status = (
+            Refund.Status.PENDING_APPROVAL
+        )
+
+        refund.full_clean()
+        refund.save()
+
+    except Exception:
+
+        approval_request.delete()
+        raise
+
+    return refund
+
+
+# ============================================================
+# REFUND — RESOLVE LINKED APPROVAL
+# ============================================================
+
+def get_refund_for_approval(
+    approval_request,
+):
+
+    if (
+        approval_request.operation_type
+        !=
+        ApprovalRequest.OperationType.REFUND
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request "
+                "is not for a refund."
+            )
+        )
+
+    entity_type = (
+        approval_request.related_entity_type
+        or ""
+    ).strip()
+
+    entity_id = (
+        approval_request.related_entity_id
+        or ""
+    ).strip()
+
+    if (
+        entity_type.lower()
+        !=
+        "refund"
+        or
+        not entity_id
+    ):
+
+        raise ValidationError(
+            (
+                "This approval request is not "
+                "linked to a valid refund."
+            )
+        )
+
+    try:
+
+        refund = (
+            Refund.objects
+            .get(
+                pk=entity_id
+            )
+        )
+
+    except Refund.DoesNotExist:
+
+        raise ValidationError(
+            (
+                "The refund linked to this "
+                "approval request could not "
+                "be found."
+            )
+        )
+
+    if (
+        not refund.approval_request_id
+        or
+        str(
+            refund.approval_request_id
+        )
+        !=
+        str(
+            approval_request.pk
+        )
+    ):
+
+        raise ValidationError(
+            (
+                "The approval request is not "
+                "linked to this refund record."
+            )
+        )
+
+    return refund
+
+
+# ============================================================
+# REFUND — APPROVE LINKED APPROVAL
+# ============================================================
+
+def approve_refund_approval(
+    *,
+    approval_request,
+    approver,
+    comments="",
+):
+
+    approval_request = (
+        ApprovalRequest.objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+    refund = (
+        get_refund_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked refund is not "
+                "pending approval."
+            )
+        )
+
+    approval_request = (
+        approve_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        refund.status = (
+            Refund.Status.APPROVED
+        )
+
+        refund.approved_by = (
+            approver
+        )
+
+        refund.approved_at = (
+            approval_request.decided_at
+            or
+            timezone.now()
+        )
+
+        refund.full_clean()
+        refund.save()
+
+    except Exception:
+
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+        approval_request.decision_comments = ""
+        approval_request.decided_at = None
+        approval_request.save()
+
+        raise
+
+    return refund
+
+
+# ============================================================
+# REFUND — REJECT LINKED APPROVAL
+# ============================================================
+
+def reject_refund_approval(
+    *,
+    approval_request,
+    approver,
+    comments,
+):
+
+    approval_request = (
+        ApprovalRequest.objects
+        .get(
+            pk=approval_request.pk
+        )
+    )
+
+    refund = (
+        get_refund_for_approval(
+            approval_request
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.PENDING_APPROVAL
+    ):
+
+        raise ValidationError(
+            (
+                "The linked refund is not "
+                "pending approval."
+            )
+        )
+
+    approval_request = (
+        reject_approval_request(
+            approval_request,
+            approver,
+            comments,
+        )
+    )
+
+    try:
+
+        refund.status = (
+            Refund.Status.REJECTED
+        )
+
+        refund.approved_by = None
+        refund.approved_at = None
+
+        refund.full_clean()
+        refund.save()
+
+    except Exception:
+
+        approval_request.status = (
+            ApprovalRequest.Status.PENDING
+        )
+
+        approval_request.approver = None
+        approval_request.decision_comments = ""
+        approval_request.decided_at = None
+        approval_request.save()
+
+        raise
+
+    return refund
+
+
+# ============================================================
+# REFUND — CANCEL
+# ============================================================
+
+def cancel_refund(
+    *,
+    refund,
+    user,
+    reason,
+):
+
+    refund = (
+        Refund.objects
+        .get(
+            pk=refund.pk
+        )
+    )
+
+    reason = (
+        reason.strip()
+        if reason
+        else ""
+    )
+
+    if not reason:
+
+        raise ValidationError(
+            "A cancellation reason is required."
+        )
+
+    if (
+        refund.status
+        ==
+        Refund.Status.CANCELLED
+    ):
+
+        raise ValidationError(
+            "This refund is already cancelled."
+        )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.REQUESTED
+    ):
+
+        raise ValidationError(
+            (
+                "Only requested refunds can be "
+                "cancelled before the approval "
+                "workflow starts."
+            )
+        )
+
+    if refund.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This refund cannot be cancelled "
+                "because an approval workflow has "
+                "already started."
+            )
+        )
+
+    refund.status = (
+        Refund.Status.CANCELLED
+    )
+
+    refund.cancellation_reason = (
+        reason
+    )
+
+    refund.cancelled_at = (
+        timezone.now()
+    )
+
+    refund.cancelled_by = (
+        user
+    )
+
+    refund.full_clean()
+    refund.save()
+
+    return refund
+
+
+# ============================================================
+# REFUND — PROCESS
+# ============================================================
+
+def process_refund(
+    *,
+    refund,
+    user,
+):
+
+    refund = (
+        Refund.objects
+        .get(
+            pk=refund.pk
+        )
+    )
+
+    if (
+        refund.status
+        !=
+        Refund.Status.APPROVED
+    ):
+
+        raise ValidationError(
+            (
+                "Only approved refunds "
+                "can be processed."
+            )
+        )
+
+    if not refund.approval_request_id:
+
+        raise ValidationError(
+            (
+                "This refund does not have "
+                "a linked approval request."
+            )
+        )
+
+    approval_request = (
+        ApprovalRequest.objects
+        .get(
+            pk=refund.approval_request_id
+        )
+    )
+
+    if (
+        approval_request.status
+        !=
+        ApprovalRequest.Status.APPROVED
+    ):
+
+        raise ValidationError(
+            (
+                "The linked refund approval must "
+                "be approved before processing "
+                "can begin."
+            )
+        )
+
+    raise ValidationError(
+        (
+            "This refund cannot be processed until "
+            "the original student payment and its "
+            "remaining refundable balance can be "
+            "verified through the shared Student "
+            "Financial Account integration."
+        )
+    )
+

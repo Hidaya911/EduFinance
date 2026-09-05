@@ -1,0 +1,4250 @@
+{% extends "base.html" %}
+
+{% block title %}
+Refund Operations | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — REFUND OPERATIONS COMMAND CENTER
+============================================================ */
+
+:root {
+    --rf-bg: #f4f7fb;
+    --rf-surface: #ffffff;
+    --rf-surface-soft: #f8faff;
+
+    --rf-navy-950: #07182d;
+    --rf-navy-900: #09213d;
+    --rf-navy-800: #0d335b;
+
+    --rf-blue: #176ff2;
+    --rf-blue-dark: #0d58ca;
+    --rf-blue-soft: #edf4ff;
+
+    --rf-green: #0b9c60;
+    --rf-green-soft: #e9f8f0;
+
+    --rf-orange: #e58a13;
+    --rf-orange-soft: #fff4e4;
+
+    --rf-red: #df485c;
+    --rf-red-soft: #fff0f2;
+
+    --rf-purple: #7554dc;
+    --rf-purple-soft: #f2efff;
+
+    --rf-cyan: #0a96b2;
+    --rf-cyan-soft: #e9f8fb;
+
+    --rf-text: #122136;
+    --rf-text-2: #46576f;
+    --rf-text-3: #7c899d;
+
+    --rf-border: #dfe7f1;
+    --rf-border-soft: #edf1f6;
+
+    --rf-radius-sm: 12px;
+    --rf-radius-md: 17px;
+    --rf-radius-lg: 23px;
+    --rf-radius-xl: 30px;
+
+    --rf-shadow-sm:
+        0 8px 25px rgba(17, 46, 80, .05);
+
+    --rf-shadow:
+        0 22px 60px rgba(15, 42, 77, .085);
+
+    --rf-shadow-lg:
+        0 38px 100px rgba(8, 32, 66, .16);
+
+    --rf-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.rf-page {
+    position: relative;
+
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(24px, 3vw, 44px)
+        clamp(18px, 3vw, 46px)
+        70px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 94% 3%,
+            rgba(27, 112, 242, .12),
+            transparent 29%
+        ),
+        radial-gradient(
+            circle at 3% 30%,
+            rgba(24, 167, 211, .055),
+            transparent 22%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fbff 0%,
+            var(--rf-bg) 59%,
+            #f4f7fb 100%
+        );
+}
+
+.rf-page::before {
+    content: "";
+
+    position: absolute;
+
+    width: 610px;
+    height: 610px;
+
+    top: -390px;
+    right: -195px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(32, 111, 227, .11);
+
+    pointer-events: none;
+}
+
+.rf-shell {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1650px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.rf-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 9px;
+
+    margin-bottom: 19px;
+
+    color: var(--rf-text-3);
+
+    font-size: .73rem;
+    font-weight: 700;
+}
+
+.rf-breadcrumb a {
+    color: var(--rf-text-3);
+
+    text-decoration: none;
+}
+
+.rf-breadcrumb a:hover {
+    color: var(--rf-blue);
+}
+
+.rf-breadcrumb i {
+    font-size: .6rem;
+}
+
+.rf-breadcrumb-current {
+    color: var(--rf-blue);
+}
+
+
+/* ============================================================
+   MESSAGES
+============================================================ */
+
+.rf-messages {
+    display: grid;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+.rf-message {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 58px;
+
+    padding:
+        13px
+        48px
+        13px
+        14px;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 15px;
+
+    background:
+        rgba(255,255,255,.95);
+
+    box-shadow:
+        var(--rf-shadow-sm);
+}
+
+.rf-message-icon {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--rf-blue-soft);
+
+    color: var(--rf-blue);
+}
+
+.rf-message-success .rf-message-icon {
+    background: var(--rf-green-soft);
+    color: var(--rf-green);
+}
+
+.rf-message-error .rf-message-icon {
+    background: var(--rf-red-soft);
+    color: var(--rf-red);
+}
+
+.rf-message-warning .rf-message-icon {
+    background: var(--rf-orange-soft);
+    color: var(--rf-orange);
+}
+
+.rf-message strong {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: var(--rf-text);
+
+    font-size: .72rem;
+}
+
+.rf-message span {
+    color: var(--rf-text-2);
+
+    font-size: .66rem;
+}
+
+.rf-message-close {
+    position: absolute;
+
+    top: 50%;
+    right: 13px;
+
+    transform: translateY(-50%);
+
+    width: 31px;
+    height: 31px;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: var(--rf-text-3);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.rf-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.35fr)
+        minmax(300px, .65fr);
+
+    gap: 30px;
+
+    min-height: 255px;
+
+    margin-bottom: 22px;
+
+    padding:
+        clamp(30px, 3vw, 45px);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(215, 226, 241, .95);
+
+    border-radius:
+        var(--rf-radius-xl);
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(255,255,255,.99),
+            rgba(247,250,255,.97)
+        );
+
+    box-shadow:
+        var(--rf-shadow);
+}
+
+.rf-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 570px;
+    height: 570px;
+
+    right: -120px;
+    top: -350px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(28, 108, 237, .17),
+            transparent 69%
+        );
+}
+
+.rf-hero::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    opacity: .36;
+
+    background-image:
+        linear-gradient(
+            rgba(24, 99, 216, .03) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(24, 99, 216, .03) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        31px 31px;
+
+    mask-image:
+        linear-gradient(
+            90deg,
+            transparent,
+            #000 53%
+        );
+
+    pointer-events: none;
+}
+
+.rf-hero-main {
+    position: relative;
+    z-index: 2;
+
+    align-self: center;
+}
+
+.rf-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 15px;
+
+    padding:
+        7px 11px;
+
+    border:
+        1px solid
+        #d8e5f9;
+
+    border-radius: 999px;
+
+    background:
+        #f5f9ff;
+
+    color:
+        var(--rf-blue-dark);
+
+    font-size: .66rem;
+    font-weight: 850;
+
+    letter-spacing: .055em;
+
+    text-transform: uppercase;
+}
+
+.rf-eyebrow-dot {
+    position: relative;
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background:
+        var(--rf-green);
+}
+
+.rf-eyebrow-dot::after {
+    content: "";
+
+    position: absolute;
+    inset: -5px;
+
+    border:
+        1px solid
+        rgba(11,156,96,.35);
+
+    border-radius: 50%;
+
+    animation:
+        rfPulse
+        2s infinite;
+}
+
+@keyframes rfPulse {
+
+    0% {
+        opacity: .9;
+        transform: scale(.7);
+    }
+
+    70%,
+    100% {
+        opacity: 0;
+        transform: scale(1.65);
+    }
+
+}
+
+.rf-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 17px;
+}
+
+.rf-title-icon {
+    width: 66px;
+    height: 66px;
+
+    flex: 0 0 66px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid
+        #d6e4fa;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color:
+        var(--rf-blue);
+
+    font-size: 1.5rem;
+
+    box-shadow:
+        0 14px 34px
+        rgba(22, 102, 220, .12);
+}
+
+.rf-hero h1 {
+    margin: 0;
+
+    color:
+        var(--rf-text);
+
+    font-size:
+        clamp(2rem, 3vw, 3.15rem);
+
+    font-weight: 850;
+
+    letter-spacing: -.048em;
+
+    line-height: 1.04;
+}
+
+.rf-hero-description {
+    max-width: 750px;
+
+    margin:
+        15px 0 0
+        83px;
+
+    color:
+        var(--rf-text-2);
+
+    font-size: .91rem;
+
+    line-height: 1.75;
+}
+
+.rf-hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin:
+        21px 0 0
+        83px;
+}
+
+.rf-primary-btn {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        10px 17px;
+
+    border:
+        1px solid
+        #0b5fd8;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1b73f2,
+            #0b59cb
+        );
+
+    color: #fff;
+
+    font-size: .71rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 12px 28px
+        rgba(20,100,220,.22);
+
+    transition:
+        transform
+        var(--rf-transition),
+        box-shadow
+        var(--rf-transition);
+}
+
+.rf-primary-btn:hover {
+    transform:
+        translateY(-2px);
+
+    color: #fff;
+
+    box-shadow:
+        0 18px 34px
+        rgba(20,100,220,.27);
+}
+
+.rf-secondary-btn {
+    min-height: 44px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        10px 15px;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color:
+        var(--rf-text-2);
+
+    font-size: .69rem;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.rf-secondary-btn:hover {
+    color:
+        var(--rf-blue);
+
+    border-color:
+        #aecdfb;
+}
+
+
+/* ============================================================
+   HERO FINANCIAL CONTROL
+============================================================ */
+
+.rf-hero-side {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.rf-control-card {
+    width:
+        min(100%, 325px);
+
+    padding:
+        18px;
+
+    border:
+        1px solid
+        #dce7f4;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.84);
+
+    box-shadow:
+        0 17px 42px
+        rgba(15,44,80,.075);
+
+    backdrop-filter:
+        blur(14px);
+}
+
+.rf-control-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 15px;
+}
+
+.rf-control-title {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.rf-control-title-icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--rf-purple-soft);
+
+    color:
+        var(--rf-purple);
+}
+
+.rf-control-title small {
+    display: block;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .56rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: .055em;
+}
+
+.rf-control-title strong {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--rf-text);
+
+    font-size: .71rem;
+}
+
+.rf-live {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        5px 8px;
+
+    border-radius: 999px;
+
+    background:
+        var(--rf-green-soft);
+
+    color:
+        var(--rf-green);
+
+    font-size: .58rem;
+    font-weight: 850;
+}
+
+.rf-live::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background:
+        currentColor;
+}
+
+.rf-control-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0,1fr));
+
+    gap: 9px;
+}
+
+.rf-control-metric {
+    min-height: 69px;
+
+    padding:
+        11px;
+
+    border:
+        1px solid
+        var(--rf-border-soft);
+
+    border-radius: 12px;
+
+    background:
+        #fafcff;
+}
+
+.rf-control-metric span {
+    display: block;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .55rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.rf-control-metric strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--rf-text);
+
+    font-size: .83rem;
+}
+
+.rf-control-note {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 7px;
+
+    margin-top: 13px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .59rem;
+
+    line-height: 1.5;
+}
+
+.rf-control-note i {
+    margin-top: 1px;
+
+    color:
+        var(--rf-green);
+}
+
+
+/* ============================================================
+   KPI GRID
+============================================================ */
+
+.rf-kpis {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0,1fr));
+
+    gap: 16px;
+
+    margin-bottom: 21px;
+}
+
+.rf-kpi {
+    position: relative;
+
+    min-height: 157px;
+
+    padding: 19px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 20px;
+
+    background:
+        var(--rf-surface);
+
+    box-shadow:
+        var(--rf-shadow-sm);
+
+    transition:
+        transform
+        var(--rf-transition),
+        box-shadow
+        var(--rf-transition);
+}
+
+.rf-kpi:hover {
+    transform:
+        translateY(-4px);
+
+    box-shadow:
+        0 21px 45px
+        rgba(17,47,82,.09);
+}
+
+.rf-kpi-blue {
+    --kpi-color: var(--rf-blue);
+    --kpi-soft: var(--rf-blue-soft);
+}
+
+.rf-kpi-orange {
+    --kpi-color: var(--rf-orange);
+    --kpi-soft: var(--rf-orange-soft);
+}
+
+.rf-kpi-green {
+    --kpi-color: var(--rf-green);
+    --kpi-soft: var(--rf-green-soft);
+}
+
+.rf-kpi-purple {
+    --kpi-color: var(--rf-purple);
+    --kpi-soft: var(--rf-purple-soft);
+}
+
+.rf-kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.rf-kpi-caption {
+    color:
+        var(--rf-text-3);
+
+    font-size: .62rem;
+    font-weight: 850;
+
+    text-transform: uppercase;
+
+    letter-spacing: .048em;
+}
+
+.rf-kpi-value {
+    margin-top: 6px;
+
+    color:
+        var(--rf-text);
+
+    font-size: 1.82rem;
+    font-weight: 850;
+
+    letter-spacing: -.045em;
+
+    line-height: 1;
+}
+
+.rf-kpi-money {
+    font-size: 1.35rem;
+}
+
+.rf-kpi-icon {
+    width: 43px;
+    height: 43px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 13px;
+
+    background:
+        var(--kpi-soft);
+
+    color:
+        var(--kpi-color);
+
+    font-size: 1rem;
+}
+
+.rf-kpi-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.rf-kpi-note {
+    color:
+        var(--rf-text-3);
+
+    font-size: .62rem;
+}
+
+.rf-kpi-tag {
+    color:
+        var(--kpi-color);
+
+    font-size: .6rem;
+    font-weight: 850;
+}
+
+.rf-kpi-track {
+    height: 5px;
+
+    margin-top: 11px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+        #edf1f5;
+}
+
+.rf-kpi-progress {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        var(--kpi-color);
+
+    transition:
+        width
+        .8s
+        cubic-bezier(.2,.8,.25,1);
+}
+
+
+/* ============================================================
+   PIPELINE
+============================================================ */
+
+.rf-pipeline {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0,1fr));
+
+    gap: 10px;
+
+    margin-bottom: 21px;
+}
+
+.rf-pipeline-item {
+    position: relative;
+
+    min-height: 90px;
+
+    padding: 13px 14px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 15px;
+
+    background: #fff;
+
+    box-shadow:
+        0 6px 18px
+        rgba(13,45,82,.035);
+}
+
+.rf-pipeline-item::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 3px;
+
+    background:
+        var(--pipe-color);
+}
+
+.rf-pipeline-requested {
+    --pipe-color:
+        var(--rf-blue);
+}
+
+.rf-pipeline-pending {
+    --pipe-color:
+        var(--rf-orange);
+}
+
+.rf-pipeline-approved {
+    --pipe-color:
+        var(--rf-green);
+}
+
+.rf-pipeline-rejected {
+    --pipe-color:
+        var(--rf-red);
+}
+
+.rf-pipeline-processed {
+    --pipe-color:
+        var(--rf-purple);
+}
+
+.rf-pipeline-cancelled {
+    --pipe-color:
+        #8c99aa;
+}
+
+.rf-pipeline-label {
+    color:
+        var(--rf-text-3);
+
+    font-size: .56rem;
+    font-weight: 850;
+
+    letter-spacing: .04em;
+
+    text-transform: uppercase;
+}
+
+.rf-pipeline-value {
+    margin-top: 7px;
+
+    color:
+        var(--rf-text);
+
+    font-size: 1.2rem;
+    font-weight: 850;
+}
+
+.rf-pipeline-sub {
+    margin-top: 3px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .56rem;
+}
+
+
+/* ============================================================
+   WORKSPACE
+============================================================ */
+
+.rf-workspace {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        305px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+.rf-command-center {
+    min-width: 0;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius:
+        var(--rf-radius-lg);
+
+    background: #fff;
+
+    box-shadow:
+        var(--rf-shadow);
+}
+
+
+/* ============================================================
+   COMMAND HEADER
+============================================================ */
+
+.rf-command-head {
+    padding: 20px;
+
+    border-bottom:
+        1px solid
+        var(--rf-border-soft);
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff,
+            #fbfcfe
+        );
+}
+
+.rf-command-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 16px;
+}
+
+.rf-command-title {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+.rf-command-icon {
+    width: 40px;
+    height: 40px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        var(--rf-blue-soft);
+
+    color:
+        var(--rf-blue);
+}
+
+.rf-command-title h2 {
+    margin: 0;
+
+    color:
+        var(--rf-text);
+
+    font-size: .86rem;
+    font-weight: 850;
+}
+
+.rf-command-title p {
+    margin: 3px 0 0;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .61rem;
+}
+
+.rf-record-count {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 34px;
+
+    padding:
+        7px 10px;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color:
+        var(--rf-text-2);
+
+    font-size: .62rem;
+    font-weight: 750;
+}
+
+
+/* ============================================================
+   FILTERS
+============================================================ */
+
+.rf-filter-form {
+    display: grid;
+
+    grid-template-columns:
+        minmax(280px,1.6fr)
+        minmax(170px,.7fr)
+        minmax(180px,.75fr)
+        auto;
+
+    gap: 10px;
+
+    align-items: center;
+}
+
+.rf-control {
+    position: relative;
+}
+
+.rf-control-icon {
+    position: absolute;
+
+    top: 50%;
+    left: 14px;
+
+    transform:
+        translateY(-50%);
+
+    color:
+        #8493a6;
+
+    font-size: .78rem;
+
+    pointer-events: none;
+}
+
+.rf-search,
+.rf-select {
+    width: 100%;
+
+    min-height: 43px;
+
+    border:
+        1px solid
+        #dce5ef;
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color:
+        var(--rf-text);
+
+    font-size: .7rem;
+
+    outline: none;
+
+    transition:
+        border-color
+        var(--rf-transition),
+        box-shadow
+        var(--rf-transition);
+}
+
+.rf-search {
+    padding:
+        10px 13px
+        10px 40px;
+}
+
+.rf-select {
+    padding:
+        10px 34px
+        10px 12px;
+
+    cursor: pointer;
+}
+
+.rf-search:focus,
+.rf-select:focus {
+    border-color:
+        #87b6fa;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(32,119,242,.09);
+}
+
+.rf-reset {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding:
+        9px 12px;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 12px;
+
+    background: #fff;
+
+    color:
+        var(--rf-text-2);
+
+    font-size: .65rem;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.rf-reset:hover {
+    border-color:
+        #b9cef0;
+
+    color:
+        var(--rf-blue);
+}
+
+.rf-filter-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 12px;
+}
+
+.rf-filter-status {
+    color:
+        var(--rf-text-3);
+
+    font-size: .61rem;
+}
+
+.rf-filter-status strong {
+    color:
+        var(--rf-text);
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.rf-table-scroll {
+    width: 100%;
+
+    overflow-x: auto;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        #b1bdcc
+        #edf2f7;
+}
+
+.rf-table {
+    width: 100%;
+
+    min-width: 1030px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.rf-table th {
+    height: 52px;
+
+    padding:
+        11px 14px;
+
+    border-bottom:
+        1px solid
+        var(--rf-border);
+
+    background:
+        linear-gradient(
+            180deg,
+            #fbfdff,
+            #f7f9fc
+        );
+
+    color:
+        #718098;
+
+    font-size: .57rem;
+    font-weight: 850;
+
+    text-transform: uppercase;
+
+    letter-spacing: .05em;
+
+    white-space: nowrap;
+}
+
+.rf-table th:first-child {
+    padding-left: 20px;
+}
+
+.rf-table th:last-child {
+    padding-right: 20px;
+}
+
+.rf-table td {
+    padding:
+        14px;
+
+    border-bottom:
+        1px solid
+        var(--rf-border-soft);
+
+    background: #fff;
+
+    vertical-align: middle;
+
+    transition:
+        background
+        var(--rf-transition);
+}
+
+.rf-table td:first-child {
+    padding-left: 20px;
+}
+
+.rf-table td:last-child {
+    padding-right: 20px;
+}
+
+.rf-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.rf-table tbody tr {
+    transition:
+        background
+        var(--rf-transition);
+}
+
+.rf-table tbody tr:hover td {
+    background:
+        #f8fbff;
+}
+
+
+/* ============================================================
+   REFUND IDENTITY
+============================================================ */
+
+.rf-id-block {
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+}
+
+.rf-id-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--rf-blue-soft);
+
+    color:
+        var(--rf-blue);
+}
+
+.rf-id-copy strong {
+    display: block;
+
+    color:
+        var(--rf-text);
+
+    font-size: .69rem;
+}
+
+.rf-id-copy span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .57rem;
+}
+
+
+/* ============================================================
+   STUDENT / PAYMENT
+============================================================ */
+
+.rf-reference {
+    display: block;
+
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color:
+        var(--rf-text);
+
+    font-size: .67rem;
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.rf-reference-sub {
+    display: block;
+
+    margin-top: 3px;
+
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .56rem;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   AMOUNT
+============================================================ */
+
+.rf-amount {
+    color:
+        var(--rf-text);
+
+    font-size: .74rem;
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+.rf-amount small {
+    margin-right: 3px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .55rem;
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   METHOD
+============================================================ */
+
+.rf-method {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 28px;
+
+    padding:
+        5px 8px;
+
+    border:
+        1px solid
+        #dde6f0;
+
+    border-radius: 8px;
+
+    background:
+        #fafcff;
+
+    color:
+        var(--rf-text-2);
+
+    font-size: .59rem;
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.rf-method i {
+    color:
+        var(--rf-cyan);
+}
+
+
+/* ============================================================
+   STATUS BADGES
+============================================================ */
+
+.rf-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    min-height: 28px;
+
+    padding:
+        5px 9px;
+
+    border-radius: 999px;
+
+    font-size: .58rem;
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+.rf-status::before {
+    content: "";
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background:
+        currentColor;
+}
+
+.rf-status-requested {
+    background:
+        var(--rf-blue-soft);
+
+    color:
+        var(--rf-blue-dark);
+}
+
+.rf-status-pending_approval {
+    background:
+        var(--rf-orange-soft);
+
+    color:
+        #b86d0d;
+}
+
+.rf-status-approved {
+    background:
+        var(--rf-green-soft);
+
+    color:
+        #087748;
+}
+
+.rf-status-rejected {
+    background:
+        var(--rf-red-soft);
+
+    color:
+        #bd3447;
+}
+
+.rf-status-processed {
+    background:
+        var(--rf-purple-soft);
+
+    color:
+        #6040bf;
+}
+
+.rf-status-cancelled {
+    background:
+        #edf1f5;
+
+    color:
+        #68768a;
+}
+
+
+/* ============================================================
+   DATE
+============================================================ */
+
+.rf-date strong {
+    display: block;
+
+    color:
+        var(--rf-text);
+
+    font-size: .63rem;
+}
+
+.rf-date span {
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .55rem;
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
+.rf-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 7px;
+}
+
+.rf-action {
+    min-height: 35px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        7px 10px;
+
+    border-radius: 9px;
+
+    font-size: .6rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+}
+
+.rf-view {
+    border:
+        1px solid
+        #b5cff4;
+
+    background: #fff;
+
+    color:
+        var(--rf-blue-dark);
+}
+
+.rf-view:hover {
+    background:
+        var(--rf-blue-soft);
+
+    color:
+        var(--rf-blue-dark);
+}
+
+.rf-edit {
+    width: 35px;
+
+    padding: 0;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    background: #fff;
+
+    color:
+        var(--rf-text-2);
+}
+
+.rf-edit:hover {
+    color:
+        var(--rf-blue);
+
+    background:
+        var(--rf-blue-soft);
+}
+
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.rf-empty {
+    padding:
+        60px 20px;
+
+    text-align: center;
+}
+
+.rf-empty-icon {
+    width: 76px;
+    height: 76px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto
+        17px;
+
+    border:
+        1px solid
+        #dce7f6;
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eef5ff,
+            #fff
+        );
+
+    color:
+        var(--rf-blue);
+
+    font-size: 1.5rem;
+}
+
+.rf-empty h3 {
+    margin:
+        0 0 7px;
+
+    color:
+        var(--rf-text);
+
+    font-size: .9rem;
+    font-weight: 850;
+}
+
+.rf-empty p {
+    max-width: 450px;
+
+    margin:
+        0 auto 16px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .66rem;
+
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   COMMAND FOOTER
+============================================================ */
+
+.rf-command-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    min-height: 60px;
+
+    padding:
+        13px 19px;
+
+    border-top:
+        1px solid
+        var(--rf-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.rf-command-footer span {
+    color:
+        var(--rf-text-3);
+
+    font-size: .61rem;
+}
+
+.rf-command-footer strong {
+    color:
+        var(--rf-text);
+}
+
+
+/* ============================================================
+   INTELLIGENCE RAIL
+============================================================ */
+
+.rf-intelligence {
+    position: sticky;
+
+    top: 88px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+.rf-side-card {
+    overflow: hidden;
+
+    border:
+        1px solid
+        var(--rf-border);
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--rf-shadow-sm);
+}
+
+.rf-side-head {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        16px 17px;
+
+    border-bottom:
+        1px solid
+        var(--rf-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.rf-side-icon {
+    width: 34px;
+    height: 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--rf-blue-soft);
+
+    color:
+        var(--rf-blue);
+}
+
+.rf-side-head h3 {
+    margin: 0;
+
+    color:
+        var(--rf-text);
+
+    font-size: .72rem;
+    font-weight: 850;
+}
+
+.rf-side-head p {
+    margin:
+        2px 0 0;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .56rem;
+}
+
+.rf-side-body {
+    padding:
+        17px;
+}
+
+
+/* ============================================================
+   APPROVAL LOAD
+============================================================ */
+
+.rf-load {
+    display: grid;
+
+    grid-template-columns:
+        88px 1fr;
+
+    gap: 13px;
+
+    align-items: center;
+}
+
+.rf-load-ring {
+    position: relative;
+
+    width: 84px;
+    height: 84px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            var(--rf-orange) 0deg,
+            var(--rf-orange) var(--rf-load-angle, 0deg),
+            #e8edf4 var(--rf-load-angle, 0deg),
+            #e8edf4 360deg
+        );
+}
+
+.rf-load-ring::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 8px;
+
+    border-radius: 50%;
+
+    background: #fff;
+}
+
+.rf-load-value {
+    position: relative;
+
+    z-index: 2;
+
+    text-align: center;
+}
+
+.rf-load-value strong {
+    display: block;
+
+    color:
+        var(--rf-text);
+
+    font-size: 1rem;
+}
+
+.rf-load-value span {
+    display: block;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .5rem;
+}
+
+.rf-load-copy strong {
+    display: block;
+
+    color:
+        var(--rf-text);
+
+    font-size: .7rem;
+}
+
+.rf-load-copy span {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .57rem;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   FINANCIAL EXPOSURE
+============================================================ */
+
+.rf-exposure-list {
+    display: grid;
+
+    gap: 10px;
+}
+
+.rf-exposure-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    min-height: 41px;
+
+    padding:
+        9px 10px;
+
+    border:
+        1px solid
+        var(--rf-border-soft);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+}
+
+.rf-exposure-label {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .58rem;
+}
+
+.rf-exposure-label i {
+    color:
+        var(--rf-blue);
+}
+
+.rf-exposure-value {
+    color:
+        var(--rf-text);
+
+    font-size: .63rem;
+    font-weight: 850;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   INTEGRITY NOTE
+============================================================ */
+
+.rf-integrity {
+    padding:
+        17px;
+
+    border:
+        1px solid
+        #dbe7f8;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f6f9ff,
+            #fff
+        );
+}
+
+.rf-integrity-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 11px;
+
+    background:
+        var(--rf-purple-soft);
+
+    color:
+        var(--rf-purple);
+}
+
+.rf-integrity h4 {
+    margin:
+        0 0 6px;
+
+    color:
+        var(--rf-text);
+
+    font-size: .7rem;
+    font-weight: 850;
+}
+
+.rf-integrity p {
+    margin: 0;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .59rem;
+
+    line-height: 1.63;
+}
+
+
+/* ============================================================
+   LOADING OVERLAY
+============================================================ */
+
+.rf-loading-overlay {
+    position: fixed;
+
+    z-index: 12000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(7,24,45,.42);
+
+    backdrop-filter:
+        blur(5px);
+}
+
+.rf-loading-overlay.active {
+    display: flex;
+}
+
+.rf-loading-box {
+    min-width: 230px;
+
+    padding:
+        23px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.5);
+
+    border-radius: 19px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        var(--rf-shadow-lg);
+}
+
+.rf-spinner {
+    width: 34px;
+    height: 34px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid
+        #e4ebf4;
+
+    border-top-color:
+        var(--rf-blue);
+
+    border-radius: 50%;
+
+    animation:
+        rfSpin
+        .7s linear infinite;
+}
+
+@keyframes rfSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rf-loading-box strong {
+    display: block;
+
+    color:
+        var(--rf-text);
+
+    font-size: .72rem;
+}
+
+.rf-loading-box span {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--rf-text-3);
+
+    font-size: .58rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1550px) {
+
+    .rf-workspace {
+        grid-template-columns: 1fr;
+    }
+
+    .rf-intelligence {
+        position: static;
+
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 1180px) {
+
+    .rf-pipeline {
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+    .rf-kpis {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .rf-filter-form {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .rf-control-search {
+        grid-column:
+            1 / -1;
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .rf-page {
+        margin: -16px;
+
+        padding:
+            22px 16px 55px;
+    }
+
+    .rf-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .rf-hero-description,
+    .rf-hero-actions {
+        margin-left: 0;
+    }
+
+    .rf-hero-side {
+        justify-content: flex-start;
+    }
+
+    .rf-control-card {
+        width: 100%;
+    }
+
+    .rf-intelligence {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .rf-kpis,
+    .rf-pipeline,
+    .rf-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .rf-control-search {
+        grid-column: auto;
+    }
+
+    .rf-command-title-row,
+    .rf-filter-footer,
+    .rf-command-footer {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .rf-title-icon {
+        width: 52px;
+        height: 52px;
+
+        flex-basis: 52px;
+    }
+
+    .rf-hero h1 {
+        font-size: 1.75rem;
+    }
+
+}
+
+</style>
+
+
+
+<div class="rf-page">
+
+    <div class="rf-shell">
+
+
+        <!-- ====================================================
+             MESSAGES
+        ===================================================== -->
+
+        {% if messages %}
+
+            <div class="rf-messages">
+
+                {% for message in messages %}
+
+                    <div class="rf-message rf-message-{{ message.tags|default:'info' }}">
+
+                        <div class="rf-message-icon">
+
+                            {% if message.tags == "success" %}
+
+                                <i class="bi bi-check-circle-fill"></i>
+
+                            {% elif message.tags == "error" %}
+
+                                <i class="bi bi-exclamation-circle-fill"></i>
+
+                            {% elif message.tags == "warning" %}
+
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+
+                            {% else %}
+
+                                <i class="bi bi-info-circle-fill"></i>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Refund Operations
+                            </strong>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="rf-message-close"
+                            onclick="this.closest('.rf-message').remove()"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="rf-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span>
+                Finance
+            </span>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="rf-breadcrumb-current">
+                Refunds
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="rf-hero">
+
+            <div class="rf-hero-main">
+
+                <div class="rf-eyebrow">
+
+                    <span class="rf-eyebrow-dot"></span>
+
+                    Controlled Financial Reversal
+
+                </div>
+
+
+                <div class="rf-title-row">
+
+                    <div class="rf-title-icon">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+
+
+                    <h1>
+                        Refund Operations
+                    </h1>
+
+                </div>
+
+
+                <p class="rf-hero-description">
+
+                    Manage student refund requests through a controlled
+                    approval lifecycle. Track financial exposure,
+                    approval status, refund methods, and audit activity
+                    without altering or deleting the original payment.
+
+                </p>
+
+
+                <div class="rf-hero-actions">
+
+                    <a
+                        href="{% url 'payables:refund_create' %}"
+                        class="rf-primary-btn rf-loading-link"
+                    >
+
+                        <i class="bi bi-plus-circle-fill"></i>
+
+                        Create Refund Request
+
+                    </a>
+
+
+                    <a
+                        href="{% url 'payables:approval_list' %}?operation_type=refund"
+                        class="rf-secondary-btn"
+                    >
+
+                        <i class="bi bi-shield-check"></i>
+
+                        Approval Queue
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="rf-hero-side">
+
+                <div class="rf-control-card">
+
+                    <div class="rf-control-head">
+
+                        <div class="rf-control-title">
+
+                            <div class="rf-control-title-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+
+
+                            <div>
+
+                                <small>
+                                    Financial Control
+                                </small>
+
+                                <strong>
+                                    Refund Governance
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="rf-live">
+                            Live
+                        </span>
+
+                    </div>
+
+
+                    <div class="rf-control-grid">
+
+                        <div class="rf-control-metric">
+
+                            <span>
+                                Pending
+                            </span>
+
+                            <strong>
+                                {{ pending_count }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rf-control-metric">
+
+                            <span>
+                                Approved
+                            </span>
+
+                            <strong>
+                                {{ approved_count }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rf-control-metric">
+
+                            <span>
+                                Pending Value
+                            </span>
+
+                            <strong>
+                                {{ currency_code }}
+                                {{ pending_amount|floatformat:2 }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="rf-control-metric">
+
+                            <span>
+                                Processed
+                            </span>
+
+                            <strong>
+                                {{ processed_count }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-control-note">
+
+                        <i class="bi bi-lock-fill"></i>
+
+                        Refund processing remains protected by the
+                        financial-integrity workflow.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             KPI GRID
+        ===================================================== -->
+
+        <section class="rf-kpis">
+
+
+            <article class="rf-kpi rf-kpi-blue">
+
+                <div class="rf-kpi-top">
+
+                    <div>
+
+                        <div class="rf-kpi-caption">
+                            Refund Records
+                        </div>
+
+                        <div class="rf-kpi-value">
+                            {{ total_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-kpi-icon">
+                        <i class="bi bi-receipt-cutoff"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rf-kpi-footer">
+
+                    <span class="rf-kpi-note">
+                        Full refund register
+                    </span>
+
+                    <span class="rf-kpi-tag">
+                        LEDGER
+                    </span>
+
+                </div>
+
+
+                <div class="rf-kpi-track">
+
+                    <div
+                        class="rf-kpi-progress"
+                        data-progress="100"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <article class="rf-kpi rf-kpi-orange">
+
+                <div class="rf-kpi-top">
+
+                    <div>
+
+                        <div class="rf-kpi-caption">
+                            Pending Approval
+                        </div>
+
+                        <div class="rf-kpi-value">
+                            {{ pending_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-kpi-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rf-kpi-footer">
+
+                    <span class="rf-kpi-note">
+                        Awaiting financial decision
+                    </span>
+
+                    <span class="rf-kpi-tag">
+                        REVIEW
+                    </span>
+
+                </div>
+
+
+                <div class="rf-kpi-track">
+
+                    <div
+                        class="rf-kpi-progress"
+                        id="rf-pending-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <article class="rf-kpi rf-kpi-green">
+
+                <div class="rf-kpi-top">
+
+                    <div>
+
+                        <div class="rf-kpi-caption">
+                            Approved Value
+                        </div>
+
+                        <div class="rf-kpi-value rf-kpi-money">
+
+                            {{ currency_code }}
+                            {{ approved_amount|floatformat:2 }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-kpi-icon">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rf-kpi-footer">
+
+                    <span class="rf-kpi-note">
+                        Approved refund exposure
+                    </span>
+
+                    <span class="rf-kpi-tag">
+                        APPROVED
+                    </span>
+
+                </div>
+
+
+                <div class="rf-kpi-track">
+
+                    <div
+                        class="rf-kpi-progress"
+                        id="rf-approved-progress"
+                    ></div>
+
+                </div>
+
+            </article>
+
+
+
+            <article class="rf-kpi rf-kpi-purple">
+
+                <div class="rf-kpi-top">
+
+                    <div>
+
+                        <div class="rf-kpi-caption">
+                            Requested Value
+                        </div>
+
+                        <div class="rf-kpi-value rf-kpi-money">
+
+                            {{ currency_code }}
+                            {{ total_requested_amount|floatformat:2 }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-kpi-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="rf-kpi-footer">
+
+                    <span class="rf-kpi-note">
+                        Non-cancelled requests
+                    </span>
+
+                    <span class="rf-kpi-tag">
+                        EXPOSURE
+                    </span>
+
+                </div>
+
+
+                <div class="rf-kpi-track">
+
+                    <div
+                        class="rf-kpi-progress"
+                        data-progress="100"
+                    ></div>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             PIPELINE
+        ===================================================== -->
+
+        <section class="rf-pipeline">
+
+            <div class="rf-pipeline-item rf-pipeline-requested">
+
+                <div class="rf-pipeline-label">
+                    Requested
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ requested_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Editable
+                </div>
+
+            </div>
+
+
+            <div class="rf-pipeline-item rf-pipeline-pending">
+
+                <div class="rf-pipeline-label">
+                    Pending Approval
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ pending_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Under review
+                </div>
+
+            </div>
+
+
+            <div class="rf-pipeline-item rf-pipeline-approved">
+
+                <div class="rf-pipeline-label">
+                    Approved
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ approved_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Decision recorded
+                </div>
+
+            </div>
+
+
+            <div class="rf-pipeline-item rf-pipeline-rejected">
+
+                <div class="rf-pipeline-label">
+                    Rejected
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ rejected_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Not authorized
+                </div>
+
+            </div>
+
+
+            <div class="rf-pipeline-item rf-pipeline-processed">
+
+                <div class="rf-pipeline-label">
+                    Processed
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ processed_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Financially completed
+                </div>
+
+            </div>
+
+
+            <div class="rf-pipeline-item rf-pipeline-cancelled">
+
+                <div class="rf-pipeline-label">
+                    Cancelled
+                </div>
+
+                <div class="rf-pipeline-value">
+                    {{ cancelled_count }}
+                </div>
+
+                <div class="rf-pipeline-sub">
+                    Closed before processing
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             WORKSPACE
+        ===================================================== -->
+
+        <section class="rf-workspace">
+
+
+            <!-- =================================================
+                 REFUND COMMAND CENTER
+            ================================================== -->
+
+            <div class="rf-command-center">
+
+
+                <div class="rf-command-head">
+
+                    <div class="rf-command-title-row">
+
+                        <div class="rf-command-title">
+
+                            <div class="rf-command-icon">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+                                    Refund Register
+                                </h2>
+
+                                <p>
+                                    Search, review and inspect all
+                                    student refund requests.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="rf-record-count">
+
+                            <i class="bi bi-database"></i>
+
+                            {{ total_count }}
+
+                            {% if total_count == 1 %}
+                                record
+                            {% else %}
+                                records
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         FILTER FORM
+                    ========================================== -->
+
+                    <form
+                        method="get"
+                        id="rf-filter-form"
+                        class="rf-filter-form"
+                    >
+
+                        <div class="rf-control rf-control-search">
+
+                            <i class="bi bi-search rf-control-icon"></i>
+
+                            <input
+                                type="search"
+                                name="search"
+                                id="rf-search"
+                                class="rf-search"
+                                value="{{ search }}"
+                                placeholder="Search refund, student, payment reference or reason..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="rf-control">
+
+                            <select
+                                name="status"
+                                id="rf-status"
+                                class="rf-select"
+                            >
+
+                                <option value="">
+                                    All Statuses
+                                </option>
+
+                                {% for value, label in status_choices %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if status == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="rf-control">
+
+                            <select
+                                name="refund_method"
+                                id="rf-method"
+                                class="rf-select"
+                            >
+
+                                <option value="">
+                                    All Refund Methods
+                                </option>
+
+                                {% for value, label in refund_method_choices %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if refund_method == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        {% if search or status or refund_method %}
+
+                            <a
+                                href="{% url 'payables:refund_list' %}"
+                                class="rf-reset rf-loading-link"
+                            >
+                                <i class="bi bi-arrow-counterclockwise"></i>
+
+                                Reset
+                            </a>
+
+                        {% else %}
+
+                            <span></span>
+
+                        {% endif %}
+
+                    </form>
+
+
+                    <div class="rf-filter-footer">
+
+                        <div class="rf-filter-status">
+
+                            Showing the current refund register
+
+                            {% if search %}
+
+                                for
+
+                                <strong>
+                                    “{{ search }}”
+                                </strong>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="rf-filter-status">
+
+                            <strong>
+                                {{ currency_code }}
+                            </strong>
+
+                            school reporting currency
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ============================================
+                     TABLE
+                ============================================= -->
+
+                {% if refunds %}
+
+                    <div class="rf-table-scroll">
+
+                        <table class="rf-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Refund
+                                    </th>
+
+                                    <th>
+                                        Student
+                                    </th>
+
+                                    <th>
+                                        Original Payment
+                                    </th>
+
+                                    <th>
+                                        Amount
+                                    </th>
+
+                                    <th>
+                                        Method
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Requested
+                                    </th>
+
+                                    <th style="text-align:right;">
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for refund in refunds %}
+
+                                    <tr>
+
+
+                                        <!-- REFUND -->
+
+                                        <td>
+
+                                            <div class="rf-id-block">
+
+                                                <div class="rf-id-icon">
+
+                                                    <i class="bi bi-arrow-return-left"></i>
+
+                                                </div>
+
+
+                                                <div class="rf-id-copy">
+
+                                                    <strong>
+                                                        {{ refund.refund_number }}
+                                                    </strong>
+
+                                                    <span>
+                                                        Refund request
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+
+                                        <!-- STUDENT -->
+
+                                        <td>
+
+                                            <span
+                                                class="rf-reference"
+                                                title="{{ refund.student_reference }}"
+                                            >
+                                                {{ refund.student_reference }}
+                                            </span>
+
+                                            <span class="rf-reference-sub">
+                                                Student reference
+                                            </span>
+
+                                        </td>
+
+
+
+                                        <!-- ORIGINAL PAYMENT -->
+
+                                        <td>
+
+                                            <span
+                                                class="rf-reference"
+                                                title="{{ refund.original_payment_reference }}"
+                                            >
+                                                {{ refund.original_payment_reference }}
+                                            </span>
+
+                                            <span class="rf-reference-sub">
+                                                Original payment
+                                            </span>
+
+                                        </td>
+
+
+
+                                        <!-- AMOUNT -->
+
+                                        <td>
+
+                                            <span class="rf-amount">
+
+                                                <small>
+                                                    {{ currency_code }}
+                                                </small>
+
+                                                {{ refund.amount|floatformat:2 }}
+
+                                            </span>
+
+                                        </td>
+
+
+
+                                        <!-- METHOD -->
+
+                                        <td>
+
+                                            <span class="rf-method">
+
+                                                {% if refund.refund_method == "cash" %}
+
+                                                    <i class="bi bi-cash"></i>
+
+                                                {% elif refund.refund_method == "bank_transfer" %}
+
+                                                    <i class="bi bi-bank"></i>
+
+                                                {% elif refund.refund_method == "cheque" %}
+
+                                                    <i class="bi bi-file-earmark-text"></i>
+
+                                                {% elif refund.refund_method == "card" %}
+
+                                                    <i class="bi bi-credit-card"></i>
+
+                                                {% else %}
+
+                                                    <i class="bi bi-wallet2"></i>
+
+                                                {% endif %}
+
+                                                {{ refund.get_refund_method_display }}
+
+                                            </span>
+
+                                        </td>
+
+
+
+                                        <!-- STATUS -->
+
+                                        <td>
+
+                                            <span
+                                                class="
+                                                    rf-status
+                                                    rf-status-{{ refund.status }}
+                                                "
+                                            >
+                                                {{ refund.get_status_display }}
+                                            </span>
+
+                                        </td>
+
+
+
+                                        <!-- DATE -->
+
+                                        <td>
+
+                                            <div class="rf-date">
+
+                                                <strong>
+                                                    {{ refund.requested_at|date:"d M Y" }}
+                                                </strong>
+
+                                                <span>
+                                                    {{ refund.requested_at|date:"H:i" }}
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+
+
+                                        <!-- ACTIONS -->
+
+                                        <td>
+
+                                            <div class="rf-actions">
+
+                                                <a
+                                                    href="{% url 'payables:refund_detail' refund.pk %}"
+                                                    class="rf-action rf-view rf-loading-link"
+                                                >
+
+                                                    <i class="bi bi-eye"></i>
+
+                                                    Review
+
+                                                </a>
+
+
+                                                {% if refund.status == "requested" and not refund.approval_request_id %}
+
+                                                    <a
+                                                        href="{% url 'payables:refund_edit' refund.pk %}"
+                                                        class="rf-action rf-edit rf-loading-link"
+                                                        title="Edit refund"
+                                                    >
+
+                                                        <i class="bi bi-pencil"></i>
+
+                                                    </a>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="rf-empty">
+
+                        <div class="rf-empty-icon">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+
+
+                        {% if search or status or refund_method %}
+
+                            <h3>
+                                No matching refunds
+                            </h3>
+
+
+                            <p>
+
+                                No refund records match the current
+                                search or filtering criteria.
+
+                            </p>
+
+
+                            <a
+                                href="{% url 'payables:refund_list' %}"
+                                class="rf-secondary-btn rf-loading-link"
+                            >
+
+                                <i class="bi bi-arrow-counterclockwise"></i>
+
+                                Clear Filters
+
+                            </a>
+
+                        {% else %}
+
+                            <h3>
+                                No refund requests yet
+                            </h3>
+
+
+                            <p>
+
+                                The refund register is currently empty.
+                                Create the first controlled student
+                                refund request to begin the approval
+                                workflow.
+
+                            </p>
+
+
+                            <a
+                                href="{% url 'payables:refund_create' %}"
+                                class="rf-primary-btn rf-loading-link"
+                            >
+
+                                <i class="bi bi-plus-circle"></i>
+
+                                Create First Refund
+
+                            </a>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+
+
+                <div class="rf-command-footer">
+
+                    <span>
+
+                        Financial records are preserved for
+                        auditability and are not hard-deleted.
+
+                    </span>
+
+
+                    <span>
+
+                        <strong>
+                            {{ total_count }}
+                        </strong>
+
+                        total refund records
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 INTELLIGENCE
+            ================================================== -->
+
+            <aside class="rf-intelligence">
+
+
+                <!-- APPROVAL LOAD -->
+
+                <section class="rf-side-card">
+
+                    <div class="rf-side-head">
+
+                        <div class="rf-side-icon">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Approval Load
+                            </h3>
+
+                            <p>
+                                Refunds awaiting decision
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-side-body">
+
+                        <div class="rf-load">
+
+                            <div
+                                class="rf-load-ring"
+                                id="rf-load-ring"
+                                data-total="{{ total_count }}"
+                                data-pending="{{ pending_count }}"
+                            >
+
+                                <div class="rf-load-value">
+
+                                    <strong id="rf-load-percent">
+                                        0%
+                                    </strong>
+
+                                    <span>
+                                        pending
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rf-load-copy">
+
+                                <strong>
+
+                                    {{ pending_count }}
+
+                                    {% if pending_count == 1 %}
+                                        request
+                                    {% else %}
+                                        requests
+                                    {% endif %}
+
+                                </strong>
+
+                                <span>
+
+                                    currently waiting for
+                                    approval review.
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- FINANCIAL EXPOSURE -->
+
+                <section class="rf-side-card">
+
+                    <div class="rf-side-head">
+
+                        <div class="rf-side-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Financial Exposure
+                            </h3>
+
+                            <p>
+                                Current refund values
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="rf-side-body">
+
+                        <div class="rf-exposure-list">
+
+
+                            <div class="rf-exposure-item">
+
+                                <div class="rf-exposure-label">
+
+                                    <i class="bi bi-hourglass"></i>
+
+                                    Pending
+
+                                </div>
+
+                                <div class="rf-exposure-value">
+
+                                    {{ currency_code }}
+                                    {{ pending_amount|floatformat:2 }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rf-exposure-item">
+
+                                <div class="rf-exposure-label">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Approved
+
+                                </div>
+
+                                <div class="rf-exposure-value">
+
+                                    {{ currency_code }}
+                                    {{ approved_amount|floatformat:2 }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rf-exposure-item">
+
+                                <div class="rf-exposure-label">
+
+                                    <i class="bi bi-arrow-repeat"></i>
+
+                                    Processed
+
+                                </div>
+
+                                <div class="rf-exposure-value">
+
+                                    {{ currency_code }}
+                                    {{ processed_amount|floatformat:2 }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="rf-exposure-item">
+
+                                <div class="rf-exposure-label">
+
+                                    <i class="bi bi-wallet2"></i>
+
+                                    Requested
+
+                                </div>
+
+                                <div class="rf-exposure-value">
+
+                                    {{ currency_code }}
+                                    {{ total_requested_amount|floatformat:2 }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- INTEGRITY -->
+
+                <div class="rf-integrity">
+
+                    <div class="rf-integrity-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+
+                    <h4>
+                        Financial integrity protection
+                    </h4>
+
+
+                    <p>
+
+                        Refund approval never deletes the original
+                        payment. Final processing remains protected
+                        until the original student payment and
+                        refundable balance can be verified by the
+                        shared Student Financial Account integration.
+
+                    </p>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     LOADING OVERLAY
+============================================================ -->
+
+<div
+    class="rf-loading-overlay"
+    id="rf-loading-overlay"
+>
+
+    <div class="rf-loading-box">
+
+        <div class="rf-spinner"></div>
+
+        <strong>
+            Loading refund workspace
+        </strong>
+
+        <span>
+            Synchronizing financial information...
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           FILTER AUTO-SUBMISSION
+        ======================================================== */
+
+        const filterForm =
+            document.getElementById(
+                "rf-filter-form"
+            );
+
+
+        const search =
+            document.getElementById(
+                "rf-search"
+            );
+
+
+        const status =
+            document.getElementById(
+                "rf-status"
+            );
+
+
+        const method =
+            document.getElementById(
+                "rf-method"
+            );
+
+
+        let searchTimer;
+
+
+        if (
+            search &&
+            filterForm
+        ) {
+
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        searchTimer
+                    );
+
+
+                    searchTimer =
+                        setTimeout(
+                            function () {
+
+                                showLoading();
+
+                                filterForm.submit();
+
+                            },
+                            320
+                        );
+
+                }
+            );
+
+        }
+
+
+        if (
+            status &&
+            filterForm
+        ) {
+
+            status.addEventListener(
+                "change",
+                function () {
+
+                    showLoading();
+
+                    filterForm.submit();
+
+                }
+            );
+
+        }
+
+
+        if (
+            method &&
+            filterForm
+        ) {
+
+            method.addEventListener(
+                "change",
+                function () {
+
+                    showLoading();
+
+                    filterForm.submit();
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           LOADING
+        ======================================================== */
+
+        const loadingOverlay =
+            document.getElementById(
+                "rf-loading-overlay"
+            );
+
+
+        function showLoading() {
+
+            if (
+                loadingOverlay
+            ) {
+
+                loadingOverlay.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+        document
+            .querySelectorAll(
+                ".rf-loading-link"
+            )
+            .forEach(
+                function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            showLoading();
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* ========================================================
+           KPI PROGRESS
+        ======================================================== */
+
+        const total =
+            Number(
+                "{{ total_count|default:0 }}"
+            );
+
+
+        const pending =
+            Number(
+                "{{ pending_count|default:0 }}"
+            );
+
+
+        const approved =
+            Number(
+                "{{ approved_count|default:0 }}"
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-progress]"
+            )
+            .forEach(
+                function (bar) {
+
+                    const value =
+                        Number(
+                            bar.dataset.progress ||
+                            0
+                        );
+
+
+                    requestAnimationFrame(
+                        function () {
+
+                            bar.style.width =
+                                value + "%";
+
+                        }
+                    );
+
+                }
+            );
+
+
+        const pendingProgress =
+            document.getElementById(
+                "rf-pending-progress"
+            );
+
+
+        if (
+            pendingProgress
+        ) {
+
+            const value =
+                total > 0
+                    ? Math.min(
+                        pending / total * 100,
+                        100
+                    )
+                    : 0;
+
+
+            requestAnimationFrame(
+                function () {
+
+                    pendingProgress.style.width =
+                        value + "%";
+
+                }
+            );
+
+        }
+
+
+        const approvedProgress =
+            document.getElementById(
+                "rf-approved-progress"
+            );
+
+
+        if (
+            approvedProgress
+        ) {
+
+            const value =
+                total > 0
+                    ? Math.min(
+                        approved / total * 100,
+                        100
+                    )
+                    : 0;
+
+
+            requestAnimationFrame(
+                function () {
+
+                    approvedProgress.style.width =
+                        value + "%";
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           APPROVAL LOAD RING
+        ======================================================== */
+
+        const ring =
+            document.getElementById(
+                "rf-load-ring"
+            );
+
+
+        const ringPercent =
+            document.getElementById(
+                "rf-load-percent"
+            );
+
+
+        if (
+            ring &&
+            ringPercent
+        ) {
+
+            const ringTotal =
+                Number(
+                    ring.dataset.total ||
+                    0
+                );
+
+
+            const ringPending =
+                Number(
+                    ring.dataset.pending ||
+                    0
+                );
+
+
+            const percent =
+                ringTotal > 0
+                    ? Math.round(
+                        ringPending /
+                        ringTotal *
+                        100
+                    )
+                    : 0;
+
+
+            ringPercent.textContent =
+                percent + "%";
+
+
+            ring.style.setProperty(
+                "--rf-load-angle",
+                (
+                    percent *
+                    3.6
+                ) + "deg"
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}
