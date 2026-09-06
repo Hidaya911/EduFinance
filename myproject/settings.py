@@ -35,6 +35,9 @@ DEBUG = os.getenv(
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
+    'edu-finance-seven.vercel.app'
+    '.vercel.app',  
+
 ]
 
 
@@ -161,6 +164,7 @@ if not MONGO_URI:
 
 DATABASES = {
     "default": {
+        
         "ENGINE": "django_mongodb_backend",
         "HOST": MONGO_URI,
         "NAME": MONGO_DB_NAME,
