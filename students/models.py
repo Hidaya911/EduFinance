@@ -85,7 +85,11 @@ class Enrollment(models.Model):
     )
 
     def __str__(self):
-        return self.student_id
+        try:
+            student = Student.objects.get(pk=self.student_id)
+            return f"{student.full_name} - {self.enrollment_date}"
+        except Student.DoesNotExist:
+            return f"Enrollment {self.pk}"
 
 
 class Guardian(models.Model):

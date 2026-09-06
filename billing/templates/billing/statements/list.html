@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<h2>Student Statements</h2><div class="list-group">{% for s in students %}<a class="list-group-item list-group-item-action" href="{% url 'billing:student_statement' s.pk %}">{{ s.full_name }} — {{ s.student_number }}</a>{% empty %}<div>No students.</div>{% endfor %}</div>
+</div>
+{% endblock %}

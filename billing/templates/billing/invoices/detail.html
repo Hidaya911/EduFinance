@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<div class="d-flex justify-content-between"><div><h2>{{ invoice.invoice_number }}</h2><div>{{ invoice.student.full_name }}</div></div><a class="btn btn-outline-primary" href="{% url 'billing:payment_create' %}?student={{ invoice.student.pk }}">Receive Payment</a></div><div class="row g-3 my-3"><div class="col-md-3"><div class="card card-body">Total <strong>{{ invoice.total_amount }}</strong></div></div><div class="col-md-3"><div class="card card-body">Paid <strong>{{ invoice.paid_amount }}</strong></div></div><div class="col-md-3"><div class="card card-body">Balance <strong>{{ invoice.balance }}</strong></div></div><div class="col-md-3"><div class="card card-body">Status <strong>{{ invoice.get_status_display }}</strong></div></div></div><table class="table"><thead><tr><th>Category</th><th>Description</th><th>Amount</th></tr></thead><tbody>{% for item in invoice.items.all %}<tr><td>{{ item.category_name }}</td><td>{{ item.description|default:"-" }}</td><td>{{ item.amount }}</td></tr>{% endfor %}</tbody></table>{% if invoice.status == 'unpaid' or invoice.status == 'overdue' %}<form method="post" action="{% url 'billing:invoice_void' invoice.pk %}">{% csrf_token %}<button class="btn btn-outline-danger">Void Invoice</button></form>{% endif %}
+</div>
+{% endblock %}

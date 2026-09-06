@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<h2>Receive Payment</h2><form method="post" class="card card-body">{% csrf_token %}{{ form.non_field_errors }}<div class="row g-3">{% for f in form %}<div class="col-md-6"><label class="form-label">{{ f.label }}</label>{{ f }}{% for e in f.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>{% endfor %}</div><hr><h5>Invoice allocations</h5>{{ formset.management_form }}{{ formset.non_form_errors }}{% for af in formset %}<div class="row g-2 mb-2"><div class="col-md-6">{{ af.invoice }}</div><div class="col-md-4">{{ af.amount }}</div><div class="col-md-2">{{ af.DELETE }} Remove</div></div>{% endfor %}<button class="btn btn-primary mt-3">Record Payment</button></form>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<h2>Installment Plan</h2><div class="card card-body my-3"><div><strong>Student:</strong> {{ plan.student.full_name }}</div><div><strong>Invoice:</strong> {{ plan.invoice.invoice_number }}</div><div><strong>Total:</strong> {{ plan.total_amount }}</div><div><strong>Status:</strong> {{ plan.get_status_display }}</div></div><table class="table"><thead><tr><th>#</th><th>Due</th><th>Amount</th><th>Paid</th><th>Status</th></tr></thead><tbody>{% for i in plan.installments.all %}<tr><td>{{ i.installment_number }}</td><td>{{ i.due_date }}</td><td>{{ i.amount }}</td><td>{{ i.paid_amount }}</td><td>{{ i.get_status_display }}</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

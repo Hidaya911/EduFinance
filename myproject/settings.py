@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "audit_log.apps.AuditLogConfig",
 
     "students",
+    "billing",
 ]
 
 

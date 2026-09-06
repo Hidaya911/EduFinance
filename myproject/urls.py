@@ -4,6 +4,7 @@ URL configuration for EduFinance.
 
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -21,7 +22,7 @@ urlpatterns = [
     # ========================================================
     # DEVELOPER 1 — ACCOUNTS / AUTHENTICATION
     # ========================================================
-
+   path('', RedirectView.as_view(url='/login/', permanent=False)),
     path(
         "",
         include("accounts.urls"),
@@ -48,13 +49,18 @@ urlpatterns = [
     ),
 
     # ========================================================
-    # DEVELOPER 2 — STUDENTS / GUARDIANS
+    # DEVELOPER 2 — ROUTES
     # ========================================================
 
     path(
         "students/",
         include("students.urls"),
     ),
+
+    path(
+    "billing/",
+    include("billing.urls"),
+),
 
     # ========================================================
     # DEVELOPER 3 — FINANCE / PAYABLES

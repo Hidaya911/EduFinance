@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<h2>{{ payment.payment_number }}</h2><div class="card card-body my-3"><div><strong>Student:</strong> {{ payment.student.full_name }}</div><div><strong>Date:</strong> {{ payment.payment_date }}</div><div><strong>Method:</strong> {{ payment.get_payment_method_display }}</div><div><strong>Amount:</strong> {{ payment.amount }}</div></div><table class="table"><thead><tr><th>Invoice</th><th>Amount</th></tr></thead><tbody>{% for a in payment.allocations.all %}<tr><td>{{ a.invoice.invoice_number }}</td><td>{{ a.amount }}</td></tr>{% endfor %}</tbody></table>{% if payment.receipt %}<a class="btn btn-outline-primary" href="{% url 'billing:receipt_detail' payment.receipt.pk %}">View Receipt</a>{% endif %}
+</div>
+{% endblock %}

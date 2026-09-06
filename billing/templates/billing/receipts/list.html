@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<h2>Receipts</h2><form class="d-flex gap-2 my-3"><input class="form-control" name="q" value="{{ q }}" placeholder="Search receipt, payment or student"><button class="btn btn-outline-primary">Search</button></form><table class="table"><thead><tr><th>Receipt</th><th>Student</th><th>Payment</th><th>Amount</th><th>Issued</th><th></th></tr></thead><tbody>{% for r in receipts %}<tr><td>{{ r.receipt_number }}</td><td>{{ r.student.full_name }}</td><td>{{ r.payment.payment_number }}</td><td>{{ r.amount }}</td><td>{{ r.issued_at }}</td><td><a href="{% url 'billing:receipt_detail' r.pk %}">View</a></td></tr>{% empty %}<tr><td colspan="6">No receipts.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}
