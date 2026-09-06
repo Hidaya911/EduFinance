@@ -1,0 +1,4005 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ page_title }} | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — PAYMENT REMINDER FORM
+============================================================ */
+
+:root {
+    --prf-bg: #f4f7fb;
+
+    --prf-surface: #ffffff;
+    --prf-surface-soft: #f8fafc;
+
+    --prf-text: #17273b;
+    --prf-text-2: #52647b;
+    --prf-text-3: #8997aa;
+
+    --prf-blue: #176ff2;
+    --prf-blue-dark: #0958ca;
+    --prf-blue-soft: #edf4ff;
+
+    --prf-green: #07865a;
+    --prf-green-soft: #eaf8f2;
+
+    --prf-amber: #d88716;
+    --prf-amber-dark: #a56910;
+    --prf-amber-soft: #fff6e6;
+
+    --prf-red: #d9465a;
+    --prf-red-dark: #b62e43;
+    --prf-red-soft: #fff0f2;
+
+    --prf-purple: #7354d8;
+    --prf-purple-soft: #f3efff;
+
+    --prf-border: #dee7f0;
+    --prf-border-soft: #edf1f5;
+
+    --prf-shadow-sm:
+        0 8px 26px rgba(17,43,75,.05);
+
+    --prf-shadow:
+        0 22px 60px rgba(13,39,72,.08);
+
+    --prf-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.prf-page {
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(25px,3vw,44px)
+        clamp(18px,3vw,46px)
+        70px;
+
+    background:
+        radial-gradient(
+            circle at 95% 3%,
+            rgba(23,111,242,.075),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 4% 45%,
+            rgba(115,84,216,.04),
+            transparent 26%
+        ),
+        linear-gradient(
+            180deg,
+            #fcfdff 0%,
+            var(--prf-bg) 66%,
+            #f2f5f9 100%
+        );
+}
+
+.prf-shell {
+    max-width: 1580px;
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.prf-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    color: var(--prf-text-3);
+
+    font-size: .7rem;
+    font-weight: 760;
+}
+
+.prf-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.prf-breadcrumb a:hover {
+    color: var(--prf-blue);
+}
+
+.prf-breadcrumb i {
+    font-size: .56rem;
+}
+
+.prf-breadcrumb-current {
+    color: var(--prf-blue);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.prf-hero {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 24px;
+
+    margin-bottom: 20px;
+
+    padding:
+        clamp(25px,3vw,37px);
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--prf-border);
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #fff 0%,
+            #fbfcff 65%,
+            #f6f9ff 100%
+        );
+
+    box-shadow:
+        var(--prf-shadow);
+}
+
+.prf-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 440px;
+    height: 440px;
+
+    right: -155px;
+    top: -345px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(23,111,242,.13),
+            transparent 69%
+        );
+
+    pointer-events: none;
+}
+
+.prf-hero-main,
+.prf-hero-side {
+    position: relative;
+    z-index: 2;
+}
+
+.prf-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 13px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid #d7e5f9;
+
+    border-radius: 999px;
+
+    background: #f5f9ff;
+
+    color: var(--prf-blue-dark);
+
+    font-size: .58rem;
+    font-weight: 900;
+
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+
+.prf-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--prf-blue);
+
+    box-shadow:
+        0 0 0 5px
+        rgba(23,111,242,.08);
+}
+
+.prf-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.prf-title-icon {
+    width: 56px;
+    height: 56px;
+
+    flex: 0 0 56px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid #dae6f7;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--prf-blue-soft),
+            #fff
+        );
+
+    color: var(--prf-blue);
+
+    font-size: 1.22rem;
+}
+
+.prf-title h1 {
+    margin: 0;
+
+    color: var(--prf-text);
+
+    font-size:
+        clamp(1.8rem,3vw,2.55rem);
+
+    font-weight: 920;
+
+    letter-spacing: -.04em;
+}
+
+.prf-title p {
+    max-width: 760px;
+
+    margin:
+        7px 0 0;
+
+    color: var(--prf-text-3);
+
+    font-size: .65rem;
+
+    line-height: 1.65;
+}
+
+.prf-hero-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    padding:
+        8px 11px;
+
+    border:
+        1px solid #f1dcad;
+
+    border-radius: 999px;
+
+    background: var(--prf-amber-soft);
+
+    color: var(--prf-amber-dark);
+
+    font-size: .55rem;
+    font-weight: 900;
+}
+
+.prf-hero-status::before {
+    content: "";
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+
+.prf-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        360px;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+.prf-main {
+    min-width: 0;
+}
+
+.prf-side {
+    position: sticky;
+
+    top: 88px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.prf-card {
+    overflow: hidden;
+
+    margin-bottom: 18px;
+
+    border:
+        1px solid var(--prf-border);
+
+    border-radius: 20px;
+
+    background: var(--prf-surface);
+
+    box-shadow:
+        var(--prf-shadow-sm);
+}
+
+.prf-card:last-child {
+    margin-bottom: 0;
+}
+
+.prf-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding:
+        16px 18px;
+
+    border-bottom:
+        1px solid var(--prf-border-soft);
+
+    background: #fbfcfe;
+}
+
+.prf-section-title {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.prf-section-icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--prf-blue-soft);
+
+    color: var(--prf-blue);
+}
+
+.prf-section-title h2 {
+    margin: 0;
+
+    color: var(--prf-text);
+
+    font-size: .72rem;
+    font-weight: 900;
+}
+
+.prf-section-title p {
+    margin:
+        2px 0 0;
+
+    color: var(--prf-text-3);
+
+    font-size: .51rem;
+}
+
+.prf-card-body {
+    padding: 20px;
+}
+
+
+/* ============================================================
+   FORM GRID
+============================================================ */
+
+.prf-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 17px;
+}
+
+.prf-grid-3 {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3,minmax(0,1fr));
+
+    gap: 17px;
+}
+
+.prf-full {
+    grid-column: 1 / -1;
+}
+
+
+/* ============================================================
+   FIELD
+============================================================ */
+
+.prf-field {
+    min-width: 0;
+}
+
+.prf-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 7px;
+}
+
+.prf-label {
+    color: var(--prf-text);
+
+    font-size: .59rem;
+    font-weight: 880;
+}
+
+.prf-required {
+    color: var(--prf-red);
+}
+
+.prf-label-note {
+    color: var(--prf-text-3);
+
+    font-size: .48rem;
+}
+
+.prf-field input,
+.prf-field select,
+.prf-field textarea {
+    width: 100%;
+
+    border:
+        1px solid #dce5ef;
+
+    border-radius: 11px;
+
+    background: #fff;
+
+    color: var(--prf-text);
+
+    font-size: .62rem;
+
+    outline: none;
+
+    transition:
+        border-color var(--prf-transition),
+        box-shadow var(--prf-transition),
+        background var(--prf-transition);
+}
+
+.prf-field input,
+.prf-field select {
+    min-height: 44px;
+
+    padding:
+        0 12px;
+}
+
+.prf-field textarea {
+    min-height: 165px;
+
+    padding: 12px;
+
+    line-height: 1.65;
+
+    resize: vertical;
+}
+
+.prf-field input:focus,
+.prf-field select:focus,
+.prf-field textarea:focus {
+    border-color: #83b2f4;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(23,111,242,.075);
+}
+
+.prf-field input::placeholder,
+.prf-field textarea::placeholder {
+    color: #a2adbb;
+}
+
+.prf-help {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 5px;
+
+    margin-top: 6px;
+
+    color: var(--prf-text-3);
+
+    font-size: .49rem;
+
+    line-height: 1.55;
+}
+
+.prf-help i {
+    margin-top: 1px;
+
+    color: #9aa8b8;
+}
+
+
+/* ============================================================
+   FIELD ERRORS
+============================================================ */
+
+.prf-field-error input,
+.prf-field-error select,
+.prf-field-error textarea {
+    border-color: #e69aa7;
+
+    background: #fffafb;
+}
+
+.prf-errors {
+    display: grid;
+
+    gap: 4px;
+
+    margin-top: 6px;
+}
+
+.prf-error {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 5px;
+
+    color: var(--prf-red-dark);
+
+    font-size: .5rem;
+    font-weight: 720;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   GLOBAL ERRORS
+============================================================ */
+
+.prf-alert {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    margin-bottom: 18px;
+
+    padding: 14px 16px;
+
+    border:
+        1px solid #efcbd2;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff4f6,
+            #fff
+        );
+
+    color: var(--prf-red-dark);
+}
+
+.prf-alert-icon {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--prf-red-soft);
+}
+
+.prf-alert strong {
+    display: block;
+
+    font-size: .61rem;
+}
+
+.prf-alert p {
+    margin:
+        4px 0 0;
+
+    color: #8e5260;
+
+    font-size: .52rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   DELIVERY CHANNEL CARDS
+============================================================ */
+
+.prf-channel-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 12px;
+
+    margin-top: 15px;
+}
+
+.prf-channel-info {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 13px;
+
+    border:
+        1px solid var(--prf-border);
+
+    border-radius: 13px;
+
+    background: #fbfcfe;
+
+    transition:
+        border-color var(--prf-transition),
+        background var(--prf-transition);
+}
+
+.prf-channel-info.active {
+    border-color: #a9c9f5;
+
+    background: #f5f9ff;
+}
+
+.prf-channel-info.warning {
+    border-color: #efdfb9;
+
+    background: #fffaf0;
+}
+
+.prf-channel-icon {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--prf-blue-soft);
+
+    color: var(--prf-blue);
+}
+
+.prf-channel-system .prf-channel-icon {
+    background: var(--prf-purple-soft);
+
+    color: var(--prf-purple);
+}
+
+.prf-channel-copy strong {
+    display: block;
+
+    color: var(--prf-text);
+
+    font-size: .57rem;
+}
+
+.prf-channel-copy span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--prf-text-3);
+
+    font-size: .49rem;
+
+    line-height: 1.5;
+}
+
+.prf-ready-badge {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    margin-top: 7px;
+
+    padding:
+        4px 7px;
+
+    border-radius: 999px;
+
+    font-size: .47rem;
+    font-weight: 900;
+}
+
+.prf-ready-badge.ready {
+    background: var(--prf-green-soft);
+
+    color: var(--prf-green);
+}
+
+.prf-ready-badge.pending {
+    background: var(--prf-amber-soft);
+
+    color: var(--prf-amber-dark);
+}
+
+
+/* ============================================================
+   MESSAGE COUNTERS
+============================================================ */
+
+.prf-counter {
+    color: var(--prf-text-3);
+
+    font-size: .48rem;
+}
+
+.prf-counter.warning {
+    color: var(--prf-amber-dark);
+}
+
+
+/* ============================================================
+   ACTION FOOTER
+============================================================ */
+
+.prf-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    padding: 17px 20px;
+
+    border-top:
+        1px solid var(--prf-border-soft);
+
+    background: #fbfcfe;
+}
+
+.prf-action-note {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--prf-text-3);
+
+    font-size: .51rem;
+}
+
+.prf-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.prf-btn {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding:
+        0 15px;
+
+    border-radius: 10px;
+
+    font-size: .58rem;
+    font-weight: 900;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        transform var(--prf-transition),
+        box-shadow var(--prf-transition),
+        border-color var(--prf-transition);
+}
+
+.prf-btn-secondary {
+    border:
+        1px solid var(--prf-border);
+
+    background: #fff;
+
+    color: var(--prf-text-2);
+}
+
+.prf-btn-secondary:hover {
+    color: var(--prf-blue);
+
+    border-color: #b9cfee;
+}
+
+.prf-btn-primary {
+    border:
+        1px solid var(--prf-blue);
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--prf-blue),
+            var(--prf-blue-dark)
+        );
+
+    color: #fff;
+
+    box-shadow:
+        0 10px 22px
+        rgba(23,111,242,.18);
+}
+
+.prf-btn-primary:hover {
+    color: #fff;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 14px 28px
+        rgba(23,111,242,.23);
+}
+
+.prf-btn:disabled {
+    opacity: .66;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   SIDE PANEL
+============================================================ */
+
+.prf-side-card {
+    overflow: hidden;
+
+    border:
+        1px solid var(--prf-border);
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--prf-shadow-sm);
+}
+
+.prf-side-head {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding:
+        15px 16px;
+
+    border-bottom:
+        1px solid var(--prf-border-soft);
+
+    background: #fbfcfe;
+}
+
+.prf-side-icon {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--prf-blue-soft);
+
+    color: var(--prf-blue);
+}
+
+.prf-side-head h3 {
+    margin: 0;
+
+    color: var(--prf-text);
+
+    font-size: .66rem;
+    font-weight: 900;
+}
+
+.prf-side-head p {
+    margin:
+        2px 0 0;
+
+    color: var(--prf-text-3);
+
+    font-size: .49rem;
+}
+
+.prf-side-body {
+    padding: 16px;
+}
+
+
+/* ============================================================
+   PREVIEW
+============================================================ */
+
+.prf-preview-to {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.prf-preview-avatar {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--prf-blue-soft),
+            #fff
+        );
+
+    color: var(--prf-blue);
+
+    font-size: .65rem;
+    font-weight: 900;
+}
+
+.prf-preview-recipient strong {
+    display: block;
+
+    color: var(--prf-text);
+
+    font-size: .62rem;
+}
+
+.prf-preview-recipient span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--prf-text-3);
+
+    font-size: .49rem;
+}
+
+.prf-preview-subject {
+    margin-bottom: 12px;
+
+    padding-bottom: 12px;
+
+    border-bottom:
+        1px solid var(--prf-border-soft);
+}
+
+.prf-preview-subject span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--prf-text-3);
+
+    font-size: .47rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.prf-preview-subject strong {
+    display: block;
+
+    color: var(--prf-text);
+
+    font-size: .62rem;
+
+    line-height: 1.45;
+}
+
+.prf-preview-message {
+    min-height: 100px;
+
+    color: var(--prf-text-2);
+
+    font-size: .53rem;
+
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   FINANCIAL SNAPSHOT
+============================================================ */
+
+.prf-snapshot {
+    display: grid;
+
+    gap: 10px;
+}
+
+.prf-snapshot-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding-bottom: 10px;
+
+    border-bottom:
+        1px solid var(--prf-border-soft);
+}
+
+.prf-snapshot-row:last-child {
+    padding-bottom: 0;
+
+    border-bottom: 0;
+}
+
+.prf-snapshot-row span {
+    color: var(--prf-text-3);
+
+    font-size: .5rem;
+}
+
+.prf-snapshot-row strong {
+    max-width: 180px;
+
+    color: var(--prf-text);
+
+    font-size: .54rem;
+    font-weight: 870;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
+}
+
+.prf-snapshot-amount strong {
+    color: var(--prf-blue-dark);
+
+    font-size: .67rem;
+}
+
+
+/* ============================================================
+   POLICY CARD
+============================================================ */
+
+.prf-policy {
+    padding: 16px;
+
+    border:
+        1px solid #dce7f6;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f5f9ff,
+            #fff
+        );
+}
+
+.prf-policy-icon {
+    width: 37px;
+    height: 37px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 10px;
+
+    border-radius: 10px;
+
+    background: var(--prf-blue-soft);
+
+    color: var(--prf-blue);
+}
+
+.prf-policy h3 {
+    margin: 0;
+
+    color: var(--prf-text);
+
+    font-size: .64rem;
+    font-weight: 900;
+}
+
+.prf-policy p {
+    margin:
+        5px 0 0;
+
+    color: var(--prf-text-3);
+
+    font-size: .5rem;
+
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.prf-loading {
+    position: fixed;
+
+    z-index: 15000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(7,25,48,.42);
+
+    backdrop-filter:
+        blur(5px);
+}
+
+.prf-loading.active {
+    display: flex;
+}
+
+.prf-loading-card {
+    min-width: 270px;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        0 30px 85px
+        rgba(7,24,49,.24);
+}
+
+.prf-spinner {
+    width: 36px;
+    height: 36px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid #e5ebf2;
+
+    border-top-color:
+        var(--prf-blue);
+
+    border-radius: 50%;
+
+    animation:
+        prfSpin .7s linear infinite;
+}
+
+@keyframes prfSpin {
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+.prf-loading-card strong {
+    display: block;
+
+    color: var(--prf-text);
+
+    font-size: .68rem;
+}
+
+.prf-loading-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--prf-text-3);
+
+    font-size: .53rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1150px) {
+
+    .prf-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .prf-side {
+        position: static;
+
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .prf-policy {
+        grid-column: 1 / -1;
+    }
+
+}
+
+@media (max-width: 800px) {
+
+    .prf-grid,
+    .prf-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .prf-full {
+        grid-column: auto;
+    }
+
+    .prf-channel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .prf-side {
+        grid-template-columns: 1fr;
+    }
+
+    .prf-policy {
+        grid-column: auto;
+    }
+
+}
+
+@media (max-width: 680px) {
+
+    .prf-page {
+        margin: -16px;
+
+        padding:
+            21px 15px 55px;
+    }
+
+    .prf-title-row {
+        align-items: flex-start;
+    }
+
+    .prf-action-bar {
+        align-items: stretch;
+    }
+
+    .prf-actions {
+        width: 100%;
+    }
+
+    .prf-btn {
+        flex: 1;
+    }
+
+}
+
+</style>
+
+
+
+<div
+    class="prf-page"
+    id="prf-app"
+    data-email-ready="{% if email_delivery_ready %}true{% else %}false{% endif %}"
+    data-system-ready="{% if in_system_delivery_ready %}true{% else %}false{% endif %}"
+>
+
+    <div class="prf-shell">
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="prf-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <a href="{% url 'payables:payment_reminder_list' %}">
+                Payment Reminders
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="prf-breadcrumb-current">
+                {% if is_edit %}
+                    Edit
+                {% else %}
+                    Create
+                {% endif %}
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="prf-hero">
+
+            <div class="prf-hero-main">
+
+                <div class="prf-eyebrow">
+
+                    <span class="prf-eyebrow-dot"></span>
+
+                    Financial Communication Composer
+
+                </div>
+
+
+                <div class="prf-title-row">
+
+                    <div class="prf-title-icon">
+
+                        {% if is_edit %}
+                            <i class="bi bi-pencil-square"></i>
+                        {% else %}
+                            <i class="bi bi-envelope-plus"></i>
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="prf-title">
+
+                        <h1>
+                            {{ page_title }}
+                        </h1>
+
+                        <p>
+                            {{ page_subtitle }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="prf-hero-side">
+
+                <span class="prf-hero-status">
+
+                    {% if is_edit %}
+                        Draft — Editable
+                    {% else %}
+                        New Draft
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             FORM ERRORS
+        ===================================================== -->
+
+        {% if form.non_field_errors %}
+
+            <div class="prf-alert">
+
+                <div class="prf-alert-icon">
+
+                    <i class="bi bi-exclamation-triangle"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Please review this reminder
+                    </strong>
+
+                    {% for error in form.non_field_errors %}
+
+                        <p>
+                            {{ error }}
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+
+        <form
+            method="post"
+            id="prf-form"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="prf-layout">
+
+
+                <!-- =================================================
+                     MAIN FORM
+                ================================================== -->
+
+                <main class="prf-main">
+
+
+                    <!-- =============================================
+                         STUDENT / RECIPIENT
+                    ============================================== -->
+
+                    <section class="prf-card">
+
+                        <div class="prf-card-head">
+
+                            <div class="prf-section-title">
+
+                                <div class="prf-section-icon">
+
+                                    <i class="bi bi-person-vcard"></i>
+
+                                </div>
+
+
+                                <div>
+
+                                    <h2>
+                                        Student & Recipient
+                                    </h2>
+
+                                    <p>
+                                        Identify the financial account and intended recipient
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prf-card-body">
+
+                            <div class="prf-grid">
+
+
+                                <!-- STUDENT -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.student.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.student.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Student
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                        <span class="prf-label-note">
+                                            Financial account owner
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.student }}
+
+
+                                    {% if form.student.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.student.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-info-circle"></i>
+
+                                        <span>
+                                            Active students are listed using their student number and full name.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- GUARDIAN -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.guardian.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.guardian.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Guardian
+                                        </label>
+
+                                        <span class="prf-label-note">
+                                            Optional
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.guardian }}
+
+
+                                    {% if form.guardian.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.guardian.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-shield-check"></i>
+
+                                        <span>
+                                            The backend verifies that a selected guardian is genuinely linked to the student.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- RECIPIENT NAME -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.recipient_name.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.recipient_name.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Recipient Name
+                                        </label>
+
+                                        <span class="prf-label-note">
+                                            Snapshot
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.recipient_name }}
+
+
+                                    {% if form.recipient_name.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.recipient_name.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-clock-history"></i>
+
+                                        <span>
+                                            If left blank, EduFinance derives the name from the guardian or student when saving.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- RECIPIENT EMAIL -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.recipient_email.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.recipient_email.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Recipient Email
+
+                                            <span
+                                                class="prf-required"
+                                                id="prf-email-required"
+                                                style="display:none;"
+                                            >
+                                                *
+                                            </span>
+
+                                        </label>
+
+                                        <span class="prf-label-note">
+                                            Required for Email
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.recipient_email }}
+
+
+                                    {% if form.recipient_email.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.recipient_email.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-envelope"></i>
+
+                                        <span>
+                                            If blank, the backend attempts to use the selected guardian's or student's email.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =============================================
+                         FINANCIAL OBLIGATION
+                    ============================================== -->
+
+                    <section class="prf-card">
+
+                        <div class="prf-card-head">
+
+                            <div class="prf-section-title">
+
+                                <div class="prf-section-icon">
+
+                                    <i class="bi bi-receipt-cutoff"></i>
+
+                                </div>
+
+
+                                <div>
+
+                                    <h2>
+                                        Financial Obligation
+                                    </h2>
+
+                                    <p>
+                                        Capture the invoice and amount represented by this reminder
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prf-card-body">
+
+                            <div class="prf-grid-3">
+
+
+                                <!-- INVOICE -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.invoice_reference.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.invoice_reference.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Invoice Reference
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                    </div>
+
+
+                                    {{ form.invoice_reference }}
+
+
+                                    {% if form.invoice_reference.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.invoice_reference.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-diagram-3"></i>
+
+                                        <span>
+                                            Temporary reference until the shared Student Invoice model is integrated.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- AMOUNT -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.amount_due.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.amount_due.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Amount Due
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                        <span class="prf-label-note">
+                                            {{ currency_code }}
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.amount_due }}
+
+
+                                    {% if form.amount_due.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.amount_due.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-cash-stack"></i>
+
+                                        <span>
+                                            Must be greater than zero.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- DUE DATE -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.due_date.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.due_date.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Due Date
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                    </div>
+
+
+                                    {{ form.due_date }}
+
+
+                                    {% if form.due_date.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.due_date.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+
+                                <!-- REMINDER DATE -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.reminder_date.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.reminder_date.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Reminder Date
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                    </div>
+
+
+                                    {{ form.reminder_date }}
+
+
+                                    {% if form.reminder_date.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.reminder_date.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-calendar-event"></i>
+
+                                        <span>
+                                            Date associated with this reminder record.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <!-- DELIVERY METHOD -->
+
+                                <div
+                                    class="prf-field
+                                    {% if form.delivery_method.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.delivery_method.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Delivery Method
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                    </div>
+
+
+                                    {{ form.delivery_method }}
+
+
+                                    {% if form.delivery_method.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.delivery_method.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- CHANNEL HEALTH -->
+
+                            <div class="prf-channel-grid">
+
+
+                                <div
+                                    class="prf-channel-info"
+                                    id="prf-email-card"
+                                >
+
+                                    <div class="prf-channel-icon">
+
+                                        <i class="bi bi-envelope"></i>
+
+                                    </div>
+
+
+                                    <div class="prf-channel-copy">
+
+                                        <strong>
+                                            Email
+                                        </strong>
+
+                                        <span>
+                                            Financial reminder prepared for an external email recipient.
+                                        </span>
+
+
+                                        {% if email_delivery_ready %}
+
+                                            <span class="prf-ready-badge ready">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                                External Delivery Ready
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="prf-ready-badge pending">
+
+                                                <i class="bi bi-hourglass-split"></i>
+
+                                                External Delivery Pending
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+
+                                <div
+                                    class="prf-channel-info prf-channel-system"
+                                    id="prf-system-card"
+                                >
+
+                                    <div class="prf-channel-icon">
+
+                                        <i class="bi bi-bell"></i>
+
+                                    </div>
+
+
+                                    <div class="prf-channel-copy">
+
+                                        <strong>
+                                            In-System Notification
+                                        </strong>
+
+                                        <span>
+                                            Intended for authenticated student or guardian portal delivery.
+                                        </span>
+
+
+                                        {% if in_system_delivery_ready %}
+
+                                            <span class="prf-ready-badge ready">
+
+                                                <i class="bi bi-check-circle"></i>
+
+                                                Portal Mapping Ready
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="prf-ready-badge pending">
+
+                                                <i class="bi bi-hourglass-split"></i>
+
+                                                Portal Mapping Pending
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =============================================
+                         MESSAGE
+                    ============================================== -->
+
+                    <section class="prf-card">
+
+                        <div class="prf-card-head">
+
+                            <div class="prf-section-title">
+
+                                <div class="prf-section-icon">
+
+                                    <i class="bi bi-chat-left-text"></i>
+
+                                </div>
+
+
+                                <div>
+
+                                    <h2>
+                                        Reminder Message
+                                    </h2>
+
+                                    <p>
+                                        Compose the financial communication preserved in history
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prf-card-body">
+
+                            <div class="prf-grid">
+
+
+                                <!-- SUBJECT -->
+
+                                <div
+                                    class="prf-field prf-full
+                                    {% if form.subject.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.subject.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Subject
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                        <span
+                                            class="prf-counter"
+                                            id="prf-subject-counter"
+                                        >
+                                            0 characters
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.subject }}
+
+
+                                    {% if form.subject.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.subject.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+
+
+                                <!-- MESSAGE -->
+
+                                <div
+                                    class="prf-field prf-full
+                                    {% if form.message.errors %}
+                                        prf-field-error
+                                    {% endif %}"
+                                >
+
+                                    <div class="prf-label-row">
+
+                                        <label
+                                            for="{{ form.message.id_for_label }}"
+                                            class="prf-label"
+                                        >
+                                            Message
+                                            <span class="prf-required">*</span>
+                                        </label>
+
+                                        <span
+                                            class="prf-counter"
+                                            id="prf-message-counter"
+                                        >
+                                            0 characters
+                                        </span>
+
+                                    </div>
+
+
+                                    {{ form.message }}
+
+
+                                    {% if form.message.errors %}
+
+                                        <div class="prf-errors">
+
+                                            {% for error in form.message.errors %}
+
+                                                <div class="prf-error">
+
+                                                    <i class="bi bi-exclamation-circle"></i>
+
+                                                    {{ error }}
+
+                                                </div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="prf-help">
+
+                                        <i class="bi bi-lock"></i>
+
+                                        <span>
+                                            The saved message becomes part of the reminder's auditable communication history.
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- =========================================
+                             ACTION BAR
+                        ========================================== -->
+
+                        <div class="prf-action-bar">
+
+                            <div class="prf-action-note">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                Saving this form creates or updates a Draft only. It does not send the reminder.
+
+                            </div>
+
+
+                            <div class="prf-actions">
+
+                                {% if is_edit and reminder %}
+
+                                    <a
+                                        href="{% url 'payables:payment_reminder_detail' reminder.pk %}"
+                                        class="prf-btn prf-btn-secondary"
+                                    >
+
+                                        <i class="bi bi-x-lg"></i>
+
+                                        Cancel
+
+                                    </a>
+
+                                {% else %}
+
+                                    <a
+                                        href="{% url 'payables:payment_reminder_list' %}"
+                                        class="prf-btn prf-btn-secondary"
+                                    >
+
+                                        <i class="bi bi-arrow-left"></i>
+
+                                        Back
+
+                                    </a>
+
+                                {% endif %}
+
+
+                                <button
+                                    type="submit"
+                                    class="prf-btn prf-btn-primary"
+                                    id="prf-submit"
+                                >
+
+                                    <i class="bi bi-check2-circle"></i>
+
+                                    {{ submit_text }}
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </main>
+
+
+
+                <!-- =================================================
+                     SIDE RAIL
+                ================================================== -->
+
+                <aside class="prf-side">
+
+
+                    <!-- =============================================
+                         LIVE PREVIEW
+                    ============================================== -->
+
+                    <section class="prf-side-card">
+
+                        <div class="prf-side-head">
+
+                            <div class="prf-side-icon">
+
+                                <i class="bi bi-eye"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    Communication Preview
+                                </h3>
+
+                                <p>
+                                    Live reminder snapshot
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prf-side-body">
+
+                            <div class="prf-preview-to">
+
+                                <div
+                                    class="prf-preview-avatar"
+                                    id="prf-preview-avatar"
+                                >
+                                    PR
+                                </div>
+
+
+                                <div class="prf-preview-recipient">
+
+                                    <strong id="prf-preview-name">
+                                        Recipient
+                                    </strong>
+
+                                    <span id="prf-preview-email">
+                                        Recipient contact
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="prf-preview-subject">
+
+                                <span>
+                                    Subject
+                                </span>
+
+                                <strong id="prf-preview-subject">
+                                    Payment reminder subject
+                                </strong>
+
+                            </div>
+
+
+                            <div
+                                class="prf-preview-message"
+                                id="prf-preview-message"
+                            >
+                                Your reminder message will appear here as you type.
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =============================================
+                         FINANCIAL SNAPSHOT
+                    ============================================== -->
+
+                    <section class="prf-side-card">
+
+                        <div class="prf-side-head">
+
+                            <div class="prf-side-icon">
+
+                                <i class="bi bi-cash-stack"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    Financial Snapshot
+                                </h3>
+
+                                <p>
+                                    Reminder-time obligation context
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="prf-side-body">
+
+                            <div class="prf-snapshot">
+
+
+                                <div class="prf-snapshot-row">
+
+                                    <span>
+                                        Student
+                                    </span>
+
+                                    <strong id="prf-preview-student">
+                                        Not selected
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="prf-snapshot-row">
+
+                                    <span>
+                                        Invoice
+                                    </span>
+
+                                    <strong id="prf-preview-invoice">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="prf-snapshot-row prf-snapshot-amount">
+
+                                    <span>
+                                        Amount Due
+                                    </span>
+
+                                    <strong>
+
+                                        {{ currency_code }}
+
+                                        <span id="prf-preview-amount">
+                                            0.00
+                                        </span>
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="prf-snapshot-row">
+
+                                    <span>
+                                        Due Date
+                                    </span>
+
+                                    <strong id="prf-preview-due-date">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="prf-snapshot-row">
+
+                                    <span>
+                                        Reminder Date
+                                    </span>
+
+                                    <strong id="prf-preview-reminder-date">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="prf-snapshot-row">
+
+                                    <span>
+                                        Channel
+                                    </span>
+
+                                    <strong id="prf-preview-channel">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =============================================
+                         POLICY
+                    ============================================== -->
+
+                    <div class="prf-policy">
+
+                        <div class="prf-policy-icon">
+
+                            <i class="bi bi-shield-check"></i>
+
+                        </div>
+
+
+                        <h3>
+                            Draft-first workflow
+                        </h3>
+
+
+                        <p>
+
+                            Creating or editing this record does not
+                            send a communication. Delivery is a
+                            separate controlled action from the
+                            reminder detail page.
+
+                        </p>
+
+                    </div>
+
+                </aside>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     LOADING
+============================================================ -->
+
+<div
+    class="prf-loading"
+    id="prf-loading"
+>
+
+    <div class="prf-loading-card">
+
+        <div class="prf-spinner"></div>
+
+        <strong>
+            Saving payment reminder
+        </strong>
+
+        <span>
+            Validating recipient and financial details...
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           REFERENCES
+        ======================================================== */
+
+        const app =
+            document.getElementById(
+                "prf-app"
+            );
+
+
+        const form =
+            document.getElementById(
+                "prf-form"
+            );
+
+
+        const submitButton =
+            document.getElementById(
+                "prf-submit"
+            );
+
+
+        const loading =
+            document.getElementById(
+                "prf-loading"
+            );
+
+
+        const student =
+            document.getElementById(
+                "id_student"
+            );
+
+
+        const guardian =
+            document.getElementById(
+                "id_guardian"
+            );
+
+
+        const invoice =
+            document.getElementById(
+                "id_invoice_reference"
+            );
+
+
+        const amount =
+            document.getElementById(
+                "id_amount_due"
+            );
+
+
+        const dueDate =
+            document.getElementById(
+                "id_due_date"
+            );
+
+
+        const reminderDate =
+            document.getElementById(
+                "id_reminder_date"
+            );
+
+
+        const delivery =
+            document.getElementById(
+                "id_delivery_method"
+            );
+
+
+        const recipientName =
+            document.getElementById(
+                "id_recipient_name"
+            );
+
+
+        const recipientEmail =
+            document.getElementById(
+                "id_recipient_email"
+            );
+
+
+        const subject =
+            document.getElementById(
+                "id_subject"
+            );
+
+
+        const message =
+            document.getElementById(
+                "id_message"
+            );
+
+
+        const emailRequired =
+            document.getElementById(
+                "prf-email-required"
+            );
+
+
+        const emailCard =
+            document.getElementById(
+                "prf-email-card"
+            );
+
+
+        const systemCard =
+            document.getElementById(
+                "prf-system-card"
+            );
+
+
+        const subjectCounter =
+            document.getElementById(
+                "prf-subject-counter"
+            );
+
+
+        const messageCounter =
+            document.getElementById(
+                "prf-message-counter"
+            );
+
+
+        let submitting =
+            false;
+
+
+        const emailReady =
+            app
+            &&
+            app.dataset.emailReady
+            ===
+            "true";
+
+
+        const systemReady =
+            app
+            &&
+            app.dataset.systemReady
+            ===
+            "true";
+
+
+
+        /* ========================================================
+           HELPERS
+        ======================================================== */
+
+        function selectedText(
+            select
+        ) {
+
+            if (
+                !select
+                ||
+                select.selectedIndex < 0
+            ) {
+
+                return "";
+
+            }
+
+
+            return (
+                select
+                .options[
+                    select.selectedIndex
+                ]
+                .text
+                ||
+                ""
+            ).trim();
+
+        }
+
+
+
+        function cleanSelectLabel(
+            value
+        ) {
+
+            if (!value) {
+                return "";
+            }
+
+
+            if (
+                value.toLowerCase()
+                .includes(
+                    "select a student"
+                )
+                ||
+                value.toLowerCase()
+                .includes(
+                    "student directly"
+                )
+            ) {
+
+                return "";
+
+            }
+
+
+            return value;
+
+        }
+
+
+
+        function formatAmount(
+            value
+        ) {
+
+            const parsed =
+                parseFloat(
+                    value
+                    ||
+                    "0"
+                );
+
+
+            if (
+                !Number.isFinite(
+                    parsed
+                )
+            ) {
+
+                return "0.00";
+
+            }
+
+
+            return parsed.toLocaleString(
+                undefined,
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                }
+            );
+
+        }
+
+
+
+        function formatDate(
+            value
+        ) {
+
+            if (!value) {
+
+                return "—";
+
+            }
+
+
+            const parts =
+                value.split(
+                    "-"
+                );
+
+
+            if (
+                parts.length !== 3
+            ) {
+
+                return value;
+
+            }
+
+
+            const date =
+                new Date(
+                    Number(parts[0]),
+                    Number(parts[1]) - 1,
+                    Number(parts[2])
+                );
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return value;
+
+            }
+
+
+            return date.toLocaleDateString(
+                undefined,
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                }
+            );
+
+        }
+
+
+
+        function getInitials(
+            value
+        ) {
+
+            const clean =
+                (
+                    value
+                    ||
+                    ""
+                )
+                .trim();
+
+
+            if (!clean) {
+
+                return "PR";
+
+            }
+
+
+            const words =
+                clean
+                .split(
+                    /\s+/
+                )
+                .filter(
+                    Boolean
+                );
+
+
+            if (
+                words.length === 1
+            ) {
+
+                return (
+                    words[0]
+                    .slice(
+                        0,
+                        2
+                    )
+                    .toUpperCase()
+                );
+
+            }
+
+
+            return (
+                (
+                    words[0][0]
+                    +
+                    words[
+                        words.length - 1
+                    ][0]
+                )
+                .toUpperCase()
+            );
+
+        }
+
+
+
+        /* ========================================================
+           RECIPIENT AUTO-SNAPSHOT HELP
+        ======================================================== */
+
+        function applyGuardianSnapshot() {
+
+            if (!guardian) {
+                return;
+            }
+
+
+            const guardianText =
+                cleanSelectLabel(
+                    selectedText(
+                        guardian
+                    )
+                );
+
+
+            if (!guardianText) {
+
+                applyStudentSnapshot();
+
+                return;
+
+            }
+
+
+            const parts =
+                guardianText
+                .split(
+                    " — "
+                );
+
+
+            const guardianName =
+                (
+                    parts[0]
+                    ||
+                    ""
+                ).trim();
+
+
+            const possibleEmail =
+                (
+                    parts[
+                        parts.length - 1
+                    ]
+                    ||
+                    ""
+                ).trim();
+
+
+            if (
+                recipientName
+                &&
+                guardianName
+            ) {
+
+                recipientName.value =
+                    guardianName;
+
+            }
+
+
+            if (
+                recipientEmail
+                &&
+                possibleEmail.includes(
+                    "@"
+                )
+            ) {
+
+                recipientEmail.value =
+                    possibleEmail;
+
+            }
+
+
+            updatePreview();
+
+        }
+
+
+
+        function applyStudentSnapshot() {
+
+            if (!student) {
+                return;
+            }
+
+
+            const studentText =
+                cleanSelectLabel(
+                    selectedText(
+                        student
+                    )
+                );
+
+
+            if (!studentText) {
+                return;
+            }
+
+
+            const parts =
+                studentText
+                .split(
+                    " — "
+                );
+
+
+            let studentName =
+                studentText;
+
+
+            if (
+                parts.length >= 2
+            ) {
+
+                studentName =
+                    parts
+                    .slice(1)
+                    .join(
+                        " — "
+                    );
+
+            }
+
+
+            if (
+                recipientName
+                &&
+                (
+                    !guardian
+                    ||
+                    !guardian.value
+                )
+            ) {
+
+                recipientName.value =
+                    studentName.trim();
+
+            }
+
+
+            updatePreview();
+
+        }
+
+
+
+        /* ========================================================
+           CHANNEL STATE
+        ======================================================== */
+
+        function updateDeliveryState() {
+
+            if (!delivery) {
+                return;
+            }
+
+
+            const method =
+                delivery.value;
+
+
+            if (emailCard) {
+
+                emailCard.classList.remove(
+                    "active",
+                    "warning"
+                );
+
+            }
+
+
+            if (systemCard) {
+
+                systemCard.classList.remove(
+                    "active",
+                    "warning"
+                );
+
+            }
+
+
+            if (
+                method
+                ===
+                "email"
+            ) {
+
+                if (emailCard) {
+
+                    emailCard.classList.add(
+                        "active"
+                    );
+
+
+                    if (!emailReady) {
+
+                        emailCard.classList.add(
+                            "warning"
+                        );
+
+                    }
+
+                }
+
+
+                if (recipientEmail) {
+
+                    recipientEmail.required =
+                        true;
+
+                }
+
+
+                if (emailRequired) {
+
+                    emailRequired.style.display =
+                        "inline";
+
+                }
+
+            }
+
+            else if (
+                method
+                ===
+                "in_system"
+            ) {
+
+                if (systemCard) {
+
+                    systemCard.classList.add(
+                        "active"
+                    );
+
+
+                    if (!systemReady) {
+
+                        systemCard.classList.add(
+                            "warning"
+                        );
+
+                    }
+
+                }
+
+
+                if (recipientEmail) {
+
+                    recipientEmail.required =
+                        false;
+
+                }
+
+
+                if (emailRequired) {
+
+                    emailRequired.style.display =
+                        "none";
+
+                }
+
+            }
+
+            else {
+
+                if (recipientEmail) {
+
+                    recipientEmail.required =
+                        false;
+
+                }
+
+
+                if (emailRequired) {
+
+                    emailRequired.style.display =
+                        "none";
+
+                }
+
+            }
+
+
+            updatePreview();
+
+        }
+
+
+
+        /* ========================================================
+           COUNTERS
+        ======================================================== */
+
+        function updateCounters() {
+
+            if (
+                subject
+                &&
+                subjectCounter
+            ) {
+
+                const length =
+                    subject.value.length;
+
+
+                subjectCounter.textContent =
+                    length
+                    +
+                    (
+                        length === 1
+                        ?
+                        " character"
+                        :
+                        " characters"
+                    );
+
+            }
+
+
+            if (
+                message
+                &&
+                messageCounter
+            ) {
+
+                const length =
+                    message.value.length;
+
+
+                messageCounter.textContent =
+                    length
+                    +
+                    (
+                        length === 1
+                        ?
+                        " character"
+                        :
+                        " characters"
+                    );
+
+
+                messageCounter.classList.toggle(
+                    "warning",
+                    length > 1500
+                );
+
+            }
+
+        }
+
+
+
+        /* ========================================================
+           LIVE PREVIEW
+        ======================================================== */
+
+        function updatePreview() {
+
+            const previewName =
+                document.getElementById(
+                    "prf-preview-name"
+                );
+
+
+            const previewEmail =
+                document.getElementById(
+                    "prf-preview-email"
+                );
+
+
+            const previewAvatar =
+                document.getElementById(
+                    "prf-preview-avatar"
+                );
+
+
+            const previewSubject =
+                document.getElementById(
+                    "prf-preview-subject"
+                );
+
+
+            const previewMessage =
+                document.getElementById(
+                    "prf-preview-message"
+                );
+
+
+            const previewStudent =
+                document.getElementById(
+                    "prf-preview-student"
+                );
+
+
+            const previewInvoice =
+                document.getElementById(
+                    "prf-preview-invoice"
+                );
+
+
+            const previewAmount =
+                document.getElementById(
+                    "prf-preview-amount"
+                );
+
+
+            const previewDue =
+                document.getElementById(
+                    "prf-preview-due-date"
+                );
+
+
+            const previewReminderDate =
+                document.getElementById(
+                    "prf-preview-reminder-date"
+                );
+
+
+            const previewChannel =
+                document.getElementById(
+                    "prf-preview-channel"
+                );
+
+
+            const name =
+                recipientName
+                ?
+                recipientName.value.trim()
+                :
+                "";
+
+
+            const email =
+                recipientEmail
+                ?
+                recipientEmail.value.trim()
+                :
+                "";
+
+
+            if (previewName) {
+
+                previewName.textContent =
+                    name
+                    ||
+                    "Recipient";
+
+            }
+
+
+            if (previewEmail) {
+
+                previewEmail.textContent =
+                    email
+                    ||
+                    (
+                        delivery
+                        &&
+                        delivery.value === "in_system"
+                        ?
+                        "In-system recipient"
+                        :
+                        "Recipient contact"
+                    );
+
+            }
+
+
+            if (previewAvatar) {
+
+                previewAvatar.textContent =
+                    getInitials(
+                        name
+                    );
+
+            }
+
+
+            if (previewSubject) {
+
+                previewSubject.textContent =
+                    (
+                        subject
+                        &&
+                        subject.value.trim()
+                    )
+                    ||
+                    "Payment reminder subject";
+
+            }
+
+
+            if (previewMessage) {
+
+                previewMessage.textContent =
+                    (
+                        message
+                        &&
+                        message.value.trim()
+                    )
+                    ||
+                    "Your reminder message will appear here as you type.";
+
+            }
+
+
+            if (previewStudent) {
+
+                previewStudent.textContent =
+                    cleanSelectLabel(
+                        selectedText(
+                            student
+                        )
+                    )
+                    ||
+                    "Not selected";
+
+            }
+
+
+            if (previewInvoice) {
+
+                previewInvoice.textContent =
+                    (
+                        invoice
+                        &&
+                        invoice.value.trim()
+                    )
+                    ||
+                    "—";
+
+            }
+
+
+            if (previewAmount) {
+
+                previewAmount.textContent =
+                    formatAmount(
+                        amount
+                        ?
+                        amount.value
+                        :
+                        "0"
+                    );
+
+            }
+
+
+            if (previewDue) {
+
+                previewDue.textContent =
+                    formatDate(
+                        dueDate
+                        ?
+                        dueDate.value
+                        :
+                        ""
+                    );
+
+            }
+
+
+            if (previewReminderDate) {
+
+                previewReminderDate.textContent =
+                    formatDate(
+                        reminderDate
+                        ?
+                        reminderDate.value
+                        :
+                        ""
+                    );
+
+            }
+
+
+            if (previewChannel) {
+
+                if (
+                    delivery
+                    &&
+                    delivery.value === "email"
+                ) {
+
+                    previewChannel.textContent =
+                        "Email";
+
+                }
+
+                else if (
+                    delivery
+                    &&
+                    delivery.value === "in_system"
+                ) {
+
+                    previewChannel.textContent =
+                        "In-System Notification";
+
+                }
+
+                else {
+
+                    previewChannel.textContent =
+                        "—";
+
+                }
+
+            }
+
+
+            updateCounters();
+
+        }
+
+
+
+        /* ========================================================
+           EVENTS
+        ======================================================== */
+
+        if (student) {
+
+            student.addEventListener(
+                "change",
+                function () {
+
+                    if (
+                        guardian
+                        &&
+                        !guardian.value
+                    ) {
+
+                        applyStudentSnapshot();
+
+                    }
+
+
+                    updatePreview();
+
+                }
+            );
+
+        }
+
+
+        if (guardian) {
+
+            guardian.addEventListener(
+                "change",
+                function () {
+
+                    if (
+                        guardian.value
+                    ) {
+
+                        applyGuardianSnapshot();
+
+                    }
+
+                    else {
+
+                        applyStudentSnapshot();
+
+                    }
+
+
+                    updatePreview();
+
+                }
+            );
+
+        }
+
+
+        if (delivery) {
+
+            delivery.addEventListener(
+                "change",
+                updateDeliveryState
+            );
+
+        }
+
+
+        [
+            invoice,
+            amount,
+            dueDate,
+            reminderDate,
+            recipientName,
+            recipientEmail,
+            subject,
+            message
+        ]
+        .forEach(
+            function (element) {
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.addEventListener(
+                    "input",
+                    updatePreview
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    updatePreview
+                );
+
+            }
+        );
+
+
+
+        /* ========================================================
+           DOUBLE SUBMIT PROTECTION
+        ======================================================== */
+
+        if (form) {
+
+            form.addEventListener(
+                "submit",
+                function () {
+
+                    if (submitting) {
+
+                        return;
+
+                    }
+
+
+                    submitting =
+                        true;
+
+
+                    if (submitButton) {
+
+                        submitButton.disabled =
+                            true;
+
+
+                        submitButton.innerHTML =
+                            (
+                                '<span class="spinner-border spinner-border-sm" '
+                                +
+                                'aria-hidden="true"></span>'
+                                +
+                                ' Saving...'
+                            );
+
+                    }
+
+
+                    if (loading) {
+
+                        loading.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           BACK/FORWARD CACHE RESET
+        ======================================================== */
+
+        window.addEventListener(
+            "pageshow",
+            function () {
+
+                submitting =
+                    false;
+
+
+                if (loading) {
+
+                    loading.classList.remove(
+                        "active"
+                    );
+
+                }
+
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                }
+
+            }
+        );
+
+
+
+        /* ========================================================
+           INITIALIZE
+        ======================================================== */
+
+        updateDeliveryState();
+
+        updatePreview();
+
+    }
+);
+
+</script>
+
+{% endblock %}

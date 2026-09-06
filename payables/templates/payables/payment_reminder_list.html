@@ -1,0 +1,3181 @@
+{% extends "base.html" %}
+
+{% block title %}
+Payment Reminders | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — PAYMENT REMINDERS
+   FINANCIAL COMMUNICATIONS COMMAND CENTER
+============================================================ */
+
+:root {
+    --pr-bg: #f4f7fb;
+    --pr-surface: #ffffff;
+    --pr-surface-soft: #f9fbfd;
+
+    --pr-text: #16263b;
+    --pr-text-2: #53647a;
+    --pr-text-3: #8996a8;
+
+    --pr-blue: #176ff2;
+    --pr-blue-dark: #0b59c8;
+    --pr-blue-soft: #edf4ff;
+
+    --pr-green: #07865a;
+    --pr-green-dark: #056b48;
+    --pr-green-soft: #eaf8f2;
+
+    --pr-amber: #d88615;
+    --pr-amber-dark: #a7670d;
+    --pr-amber-soft: #fff6e7;
+
+    --pr-red: #d8475b;
+    --pr-red-dark: #b62e43;
+    --pr-red-soft: #fff0f2;
+
+    --pr-purple: #7354d8;
+    --pr-purple-soft: #f3efff;
+
+    --pr-slate: #64758a;
+    --pr-slate-soft: #f0f3f7;
+
+    --pr-border: #dee7f0;
+    --pr-border-soft: #edf1f5;
+
+    --pr-shadow-sm:
+        0 8px 25px rgba(17, 43, 75, .05);
+
+    --pr-shadow:
+        0 22px 55px rgba(12, 38, 72, .075);
+
+    --pr-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.pr-page {
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(25px, 3vw, 44px)
+        clamp(18px, 3vw, 46px)
+        70px;
+
+    background:
+        radial-gradient(
+            circle at 96% 2%,
+            rgba(23,111,242,.075),
+            transparent 26%
+        ),
+        radial-gradient(
+            circle at 7% 38%,
+            rgba(115,84,216,.045),
+            transparent 24%
+        ),
+        linear-gradient(
+            180deg,
+            #fcfdff 0%,
+            var(--pr-bg) 64%,
+            #f2f5f9 100%
+        );
+}
+
+.pr-shell {
+    max-width: 1660px;
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.pr-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    color: var(--pr-text-3);
+
+    font-size: .7rem;
+    font-weight: 760;
+}
+
+.pr-breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.pr-breadcrumb a:hover {
+    color: var(--pr-blue);
+}
+
+.pr-breadcrumb i {
+    font-size: .57rem;
+}
+
+.pr-breadcrumb-current {
+    color: var(--pr-blue);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.pr-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        auto;
+
+    align-items: center;
+
+    gap: 30px;
+
+    margin-bottom: 20px;
+
+    padding:
+        clamp(27px, 3vw, 40px);
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #fff 0%,
+            #fbfcff 64%,
+            #f6f9ff 100%
+        );
+
+    box-shadow:
+        var(--pr-shadow);
+}
+
+.pr-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 490px;
+    height: 490px;
+
+    right: -170px;
+    top: -370px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(23,111,242,.14),
+            transparent 68%
+        );
+
+    pointer-events: none;
+}
+
+.pr-hero-main,
+.pr-hero-actions {
+    position: relative;
+    z-index: 2;
+}
+
+.pr-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 14px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid #d8e6fa;
+
+    border-radius: 999px;
+
+    background: #f5f9ff;
+
+    color: var(--pr-blue-dark);
+
+    font-size: .59rem;
+    font-weight: 900;
+
+    letter-spacing: .055em;
+
+    text-transform: uppercase;
+}
+
+.pr-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--pr-blue);
+
+    box-shadow:
+        0 0 0 5px
+        rgba(23,111,242,.08);
+}
+
+.pr-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.pr-title-icon {
+    width: 58px;
+    height: 58px;
+
+    flex: 0 0 58px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid #d9e6f8;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--pr-blue);
+
+    font-size: 1.25rem;
+}
+
+.pr-title-copy h1 {
+    margin: 0;
+
+    color: var(--pr-text);
+
+    font-size:
+        clamp(1.9rem, 3vw, 2.75rem);
+
+    font-weight: 920;
+
+    letter-spacing: -.045em;
+}
+
+.pr-title-copy p {
+    max-width: 790px;
+
+    margin:
+        7px 0 0;
+
+    color: var(--pr-text-3);
+
+    font-size: .67rem;
+
+    line-height: 1.65;
+}
+
+.pr-hero-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin:
+        17px 0 0 73px;
+}
+
+.pr-meta-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.84);
+
+    color: var(--pr-text-2);
+
+    font-size: .55rem;
+    font-weight: 820;
+}
+
+.pr-create-btn {
+    min-height: 46px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding:
+        0 18px;
+
+    border:
+        1px solid var(--pr-blue);
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--pr-blue),
+            var(--pr-blue-dark)
+        );
+
+    color: #fff;
+
+    font-size: .62rem;
+    font-weight: 900;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 10px 22px
+        rgba(23,111,242,.19);
+
+    transition:
+        transform var(--pr-transition),
+        box-shadow var(--pr-transition);
+}
+
+.pr-create-btn:hover {
+    color: #fff;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 14px 29px
+        rgba(23,111,242,.25);
+}
+
+
+/* ============================================================
+   DELIVERY HEALTH
+============================================================ */
+
+.pr-health-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 13px;
+
+    margin-bottom: 20px;
+}
+
+.pr-health {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    min-height: 91px;
+
+    padding: 15px 16px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 16px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--pr-shadow-sm);
+}
+
+.pr-health-icon {
+    width: 39px;
+    height: 39px;
+
+    flex: 0 0 39px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+}
+
+.pr-health-email .pr-health-icon {
+    background: var(--pr-blue-soft);
+    color: var(--pr-blue);
+}
+
+.pr-health-system .pr-health-icon {
+    background: var(--pr-purple-soft);
+    color: var(--pr-purple);
+}
+
+.pr-health-main {
+    min-width: 0;
+}
+
+.pr-health-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+}
+
+.pr-health-title {
+    color: var(--pr-text);
+
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.pr-health-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        5px 8px;
+
+    border-radius: 999px;
+
+    font-size: .5rem;
+    font-weight: 900;
+}
+
+.pr-health-ready {
+    background: var(--pr-green-soft);
+    color: var(--pr-green-dark);
+}
+
+.pr-health-pending {
+    background: var(--pr-amber-soft);
+    color: var(--pr-amber-dark);
+}
+
+.pr-health-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+.pr-health-text {
+    margin-top: 5px;
+
+    color: var(--pr-text-3);
+
+    font-size: .53rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   KPI GRID
+============================================================ */
+
+.pr-kpis {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5,minmax(0,1fr));
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.pr-kpi {
+    min-height: 128px;
+
+    padding: 16px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 17px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--pr-shadow-sm);
+
+    transition:
+        transform var(--pr-transition),
+        box-shadow var(--pr-transition);
+}
+
+.pr-kpi:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 14px 34px
+        rgba(14,42,76,.08);
+}
+
+.pr-kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.pr-kpi-label {
+    color: var(--pr-text-3);
+
+    font-size: .53rem;
+    font-weight: 900;
+
+    text-transform: uppercase;
+    letter-spacing: .055em;
+}
+
+.pr-kpi-value {
+    margin-top: 8px;
+
+    color: var(--pr-text);
+
+    font-size: 1.34rem;
+    font-weight: 920;
+
+    letter-spacing: -.035em;
+}
+
+.pr-kpi-icon {
+    width: 37px;
+    height: 37px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background: var(--pr-blue-soft);
+
+    color: var(--pr-blue);
+}
+
+.pr-kpi-draft .pr-kpi-icon {
+    background: var(--pr-amber-soft);
+    color: var(--pr-amber);
+}
+
+.pr-kpi-sent .pr-kpi-icon {
+    background: var(--pr-green-soft);
+    color: var(--pr-green);
+}
+
+.pr-kpi-failed .pr-kpi-icon {
+    background: var(--pr-red-soft);
+    color: var(--pr-red);
+}
+
+.pr-kpi-cancelled .pr-kpi-icon {
+    background: var(--pr-slate-soft);
+    color: var(--pr-slate);
+}
+
+.pr-kpi-note {
+    margin-top: 14px;
+
+    color: var(--pr-text-3);
+
+    font-size: .51rem;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   MAIN CARD
+============================================================ */
+
+.pr-card {
+    overflow: hidden;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--pr-shadow-sm);
+}
+
+.pr-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 14px;
+
+    padding:
+        17px 18px;
+
+    border-bottom:
+        1px solid var(--pr-border-soft);
+
+    background: #fbfcfe;
+}
+
+.pr-card-title {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.pr-card-icon {
+    width: 36px;
+    height: 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--pr-blue-soft);
+
+    color: var(--pr-blue);
+}
+
+.pr-card-title h2 {
+    margin: 0;
+
+    color: var(--pr-text);
+
+    font-size: .72rem;
+    font-weight: 900;
+}
+
+.pr-card-title p {
+    margin:
+        2px 0 0;
+
+    color: var(--pr-text-3);
+
+    font-size: .52rem;
+}
+
+.pr-result-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 9px;
+
+    border-radius: 999px;
+
+    background: #f0f4f9;
+
+    color: var(--pr-text-2);
+
+    font-size: .52rem;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   FILTER COMMAND BAR
+============================================================ */
+
+.pr-command {
+    padding:
+        17px 18px;
+
+    border-bottom:
+        1px solid var(--pr-border-soft);
+}
+
+.pr-filter-form {
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px,1.45fr)
+        minmax(180px,.65fr)
+        minmax(190px,.7fr)
+        auto;
+
+    gap: 10px;
+}
+
+.pr-search-wrap {
+    position: relative;
+}
+
+.pr-search-wrap > i {
+    position: absolute;
+
+    left: 13px;
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    color: #8997aa;
+
+    font-size: .72rem;
+}
+
+.pr-input,
+.pr-select {
+    width: 100%;
+    height: 43px;
+
+    border:
+        1px solid #dce5ef;
+
+    border-radius: 11px;
+
+    background: #fff;
+
+    color: var(--pr-text);
+
+    font-size: .61rem;
+
+    outline: none;
+
+    transition:
+        border-color var(--pr-transition),
+        box-shadow var(--pr-transition);
+}
+
+.pr-input {
+    padding:
+        0 12px 0 37px;
+}
+
+.pr-select {
+    padding:
+        0 11px;
+}
+
+.pr-input:focus,
+.pr-select:focus {
+    border-color: #8bb8f7;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(23,111,242,.075);
+}
+
+.pr-reset {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        0 14px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 11px;
+
+    background: #fff;
+
+    color: var(--pr-text-2);
+
+    font-size: .58rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    transition:
+        color var(--pr-transition),
+        border-color var(--pr-transition);
+}
+
+.pr-reset:hover {
+    color: var(--pr-blue);
+    border-color: #b7cae8;
+}
+
+
+/* ============================================================
+   FILTER SUMMARY
+============================================================ */
+
+.pr-filter-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding:
+        11px 18px;
+
+    border-bottom:
+        1px solid var(--pr-border-soft);
+
+    background: #fcfdff;
+}
+
+.pr-filter-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+}
+
+.pr-filter-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        5px 8px;
+
+    border-radius: 999px;
+
+    background: #f0f4f9;
+
+    color: var(--pr-text-2);
+
+    font-size: .51rem;
+    font-weight: 820;
+}
+
+.pr-filter-text {
+    color: var(--pr-text-3);
+
+    font-size: .53rem;
+}
+
+.pr-filter-text strong {
+    color: var(--pr-text);
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.pr-table-wrap {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.pr-table {
+    width: 100%;
+
+    min-width: 1180px;
+
+    border-collapse: collapse;
+}
+
+.pr-table th {
+    padding:
+        11px 13px;
+
+    border-bottom:
+        1px solid var(--pr-border);
+
+    background: #f9fbfd;
+
+    color: var(--pr-text-3);
+
+    font-size: .5rem;
+    font-weight: 900;
+
+    text-align: left;
+    text-transform: uppercase;
+
+    letter-spacing: .045em;
+
+    white-space: nowrap;
+}
+
+.pr-table td {
+    padding:
+        13px;
+
+    border-bottom:
+        1px solid var(--pr-border-soft);
+
+    color: var(--pr-text-2);
+
+    font-size: .58rem;
+
+    vertical-align: middle;
+}
+
+.pr-table tbody tr {
+    transition:
+        background var(--pr-transition);
+}
+
+.pr-table tbody tr:hover {
+    background: #fbfcff;
+}
+
+.pr-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* ============================================================
+   REMINDER IDENTITY
+============================================================ */
+
+.pr-reminder-id {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.pr-reminder-icon {
+    width: 35px;
+    height: 35px;
+
+    flex: 0 0 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--pr-blue-soft);
+
+    color: var(--pr-blue);
+}
+
+.pr-reminder-copy strong {
+    display: block;
+
+    color: var(--pr-blue-dark);
+
+    font-size: .6rem;
+    font-weight: 900;
+}
+
+.pr-reminder-copy span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--pr-text-3);
+
+    font-size: .49rem;
+}
+
+
+/* ============================================================
+   STUDENT
+============================================================ */
+
+.pr-student {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.pr-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--pr-blue);
+
+    font-size: .57rem;
+    font-weight: 900;
+}
+
+.pr-student-copy strong {
+    display: block;
+
+    color: var(--pr-text);
+
+    font-size: .59rem;
+}
+
+.pr-student-copy span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--pr-text-3);
+
+    font-size: .49rem;
+}
+
+
+/* ============================================================
+   RECIPIENT
+============================================================ */
+
+.pr-recipient strong {
+    display: block;
+
+    color: var(--pr-text);
+
+    font-size: .58rem;
+}
+
+.pr-recipient span {
+    display: block;
+
+    max-width: 185px;
+
+    margin-top: 2px;
+
+    overflow: hidden;
+
+    color: var(--pr-text-3);
+
+    font-size: .49rem;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   FINANCIAL VALUES
+============================================================ */
+
+.pr-amount {
+    color: var(--pr-text);
+
+    font-size: .62rem;
+    font-weight: 900;
+}
+
+.pr-invoice {
+    color: var(--pr-blue-dark);
+
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   CHANNEL BADGES
+============================================================ */
+
+.pr-channel {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 8px;
+
+    border-radius: 999px;
+
+    font-size: .5rem;
+    font-weight: 880;
+}
+
+.pr-channel-email {
+    background: var(--pr-blue-soft);
+    color: var(--pr-blue-dark);
+}
+
+.pr-channel-in-system {
+    background: var(--pr-purple-soft);
+    color: #6242bd;
+}
+
+
+/* ============================================================
+   STATUS BADGES
+============================================================ */
+
+.pr-status {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        6px 8px;
+
+    border-radius: 999px;
+
+    font-size: .5rem;
+    font-weight: 900;
+}
+
+.pr-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+.pr-status-draft {
+    background: var(--pr-amber-soft);
+    color: var(--pr-amber-dark);
+}
+
+.pr-status-sent {
+    background: var(--pr-green-soft);
+    color: var(--pr-green-dark);
+}
+
+.pr-status-failed {
+    background: var(--pr-red-soft);
+    color: var(--pr-red-dark);
+}
+
+.pr-status-cancelled {
+    background: var(--pr-slate-soft);
+    color: var(--pr-slate);
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
+.pr-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.pr-action {
+    min-height: 31px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding:
+        0 9px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 8px;
+
+    background: #fff;
+
+    color: var(--pr-text-2);
+
+    font-size: .51rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    transition:
+        color var(--pr-transition),
+        border-color var(--pr-transition),
+        background var(--pr-transition);
+}
+
+.pr-action:hover {
+    color: var(--pr-blue);
+
+    border-color: #bad0f0;
+
+    background: #f8fbff;
+}
+
+.pr-action-edit {
+    color: var(--pr-blue-dark);
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.pr-empty {
+    padding:
+        60px 22px 65px;
+
+    text-align: center;
+}
+
+.pr-empty-visual {
+    width: 88px;
+    height: 88px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto 17px;
+
+    border:
+        1px solid #dae6f3;
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color: var(--pr-blue);
+
+    font-size: 1.55rem;
+}
+
+.pr-empty h3 {
+    margin: 0;
+
+    color: var(--pr-text);
+
+    font-size: .86rem;
+    font-weight: 900;
+}
+
+.pr-empty p {
+    max-width: 540px;
+
+    margin:
+        8px auto 0;
+
+    color: var(--pr-text-3);
+
+    font-size: .59rem;
+
+    line-height: 1.7;
+}
+
+.pr-empty-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 17px;
+}
+
+
+/* ============================================================
+   PAGINATION
+============================================================ */
+
+.pr-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    padding:
+        14px 18px;
+
+    border-top:
+        1px solid var(--pr-border-soft);
+
+    background: #fcfdff;
+}
+
+.pr-page-summary {
+    color: var(--pr-text-3);
+
+    font-size: .53rem;
+}
+
+.pr-page-summary strong {
+    color: var(--pr-text);
+}
+
+.pr-page-links {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+}
+
+.pr-page-link {
+    min-width: 33px;
+    height: 33px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding:
+        0 9px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 8px;
+
+    background: #fff;
+
+    color: var(--pr-text-2);
+
+    font-size: .52rem;
+    font-weight: 850;
+
+    text-decoration: none;
+}
+
+.pr-page-link:hover {
+    color: var(--pr-blue);
+
+    border-color: #bdd0ee;
+}
+
+.pr-page-current {
+    border-color: var(--pr-blue);
+
+    background: var(--pr-blue);
+
+    color: #fff;
+}
+
+
+/* ============================================================
+   FOOTER INSIGHT STRIP
+============================================================ */
+
+.pr-insights {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap: 13px;
+
+    margin-top: 18px;
+}
+
+.pr-insight {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 11px;
+
+    padding: 14px 15px;
+
+    border:
+        1px solid var(--pr-border);
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.78);
+}
+
+.pr-insight-icon {
+    width: 36px;
+    height: 36px;
+
+    flex: 0 0 36px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: var(--pr-blue-soft);
+
+    color: var(--pr-blue);
+}
+
+.pr-insight strong {
+    display: block;
+
+    color: var(--pr-text);
+
+    font-size: .58rem;
+}
+
+.pr-insight p {
+    margin:
+        4px 0 0;
+
+    color: var(--pr-text-3);
+
+    font-size: .51rem;
+
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   LOADING OVERLAY
+============================================================ */
+
+.pr-loading {
+    position: fixed;
+
+    z-index: 14000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(7,25,48,.42);
+
+    backdrop-filter:
+        blur(5px);
+}
+
+.pr-loading.active {
+    display: flex;
+}
+
+.pr-loading-card {
+    min-width: 260px;
+
+    padding: 24px;
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        0 30px 85px
+        rgba(7,24,49,.23);
+}
+
+.pr-spinner {
+    width: 35px;
+    height: 35px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid #e5ebf2;
+
+    border-top-color: var(--pr-blue);
+
+    border-radius: 50%;
+
+    animation:
+        prSpin .7s linear infinite;
+}
+
+@keyframes prSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.pr-loading-card strong {
+    display: block;
+
+    color: var(--pr-text);
+
+    font-size: .67rem;
+}
+
+.pr-loading-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--pr-text-3);
+
+    font-size: .53rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1250px) {
+
+    .pr-kpis {
+        grid-template-columns:
+            repeat(3,minmax(0,1fr));
+    }
+
+}
+
+@media (max-width: 950px) {
+
+    .pr-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-hero-actions {
+        justify-self: start;
+    }
+
+    .pr-health-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-kpis {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .pr-filter-form {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
+@media (max-width: 680px) {
+
+    .pr-page {
+        margin: -16px;
+
+        padding:
+            21px 15px 55px;
+    }
+
+    .pr-title-row {
+        align-items: flex-start;
+    }
+
+    .pr-hero-meta {
+        margin-left: 0;
+    }
+
+    .pr-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .pr-insights {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+
+
+<div class="pr-page">
+
+    <div class="pr-shell">
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="pr-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="pr-breadcrumb-current">
+                Payment Reminders
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="pr-hero">
+
+            <div class="pr-hero-main">
+
+                <div class="pr-eyebrow">
+
+                    <span class="pr-eyebrow-dot"></span>
+
+                    Financial Communications
+
+                </div>
+
+
+                <div class="pr-title-row">
+
+                    <div class="pr-title-icon">
+
+                        <i class="bi bi-send-check"></i>
+
+                    </div>
+
+
+                    <div class="pr-title-copy">
+
+                        <h1>
+                            Payment Reminders
+                        </h1>
+
+                        <p>
+
+                            Prepare, track, and audit financial
+                            communications for student obligations
+                            while preserving clear recipient,
+                            invoice, amount, due-date and delivery
+                            history.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-hero-meta">
+
+                    <span class="pr-meta-chip">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        Auditable communication history
+
+                    </span>
+
+
+                    <span class="pr-meta-chip">
+
+                        <i class="bi bi-envelope"></i>
+
+                        Email channel
+
+                    </span>
+
+
+                    <span class="pr-meta-chip">
+
+                        <i class="bi bi-bell"></i>
+
+                        In-system channel
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="pr-hero-actions">
+
+                <a
+                    href="{% url 'payables:payment_reminder_create' %}"
+                    class="pr-create-btn"
+                    data-loading-link
+                >
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Create Reminder
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             DELIVERY CAPABILITY
+        ===================================================== -->
+
+        <section class="pr-health-grid">
+
+
+            <!-- EMAIL -->
+
+            <div class="pr-health pr-health-email">
+
+                <div class="pr-health-icon">
+
+                    <i class="bi bi-envelope"></i>
+
+                </div>
+
+
+                <div class="pr-health-main">
+
+                    <div class="pr-health-top">
+
+                        <span class="pr-health-title">
+                            External Email Delivery
+                        </span>
+
+
+                        {% if email_delivery_ready %}
+
+                            <span class="pr-health-status pr-health-ready">
+
+                                Ready
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="pr-health-status pr-health-pending">
+
+                                Integration Pending
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="pr-health-text">
+
+                        {% if email_delivery_ready %}
+
+                            The configured email backend is capable
+                            of external recipient delivery.
+
+                        {% else %}
+
+                            External email delivery is not currently
+                            configured. Draft reminders may be
+                            prepared, but attempts will not be
+                            falsely reported as delivered.
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- IN-SYSTEM -->
+
+            <div class="pr-health pr-health-system">
+
+                <div class="pr-health-icon">
+
+                    <i class="bi bi-bell"></i>
+
+                </div>
+
+
+                <div class="pr-health-main">
+
+                    <div class="pr-health-top">
+
+                        <span class="pr-health-title">
+                            Student / Guardian Portal Delivery
+                        </span>
+
+
+                        {% if in_system_delivery_ready %}
+
+                            <span class="pr-health-status pr-health-ready">
+
+                                Ready
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="pr-health-status pr-health-pending">
+
+                                Portal Mapping Pending
+
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="pr-health-text">
+
+                        {% if in_system_delivery_ready %}
+
+                            Student and guardian recipients are
+                            connected to authenticated portal users.
+
+                        {% else %}
+
+                            Students and guardians are not yet mapped
+                            to authenticated notification recipients,
+                            so in-system delivery remains protected.
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             KPIs
+        ===================================================== -->
+
+        <section class="pr-kpis">
+
+
+            <div class="pr-kpi">
+
+                <div class="pr-kpi-top">
+
+                    <div>
+
+                        <div class="pr-kpi-label">
+                            Total Reminders
+                        </div>
+
+                        <div class="pr-kpi-value">
+                            {{ total_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="pr-kpi-icon">
+
+                        <i class="bi bi-envelope-paper"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-kpi-note">
+
+                    Complete reminder communication register
+
+                </div>
+
+            </div>
+
+
+
+            <div class="pr-kpi pr-kpi-draft">
+
+                <div class="pr-kpi-top">
+
+                    <div>
+
+                        <div class="pr-kpi-label">
+                            Draft
+                        </div>
+
+                        <div class="pr-kpi-value">
+                            {{ draft_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="pr-kpi-icon">
+
+                        <i class="bi bi-pencil-square"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-kpi-note">
+
+                    Prepared and still editable
+
+                </div>
+
+            </div>
+
+
+
+            <div class="pr-kpi pr-kpi-sent">
+
+                <div class="pr-kpi-top">
+
+                    <div>
+
+                        <div class="pr-kpi-label">
+                            Sent
+                        </div>
+
+                        <div class="pr-kpi-value">
+                            {{ sent_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="pr-kpi-icon">
+
+                        <i class="bi bi-check2-circle"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-kpi-note">
+
+                    Delivery successfully confirmed
+
+                </div>
+
+            </div>
+
+
+
+            <div class="pr-kpi pr-kpi-failed">
+
+                <div class="pr-kpi-top">
+
+                    <div>
+
+                        <div class="pr-kpi-label">
+                            Failed
+                        </div>
+
+                        <div class="pr-kpi-value">
+                            {{ failed_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="pr-kpi-icon">
+
+                        <i class="bi bi-exclamation-triangle"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-kpi-note">
+
+                    Delivery attempts requiring attention
+
+                </div>
+
+            </div>
+
+
+
+            <div class="pr-kpi pr-kpi-cancelled">
+
+                <div class="pr-kpi-top">
+
+                    <div>
+
+                        <div class="pr-kpi-label">
+                            Cancelled
+                        </div>
+
+                        <div class="pr-kpi-value">
+                            {{ cancelled_count }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="pr-kpi-icon">
+
+                        <i class="bi bi-x-circle"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="pr-kpi-note">
+
+                    Preserved in communication history
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             REGISTER
+        ===================================================== -->
+
+        <section class="pr-card">
+
+
+            <!-- HEADER -->
+
+            <div class="pr-card-head">
+
+                <div class="pr-card-title">
+
+                    <div class="pr-card-icon">
+
+                        <i class="bi bi-list-ul"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2>
+                            Reminder Register
+                        </h2>
+
+                        <p>
+
+                            Financial communication lifecycle
+                            and delivery history
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <span class="pr-result-chip">
+
+                    <i class="bi bi-funnel"></i>
+
+                    {{ filtered_count }}
+                    result{{ filtered_count|pluralize }}
+
+                </span>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FILTER BAR
+            ================================================== -->
+
+            <div class="pr-command">
+
+                <form
+                    method="get"
+                    class="pr-filter-form"
+                    id="pr-filter-form"
+                >
+
+                    <div class="pr-search-wrap">
+
+                        <i class="bi bi-search"></i>
+
+                        <input
+                            type="search"
+                            name="search"
+                            id="pr-search"
+                            class="pr-input"
+                            value="{{ search }}"
+                            autocomplete="off"
+                            placeholder="Search reminder, student, guardian, invoice, recipient..."
+                        >
+
+                    </div>
+
+
+                    <select
+                        name="status"
+                        id="pr-status-filter"
+                        class="pr-select"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+
+                        {% for value, label in status_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if selected_status == value %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ label }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <select
+                        name="delivery_method"
+                        id="pr-delivery-filter"
+                        class="pr-select"
+                    >
+
+                        <option value="">
+                            All delivery methods
+                        </option>
+
+
+                        {% for value, label in delivery_method_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if selected_delivery_method == value %}
+                                    selected
+                                {% endif %}
+                            >
+
+                                {{ label }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <a
+                        href="{% url 'payables:payment_reminder_list' %}"
+                        class="pr-reset"
+                        id="pr-reset"
+                    >
+
+                        <i class="bi bi-arrow-counterclockwise"></i>
+
+                        Reset
+
+                    </a>
+
+                </form>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FILTER SUMMARY
+            ================================================== -->
+
+            <div class="pr-filter-summary">
+
+                <div class="pr-filter-chips">
+
+
+                    {% if search %}
+
+                        <span class="pr-filter-chip">
+
+                            <i class="bi bi-search"></i>
+
+                            "{{ search }}"
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if selected_status %}
+
+                        <span class="pr-filter-chip">
+
+                            <i class="bi bi-activity"></i>
+
+                            {% for value, label in status_choices %}
+
+                                {% if selected_status == value %}
+                                    {{ label }}
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if selected_delivery_method %}
+
+                        <span class="pr-filter-chip">
+
+                            <i class="bi bi-send"></i>
+
+                            {% for value, label in delivery_method_choices %}
+
+                                {% if selected_delivery_method == value %}
+                                    {{ label }}
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if not search and not selected_status and not selected_delivery_method %}
+
+                        <span class="pr-filter-chip">
+
+                            <i class="bi bi-collection"></i>
+
+                            Complete communication history
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="pr-filter-text">
+
+                    <strong>
+                        {{ email_count }}
+                    </strong>
+                    email
+
+                    ·
+
+                    <strong>
+                        {{ in_system_count }}
+                    </strong>
+                    in-system
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 DATA
+            ================================================== -->
+
+            {% if reminders %}
+
+                <div class="pr-table-wrap">
+
+                    <table class="pr-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Reminder
+                                </th>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Recipient
+                                </th>
+
+                                <th>
+                                    Invoice
+                                </th>
+
+                                <th>
+                                    Amount Due
+                                </th>
+
+                                <th>
+                                    Due Date
+                                </th>
+
+                                <th>
+                                    Channel
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Reminder Date
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for reminder in reminders %}
+
+                                <tr>
+
+
+                                    <!-- REMINDER -->
+
+                                    <td>
+
+                                        <div class="pr-reminder-id">
+
+                                            <div class="pr-reminder-icon">
+
+                                                <i class="bi bi-envelope-paper"></i>
+
+                                            </div>
+
+
+                                            <div class="pr-reminder-copy">
+
+                                                <strong>
+
+                                                    {{ reminder.reminder_number }}
+
+                                                </strong>
+
+
+                                                <span>
+
+                                                    Created
+                                                    {{ reminder.created_at|date:"d M Y" }}
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- STUDENT -->
+
+                                    <td>
+
+                                        <div class="pr-student">
+
+                                            <div class="pr-avatar">
+
+                                                {% if reminder.student.first_name %}
+
+                                                    {{ reminder.student.first_name|slice:":1"|upper }}
+                                                    {{ reminder.student.last_name|slice:":1"|upper }}
+
+                                                {% else %}
+
+                                                    ST
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <div class="pr-student-copy">
+
+                                                <strong>
+
+                                                    {{ reminder.student.full_name }}
+
+                                                </strong>
+
+
+                                                <span>
+
+                                                    {{ reminder.student.student_number }}
+
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- RECIPIENT -->
+
+                                    <td>
+
+                                        <div class="pr-recipient">
+
+                                            <strong>
+
+                                                {{ reminder.recipient_name|default:"—" }}
+
+                                            </strong>
+
+
+                                            <span>
+
+                                                {% if reminder.guardian %}
+
+                                                    {{ reminder.guardian.get_relationship_display }}
+
+                                                    {% if reminder.recipient_email %}
+                                                        · {{ reminder.recipient_email }}
+                                                    {% endif %}
+
+                                                {% elif reminder.recipient_email %}
+
+                                                    {{ reminder.recipient_email }}
+
+                                                {% else %}
+
+                                                    Direct student reminder
+
+                                                {% endif %}
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+
+                                    <!-- INVOICE -->
+
+                                    <td>
+
+                                        <span class="pr-invoice">
+
+                                            {{ reminder.invoice_reference }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- AMOUNT -->
+
+                                    <td>
+
+                                        <span class="pr-amount">
+
+                                            {{ currency_code }}
+                                            {{ reminder.amount_due|floatformat:2 }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- DUE DATE -->
+
+                                    <td>
+
+                                        {{ reminder.due_date|date:"d M Y" }}
+
+                                    </td>
+
+
+
+                                    <!-- CHANNEL -->
+
+                                    <td>
+
+                                        {% if reminder.delivery_method == "email" %}
+
+                                            <span class="pr-channel pr-channel-email">
+
+                                                <i class="bi bi-envelope"></i>
+
+                                                Email
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="pr-channel pr-channel-in-system">
+
+                                                <i class="bi bi-bell"></i>
+
+                                                In-System
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        <span class="pr-status pr-status-{{ reminder.status }}">
+
+                                            {{ reminder.get_status_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+
+                                    <!-- REMINDER DATE -->
+
+                                    <td>
+
+                                        {{ reminder.reminder_date|date:"d M Y" }}
+
+                                    </td>
+
+
+
+                                    <!-- ACTIONS -->
+
+                                    <td>
+
+                                        <div class="pr-actions">
+
+                                            <a
+                                                href="{% url 'payables:payment_reminder_detail' reminder.pk %}"
+                                                class="pr-action"
+                                                data-loading-link
+                                            >
+
+                                                <i class="bi bi-eye"></i>
+
+                                                View
+
+                                            </a>
+
+
+                                            {% if reminder.status == "draft" %}
+
+                                                <a
+                                                    href="{% url 'payables:payment_reminder_edit' reminder.pk %}"
+                                                    class="pr-action pr-action-edit"
+                                                    data-loading-link
+                                                >
+
+                                                    <i class="bi bi-pencil"></i>
+
+                                                    Edit
+
+                                                </a>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- =============================================
+                     PAGINATION
+                ============================================== -->
+
+                {% if page_obj.paginator.num_pages > 1 %}
+
+                    <div class="pr-pagination">
+
+
+                        <div class="pr-page-summary">
+
+                            Page
+
+                            <strong>
+                                {{ page_obj.number }}
+                            </strong>
+
+                            of
+
+                            <strong>
+                                {{ page_obj.paginator.num_pages }}
+                            </strong>
+
+                            ·
+
+                            {{ page_obj.paginator.count }}
+                            record{{ page_obj.paginator.count|pluralize }}
+
+                        </div>
+
+
+                        <div class="pr-page-links">
+
+
+                            {% if page_obj.has_previous %}
+
+                                <a
+                                    href="?search={{ search|urlencode }}&status={{ selected_status|urlencode }}&delivery_method={{ selected_delivery_method|urlencode }}&page={{ page_obj.previous_page_number }}"
+                                    class="pr-page-link"
+                                    data-loading-link
+                                >
+
+                                    <i class="bi bi-chevron-left"></i>
+
+                                </a>
+
+                            {% endif %}
+
+
+                            <span class="pr-page-link pr-page-current">
+
+                                {{ page_obj.number }}
+
+                            </span>
+
+
+                            {% if page_obj.has_next %}
+
+                                <a
+                                    href="?search={{ search|urlencode }}&status={{ selected_status|urlencode }}&delivery_method={{ selected_delivery_method|urlencode }}&page={{ page_obj.next_page_number }}"
+                                    class="pr-page-link"
+                                    data-loading-link
+                                >
+
+                                    <i class="bi bi-chevron-right"></i>
+
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+            {% else %}
+
+
+                <!-- =============================================
+                     EMPTY STATE
+                ============================================== -->
+
+                <div class="pr-empty">
+
+                    <div class="pr-empty-visual">
+
+                        <i class="bi bi-envelope-paper"></i>
+
+                    </div>
+
+
+                    {% if search or selected_status or selected_delivery_method %}
+
+                        <h3>
+
+                            No reminders match these filters
+
+                        </h3>
+
+
+                        <p>
+
+                            Try changing the search query,
+                            delivery method, or lifecycle status
+                            to broaden the communication register.
+
+                        </p>
+
+
+                        <div class="pr-empty-actions">
+
+                            <a
+                                href="{% url 'payables:payment_reminder_list' %}"
+                                class="pr-reset"
+                                data-loading-link
+                            >
+
+                                <i class="bi bi-arrow-counterclockwise"></i>
+
+                                Clear Filters
+
+                            </a>
+
+                        </div>
+
+                    {% else %}
+
+                        <h3>
+
+                            No payment reminders yet
+
+                        </h3>
+
+
+                        <p>
+
+                            Create the first reminder to begin
+                            maintaining a clear and auditable
+                            financial communication history for
+                            student obligations.
+
+                        </p>
+
+
+                        <div class="pr-empty-actions">
+
+                            <a
+                                href="{% url 'payables:payment_reminder_create' %}"
+                                class="pr-create-btn"
+                                data-loading-link
+                            >
+
+                                <i class="bi bi-plus-lg"></i>
+
+                                Create First Reminder
+
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+
+        <!-- ====================================================
+             INFORMATION STRIP
+        ===================================================== -->
+
+        <section class="pr-insights">
+
+
+            <div class="pr-insight">
+
+                <div class="pr-insight-icon">
+
+                    <i class="bi bi-clock-history"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Historical communication integrity
+                    </strong>
+
+                    <p>
+
+                        Sent, failed and cancelled reminder records
+                        remain in the register rather than being
+                        physically deleted.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="pr-insight">
+
+                <div class="pr-insight-icon">
+
+                    <i class="bi bi-shield-check"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Delivery truth over optimistic status
+                    </strong>
+
+                    <p>
+
+                        EduFinance only records Sent when the
+                        configured delivery mechanism confirms
+                        successful delivery.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     LOADING OVERLAY
+============================================================ -->
+
+<div
+    class="pr-loading"
+    id="pr-loading"
+>
+
+    <div class="pr-loading-card">
+
+        <div class="pr-spinner"></div>
+
+        <strong>
+            Updating reminder register
+        </strong>
+
+        <span>
+            Loading financial communications...
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           REFERENCES
+        ======================================================== */
+
+        const form =
+            document.getElementById(
+                "pr-filter-form"
+            );
+
+
+        const search =
+            document.getElementById(
+                "pr-search"
+            );
+
+
+        const status =
+            document.getElementById(
+                "pr-status-filter"
+            );
+
+
+        const delivery =
+            document.getElementById(
+                "pr-delivery-filter"
+            );
+
+
+        const reset =
+            document.getElementById(
+                "pr-reset"
+            );
+
+
+        const loading =
+            document.getElementById(
+                "pr-loading"
+            );
+
+
+        let searchTimer =
+            null;
+
+
+        let submitting =
+            false;
+
+
+
+        /* ========================================================
+           LOADING
+        ======================================================== */
+
+        function showLoading() {
+
+            if (loading) {
+
+                loading.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        /* ========================================================
+           SAFE SUBMIT
+        ======================================================== */
+
+        function submitFilters() {
+
+            if (
+                !form
+                ||
+                submitting
+            ) {
+
+                return;
+
+            }
+
+
+            submitting =
+                true;
+
+
+            showLoading();
+
+
+            form.submit();
+
+        }
+
+
+
+        /* ========================================================
+           320ms SEARCH
+        ======================================================== */
+
+        if (search) {
+
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        searchTimer
+                    );
+
+
+                    searchTimer =
+                        setTimeout(
+                            function () {
+
+                                submitFilters();
+
+                            },
+                            320
+                        );
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           IMMEDIATE STATUS FILTER
+        ======================================================== */
+
+        if (status) {
+
+            status.addEventListener(
+                "change",
+                submitFilters
+            );
+
+        }
+
+
+
+        /* ========================================================
+           IMMEDIATE DELIVERY FILTER
+        ======================================================== */
+
+        if (delivery) {
+
+            delivery.addEventListener(
+                "change",
+                submitFilters
+            );
+
+        }
+
+
+
+        /* ========================================================
+           RESET
+        ======================================================== */
+
+        if (reset) {
+
+            reset.addEventListener(
+                "click",
+                showLoading
+            );
+
+        }
+
+
+
+        /* ========================================================
+           NAVIGATION LOADING
+        ======================================================== */
+
+        document
+            .querySelectorAll(
+                "[data-loading-link]"
+            )
+            .forEach(
+                function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            showLoading();
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+        /* ========================================================
+           RESTORE PAGE IF BROWSER BACK CACHE IS USED
+        ======================================================== */
+
+        window.addEventListener(
+            "pageshow",
+            function () {
+
+                submitting =
+                    false;
+
+
+                if (loading) {
+
+                    loading.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

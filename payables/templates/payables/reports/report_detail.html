@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ report.id }} · {{ report.title }} | EduFinance{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/reports.css' %}">{% endblock %}
+
+{% block content %}
+<div class="report-progress" id="reportProgress" aria-hidden="true"></div>
+<main class="reports-page report-detail-page">
+  <nav class="reports-breadcrumb" aria-label="Breadcrumb"><a href="{% url 'dashboard' %}">EduFinance</a><i class="bi bi-chevron-right"></i><a class="report-navigation" href="{% url 'payables:reports_hub' %}">Reports</a><i class="bi bi-chevron-right"></i><span>{{ report.id }}</span></nav>
+
+  <section class="detail-hero status-{{ report.status }}">
+    <div><div class="detail-identity"><span class="report-id">{{ report.id }}</span><span class="report-badge {{ report.status }}">{% if report.status == 'integration_pending' %}Integration pending{% else %}{{ report.status|title }}{% endif %}</span></div><h1>{{ report.title }}</h1><p>{{ report.description }}</p><div class="reports-hero-meta"><span><i class="bi bi-clock"></i> As of {{ as_of|date:"d M Y, H:i" }}</span><span><i class="bi bi-currency-exchange"></i> {{ currency_code }}</span><span><i class="bi bi-mortarboard"></i> {{ academic_year }}</span></div></div>
+    <div class="detail-actions"><button type="button" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>{% if export_enabled %}<a href="{% url 'payables:report_csv_export' report.slug %}{% if export_query %}?{{ export_query }}{% endif %}"><i class="bi bi-filetype-csv"></i> Download CSV</a>{% endif %}<a class="report-navigation subtle" href="{% url 'payables:reports_hub' %}"><i class="bi bi-grid"></i> All reports</a></div>
+  </section>
+
+  {% if note %}<aside class="integration-note"><i class="bi bi-link-45deg"></i><div><strong>{% if report.status == 'partial' %}Partial integration{% else %}Shared integration required{% endif %}</strong><p>{{ note }}</p></div></aside>{% endif %}
+
+  {% if kpis %}<section class="report-kpis" aria-label="Report summary metrics">{% for kpi in kpis %}<article class="tone-{{ kpi.tone }}"><span>{{ kpi.label }}</span><strong>{{ kpi.value }}</strong><i></i></article>{% endfor %}</section>{% endif %}
+
+  {% if filters %}
+  <section class="report-filter-panel"><div class="report-panel-heading"><div><span class="reports-eyebrow">Live query</span><h2>Refine this report</h2></div><span>{{ filtered_count }} matching record{{ filtered_count|pluralize }}</span></div>
+    <form method="get" id="reportFilters" class="report-filters">
+      {% for filter in filters %}
+      <label><span>{{ filter.label }}</span>{% if filter.kind == 'search' %}<div class="filter-search"><i class="bi bi-search"></i><input type="search" name="{{ filter.name }}" value="{{ filter.value }}" placeholder="{{ filter.placeholder }}" data-search></div>{% elif filter.kind == 'date' %}<input type="date" name="{{ filter.name }}" value="{{ filter.value }}" data-immediate>{% else %}<select name="{{ filter.name }}" data-immediate><option value="">All</option>{% for option in filter.options %}<option value="{{ option.value }}" {% if filter.value == option.value %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select>{% endif %}</label>
+      {% endfor %}
+      <a class="filter-reset report-navigation" href="{% url 'payables:report_detail' report.slug %}"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="report-data-panel">
+    <div class="report-panel-heading"><div><span class="reports-eyebrow">Verified register</span><h2>Report detail</h2></div>{% if export_enabled %}<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>{% else %}<span>Readiness view</span>{% endif %}</div>
+    {% if visible_rows %}
+    <div class="report-table-wrap"><table class="report-table"><thead><tr>{% for column in columns %}<th>{{ column }}</th>{% endfor %}</tr></thead><tbody>{% for row in visible_rows %}<tr class="record-{{ row.status }}">{% for cell in row.cells %}<td>{% if forloop.counter0 == row.status_index %}<span class="data-status status-{{ row.status }}">{{ cell }}</span>{% else %}{{ cell }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+    {% if page_obj.paginator.num_pages > 1 %}<nav class="report-pagination" aria-label="Report pages"><span>{{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}</span><div>{% if page_obj.has_previous %}<a class="report-navigation" href="?{% if preserved_query %}{{ preserved_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}"><i class="bi bi-arrow-left"></i> Previous</a>{% endif %}<span>Page {{ page_obj.number }}</span>{% if page_obj.has_next %}<a class="report-navigation" href="?{% if preserved_query %}{{ preserved_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next <i class="bi bi-arrow-right"></i></a>{% endif %}</div></nav>{% endif %}
+    {% else %}
+    <div class="report-empty"><span><i class="bi {% if report.status == 'integration_pending' %}bi-link-45deg{% else %}bi-inbox{% endif %}"></i></span><h3>{% if report.status == 'integration_pending' %}Integration is not available yet{% elif filtered_count == 0 and filters %}No records match these filters{% else %}No report data is available yet{% endif %}</h3><p>{{ summary }}</p>{% if filters %}<a class="report-navigation" href="{% url 'payables:report_detail' report.slug %}">Clear filters</a>{% endif %}</div>
+    {% endif %}
+  </section>
+
+  {% if visible_rows %}<section class="report-summary"><i class="bi bi-shield-check"></i><div><strong>Interpretation note</strong><p>{{ summary }}</p></div></section>{% endif %}
+  <div class="report-export-note"><i class="bi bi-info-circle"></i><span>Print is available for every report. Filtered CSV is available only for reports backed by real project records. Native PDF and XLSX exports are intentionally unavailable because the project has no installed export library.</span></div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("reportFilters"), search = form && form.querySelector("[data-search]"), progress = document.getElementById("reportProgress"); let timer, busy = false;
+  function loading() { if (busy) return false; busy = true; progress.classList.add("is-active"); return true; }
+  function submit() { if (form && loading()) form.submit(); }
+  if (search) search.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(submit, 320); });
+  if (form) form.querySelectorAll("[data-immediate]").forEach(el => el.addEventListener("change", submit));
+  document.querySelectorAll(".report-navigation").forEach(link => link.addEventListener("click", loading));
+  window.addEventListener("pageshow", function () { busy = false; progress.classList.remove("is-active"); });
+});
+</script>
+{% endblock %}

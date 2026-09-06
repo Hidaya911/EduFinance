@@ -3584,3 +3584,564 @@ class Refund(models.Model):
             **kwargs,
         )
 
+
+
+
+
+# ============================================================
+# PAYMENT REMINDER NUMBER
+# ============================================================
+
+def generate_payment_reminder_number():
+
+    date_part = (
+        timezone.localdate()
+        .strftime("%Y%m%d")
+    )
+
+    random_part = (
+        uuid.uuid4()
+        .hex[:6]
+        .upper()
+    )
+
+    return (
+        f"REM-{date_part}-{random_part}"
+    )
+
+
+# ============================================================
+# PAYMENT REMINDER
+# ============================================================
+
+class PaymentReminder(models.Model):
+
+    # --------------------------------------------------------
+    # DELIVERY METHOD
+    # --------------------------------------------------------
+
+    class DeliveryMethod(models.TextChoices):
+
+        IN_SYSTEM = (
+            "in_system",
+            "In-System Notification",
+        )
+
+        EMAIL = (
+            "email",
+            "Email",
+        )
+
+
+    # --------------------------------------------------------
+    # STATUS
+    # --------------------------------------------------------
+
+    class Status(models.TextChoices):
+
+        DRAFT = (
+            "draft",
+            "Draft",
+        )
+
+        SENT = (
+            "sent",
+            "Sent",
+        )
+
+        FAILED = (
+            "failed",
+            "Failed",
+        )
+
+        CANCELLED = (
+            "cancelled",
+            "Cancelled",
+        )
+
+
+    # --------------------------------------------------------
+    # IDENTIFIER
+    # --------------------------------------------------------
+
+    reminder_number = models.CharField(
+        max_length=40,
+        unique=True,
+        default=generate_payment_reminder_number,
+        editable=False,
+    )
+
+
+    # --------------------------------------------------------
+    # STUDENT
+    # --------------------------------------------------------
+
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        related_name="payment_reminders",
+    )
+
+
+    # --------------------------------------------------------
+    # GUARDIAN
+    #
+    # Guardian is optional because some reminders may eventually
+    # be directed to the student directly where permitted.
+    # --------------------------------------------------------
+
+    guardian = models.ForeignKey(
+        "students.Guardian",
+        on_delete=models.PROTECT,
+        related_name="payment_reminders",
+        blank=True,
+        null=True,
+    )
+
+
+    # --------------------------------------------------------
+    # FINANCIAL SNAPSHOT
+    #
+    # The Student Invoice model does not yet exist in the current
+    # shared codebase. Therefore we preserve the external/shared
+    # invoice reference as text until Developer 2's real Invoice
+    # model becomes available.
+    # --------------------------------------------------------
+
+    invoice_reference = models.CharField(
+        max_length=120,
+    )
+
+    amount_due = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+    )
+
+    due_date = models.DateField()
+
+
+    # --------------------------------------------------------
+    # REMINDER INFORMATION
+    # --------------------------------------------------------
+
+    reminder_date = models.DateField(
+        default=timezone.localdate,
+    )
+
+    delivery_method = models.CharField(
+        max_length=30,
+        choices=DeliveryMethod.choices,
+    )
+
+
+    # --------------------------------------------------------
+    # RECIPIENT SNAPSHOT
+    #
+    # These fields preserve what recipient/contact was intended
+    # at the time the reminder was prepared.
+    # --------------------------------------------------------
+
+    recipient_name = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+
+    recipient_email = models.EmailField(
+        blank=True,
+    )
+
+
+    # --------------------------------------------------------
+    # MESSAGE
+    # --------------------------------------------------------
+
+    subject = models.CharField(
+        max_length=255,
+    )
+
+    message = models.TextField()
+
+
+    # --------------------------------------------------------
+    # DELIVERY STATE
+    # --------------------------------------------------------
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        editable=False,
+    )
+
+    sent_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+    sent_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="sent_payment_reminders",
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+    failure_reason = models.TextField(
+        blank=True,
+        editable=False,
+    )
+
+
+    # --------------------------------------------------------
+    # CANCELLATION
+    # --------------------------------------------------------
+
+    cancellation_reason = models.TextField(
+        blank=True,
+    )
+
+    cancelled_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cancelled_payment_reminders",
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
+
+    # --------------------------------------------------------
+    # AUDIT
+    # --------------------------------------------------------
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_payment_reminders",
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+
+    # --------------------------------------------------------
+    # META
+    # --------------------------------------------------------
+
+    class Meta:
+
+        db_table = "payment_reminders"
+
+        ordering = [
+            "-created_at",
+        ]
+
+        verbose_name = (
+            "Payment Reminder"
+        )
+
+        verbose_name_plural = (
+            "Payment Reminders"
+        )
+
+
+    # --------------------------------------------------------
+    # STRING
+    # --------------------------------------------------------
+
+    def __str__(self):
+
+        return (
+            f"{self.reminder_number} - "
+            f"{self.student}"
+        )
+
+
+    # --------------------------------------------------------
+    # VALIDATION
+    # --------------------------------------------------------
+
+    def clean(self):
+
+        super().clean()
+
+
+        # ----------------------------------------------------
+        # INVOICE REFERENCE
+        # ----------------------------------------------------
+
+        if not (
+            self.invoice_reference
+            or ""
+        ).strip():
+
+            raise ValidationError(
+                {
+                    "invoice_reference":
+                        (
+                            "Invoice reference "
+                            "is required."
+                        )
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # AMOUNT
+        # ----------------------------------------------------
+
+        if (
+            self.amount_due is None
+            or
+            self.amount_due
+            <= Decimal("0.00")
+        ):
+
+            raise ValidationError(
+                {
+                    "amount_due":
+                        (
+                            "Amount due must be "
+                            "greater than zero."
+                        )
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # SUBJECT
+        # ----------------------------------------------------
+
+        if not (
+            self.subject
+            or ""
+        ).strip():
+
+            raise ValidationError(
+                {
+                    "subject":
+                        "Reminder subject is required."
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # MESSAGE
+        # ----------------------------------------------------
+
+        if not (
+            self.message
+            or ""
+        ).strip():
+
+            raise ValidationError(
+                {
+                    "message":
+                        "Reminder message is required."
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # GUARDIAN MUST BELONG TO STUDENT
+        # ----------------------------------------------------
+
+        if (
+            self.student_id
+            and
+            self.guardian_id
+        ):
+
+            from students.models import (
+                StudentGuardian,
+            )
+
+            linked = (
+                StudentGuardian.objects
+                .filter(
+                    student_id=str(
+                        self.student.pk
+                    ),
+                    guardian_id=str(
+                        self.guardian.pk
+                    ),
+                )
+                .exists()
+            )
+
+            if not linked:
+
+                raise ValidationError(
+                    {
+                        "guardian":
+                            (
+                                "The selected guardian "
+                                "is not linked to the "
+                                "selected student."
+                            )
+                    }
+                )
+
+
+        # ----------------------------------------------------
+        # EMAIL RECIPIENT
+        # ----------------------------------------------------
+
+        if (
+            self.delivery_method
+            ==
+            self.DeliveryMethod.EMAIL
+            and
+            not (
+                self.recipient_email
+                or ""
+            ).strip()
+        ):
+
+            raise ValidationError(
+                {
+                    "recipient_email":
+                        (
+                            "An email address is "
+                            "required for email "
+                            "reminders."
+                        )
+                }
+            )
+
+
+        # ----------------------------------------------------
+        # SENT STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.SENT
+        ):
+
+            if not self.sent_at:
+
+                raise ValidationError(
+                    (
+                        "A sent reminder must "
+                        "record when it was sent."
+                    )
+                )
+
+            if not self.sent_by_id:
+
+                raise ValidationError(
+                    (
+                        "A sent reminder must "
+                        "record who sent it."
+                    )
+                )
+
+
+        # ----------------------------------------------------
+        # CANCELLED STATE
+        # ----------------------------------------------------
+
+        if (
+            self.status
+            ==
+            self.Status.CANCELLED
+        ):
+
+            if not (
+                self.cancellation_reason
+                or ""
+            ).strip():
+
+                raise ValidationError(
+                    {
+                        "cancellation_reason":
+                            (
+                                "Cancellation reason "
+                                "is required."
+                            )
+                    }
+                )
+
+            if not self.cancelled_at:
+
+                raise ValidationError(
+                    (
+                        "A cancelled reminder must "
+                        "record when it was cancelled."
+                    )
+                )
+
+            if not self.cancelled_by_id:
+
+                raise ValidationError(
+                    (
+                        "A cancelled reminder must "
+                        "record who cancelled it."
+                    )
+                )
+
+
+    # --------------------------------------------------------
+    # SAVE
+    # --------------------------------------------------------
+
+    def save(
+        self,
+        *args,
+        **kwargs,
+    ):
+
+        self.invoice_reference = (
+            self.invoice_reference
+            or ""
+        ).strip()
+
+        self.recipient_name = (
+            self.recipient_name
+            or ""
+        ).strip()
+
+        self.recipient_email = (
+            self.recipient_email
+            or ""
+        ).strip()
+
+        self.subject = (
+            self.subject
+            or ""
+        ).strip()
+
+        self.message = (
+            self.message
+            or ""
+        ).strip()
+
+        self.cancellation_reason = (
+            self.cancellation_reason
+            or ""
+        ).strip()
+
+        self.failure_reason = (
+            self.failure_reason
+            or ""
+        ).strip()
+
+        super().save(
+            *args,
+            **kwargs,
+        )

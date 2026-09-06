@@ -1,0 +1,3726 @@
+{% extends "base.html" %}
+
+{% block title %}
+Overdue Tracking | EduFinance
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   EDUFINANCE — OVERDUE RECEIVABLES COMMAND CENTER
+============================================================ */
+
+:root {
+    --od-bg: #f4f7fb;
+    --od-surface: #ffffff;
+    --od-surface-soft: #f9fbfd;
+
+    --od-navy: #11243d;
+    --od-text: #17263a;
+    --od-text-2: #526279;
+    --od-text-3: #8794a7;
+
+    --od-blue: #176ff2;
+    --od-blue-dark: #0a57c9;
+    --od-blue-soft: #edf4ff;
+
+    --od-green: #078759;
+    --od-green-soft: #eaf8f2;
+
+    --od-amber: #d98313;
+    --od-amber-soft: #fff5e5;
+
+    --od-orange: #dd681a;
+    --od-orange-soft: #fff0e6;
+
+    --od-red: #d84357;
+    --od-red-dark: #b9283e;
+    --od-red-soft: #fff0f2;
+
+    --od-purple: #7350d6;
+    --od-purple-soft: #f3efff;
+
+    --od-border: #dfe7f0;
+    --od-border-soft: #edf1f5;
+
+    --od-shadow-sm:
+        0 8px 25px rgba(21, 46, 77, .05);
+
+    --od-shadow:
+        0 22px 55px rgba(13, 39, 72, .08);
+
+    --od-transition:
+        180ms cubic-bezier(.2,.7,.3,1);
+}
+
+
+/* ============================================================
+   PAGE
+============================================================ */
+
+.od-page {
+    min-height: calc(100vh - 70px);
+
+    margin: -24px;
+
+    padding:
+        clamp(25px, 3vw, 44px)
+        clamp(18px, 3vw, 46px)
+        70px;
+
+    background:
+        radial-gradient(
+            circle at 93% 2%,
+            rgba(216, 67, 87, .075),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 7% 30%,
+            rgba(23, 111, 242, .06),
+            transparent 24%
+        ),
+        linear-gradient(
+            180deg,
+            #fbfcff 0%,
+            var(--od-bg) 64%,
+            #f3f6fa 100%
+        );
+}
+
+.od-shell {
+    max-width: 1650px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   BREADCRUMB
+============================================================ */
+
+.od-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    color: var(--od-text-3);
+
+    font-size: .71rem;
+    font-weight: 750;
+}
+
+.od-breadcrumb a {
+    color: inherit;
+
+    text-decoration: none;
+}
+
+.od-breadcrumb a:hover {
+    color: var(--od-blue);
+}
+
+.od-breadcrumb i {
+    font-size: .57rem;
+}
+
+.od-breadcrumb-current {
+    color: var(--od-blue);
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.od-hero {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        320px;
+
+    gap: 28px;
+
+    margin-bottom: 20px;
+
+    padding:
+        clamp(27px, 3vw, 40px);
+
+    overflow: hidden;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            120deg,
+            #ffffff 0%,
+            #fbfcff 66%,
+            #f8faff 100%
+        );
+
+    box-shadow:
+        var(--od-shadow);
+}
+
+.od-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 470px;
+    height: 470px;
+
+    right: -165px;
+    top: -345px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(216, 67, 87, .14),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+.od-hero-main,
+.od-hero-side {
+    position: relative;
+
+    z-index: 2;
+}
+
+.od-eyebrow {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 14px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid #f1d5da;
+
+    border-radius: 999px;
+
+    background:
+        #fff8f9;
+
+    color:
+        var(--od-red-dark);
+
+    font-size: .59rem;
+    font-weight: 900;
+
+    letter-spacing: .055em;
+
+    text-transform: uppercase;
+}
+
+.od-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background:
+        var(--od-red);
+
+    box-shadow:
+        0 0 0 5px
+        rgba(216, 67, 87, .08);
+}
+
+.od-title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.od-title-icon {
+    width: 58px;
+    height: 58px;
+
+    flex: 0 0 58px;
+
+    display: grid;
+    place-items: center;
+
+    border:
+        1px solid #f0d9dd;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff0f2,
+            #fff
+        );
+
+    color:
+        var(--od-red);
+
+    font-size: 1.25rem;
+}
+
+.od-title-copy h1 {
+    margin: 0;
+
+    color:
+        var(--od-text);
+
+    font-size:
+        clamp(1.9rem, 3vw, 2.8rem);
+
+    font-weight: 920;
+
+    letter-spacing: -.045em;
+}
+
+.od-title-copy p {
+    max-width: 770px;
+
+    margin:
+        7px 0 0;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .67rem;
+
+    line-height: 1.65;
+}
+
+.od-hero-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin:
+        17px 0 0 73px;
+}
+
+.od-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 10px;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.82);
+
+    color:
+        var(--od-text-2);
+
+    font-size: .56rem;
+    font-weight: 800;
+}
+
+.od-chip-danger {
+    border-color:
+        #f0cbd2;
+
+    background:
+        var(--od-red-soft);
+
+    color:
+        var(--od-red-dark);
+}
+
+
+/* ============================================================
+   HERO HEALTH SIDE
+============================================================ */
+
+.od-hero-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.od-risk-panel {
+    width: 100%;
+
+    padding: 18px;
+
+    border:
+        1px solid #edd9de;
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,.78);
+}
+
+.od-risk-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.od-risk-label {
+    color:
+        var(--od-text-3);
+
+    font-size: .55rem;
+    font-weight: 900;
+
+    text-transform: uppercase;
+
+    letter-spacing: .06em;
+}
+
+.od-risk-badge {
+    padding:
+        5px 8px;
+
+    border-radius: 999px;
+
+    background:
+        var(--od-red-soft);
+
+    color:
+        var(--od-red-dark);
+
+    font-size: .52rem;
+    font-weight: 900;
+}
+
+.od-risk-number {
+    margin-top: 12px;
+
+    color:
+        var(--od-text);
+
+    font-size: 1.65rem;
+    font-weight: 920;
+
+    letter-spacing: -.04em;
+}
+
+.od-risk-sub {
+    margin-top: 4px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .54rem;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   INTEGRATION BANNER
+============================================================ */
+
+.od-integration {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+    padding:
+        15px 17px;
+
+    border:
+        1px solid #d7e4f6;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f5f9ff,
+            #fff
+        );
+
+    box-shadow:
+        var(--od-shadow-sm);
+}
+
+.od-integration-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--od-blue-soft);
+
+    color:
+        var(--od-blue);
+}
+
+.od-integration strong {
+    display: block;
+
+    color:
+        var(--od-text);
+
+    font-size: .63rem;
+}
+
+.od-integration p {
+    margin:
+        4px 0 0;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .56rem;
+
+    line-height: 1.55;
+}
+
+.od-integration-state {
+    margin-left: auto;
+
+    flex: 0 0 auto;
+
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        6px 9px;
+
+    border-radius: 999px;
+
+    background:
+        #edf3fb;
+
+    color:
+        #647991;
+
+    font-size: .53rem;
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   KPI GRID
+============================================================ */
+
+.od-kpis {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.od-kpi {
+    min-height: 137px;
+
+    padding: 17px;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--od-shadow-sm);
+
+    transition:
+        transform var(--od-transition),
+        box-shadow var(--od-transition);
+}
+
+.od-kpi:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 15px 35px
+        rgba(14, 42, 76, .08);
+}
+
+.od-kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.od-kpi-label {
+    color:
+        var(--od-text-3);
+
+    font-size: .54rem;
+    font-weight: 900;
+
+    text-transform: uppercase;
+
+    letter-spacing: .055em;
+}
+
+.od-kpi-value {
+    margin-top: 8px;
+
+    color:
+        var(--od-text);
+
+    font-size: 1.28rem;
+    font-weight: 920;
+
+    letter-spacing: -.035em;
+}
+
+.od-kpi-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 11px;
+
+    background:
+        var(--od-red-soft);
+
+    color:
+        var(--od-red);
+}
+
+.od-kpi-blue .od-kpi-icon {
+    background:
+        var(--od-blue-soft);
+
+    color:
+        var(--od-blue);
+}
+
+.od-kpi-orange .od-kpi-icon {
+    background:
+        var(--od-orange-soft);
+
+    color:
+        var(--od-orange);
+}
+
+.od-kpi-purple .od-kpi-icon {
+    background:
+        var(--od-purple-soft);
+
+    color:
+        var(--od-purple);
+}
+
+.od-kpi-note {
+    margin-top: 16px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .53rem;
+
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   AGING EXPOSURE
+============================================================ */
+
+.od-aging-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 13px;
+
+    margin-bottom: 20px;
+}
+
+.od-aging {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 16px;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 16px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--od-shadow-sm);
+}
+
+.od-aging::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 4px;
+}
+
+.od-aging-1::before {
+    background:
+        var(--od-blue);
+}
+
+.od-aging-2::before {
+    background:
+        var(--od-amber);
+}
+
+.od-aging-3::before {
+    background:
+        var(--od-orange);
+}
+
+.od-aging-4::before {
+    background:
+        var(--od-red);
+}
+
+.od-aging-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+}
+
+.od-aging-title {
+    color:
+        var(--od-text);
+
+    font-size: .62rem;
+    font-weight: 880;
+}
+
+.od-aging-count {
+    min-width: 26px;
+    height: 26px;
+
+    display: grid;
+    place-items: center;
+
+    padding:
+        0 7px;
+
+    border-radius: 999px;
+
+    background:
+        #f0f3f7;
+
+    color:
+        var(--od-text-2);
+
+    font-size: .52rem;
+    font-weight: 900;
+}
+
+.od-aging-amount {
+    margin-top: 13px;
+
+    color:
+        var(--od-text);
+
+    font-size: 1.03rem;
+    font-weight: 920;
+}
+
+.od-aging-sub {
+    margin-top: 4px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .52rem;
+}
+
+
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+
+.od-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        330px;
+
+    gap: 19px;
+
+    align-items: start;
+}
+
+.od-main {
+    min-width: 0;
+}
+
+.od-side {
+    position: sticky;
+
+    top: 88px;
+
+    display: grid;
+
+    gap: 16px;
+}
+
+
+/* ============================================================
+   CARD
+============================================================ */
+
+.od-card {
+    overflow: hidden;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        var(--od-shadow-sm);
+}
+
+.od-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding:
+        16px 18px;
+
+    border-bottom:
+        1px solid var(--od-border-soft);
+
+    background:
+        #fbfcfe;
+}
+
+.od-card-title {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.od-card-icon {
+    width: 35px;
+    height: 35px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        var(--od-blue-soft);
+
+    color:
+        var(--od-blue);
+}
+
+.od-card-title h2 {
+    margin: 0;
+
+    color:
+        var(--od-text);
+
+    font-size: .71rem;
+    font-weight: 900;
+}
+
+.od-card-title p {
+    margin:
+        2px 0 0;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .52rem;
+}
+
+
+/* ============================================================
+   COMMAND CENTER
+============================================================ */
+
+.od-command {
+    padding: 17px 18px;
+
+    border-bottom:
+        1px solid var(--od-border-soft);
+}
+
+.od-command-form {
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px, 1.5fr)
+        minmax(170px, .6fr)
+        minmax(185px, .7fr)
+        auto;
+
+    gap: 10px;
+}
+
+.od-search-wrap {
+    position: relative;
+}
+
+.od-search-wrap > i {
+    position: absolute;
+
+    top: 50%;
+    left: 13px;
+
+    transform:
+        translateY(-50%);
+
+    color:
+        #8997aa;
+
+    font-size: .73rem;
+}
+
+.od-input,
+.od-select {
+    width: 100%;
+    height: 43px;
+
+    border:
+        1px solid #dce5ef;
+
+    border-radius: 11px;
+
+    background: #fff;
+
+    color:
+        var(--od-text);
+
+    font-size: .62rem;
+
+    outline: none;
+
+    transition:
+        border-color var(--od-transition),
+        box-shadow var(--od-transition);
+}
+
+.od-input {
+    padding:
+        0 12px 0 37px;
+}
+
+.od-select {
+    padding:
+        0 11px;
+}
+
+.od-input:focus,
+.od-select:focus {
+    border-color:
+        #8ab7f6;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(23,111,242,.075);
+}
+
+.od-reset {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    padding:
+        0 14px;
+
+    border:
+        1px solid var(--od-border);
+
+    border-radius: 11px;
+
+    background: #fff;
+
+    color:
+        var(--od-text-2);
+
+    font-size: .59rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    transition:
+        border-color var(--od-transition),
+        color var(--od-transition),
+        transform var(--od-transition);
+}
+
+.od-reset:hover {
+    border-color:
+        #b9cdf0;
+
+    color:
+        var(--od-blue);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* ============================================================
+   FILTER SUMMARY
+============================================================ */
+
+.od-filter-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding:
+        11px 18px;
+
+    border-bottom:
+        1px solid var(--od-border-soft);
+
+    background:
+        #fcfdff;
+}
+
+.od-filter-summary-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.od-filter-chip {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        5px 8px;
+
+    border-radius: 999px;
+
+    background:
+        #f0f4f9;
+
+    color:
+        var(--od-text-2);
+
+    font-size: .52rem;
+    font-weight: 800;
+}
+
+.od-filter-result {
+    color:
+        var(--od-text-3);
+
+    font-size: .54rem;
+}
+
+.od-filter-result strong {
+    color:
+        var(--od-text);
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.od-table-wrap {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.od-table {
+    width: 100%;
+
+    min-width: 980px;
+
+    border-collapse: collapse;
+}
+
+.od-table th {
+    padding:
+        11px 13px;
+
+    border-bottom:
+        1px solid var(--od-border);
+
+    background:
+        #f9fbfd;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .51rem;
+    font-weight: 900;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    letter-spacing: .045em;
+
+    white-space: nowrap;
+}
+
+.od-table td {
+    padding:
+        13px;
+
+    border-bottom:
+        1px solid var(--od-border-soft);
+
+    color:
+        var(--od-text-2);
+
+    font-size: .59rem;
+
+    vertical-align: middle;
+}
+
+.od-table tbody tr {
+    transition:
+        background var(--od-transition);
+}
+
+.od-table tbody tr:hover {
+    background:
+        #fbfcfe;
+}
+
+.od-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.od-student {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+.od-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #edf4ff,
+            #fff
+        );
+
+    color:
+        var(--od-blue);
+
+    font-size: .6rem;
+    font-weight: 900;
+}
+
+.od-student-copy strong {
+    display: block;
+
+    color:
+        var(--od-text);
+
+    font-size: .61rem;
+}
+
+.od-student-copy span {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .5rem;
+}
+
+.od-invoice-number {
+    color:
+        var(--od-blue-dark);
+
+    font-weight: 850;
+}
+
+.od-money {
+    color:
+        var(--od-text);
+
+    font-size: .64rem;
+    font-weight: 900;
+}
+
+.od-days {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    font-weight: 850;
+}
+
+.od-days i {
+    color:
+        var(--od-red);
+}
+
+
+/* ============================================================
+   AGING BADGES
+============================================================ */
+
+.od-badge {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding:
+        6px 8px;
+
+    border-radius: 999px;
+
+    font-size: .51rem;
+    font-weight: 900;
+}
+
+.od-badge::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background:
+        currentColor;
+}
+
+.od-badge-1_7 {
+    background:
+        var(--od-blue-soft);
+
+    color:
+        var(--od-blue-dark);
+}
+
+.od-badge-8_30 {
+    background:
+        var(--od-amber-soft);
+
+    color:
+        #ad6a11;
+}
+
+.od-badge-31_60 {
+    background:
+        var(--od-orange-soft);
+
+    color:
+        #bd5715;
+}
+
+.od-badge-60_plus {
+    background:
+        var(--od-red-soft);
+
+    color:
+        var(--od-red-dark);
+}
+
+.od-risk-critical {
+    color:
+        var(--od-red-dark);
+
+    font-weight: 900;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+============================================================ */
+
+.od-empty {
+    padding:
+        58px 22px 62px;
+
+    text-align: center;
+}
+
+.od-empty-visual {
+    position: relative;
+
+    width: 88px;
+    height: 88px;
+
+    display: grid;
+    place-items: center;
+
+    margin:
+        0 auto 17px;
+
+    border:
+        1px solid #dce6f2;
+
+    border-radius: 25px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f4f8fd,
+            #fff
+        );
+
+    color:
+        var(--od-blue);
+
+    font-size: 1.6rem;
+}
+
+
+/*
+   Default state:
+   invoice integration is not connected yet.
+*/
+.od-empty-visual::after {
+    content: "";
+
+    position: absolute;
+
+    width: 22px;
+    height: 22px;
+
+    right: -5px;
+    bottom: -5px;
+
+    border:
+        4px solid #fff;
+
+    border-radius: 50%;
+
+    background:
+        var(--od-amber);
+
+    box-shadow:
+        0 5px 15px
+        rgba(30, 45, 65, .12);
+}
+
+
+/*
+   Once the real student Invoice integration exists,
+   Django adds this class to the element.
+*/
+.od-empty-visual.od-integration-ready::after {
+    background:
+        var(--od-green);
+}
+
+.od-empty h3 {
+    margin: 0;
+
+    color:
+        var(--od-text);
+
+    font-size: .86rem;
+    font-weight: 900;
+}
+
+.od-empty p {
+    max-width: 530px;
+
+    margin:
+        8px auto 0;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .59rem;
+
+    line-height: 1.7;
+}
+
+.od-empty-action {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 16px;
+
+    padding:
+        8px 11px;
+
+    border:
+        1px solid #dce6f1;
+
+    border-radius: 10px;
+
+    background:
+        #f8fafc;
+
+    color:
+        var(--od-text-2);
+
+    font-size: .55rem;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   SIDE RAIL — AGING INTELLIGENCE
+============================================================ */
+
+.od-intelligence {
+    padding: 17px;
+}
+
+.od-intelligence h3 {
+    margin: 0;
+
+    color:
+        var(--od-text);
+
+    font-size: .69rem;
+    font-weight: 900;
+}
+
+.od-intelligence > p {
+    margin:
+        5px 0 15px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .54rem;
+
+    line-height: 1.55;
+}
+
+.od-exposure-row {
+    margin-bottom: 13px;
+}
+
+.od-exposure-row:last-child {
+    margin-bottom: 0;
+}
+
+.od-exposure-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 6px;
+}
+
+.od-exposure-head span {
+    color:
+        var(--od-text-2);
+
+    font-size: .54rem;
+    font-weight: 800;
+}
+
+.od-exposure-head strong {
+    color:
+        var(--od-text);
+
+    font-size: .54rem;
+}
+
+.od-progress {
+    height: 6px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background:
+        #edf1f5;
+}
+
+.od-progress-bar {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    transition:
+        width .7s ease;
+}
+
+.od-progress-1 {
+    background:
+        var(--od-blue);
+}
+
+.od-progress-2 {
+    background:
+        var(--od-amber);
+}
+
+.od-progress-3 {
+    background:
+        var(--od-orange);
+}
+
+.od-progress-4 {
+    background:
+        var(--od-red);
+}
+
+
+/* ============================================================
+   RISK POLICY
+============================================================ */
+
+.od-policy {
+    padding: 17px;
+
+    border:
+        1px solid #f0dfe2;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff9fa,
+            #fff
+        );
+}
+
+.od-policy-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 11px;
+
+    border-radius: 11px;
+
+    background:
+        var(--od-red-soft);
+
+    color:
+        var(--od-red);
+}
+
+.od-policy h3 {
+    margin:
+        0 0 6px;
+
+    color:
+        var(--od-text);
+
+    font-size: .68rem;
+    font-weight: 900;
+}
+
+.od-policy p {
+    margin: 0;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .55rem;
+
+    line-height: 1.65;
+}
+
+.od-policy-rule {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 12px;
+
+    padding:
+        8px 9px;
+
+    border:
+        1px solid #eedcdf;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color:
+        var(--od-red-dark);
+
+    font-size: .52rem;
+    font-weight: 850;
+}
+
+
+/* ============================================================
+   COLLECTION PRIORITY
+============================================================ */
+
+.od-priority-list {
+    display: grid;
+
+    gap: 9px;
+}
+
+.od-priority {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px;
+
+    border:
+        1px solid var(--od-border-soft);
+
+    border-radius: 11px;
+
+    background:
+        #fbfcfe;
+}
+
+.od-priority-dot {
+    width: 9px;
+    height: 9px;
+
+    flex: 0 0 9px;
+
+    border-radius: 50%;
+}
+
+.od-dot-blue {
+    background:
+        var(--od-blue);
+}
+
+.od-dot-amber {
+    background:
+        var(--od-amber);
+}
+
+.od-dot-orange {
+    background:
+        var(--od-orange);
+}
+
+.od-dot-red {
+    background:
+        var(--od-red);
+}
+
+.od-priority-copy strong {
+    display: block;
+
+    color:
+        var(--od-text);
+
+    font-size: .57rem;
+}
+
+.od-priority-copy span {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .49rem;
+}
+
+
+/* ============================================================
+   LOADING
+============================================================ */
+
+.od-loading {
+    position: fixed;
+
+    z-index: 12000;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(8,26,47,.4);
+
+    backdrop-filter:
+        blur(5px);
+}
+
+.od-loading.active {
+    display: flex;
+}
+
+.od-loading-card {
+    min-width: 250px;
+
+    padding: 24px;
+
+    border-radius: 18px;
+
+    background: #fff;
+
+    text-align: center;
+
+    box-shadow:
+        0 30px 85px
+        rgba(7,24,49,.23);
+}
+
+.od-spinner {
+    width: 35px;
+    height: 35px;
+
+    margin:
+        0 auto 12px;
+
+    border:
+        3px solid #e6ebf2;
+
+    border-top-color:
+        var(--od-blue);
+
+    border-radius: 50%;
+
+    animation:
+        odSpin .7s linear infinite;
+}
+
+@keyframes odSpin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+.od-loading-card strong {
+    display: block;
+
+    color:
+        var(--od-text);
+
+    font-size: .68rem;
+}
+
+.od-loading-card span {
+    display: block;
+
+    margin-top: 4px;
+
+    color:
+        var(--od-text-3);
+
+    font-size: .54rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1280px) {
+
+    .od-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .od-side {
+        position: static;
+
+        grid-template-columns:
+            repeat(3, minmax(0,1fr));
+    }
+
+}
+
+
+@media (max-width: 1050px) {
+
+    .od-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .od-hero-side {
+        justify-content: flex-start;
+    }
+
+    .od-risk-panel {
+        max-width: 360px;
+    }
+
+    .od-kpis,
+    .od-aging-grid {
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+    }
+
+    .od-command-form {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+    .od-side {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .od-page {
+        margin: -16px;
+
+        padding:
+            21px 15px 55px;
+    }
+
+    .od-kpis,
+    .od-aging-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .od-command-form {
+        grid-template-columns: 1fr;
+    }
+
+    .od-hero-chips {
+        margin-left: 0;
+    }
+
+    .od-integration {
+        flex-wrap: wrap;
+    }
+
+    .od-integration-state {
+        margin-left: 50px;
+    }
+
+}
+
+</style>
+
+
+<div class="od-page">
+
+    <div class="od-shell">
+
+
+        <!-- ====================================================
+             BREADCRUMB
+        ===================================================== -->
+
+        <div class="od-breadcrumb">
+
+            <a href="{% url 'dashboard' %}">
+                Overview
+            </a>
+
+            <i class="bi bi-chevron-right"></i>
+
+            <span class="od-breadcrumb-current">
+                Overdue Tracking
+            </span>
+
+        </div>
+
+
+
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
+        <section class="od-hero">
+
+            <div class="od-hero-main">
+
+                <div class="od-eyebrow">
+
+                    <span class="od-eyebrow-dot"></span>
+
+                    Receivables Risk Command Center
+
+                </div>
+
+
+                <div class="od-title-row">
+
+                    <div class="od-title-icon">
+
+                        <i class="bi bi-exclamation-diamond"></i>
+
+                    </div>
+
+
+                    <div class="od-title-copy">
+
+                        <h1>
+                            Overdue Tracking
+                        </h1>
+
+                        <p>
+
+                            Identify past-due student obligations,
+                            prioritize collection risk, and understand
+                            aging exposure across the school's
+                            receivables portfolio.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-hero-chips">
+
+                    <span class="od-chip">
+
+                        <i class="bi bi-calendar-x"></i>
+
+                        Past-due monitoring
+
+                    </span>
+
+
+                    <span class="od-chip">
+
+                        <i class="bi bi-bar-chart"></i>
+
+                        Four aging bands
+
+                    </span>
+
+
+                    <span class="od-chip od-chip-danger">
+
+                        <i class="bi bi-shield-exclamation"></i>
+
+                        Financial risk visibility
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="od-hero-side">
+
+                <div class="od-risk-panel">
+
+                    <div class="od-risk-top">
+
+                        <span class="od-risk-label">
+                            Current Exposure
+                        </span>
+
+
+                        <span class="od-risk-badge">
+
+                            {% if overdue_invoice_count %}
+
+                                Attention Required
+
+                            {% else %}
+
+                                No Exposure
+
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="od-risk-number">
+
+                        {{ currency_code }}
+                        {{ total_overdue_amount|floatformat:2 }}
+
+                    </div>
+
+
+                    <div class="od-risk-sub">
+
+                        Outstanding value currently classified
+                        as past due.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             INVOICE INTEGRATION STATE
+        ===================================================== -->
+
+        {% if not invoice_integration_ready %}
+
+            <div class="od-integration">
+
+                <div class="od-integration-icon">
+
+                    <i class="bi bi-diagram-3"></i>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Student invoice integration pending
+                    </strong>
+
+                    <p>
+
+                        The overdue engine and interface are ready,
+                        but the shared Student Invoice model has not
+                        yet been added to the current team codebase.
+                        EduFinance will not generate artificial
+                        receivables or duplicate financial balances.
+
+                    </p>
+
+                </div>
+
+
+                <span class="od-integration-state">
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    Awaiting Invoice Module
+
+                </span>
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ====================================================
+             PRIMARY KPI GRID
+        ===================================================== -->
+
+        <section class="od-kpis">
+
+
+            <div class="od-kpi">
+
+                <div class="od-kpi-top">
+
+                    <div>
+
+                        <div class="od-kpi-label">
+                            Total Overdue
+                        </div>
+
+
+                        <div class="od-kpi-value">
+
+                            {{ currency_code }}
+                            {{ total_overdue_amount|floatformat:2 }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="od-kpi-icon">
+
+                        <i class="bi bi-cash-stack"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-kpi-note">
+
+                    Total outstanding value beyond its due date
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-kpi od-kpi-blue">
+
+                <div class="od-kpi-top">
+
+                    <div>
+
+                        <div class="od-kpi-label">
+                            Overdue Students
+                        </div>
+
+
+                        <div class="od-kpi-value">
+
+                            {{ overdue_student_count }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="od-kpi-icon">
+
+                        <i class="bi bi-people"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-kpi-note">
+
+                    Unique students with past-due obligations
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-kpi od-kpi-orange">
+
+                <div class="od-kpi-top">
+
+                    <div>
+
+                        <div class="od-kpi-label">
+                            Overdue Invoices
+                        </div>
+
+
+                        <div class="od-kpi-value">
+
+                            {{ overdue_invoice_count }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="od-kpi-icon">
+
+                        <i class="bi bi-receipt"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-kpi-note">
+
+                    Student invoices currently classified overdue
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-kpi od-kpi-purple">
+
+                <div class="od-kpi-top">
+
+                    <div>
+
+                        <div class="od-kpi-label">
+                            Critical 60+
+                        </div>
+
+
+                        <div class="od-kpi-value">
+
+                            {{ aging_60_plus_count }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="od-kpi-icon">
+
+                        <i class="bi bi-shield-exclamation"></i>
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-kpi-note">
+
+                    {{ currency_code }}
+                    {{ aging_60_plus_amount|floatformat:2 }}
+                    in long-aged exposure
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             AGING BAND CARDS
+        ===================================================== -->
+
+        <section class="od-aging-grid">
+
+
+            <div class="od-aging od-aging-1">
+
+                <div class="od-aging-head">
+
+                    <div class="od-aging-title">
+                        1–7 Days
+                    </div>
+
+
+                    <div class="od-aging-count">
+
+                        {{ aging_1_7_count }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-aging-amount">
+
+                    {{ currency_code }}
+                    {{ aging_1_7_amount|floatformat:2 }}
+
+                </div>
+
+
+                <div class="od-aging-sub">
+
+                    Early collection window
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-aging od-aging-2">
+
+                <div class="od-aging-head">
+
+                    <div class="od-aging-title">
+                        8–30 Days
+                    </div>
+
+
+                    <div class="od-aging-count">
+
+                        {{ aging_8_30_count }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-aging-amount">
+
+                    {{ currency_code }}
+                    {{ aging_8_30_amount|floatformat:2 }}
+
+                </div>
+
+
+                <div class="od-aging-sub">
+
+                    Active follow-up priority
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-aging od-aging-3">
+
+                <div class="od-aging-head">
+
+                    <div class="od-aging-title">
+                        31–60 Days
+                    </div>
+
+
+                    <div class="od-aging-count">
+
+                        {{ aging_31_60_count }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-aging-amount">
+
+                    {{ currency_code }}
+                    {{ aging_31_60_amount|floatformat:2 }}
+
+                </div>
+
+
+                <div class="od-aging-sub">
+
+                    Elevated receivable risk
+
+                </div>
+
+            </div>
+
+
+
+            <div class="od-aging od-aging-4">
+
+                <div class="od-aging-head">
+
+                    <div class="od-aging-title">
+                        More Than 60
+                    </div>
+
+
+                    <div class="od-aging-count">
+
+                        {{ aging_60_plus_count }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="od-aging-amount">
+
+                    {{ currency_code }}
+                    {{ aging_60_plus_amount|floatformat:2 }}
+
+                </div>
+
+
+                <div class="od-aging-sub">
+
+                    Critical long-aged balance
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ====================================================
+             MAIN LAYOUT
+        ===================================================== -->
+
+        <div class="od-layout">
+
+
+            <main class="od-main">
+
+                <section class="od-card">
+
+
+                    <!-- =========================================
+                         REGISTER HEADER
+                    ========================================== -->
+
+                    <div class="od-card-head">
+
+                        <div class="od-card-title">
+
+                            <div class="od-card-icon">
+
+                                <i class="bi bi-table"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+
+                                    Overdue Receivables Register
+
+                                </h2>
+
+
+                                <p>
+
+                                    Student obligations requiring
+                                    financial follow-up
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <span class="od-chip">
+
+                            <i class="bi bi-clock-history"></i>
+
+                            Aging live as of today
+
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         COMMAND CENTER
+                    ========================================== -->
+
+                    <div class="od-command">
+
+                        <form
+                            method="get"
+                            class="od-command-form"
+                            id="od-filter-form"
+                        >
+
+                            <div class="od-search-wrap">
+
+                                <i class="bi bi-search"></i>
+
+
+                                <input
+                                    type="search"
+                                    name="search"
+                                    value="{{ search }}"
+                                    class="od-input"
+                                    id="od-search"
+                                    autocomplete="off"
+                                    placeholder="Search student, ID, invoice, grade, class..."
+                                >
+
+                            </div>
+
+
+                            <select
+                                name="aging"
+                                class="od-select"
+                                id="od-aging"
+                            >
+
+                                <option value="">
+
+                                    All aging bands
+
+                                </option>
+
+
+                                {% for value, label in aging_options %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if aging == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+
+                                        {{ label }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <select
+                                name="sort"
+                                class="od-select"
+                                id="od-sort"
+                            >
+
+                                {% for value, label in sort_options %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if sort == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+
+                                        {{ label }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <a
+                                href="{% url 'payables:overdue_list' %}"
+                                class="od-reset"
+                                id="od-reset"
+                            >
+
+                                <i class="bi bi-arrow-counterclockwise"></i>
+
+                                Reset
+
+                            </a>
+
+                        </form>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         FILTER SUMMARY
+                    ========================================== -->
+
+                    <div class="od-filter-summary">
+
+                        <div class="od-filter-summary-left">
+
+
+                            {% if search %}
+
+                                <span class="od-filter-chip">
+
+                                    <i class="bi bi-search"></i>
+
+                                    "{{ search }}"
+
+                                </span>
+
+                            {% endif %}
+
+
+                            {% if aging %}
+
+                                <span class="od-filter-chip">
+
+                                    <i class="bi bi-hourglass-split"></i>
+
+
+                                    {% if aging == "1_7" %}
+
+                                        1–7 Days
+
+                                    {% elif aging == "8_30" %}
+
+                                        8–30 Days
+
+                                    {% elif aging == "31_60" %}
+
+                                        31–60 Days
+
+                                    {% elif aging == "60_plus" %}
+
+                                        More Than 60 Days
+
+                                    {% endif %}
+
+                                </span>
+
+                            {% endif %}
+
+
+                            {% if not search and not aging %}
+
+                                <span class="od-filter-chip">
+
+                                    <i class="bi bi-funnel"></i>
+
+                                    Complete overdue portfolio
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="od-filter-result">
+
+                            <strong>
+
+                                {{ filtered_count }}
+
+                            </strong>
+
+                            matching invoices ·
+
+                            <strong>
+
+                                {{ currency_code }}
+                                {{ filtered_amount|floatformat:2 }}
+
+                            </strong>
+
+                            exposure
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =========================================
+                         TABLE
+                    ========================================== -->
+
+                    {% if overdue_rows %}
+
+                        <div class="od-table-wrap">
+
+                            <table class="od-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Student
+                                        </th>
+
+                                        <th>
+                                            Invoice
+                                        </th>
+
+                                        <th>
+                                            Academic Year
+                                        </th>
+
+                                        <th>
+                                            Grade / Class
+                                        </th>
+
+                                        <th>
+                                            Due Date
+                                        </th>
+
+                                        <th>
+                                            Days Overdue
+                                        </th>
+
+                                        <th>
+                                            Outstanding
+                                        </th>
+
+                                        <th>
+                                            Aging
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    {% for row in overdue_rows %}
+
+                                        <tr>
+
+
+                                            <td>
+
+                                                <div class="od-student">
+
+                                                    <div class="od-avatar">
+
+                                                        {% if row.student_name %}
+
+                                                            {{ row.student_name|slice:":2"|upper }}
+
+                                                        {% else %}
+
+                                                            ST
+
+                                                        {% endif %}
+
+                                                    </div>
+
+
+                                                    <div class="od-student-copy">
+
+                                                        <strong>
+
+                                                            {{ row.student_name|default:"Student" }}
+
+                                                        </strong>
+
+
+                                                        <span>
+
+                                                            {{ row.student_reference|default:"No student reference" }}
+
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                <span class="od-invoice-number">
+
+                                                    {{ row.invoice_number|default:"—" }}
+
+                                                </span>
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                {{ row.academic_year|default:"—" }}
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                {{ row.grade|default:"—" }}
+
+                                                {% if row.class_name %}
+
+                                                    / {{ row.class_name }}
+
+                                                {% endif %}
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                {{ row.due_date|date:"d M Y" }}
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                <span
+                                                    class="
+                                                        od-days
+                                                        {% if row.aging_bucket == '60_plus' %}
+                                                            od-risk-critical
+                                                        {% endif %}
+                                                    "
+                                                >
+
+                                                    <i class="bi bi-clock-history"></i>
+
+                                                    {{ row.days_overdue }}
+                                                    days
+
+                                                </span>
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                <span class="od-money">
+
+                                                    {{ currency_code }}
+                                                    {{ row.outstanding_amount|floatformat:2 }}
+
+                                                </span>
+
+                                            </td>
+
+
+
+                                            <td>
+
+                                                <span
+                                                    class="od-badge od-badge-{{ row.aging_bucket }}"
+                                                >
+
+                                                    {{ row.aging_label }}
+
+                                                </span>
+
+                                            </td>
+
+                                        </tr>
+
+                                    {% endfor %}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    {% else %}
+
+
+                        <!-- =====================================
+                             EMPTY / DEPENDENCY STATE
+                        ====================================== -->
+
+                        <div class="od-empty">
+
+
+                            <div
+                                class="
+                                    od-empty-visual
+                                    {% if invoice_integration_ready %}
+                                        od-integration-ready
+                                    {% endif %}
+                                "
+                            >
+
+                                <i class="bi bi-receipt"></i>
+
+                            </div>
+
+
+                            {% if not invoice_integration_ready %}
+
+                                <h3>
+
+                                    Overdue engine ready for invoice data
+
+                                </h3>
+
+
+                                <p>
+
+                                    The receivables aging engine,
+                                    filters, sorting, KPI calculations,
+                                    and risk interface are operational.
+
+                                    Student Invoice data will appear
+                                    here once the shared invoicing
+                                    module is integrated.
+
+                                </p>
+
+
+                                <div class="od-empty-action">
+
+                                    <i class="bi bi-shield-check"></i>
+
+                                    No placeholder financial data created
+
+                                </div>
+
+
+                            {% elif search or aging %}
+
+                                <h3>
+
+                                    No overdue invoices match these filters
+
+                                </h3>
+
+
+                                <p>
+
+                                    Adjust your search or aging
+                                    selection to broaden the
+                                    receivables register.
+
+                                </p>
+
+
+                                <a
+                                    href="{% url 'payables:overdue_list' %}"
+                                    class="od-reset"
+                                    style="margin-top: 16px;"
+                                >
+
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+
+                                    Clear Filters
+
+                                </a>
+
+
+                            {% else %}
+
+                                <h3>
+
+                                    No overdue student balances
+
+                                </h3>
+
+
+                                <p>
+
+                                    There are currently no student
+                                    invoices with a past due date and
+                                    positive outstanding balance.
+
+                                </p>
+
+
+                                <div class="od-empty-action">
+
+                                    <i class="bi bi-check-circle"></i>
+
+                                    Receivables portfolio is current
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+            </main>
+
+
+
+            <!-- =================================================
+                 SIDE RAIL
+            ================================================== -->
+
+            <aside class="od-side">
+
+
+                <!-- =============================================
+                     AGING DISTRIBUTION
+                ============================================== -->
+
+                <section class="od-card">
+
+                    <div class="od-card-head">
+
+                        <div class="od-card-title">
+
+                            <div class="od-card-icon">
+
+                                <i class="bi bi-bar-chart"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+
+                                    Aging Exposure
+
+                                </h2>
+
+
+                                <p>
+
+                                    Relative receivables risk
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="od-intelligence"
+                        id="od-aging-intelligence"
+                        data-total="{{ total_overdue_amount|default:0 }}"
+                    >
+
+                        <h3>
+
+                            Portfolio distribution
+
+                        </h3>
+
+
+                        <p>
+
+                            Longer aging periods generally demand
+                            greater collection attention.
+
+                        </p>
+
+
+                        <div
+                            class="od-exposure-row"
+                            data-amount="{{ aging_1_7_amount|default:0 }}"
+                        >
+
+                            <div class="od-exposure-head">
+
+                                <span>
+                                    1–7 Days
+                                </span>
+
+
+                                <strong>
+
+                                    {{ currency_code }}
+                                    {{ aging_1_7_amount|floatformat:2 }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="od-progress">
+
+                                <div
+                                    class="od-progress-bar od-progress-1"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div
+                            class="od-exposure-row"
+                            data-amount="{{ aging_8_30_amount|default:0 }}"
+                        >
+
+                            <div class="od-exposure-head">
+
+                                <span>
+                                    8–30 Days
+                                </span>
+
+
+                                <strong>
+
+                                    {{ currency_code }}
+                                    {{ aging_8_30_amount|floatformat:2 }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="od-progress">
+
+                                <div
+                                    class="od-progress-bar od-progress-2"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div
+                            class="od-exposure-row"
+                            data-amount="{{ aging_31_60_amount|default:0 }}"
+                        >
+
+                            <div class="od-exposure-head">
+
+                                <span>
+                                    31–60 Days
+                                </span>
+
+
+                                <strong>
+
+                                    {{ currency_code }}
+                                    {{ aging_31_60_amount|floatformat:2 }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="od-progress">
+
+                                <div
+                                    class="od-progress-bar od-progress-3"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div
+                            class="od-exposure-row"
+                            data-amount="{{ aging_60_plus_amount|default:0 }}"
+                        >
+
+                            <div class="od-exposure-head">
+
+                                <span>
+                                    60+ Days
+                                </span>
+
+
+                                <strong>
+
+                                    {{ currency_code }}
+                                    {{ aging_60_plus_amount|floatformat:2 }}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="od-progress">
+
+                                <div
+                                    class="od-progress-bar od-progress-4"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     COLLECTION PRIORITIES
+                ============================================== -->
+
+                <section class="od-card">
+
+                    <div class="od-card-head">
+
+                        <div class="od-card-title">
+
+                            <div class="od-card-icon">
+
+                                <i class="bi bi-list-check"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <h2>
+
+                                    Collection Priority
+
+                                </h2>
+
+
+                                <p>
+
+                                    Aging-based attention guide
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="od-intelligence">
+
+                        <div class="od-priority-list">
+
+
+                            <div class="od-priority">
+
+                                <span
+                                    class="od-priority-dot od-dot-blue"
+                                ></span>
+
+
+                                <div class="od-priority-copy">
+
+                                    <strong>
+                                        1–7 Days
+                                    </strong>
+
+                                    <span>
+                                        Initial follow-up window
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="od-priority">
+
+                                <span
+                                    class="od-priority-dot od-dot-amber"
+                                ></span>
+
+
+                                <div class="od-priority-copy">
+
+                                    <strong>
+                                        8–30 Days
+                                    </strong>
+
+                                    <span>
+                                        Active collection attention
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="od-priority">
+
+                                <span
+                                    class="od-priority-dot od-dot-orange"
+                                ></span>
+
+
+                                <div class="od-priority-copy">
+
+                                    <strong>
+                                        31–60 Days
+                                    </strong>
+
+                                    <span>
+                                        Elevated financial risk
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="od-priority">
+
+                                <span
+                                    class="od-priority-dot od-dot-red"
+                                ></span>
+
+
+                                <div class="od-priority-copy">
+
+                                    <strong>
+                                        More Than 60 Days
+                                    </strong>
+
+                                    <span>
+                                        Critical collection priority
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =============================================
+                     FINANCIAL POLICY
+                ============================================== -->
+
+                <div class="od-policy">
+
+                    <div class="od-policy-icon">
+
+                        <i class="bi bi-shield-check"></i>
+
+                    </div>
+
+
+                    <h3>
+
+                        Overdue classification rule
+
+                    </h3>
+
+
+                    <p>
+
+                        EduFinance classifies a student obligation
+                        as overdue only when its due date has passed
+                        and a positive outstanding balance remains.
+
+                    </p>
+
+
+                    <div class="od-policy-rule">
+
+                        <i class="bi bi-check2-circle"></i>
+
+                        Due Date &lt; Today + Outstanding &gt; 0
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ============================================================
+     LOADING STATE
+============================================================ -->
+
+<div
+    class="od-loading"
+    id="od-loading"
+>
+
+    <div class="od-loading-card">
+
+        <div class="od-spinner"></div>
+
+
+        <strong>
+
+            Updating receivables view
+
+        </strong>
+
+
+        <span>
+
+            Recalculating overdue exposure...
+
+        </span>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ========================================================
+           REFERENCES
+        ======================================================== */
+
+        const form =
+            document.getElementById(
+                "od-filter-form"
+            );
+
+
+        const search =
+            document.getElementById(
+                "od-search"
+            );
+
+
+        const aging =
+            document.getElementById(
+                "od-aging"
+            );
+
+
+        const sort =
+            document.getElementById(
+                "od-sort"
+            );
+
+
+        const reset =
+            document.getElementById(
+                "od-reset"
+            );
+
+
+        const loading =
+            document.getElementById(
+                "od-loading"
+            );
+
+
+        let searchTimer =
+            null;
+
+
+        let submitting =
+            false;
+
+
+
+        /* ========================================================
+           LOADING
+        ======================================================== */
+
+        function showLoading() {
+
+            if (loading) {
+
+                loading.classList.add(
+                    "active"
+                );
+
+            }
+
+        }
+
+
+
+        /* ========================================================
+           SAFE FILTER SUBMIT
+        ======================================================== */
+
+        function submitFilters() {
+
+            if (
+                !form
+                ||
+                submitting
+            ) {
+
+                return;
+
+            }
+
+
+            submitting =
+                true;
+
+
+            showLoading();
+
+
+            form.submit();
+
+        }
+
+
+
+        /* ========================================================
+           SEARCH — 320ms DEBOUNCE
+        ======================================================== */
+
+        if (search) {
+
+            search.addEventListener(
+                "input",
+                function () {
+
+                    clearTimeout(
+                        searchTimer
+                    );
+
+
+                    searchTimer =
+                        setTimeout(
+                            function () {
+
+                                submitFilters();
+
+                            },
+                            320
+                        );
+
+                }
+            );
+
+        }
+
+
+
+        /* ========================================================
+           IMMEDIATE AGING FILTER
+        ======================================================== */
+
+        if (aging) {
+
+            aging.addEventListener(
+                "change",
+                submitFilters
+            );
+
+        }
+
+
+
+        /* ========================================================
+           IMMEDIATE SORT
+        ======================================================== */
+
+        if (sort) {
+
+            sort.addEventListener(
+                "change",
+                submitFilters
+            );
+
+        }
+
+
+
+        /* ========================================================
+           RESET LOADING STATE
+        ======================================================== */
+
+        if (reset) {
+
+            reset.addEventListener(
+                "click",
+                showLoading
+            );
+
+        }
+
+
+
+        /* ========================================================
+           AGING DISTRIBUTION BARS
+        ======================================================== */
+
+        const intelligence =
+            document.getElementById(
+                "od-aging-intelligence"
+            );
+
+
+        if (intelligence) {
+
+            let total =
+                parseFloat(
+                    intelligence.dataset.total
+                    ||
+                    "0"
+                );
+
+
+            if (
+                !Number.isFinite(total)
+                ||
+                total < 0
+            ) {
+
+                total =
+                    0;
+
+            }
+
+
+            intelligence
+                .querySelectorAll(
+                    ".od-exposure-row"
+                )
+                .forEach(
+                    function (row) {
+
+                        let amount =
+                            parseFloat(
+                                row.dataset.amount
+                                ||
+                                "0"
+                            );
+
+
+                        if (
+                            !Number.isFinite(amount)
+                            ||
+                            amount < 0
+                        ) {
+
+                            amount =
+                                0;
+
+                        }
+
+
+                        let percentage =
+                            total > 0
+                                ?
+                                (
+                                    amount
+                                    /
+                                    total
+                                )
+                                *
+                                100
+                                :
+                                0;
+
+
+                        percentage =
+                            Math.min(
+                                100,
+                                Math.max(
+                                    0,
+                                    percentage
+                                )
+                            );
+
+
+                        const bar =
+                            row.querySelector(
+                                ".od-progress-bar"
+                            );
+
+
+                        if (bar) {
+
+                            requestAnimationFrame(
+                                function () {
+
+                                    bar.style.width =
+                                        percentage
+                                        +
+                                        "%";
+
+                                }
+                            );
+
+                        }
+
+                    }
+                );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

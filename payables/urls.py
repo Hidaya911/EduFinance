@@ -1,12 +1,38 @@
 from django.urls import path
 
+from . import payment_reminder_views
+
 from . import views
+from . import overdue_views
+from . import report_views
 
 
 app_name = "payables"
 
 
 urlpatterns = [
+
+    # ============================================================
+    # REPORTS
+    # ============================================================
+
+    path(
+        "reports/",
+        report_views.reports_hub,
+        name="reports_hub",
+    ),
+
+    path(
+        "reports/<slug:slug>/",
+        report_views.report_detail,
+        name="report_detail",
+    ),
+
+    path(
+        "reports/<slug:slug>/export/csv/",
+        report_views.report_csv_export,
+        name="report_csv_export",
+    ),
 
     # ============================================================
     # EXPENSE CATEGORIES
@@ -422,4 +448,59 @@ urlpatterns = [
         name="refund_cancel",
     ),
 
+
+
+
+    # ============================================================
+    # OVERDUE TRACKING
+    # ============================================================
+
+    path(
+        "overdue/",
+        overdue_views.overdue_list,
+        name="overdue_list",
+    ),
+
+
+
+
+    # ============================================================
+# PAYMENT REMINDERS
+# ============================================================
+
+path(
+    "payment-reminders/",
+    payment_reminder_views.payment_reminder_list,
+    name="payment_reminder_list",
+),
+
+path(
+    "payment-reminders/create/",
+    payment_reminder_views.payment_reminder_create,
+    name="payment_reminder_create",
+),
+
+path(
+    "payment-reminders/<str:pk>/",
+    payment_reminder_views.payment_reminder_detail,
+    name="payment_reminder_detail",
+),
+
+path(
+    "payment-reminders/<str:pk>/edit/",
+    payment_reminder_views.payment_reminder_edit,
+    name="payment_reminder_edit",
+),
+
+path(
+    "payment-reminders/<str:pk>/send/",
+    payment_reminder_views.payment_reminder_send,
+    name="payment_reminder_send",
+),
+
+path(
+    "payment-reminders/<str:pk>/cancel/",
+    payment_reminder_views.payment_reminder_cancel,
+    name="payment_reminder_cancel",
+),
 ]

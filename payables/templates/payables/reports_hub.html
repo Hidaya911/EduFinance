@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reports | EduFinance{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/reports.css' %}">{% endblock %}
+
+{% block content %}
+<div class="report-progress" id="reportProgress" aria-hidden="true"></div>
+<main class="reports-page">
+  <nav class="reports-breadcrumb" aria-label="Breadcrumb"><a href="{% url 'dashboard' %}">EduFinance</a><i class="bi bi-chevron-right"></i><span>Financial Intelligence</span></nav>
+
+  <section class="reports-hero">
+    <div class="reports-hero-copy">
+      <span class="reports-kicker"><i class="bi bi-stars"></i> Finance intelligence workspace</span>
+      <h1>Reports that show what is known—and what is not.</h1>
+      <p>Explore verified operational finance data, preserve audit context, and see shared-module dependencies without substitute values.</p>
+      <div class="reports-hero-meta"><span><i class="bi bi-calendar3"></i> As of {{ as_of|date:"d M Y, H:i" }}</span><span><i class="bi bi-currency-exchange"></i> {{ currency_code }}</span><span><i class="bi bi-mortarboard"></i> {{ academic_year }}</span></div>
+    </div>
+    <div class="reports-hero-mark" aria-hidden="true"><div class="reports-mark-ring"><span>{{ total_reports }}</span><small>reports</small></div><i class="bi bi-graph-up-arrow"></i></div>
+  </section>
+
+  <section class="reports-scoreboard" aria-label="Report readiness">
+    <article><span class="score-icon blue"><i class="bi bi-collection"></i></span><div><strong>{{ total_reports }}</strong><span>Required reports</span></div></article>
+    <article><span class="score-icon green"><i class="bi bi-check2-circle"></i></span><div><strong>{{ counts.ready }}</strong><span>Ready on real data</span></div></article>
+    <article><span class="score-icon amber"><i class="bi bi-circle-half"></i></span><div><strong>{{ counts.partial }}</strong><span>Partially integrated</span></div></article>
+    <article><span class="score-icon violet"><i class="bi bi-link-45deg"></i></span><div><strong>{{ counts.integration_pending }}</strong><span>Awaiting shared models</span></div></article>
+  </section>
+
+  <section class="reports-console" aria-labelledby="catalog-title">
+    <header class="reports-section-head"><div><span class="reports-eyebrow">Report catalog</span><h2 id="catalog-title">Financial intelligence library</h2><p>Search all fifteen required reports or focus by verified readiness.</p></div><span class="reports-live"><i></i> Read-only analytics</span></header>
+    <div class="reports-toolbar">
+      <label class="reports-search"><i class="bi bi-search"></i><input id="reportSearch" type="search" placeholder="Search by report ID, title, category, or purpose…" autocomplete="off"></label>
+      <div class="reports-status-tabs" role="group" aria-label="Filter report readiness">
+        <button class="is-active" type="button" data-status="all">All <span>{{ total_reports }}</span></button>
+        <button type="button" data-status="ready">Ready <span>{{ counts.ready }}</span></button>
+        <button type="button" data-status="partial">Partial <span>{{ counts.partial }}</span></button>
+        <button type="button" data-status="integration_pending">Pending <span>{{ counts.integration_pending }}</span></button>
+      </div>
+    </div>
+
+    <div id="reportCatalog">
+      {% for category in categories %}
+      <section class="reports-category" data-category>
+        <div class="reports-category-head"><h3>{{ category.name }}</h3><span>{{ category.reports|length }} report{{ category.reports|length|pluralize }}</span></div>
+        <div class="reports-grid">
+          {% for report in category.reports %}
+          <article class="report-card status-{{ report.status }}" data-report data-status="{{ report.status }}" data-search="{{ report.id }} {{ report.title }} {{ report.category }} {{ report.description }}">
+            <div class="report-card-top"><span class="report-id">{{ report.id }}</span><span class="report-badge {{ report.status }}">{% if report.status == 'integration_pending' %}Integration pending{% else %}{{ report.status|title }}{% endif %}</span></div>
+            <div class="report-card-icon"><i class="bi {% if report.category == 'Revenue & Collections' %}bi-bank{% elif report.category == 'Student Receivables' %}bi-person-lines-fill{% elif report.category == 'Financial Adjustments' %}bi-sliders2{% elif report.category == 'Operations & Payables' %}bi-building-gear{% else %}bi-graph-up-arrow{% endif %}"></i></div>
+            <h4>{{ report.title }}</h4><p>{{ report.description }}</p>
+            {% if report.dependency %}<div class="report-dependency"><i class="bi bi-link-45deg"></i><span>{{ report.dependency }}</span></div>{% else %}<div class="report-dependency verified"><i class="bi bi-shield-check"></i><span>Verified project records</span></div>{% endif %}
+            <a class="report-open report-navigation" href="{% url 'payables:report_detail' report.slug %}"><span>{% if report.status == 'integration_pending' %}View integration state{% else %}Open report{% endif %}</span><i class="bi bi-arrow-up-right"></i></a>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+      <div class="reports-empty" id="reportsEmpty" hidden><i class="bi bi-search"></i><h3>No reports match this view</h3><p>Try another phrase or readiness filter.</p><button type="button" id="clearReportFilters">Clear report filters</button></div>
+    </div>
+  </section>
+
+  <section class="reports-integrity"><span class="reports-integrity-icon"><i class="bi bi-shield-lock"></i></span><div><strong>Financial integrity by design</strong><p>Reports are read-only. Missing student-finance integrations remain visible as dependencies instead of being replaced with supplier data or invented values.</p></div><div class="reports-integrity-points"><span><i class="bi bi-check2"></i> Real records only</span><span><i class="bi bi-check2"></i> No balance mutation</span><span><i class="bi bi-check2"></i> Currency-aware</span></div></section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const search = document.getElementById("reportSearch"), cards = Array.from(document.querySelectorAll("[data-report]")), tabs = Array.from(document.querySelectorAll("button[data-status]")), empty = document.getElementById("reportsEmpty"), progress = document.getElementById("reportProgress");
+  let active = "all", timer;
+  function apply() { const term = search.value.trim().toLowerCase(); let shown = 0; cards.forEach(function(card) { const visible = (active === "all" || card.dataset.status === active) && card.dataset.search.toLowerCase().includes(term); card.hidden = !visible; if (visible) shown += 1; }); document.querySelectorAll("[data-category]").forEach(function(section) { section.hidden = !section.querySelector("[data-report]:not([hidden])"); }); empty.hidden = shown !== 0; }
+  search.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(apply, 320); });
+  tabs.forEach(function(tab) { tab.addEventListener("click", function () { tabs.forEach(t => t.classList.remove("is-active")); tab.classList.add("is-active"); active = tab.dataset.status; apply(); }); });
+  document.getElementById("clearReportFilters").addEventListener("click", function () { search.value = ""; active = "all"; tabs.forEach(t => t.classList.toggle("is-active", t.dataset.status === "all")); apply(); search.focus(); });
+  document.querySelectorAll(".report-navigation").forEach(link => link.addEventListener("click", () => progress.classList.add("is-active")));
+  window.addEventListener("pageshow", () => progress.classList.remove("is-active"));
+});
+</script>
+{% endblock %}

@@ -169,6 +169,33 @@
       </a>
 
 
+
+      <!-- Overdue Tracking -->
+
+    <a
+      href="{% url 'payables:overdue_list' %}"
+      class="nav-link-custom
+      {% if request.resolver_match.namespace == 'payables' and 'overdue_' in request.resolver_match.url_name %}
+        active
+      {% endif %}"
+    >
+      Overdue Tracking
+    </a>
+
+
+
+
+    <!-- Payment Reminders -->
+
+  <a
+    href="{% url 'payables:payment_reminder_list' %}"
+    class="nav-link-custom
+    {% if request.resolver_match.namespace == 'payables' and 'payment_reminder_' in request.resolver_match.url_name %}
+      active
+    {% endif %}"
+  >
+    Payment Reminders
+  </a>
       <!-- ===================================================
            EXPENSES
       ==================================================== -->
@@ -207,9 +234,9 @@
       </div>
 
       <a
-        href="#"
+        href="{% url 'payables:reports_hub' %}"
         class="nav-link-custom
-        {% if 'reports' in request.path %}
+        {% if request.resolver_match.namespace == 'payables' and request.resolver_match.url_name == 'reports_hub' or request.resolver_match.namespace == 'payables' and request.resolver_match.url_name == 'report_detail' or request.resolver_match.namespace == 'payables' and request.resolver_match.url_name == 'report_csv_export' %}
           active
         {% endif %}"
       >

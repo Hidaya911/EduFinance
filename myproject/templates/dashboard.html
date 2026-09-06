@@ -1,226 +1,133 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Financial Dashboard | EduFinance{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
 
 {% block content %}
-<div class="finance-dashboard">
-    <section class="dashboard-header" aria-labelledby="dashboard-title">
-        <div class="hero-pattern" aria-hidden="true"></div>
-        <div class="hero-main">
-            <div class="hero-copy">
-                <p class="dashboard-eyebrow"><span></span> Financial command center</p>
-                <h1 class="dashboard-title" id="dashboard-title">{{ greeting }}, {{ display_name }}</h1>
-                <p class="dashboard-subtitle">Your school's financial position for <strong>{{ academic_year }}</strong>.</p>
-                <div class="hero-meta">
-                    <span><i class="bi bi-currency-exchange"></i> Base currency <strong>{{ currency_code }}</strong></span>
-                    <span><i class="bi bi-calendar3"></i> Academic year <strong>{{ academic_year }}</strong></span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <a class="hero-secondary-btn" href="{% url 'payables:expense_list' %}"><i class="bi bi-grid-1x2"></i> View expenses</a>
-                <div class="dropdown">
-                    <button class="quick-entry-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-plus-lg me-1"></i> Quick entry
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li><a class="dropdown-item" href="{% url 'payables:expense_create' %}">Add expense</a></li>
-                        <li><a class="dropdown-item" href="{% url 'payables:scholarship_create' %}">Create scholarship</a></li>
-                        <li><a class="dropdown-item" href="{% url 'payables:supplier_create' %}">Add supplier</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="financial-pulse" aria-label="Current financial pulse">
-            <span class="pulse-label"><i class="bi bi-activity"></i> Live pulse</span>
-            {% for pulse in financial_pulse %}
-            <a class="pulse-item" href="{{ pulse.url }}">
-                <i class="bi {{ pulse.icon }}"></i>
-                <span><strong>{{ pulse.value }}</strong>{{ pulse.label }}</span>
-                <i class="bi bi-arrow-up-right"></i>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="kpi-grid" aria-label="Financial key performance indicators">
-        {% for kpi in kpis %}
-        <article class="kpi-card tone-card-{{ kpi.tone }}{% if forloop.counter == 2 %} kpi-featured{% endif %}">
-            <div class="kpi-top">
-                <span class="kpi-label">{{ kpi.label }}</span>
-                <span class="dashboard-icon tone-{{ kpi.tone }}"><i class="bi {{ kpi.icon }}"></i></span>
-            </div>
-            <div class="kpi-value">
-                <span class="kpi-currency">{{ currency_code }}</span>
-                <span class="kpi-number">{{ kpi.value }}</span>
-            </div>
-            <p class="kpi-detail">{{ kpi.detail }}</p>
-            <span class="kpi-accent" aria-hidden="true"></span>
-        </article>
-        {% endfor %}
-    </section>
-
-    <div class="dashboard-grid">
-        <section class="dashboard-card" aria-labelledby="performance-title">
-            <div class="card-heading">
-                <div>
-                    <h2 class="card-title" id="performance-title">Revenue &amp; Collection Performance</h2>
-                    <p class="card-description">Expected revenue compared with received collections</p>
-                </div>
-                <span class="card-badge">{{ academic_year }}</span>
-            </div>
-            <div class="performance-body">
-                <div class="chart-stage">
-                    <div class="ghost-chart" aria-hidden="true">
-                        <span style="--ghost-height: 24%;"></span><span style="--ghost-height: 37%;"></span><span style="--ghost-height: 31%;"></span><span style="--ghost-height: 52%;"></span><span style="--ghost-height: 45%;"></span><span style="--ghost-height: 64%;"></span><span style="--ghost-height: 55%;"></span><span style="--ghost-height: 72%;"></span><span style="--ghost-height: 66%;"></span><span style="--ghost-height: 82%;"></span><span style="--ghost-height: 74%;"></span><span style="--ghost-height: 88%;"></span>
-                    </div>
-                    <div class="empty-chart">
-                        <i class="bi bi-bar-chart-line"></i>
-                        <strong>No collection history is available yet</strong>
-                        <span>Monthly performance will appear when student invoicing and collection records are implemented.</span>
-                    </div>
-                    <div class="chart-timeline" aria-hidden="true"><span>Jan</span><span>Apr</span><span>Jul</span><span>Oct</span><span>Dec</span></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="dashboard-card" aria-labelledby="health-title">
-            <div class="card-heading">
-                <div>
-                    <h2 class="card-title" id="health-title">Financial Health</h2>
-                    <p class="card-description">Real supplier payable indicators</p>
-                </div>
-                <span class="card-badge">Live</span>
-            </div>
-            <div class="health-body">
-                <div class="health-orbit" style="--health-score: {{ health_score }}%;">
-                    <div class="health-orbit-inner">
-                        <span class="health-orbit-label">Settlement health</span>
-                        <strong>{{ health_score }}%</strong>
-                        <small>{% if has_payable_data %}of payables settled{% else %}Awaiting bill data{% endif %}</small>
-                    </div>
-                </div>
-                {% for metric in financial_health %}
-                <div class="health-item">
-                    <div class="health-meta">
-                        <span class="health-label">{{ metric.label }}</span>
-                        <span class="health-value">{{ metric.value }}%</span>
-                    </div>
-                    <div class="progress-track" role="progressbar" aria-label="{{ metric.label }}" aria-valuenow="{{ metric.value }}" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-fill" style="--progress: {{ metric.value }}%;"></div>
-                    </div>
-                    <p class="health-detail">{{ metric.detail }}</p>
-                </div>
-                {% endfor %}
-                <div class="health-note">
-                    <i class="bi bi-info-circle"></i>
-                    <span>{% if has_payable_data %}Ratios are calculated from active supplier bills.{% else %}Payable health will populate when supplier bills are recorded.{% endif %}</span>
-                </div>
-            </div>
-        </section>
+<div class="dash-progress" id="dashProgress" aria-hidden="true"></div>
+<main class="finance-dashboard">
+  <section class="dashboard-header" aria-labelledby="dashboard-title">
+    <div class="hero-pattern" aria-hidden="true"></div>
+    <div class="hero-main">
+      <div class="hero-copy">
+        <p class="dashboard-eyebrow"><span></span> Financial operations center</p>
+        <h1 class="dashboard-title" id="dashboard-title">{{ greeting }}, {{ display_name }}</h1>
+        <p class="dashboard-subtitle">A verified view of school finance for <strong>{{ academic_year }}</strong>.</p>
+        <div class="hero-meta"><span><i class="bi bi-calendar3"></i> {{ as_of|date:"l, d F Y" }}</span><span><i class="bi bi-currency-exchange"></i> Base currency <strong>{{ currency_code }}</strong></span><span><i class="bi bi-mortarboard"></i> Academic year <strong>{{ academic_year }}</strong></span></div>
+      </div>
+      <div class="header-actions">
+        <a class="hero-secondary-btn dash-nav" href="{% url 'payables:reports_hub' %}"><i class="bi bi-bar-chart-line"></i> Reports</a>
+        {% if can_create_expense %}<a class="quick-entry-btn dash-nav" href="{% url 'payables:expense_create' %}"><i class="bi bi-plus-lg"></i> Create expense</a>{% endif %}
+      </div>
     </div>
-
-    <div class="dashboard-grid">
-        <section class="dashboard-card" aria-labelledby="breakdown-title">
-            <div class="card-heading">
-                <div>
-                    <h2 class="card-title" id="breakdown-title">Supplier Bill Breakdown</h2>
-                    <p class="card-description">Current distribution of non-cancelled bills</p>
-                </div>
-                <span class="card-badge">{{ bill_count }} record{{ bill_count|pluralize }}</span>
-            </div>
-            <div class="breakdown-body">
-                <div class="ring" style="--bill-ring: {{ bill_ring }};" aria-label="Supplier bill status chart">
-                    <div class="ring-center"><strong>{{ bill_count }}</strong><span>Total bills</span></div>
-                </div>
-                <div class="breakdown-legend">
-                    {% for item in bill_breakdown %}
-                    <div class="legend-row">
-                        <span class="legend-dot" style="background: {{ item.color }};"></span>
-                        <span>{{ item.label }}</span>
-                        <span class="legend-count">{{ item.count }} <small class="text-muted">({{ item.percent }}%)</small></span>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
-
-        <section class="dashboard-card" aria-labelledby="attention-title">
-            <div class="card-heading">
-                <div>
-                    <h2 class="card-title" id="attention-title">Attention Required</h2>
-                    <p class="card-description">Items that may need action</p>
-                </div>
-                <span class="card-badge">Actionable</span>
-            </div>
-            <div class="attention-body">
-                {% for item in attention_items %}
-                <a class="attention-row" href="{{ item.url }}">
-                    <span class="dashboard-icon tone-{{ item.tone }}"><i class="bi {{ item.icon }}"></i></span>
-                    <span class="attention-copy">
-                        <span class="attention-title">{{ item.title }}</span>
-                        <span class="attention-detail">{{ item.detail }}</span>
-                    </span>
-                    <span class="attention-count">{{ item.count }}</span>
-                    <i class="bi bi-chevron-right attention-arrow"></i>
-                </a>
-                {% endfor %}
-            </div>
-        </section>
+    <div class="financial-pulse" aria-label="Live operational pulse">
+      <span class="pulse-label"><i class="bi bi-activity"></i> Live pulse</span>
+      <a class="pulse-item dash-nav" href="{% url 'payables:expense_list' %}"><i class="bi bi-wallet2"></i><span><strong>{{ currency_code }} {{ month_expenses }}</strong>Expenses this month</span><i class="bi bi-arrow-up-right"></i></a>
+      <a class="pulse-item dash-nav" href="{% url 'payables:supplier_bill_list' %}"><i class="bi bi-receipt"></i><span><strong>{{ currency_code }} {{ payables.outstanding }}</strong>Accounts payable</span><i class="bi bi-arrow-up-right"></i></a>
+      <a class="pulse-item dash-nav" href="{% url 'payables:approval_list' %}"><i class="bi bi-check2-square"></i><span><strong>{{ pending_approval_count }}</strong>Pending approvals</span><i class="bi bi-arrow-up-right"></i></a>
+      <a class="pulse-item dash-nav" href="{% url 'payables:payment_reminder_list' %}"><i class="bi bi-bell"></i><span><strong>{{ reminder_counts.failed }}</strong>Failed reminders</span><i class="bi bi-arrow-up-right"></i></a>
     </div>
+  </section>
 
-    <section class="dashboard-card activity-card" aria-labelledby="activity-title">
-        <div class="card-heading">
-            <div>
-                <h2 class="card-title" id="activity-title">Recent Financial Activity</h2>
-                <p class="card-description">Latest verified changes across financial records</p>
-            </div>
-            <span class="card-badge">Most recent</span>
-        </div>
-        {% if activities %}
-        <div class="activity-list">
-            {% for activity in activities %}
-            <a class="activity-row" href="{{ activity.url }}">
-                <span class="dashboard-icon tone-{{ activity.tone }}"><i class="bi {{ activity.icon }}"></i></span>
-                <span class="activity-main">
-                    <span class="activity-title">{{ activity.title }}</span>
-                    <span class="activity-reference">{{ activity.reference }}</span>
-                </span>
-                <span class="activity-value">{{ activity.value }}</span>
-                <span class="activity-status">{{ activity.status }}</span>
-                <time class="activity-time" datetime="{{ activity.timestamp|date:'c' }}">{{ activity.timestamp|timesince }} ago</time>
-                <i class="bi bi-chevron-right activity-arrow"></i>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="bi bi-clock-history"></i>
-            <strong>No financial activity yet</strong>
-            <span>Recorded expenses, bills, discounts, and scholarships will appear here.</span>
-        </div>
-        {% endif %}
+  <section class="kpi-grid" aria-label="Primary financial indicators">
+    {% for kpi in primary_kpis %}
+    <article class="kpi-card tone-card-{{ kpi.tone }}{% if not kpi.available %} kpi-pending{% endif %}">
+      <div class="kpi-top"><span class="kpi-label">{{ kpi.label }}</span><span class="dashboard-icon tone-{{ kpi.tone }}"><i class="bi {{ kpi.icon }}"></i></span></div>
+      {% if kpi.available %}<div class="kpi-value"><span class="kpi-currency">{{ currency_code }}</span><span class="kpi-number">{{ kpi.value }}</span></div>{% else %}<div class="kpi-state"><i class="bi bi-link-45deg"></i>{{ kpi.value }}</div>{% endif %}
+      <p class="kpi-detail">{{ kpi.detail }}</p><span class="kpi-accent" aria-hidden="true"></span>
+    </article>
+    {% endfor %}
+  </section>
+
+  <div class="dashboard-grid dashboard-grid-wide">
+    <section class="dashboard-card" aria-labelledby="collection-title">
+      <div class="card-heading"><div><span class="section-kicker">Student receivables</span><h2 class="card-title" id="collection-title">Collection Health</h2><p class="card-description">Expected fees, collections, and remaining student balances</p></div><span class="card-badge pending">Integration pending</span></div>
+      <div class="dependency-state collection-state"><span class="dependency-visual"><i class="bi bi-bank"></i><b></b></span><div><strong>Student billing source unavailable</strong><p>Collection progress will activate when student invoices and payments are connected.</p><div class="dependency-points"><span><i class="bi bi-dash-circle"></i> Expected revenue</span><span><i class="bi bi-dash-circle"></i> Collected</span><span><i class="bi bi-dash-circle"></i> Remaining</span></div></div></div>
     </section>
 
-    <section class="dashboard-card" aria-labelledby="actions-title">
-        <div class="card-heading">
-            <div>
-                <h2 class="card-title" id="actions-title">Quick Actions</h2>
-                <p class="card-description">Move directly into common finance workflows</p>
-            </div>
-        </div>
-        <div class="actions-grid">
-            <a class="action-link action-primary" href="{% url 'payables:expense_create' %}"><i class="bi bi-plus-circle"></i><span><strong>Add expense</strong><small>Record a new cost</small></span><i class="bi bi-arrow-right"></i></a>
-            <a class="action-link" href="{% url 'payables:scholarship_create' %}"><i class="bi bi-mortarboard"></i><span><strong>Create scholarship</strong><small>Start an award record</small></span><i class="bi bi-arrow-right"></i></a>
-            <a class="action-link" href="{% url 'payables:supplier_create' %}"><i class="bi bi-building-add"></i><span><strong>Add supplier</strong><small>Register a vendor</small></span><i class="bi bi-arrow-right"></i></a>
-            <a class="action-link" href="{% url 'payables:discount_create' %}"><i class="bi bi-tag"></i><span><strong>Create discount</strong><small>Set a student adjustment</small></span><i class="bi bi-arrow-right"></i></a>
-            <a class="action-link" href="{% url 'payables:supplier_payment_create' %}"><i class="bi bi-credit-card"></i><span><strong>Record payment</strong><small>Post a supplier payment</small></span><i class="bi bi-arrow-right"></i></a>
-            {% if user.is_staff or user.is_superuser %}<a class="action-link" href="{% url 'payables:approval_list' %}"><i class="bi bi-check2-square"></i><span><strong>View approvals</strong><small>Review sensitive actions</small></span><i class="bi bi-arrow-right"></i></a>{% endif %}
-        </div>
+    <section class="dashboard-card" aria-labelledby="expense-trend-title">
+      <div class="card-heading"><div><span class="section-kicker">Six-month operating view</span><h2 class="card-title" id="expense-trend-title">Revenue vs Expense</h2><p class="card-description">Verified active expenses; revenue remains unavailable</p></div><span class="card-badge partial">Partial</span></div>
+      {% if has_monthly_expenses %}<div class="expense-chart" aria-label="Monthly active expense chart">{% for month in monthly_expenses %}<div class="expense-column"><span class="expense-tooltip">{{ currency_code }} {{ month.formatted }}</span><div class="expense-bar-track"><i style="--bar-height: {{ month.height }}%;"></i></div><strong>{{ month.label }}</strong><small>{{ month.year }}</small></div>{% endfor %}</div><div class="chart-legend"><span><i class="legend-expense"></i> Active expenses</span><span class="unavailable"><i></i> Revenue unavailable</span></div>{% else %}<div class="compact-empty"><i class="bi bi-bar-chart"></i><strong>No active expense history yet</strong><span>Monthly expense values will appear after expenses are recorded.</span></div>{% endif %}
     </section>
-</div>
+  </div>
+
+  <section class="dashboard-card notifications-card" aria-labelledby="notifications-title">
+    <div class="card-heading"><div><span class="section-kicker">Personal activity</span><h2 class="card-title" id="notifications-title">Important Notifications</h2><p class="card-description">Unread alerts first, followed by your most recent account notifications</p></div><div class="card-head-actions"><span class="card-badge {% if unread_dashboard_notifications %}unread{% else %}live{% endif %}">{{ unread_dashboard_notifications }} unread</span><a class="card-link dash-nav" href="{% url 'accounts:notifications_list' %}">View all notifications <i class="bi bi-arrow-right"></i></a></div></div>
+    {% if important_notifications %}<div class="notification-preview">{% for notification in important_notifications %}{% if notification.link %}<a class="notification-row dash-nav{% if not notification.is_read %} is-unread{% endif %}" href="{{ notification.link }}">{% else %}<div class="notification-row{% if not notification.is_read %} is-unread{% endif %}">{% endif %}<span class="notification-indicator"><i class="bi {% if notification.is_read %}bi-bell{% else %}bi-bell-fill{% endif %}"></i></span><span class="notification-copy"><strong>{{ notification.title }}</strong><small>{{ notification.message|truncatechars:130 }}</small></span><span class="notification-state">{% if notification.is_read %}Read{% else %}Unread{% endif %}</span><time datetime="{{ notification.created_at|date:'c' }}">{% if notification.created_at %}{{ notification.created_at|timesince }} ago{% else %}Recently{% endif %}</time>{% if notification.link %}<i class="bi bi-arrow-up-right notification-arrow"></i></a>{% else %}</div>{% endif %}{% endfor %}</div>{% else %}<div class="compact-empty notification-empty"><i class="bi bi-bell"></i><strong>No important notifications</strong><span>Personal system alerts and account activity will appear here when available.</span><a class="dash-nav" href="{% url 'accounts:notifications_list' %}">Open notification center</a></div>{% endif %}
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card" aria-labelledby="distribution-title">
+      <div class="card-heading"><div><span class="section-kicker">Operating costs</span><h2 class="card-title" id="distribution-title">Expense Distribution</h2><p class="card-description">Top categories across {{ expense_count }} active expense record{{ expense_count|pluralize }}</p></div><div class="card-head-actions"><span class="card-badge live">{{ currency_code }} {{ total_expenses }}</span><a class="card-link dash-nav" href="{% url 'payables:report_detail' 'expense-report' %}">Full report <i class="bi bi-arrow-right"></i></a></div></div>
+      {% if has_expense_distribution %}<div class="distribution-list">{% for item in expense_distribution %}<div class="distribution-row"><div class="distribution-meta"><span>{{ item.name }}</span><strong>{{ currency_code }} {{ item.formatted }}</strong></div><div class="distribution-track"><i style="--distribution: {{ item.percent }}%;"></i></div><small>{{ item.percent }}% of active expenses</small></div>{% endfor %}</div>{% else %}<div class="compact-empty"><i class="bi bi-pie-chart"></i><strong>No expense distribution yet</strong><span>Only active, categorized expenses contribute to this view.</span></div>{% endif %}
+    </section>
+
+    <section class="dashboard-card" aria-labelledby="risk-title">
+      <div class="card-heading"><div><span class="section-kicker">Student receivables</span><h2 class="card-title" id="risk-title">Receivable Risk</h2><p class="card-description">Official overdue rule and aging bands</p></div><a class="card-link dash-nav" href="{% url 'payables:overdue_list' %}">Open overdue <i class="bi bi-arrow-right"></i></a></div>
+      {% if readiness.overdue_ready %}<div class="risk-summary"><strong>{{ overdue_summary.overdue_student_count }}</strong><span>overdue students</span></div><div class="aging-grid"><span>1–7 <b>{{ overdue_summary.aging_1_7_count }}</b></span><span>8–30 <b>{{ overdue_summary.aging_8_30_count }}</b></span><span>31–60 <b>{{ overdue_summary.aging_31_60_count }}</b></span><span>60+ <b>{{ overdue_summary.aging_60_plus_count }}</b></span></div>{% else %}<div class="dependency-state risk-state"><span class="dependency-visual"><i class="bi bi-exclamation-diamond"></i><b></b></span><div><strong>Awaiting student invoice data</strong><p>Overdue aging is ready and will activate when invoice due dates are connected.</p><div class="rule-chip">Due date &lt; today · outstanding &gt; 0</div></div></div>{% endif %}
+    </section>
+  </div>
+
+  <section class="dashboard-card adjustments-card" aria-labelledby="adjustments-title">
+    <div class="card-heading"><div><span class="section-kicker">Controlled student support</span><h2 class="card-title" id="adjustments-title">Financial Adjustments</h2><p class="card-description">Lifecycle counts remain separate from monetary values</p></div><span class="card-badge live">Verified records</span></div>
+    <div class="adjustment-grid">
+      <a class="adjustment-panel scholarship dash-nav" href="{% url 'payables:scholarship_list' %}"><span class="adjustment-icon"><i class="bi bi-mortarboard"></i></span><div><small>Scholarships · {{ adjustments.scholarship_records }} records</small><strong>{{ adjustments.active_scholarships }} active</strong><p>{{ adjustments.pending_scholarships }} pending · fixed active value {{ currency_code }} {{ adjustments.fixed_scholarship_total }}</p></div><i class="bi bi-arrow-up-right"></i></a>
+      <a class="adjustment-panel discount dash-nav" href="{% url 'payables:discount_list' %}"><span class="adjustment-icon"><i class="bi bi-tag"></i></span><div><small>Discounts · {{ adjustments.discount_records }} records</small><strong>{{ adjustments.applied_discounts }} applied</strong><p>{{ adjustments.pending_discounts }} awaiting approval · percentages kept separate</p></div><i class="bi bi-arrow-up-right"></i></a>
+      <a class="adjustment-panel refund dash-nav" href="{% url 'payables:refund_list' %}"><span class="adjustment-icon"><i class="bi bi-arrow-counterclockwise"></i></span><div><small>Refunds · {{ adjustments.refund_requests }} requests</small><strong>{{ adjustments.pending_refunds }} pending · {{ adjustments.approved_refunds }} approved</strong><p>{{ currency_code }} {{ adjustments.refund_active_total }} active workflow value · {{ adjustments.processed_refunds }} processed</p></div><i class="bi bi-arrow-up-right"></i></a>
+      <a class="adjustment-panel assistance dash-nav" href="{% url 'payables:financial_assistance_list' %}"><span class="adjustment-icon"><i class="bi bi-life-preserver"></i></span><div><small>Financial Assistance</small><strong>{{ adjustments.assistance_total }} cases</strong><p>{{ adjustments.assistance_submitted }} submitted · {{ adjustments.assistance_review }} reviewing · {{ adjustments.assistance_approved }} approved</p></div><i class="bi bi-arrow-up-right"></i></a>
+    </div>
+  </section>
+
+  <div class="dashboard-grid dashboard-grid-balanced">
+    <section class="dashboard-card" aria-labelledby="approval-title">
+      <div class="card-heading"><div><span class="section-kicker">Governance</span><h2 class="card-title" id="approval-title">Approval Queue</h2><p class="card-description">{{ pending_approval_count }} requested or pending decision</p></div>{% if can_view_approvals %}<a class="card-link dash-nav" href="{% url 'payables:approval_list' %}">View all <i class="bi bi-arrow-right"></i></a>{% endif %}</div>
+      {% if approval_preview %}<div class="approval-list">{% for approval in approval_preview %}<a class="approval-row dash-nav" href="{% url 'payables:approval_detail' approval.pk %}"><span class="operation-icon"><i class="bi bi-check2-square"></i></span><span class="approval-main"><strong>{{ approval.title }}</strong><small>{{ approval.type }} · {{ approval.requester }}</small></span><span class="approval-amount">{% if approval.amount != 'Not monetary' %}{{ currency_code }} {% endif %}{{ approval.amount }}</span><time>{{ approval.submitted|date:"d M" }}</time></a>{% endfor %}</div>{% else %}<div class="compact-empty"><i class="bi bi-check2-circle"></i><strong>The approval queue is clear</strong><span>Requested and pending financial approvals will appear here.</span></div>{% endif %}
+    </section>
+
+    <section class="dashboard-card" aria-labelledby="recent-expenses-title">
+      <div class="card-heading"><div><span class="section-kicker">Latest operating activity</span><h2 class="card-title" id="recent-expenses-title">Recent Expenses</h2><p class="card-description">Includes status context; totals exclude voided records</p></div><a class="card-link dash-nav" href="{% url 'payables:expense_list' %}">View expenses <i class="bi bi-arrow-right"></i></a></div>
+      {% if recent_expenses %}<div class="expense-list">{% for expense in recent_expenses %}<a class="expense-row dash-nav" href="{% url 'payables:expense_detail' expense.pk %}"><span class="expense-date"><strong>{{ expense.date|date:"d" }}</strong><small>{{ expense.date|date:"M" }}</small></span><span class="expense-main"><strong>{{ expense.description|truncatechars:48 }}</strong><small>{{ expense.number }} · {{ expense.category }}</small></span><span class="status-pill status-{{ expense.record_status }}">{{ expense.approval }}</span><span class="expense-amount">{{ currency_code }} {{ expense.amount }}</span></a>{% endfor %}</div>{% else %}<div class="compact-empty"><i class="bi bi-wallet2"></i><strong>No expenses recorded</strong><span>New operating expenses will appear here with approval status.</span>{% if can_create_expense %}<a class="dash-nav" href="{% url 'payables:expense_create' %}">Create expense</a>{% endif %}</div>{% endif %}
+    </section>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-card" aria-labelledby="student-activity-title">
+      <div class="card-heading"><div><span class="section-kicker">Student collections</span><h2 class="card-title" id="student-activity-title">Recent Payment Activity</h2><p class="card-description">Student payments only—never supplier transactions</p></div><span class="card-badge pending">Integration pending</span></div>
+      <div class="dependency-state slim"><span class="dependency-visual"><i class="bi bi-credit-card"></i><b></b></span><div><strong>Payment ledger not connected</strong><p>Verified student collections will appear when the shared ledger is available.</p></div></div>
+    </section>
+    <section class="dashboard-card" aria-labelledby="installment-title">
+      <div class="card-heading"><div><span class="section-kicker">Payment schedules</span><h2 class="card-title" id="installment-title">Upcoming Installments</h2><p class="card-description">Student installment commitments and due dates</p></div><span class="card-badge pending">Integration pending</span></div>
+      <div class="dependency-state slim"><span class="dependency-visual"><i class="bi bi-calendar2-check"></i><b></b></span><div><strong>Installment source unavailable</strong><p>No student schedule is inferred from supplier bills or reminders.</p></div></div>
+    </section>
+  </div>
+
+  <div class="dashboard-grid dashboard-grid-balanced">
+    <section class="dashboard-card" aria-labelledby="reminder-title">
+      <div class="card-heading"><div><span class="section-kicker">Collections communication</span><h2 class="card-title" id="reminder-title">Payment Reminder Health</h2><p class="card-description">Delivery lifecycle and recent reminder records</p></div><a class="card-link dash-nav" href="{% url 'payables:payment_reminder_list' %}">Open reminders <i class="bi bi-arrow-right"></i></a></div>
+      <div class="reminder-metrics"><span class="draft"><strong>{{ reminder_counts.draft }}</strong>Draft</span><span class="sent"><strong>{{ reminder_counts.sent }}</strong>Sent</span><span class="failed"><strong>{{ reminder_counts.failed }}</strong>Failed</span><span class="cancelled"><strong>{{ reminder_counts.cancelled }}</strong>Cancelled</span></div>
+      {% if recent_reminders %}<div class="mini-ledger">{% for reminder in recent_reminders %}<a class="dash-nav" href="{% url 'payables:payment_reminder_detail' reminder.pk %}"><span><strong>{{ reminder.number }}</strong><small>{{ reminder.invoice }} · {{ reminder.date|date:"d M Y" }}</small></span><em class="status-{{ reminder.status }}">{{ reminder.status_label }}</em></a>{% endfor %}</div>{% else %}<div class="compact-empty compact"><i class="bi bi-bell"></i><strong>No reminders yet</strong><span>Draft and sent reminders will appear here.</span></div>{% endif %}
+    </section>
+
+    <section class="dashboard-card" aria-labelledby="payables-title">
+      <div class="card-heading"><div><span class="section-kicker">Accounts payable</span><h2 class="card-title" id="payables-title">Supplier Snapshot</h2><p class="card-description">Strictly separated from student receivables</p></div><a class="card-link dash-nav" href="{% url 'payables:supplier_bill_list' %}">View bills <i class="bi bi-arrow-right"></i></a></div>
+      <div class="payable-overview"><div class="payable-ring" style="--settled: {{ payables.settled_percent }}%"><span><strong>{{ payables.settled_percent }}%</strong><small>settled</small></span></div><div class="payable-values"><span><small>Outstanding</small><strong>{{ currency_code }} {{ payables.outstanding }}</strong></span><span><small>Open bills</small><strong>{{ payables.open_bills }}</strong></span><span class="danger"><small>Overdue bills</small><strong>{{ payables.overdue_bills }}</strong></span></div></div>
+      {% if recent_supplier_payments %}<div class="mini-ledger supplier-ledger">{% for payment in recent_supplier_payments %}<a class="dash-nav" href="{% url 'payables:supplier_payment_list' %}"><span><strong>{{ payment.supplier }}</strong><small>{{ payment.number }} · {{ payment.method }}</small></span><em>{{ currency_code }} {{ payment.amount }}</em></a>{% endfor %}</div>{% else %}<div class="compact-empty compact"><i class="bi bi-building"></i><strong>No posted supplier payments</strong><span>Posted accounts-payable transactions will appear here.</span></div>{% endif %}
+    </section>
+  </div>
+
+  <section class="reports-callout" aria-labelledby="reports-callout-title"><div class="reports-callout-mark"><i class="bi bi-graph-up-arrow"></i></div><div><span class="section-kicker">Financial intelligence</span><h2 id="reports-callout-title">{{ report_total }} structured reports, one controlled workspace.</h2><p>Move from operational signals to filterable, printable, export-aware analysis.</p></div><div class="readiness-stack"><span class="ready"><strong>{{ report_counts.ready }}</strong> Ready</span><span class="partial"><strong>{{ report_counts.partial }}</strong> Partial</span><span class="pending"><strong>{{ report_counts.integration_pending }}</strong> Pending</span></div><a class="reports-cta dash-nav" href="{% url 'payables:reports_hub' %}">Open Reports Hub <i class="bi bi-arrow-up-right"></i></a></section>
+
+  <section class="dashboard-card quick-actions-card" aria-labelledby="quick-actions-title"><div class="card-heading"><div><span class="section-kicker">Move to action</span><h2 class="card-title" id="quick-actions-title">Operational Shortcuts</h2></div></div><div class="actions-grid">{% for action in quick_actions %}{% if action.show %}<a class="action-link dash-nav{% if action.primary %} action-primary{% endif %}" href="{{ action.url }}"><i class="bi {{ action.icon }}"></i><span><strong>{{ action.label }}</strong><small>{{ action.detail }}</small></span><i class="bi bi-arrow-right"></i></a>{% endif %}{% endfor %}</div></section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const progress = document.getElementById("dashProgress"); let navigating = false;
+  document.querySelectorAll(".dash-nav").forEach(function (link) { link.addEventListener("click", function (event) { if (navigating) { event.preventDefault(); return; } navigating = true; progress.classList.add("is-active"); document.documentElement.classList.add("dash-is-loading"); }); });
+  window.addEventListener("pageshow", function () { navigating = false; progress.classList.remove("is-active"); document.documentElement.classList.remove("dash-is-loading"); });
+});
+</script>
 {% endblock %}
