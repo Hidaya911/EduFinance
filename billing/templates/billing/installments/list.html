@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<div class="d-flex justify-content-between mb-3"><h2>Installment Plans</h2><a class="btn btn-primary" href="{% url 'billing:installment_plan_create' %}">Create Plan</a></div><form class="d-flex gap-2 mb-3"><input class="form-control" name="q" value="{{ q }}" placeholder="Search student or invoice"><button class="btn btn-outline-primary">Search</button></form><table class="table"><thead><tr><th>Student</th><th>Invoice</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>{% for p in plans %}<tr><td>{{ p.student.full_name }}</td><td>{{ p.invoice.invoice_number }}</td><td>{{ p.total_amount }}</td><td>{{ p.get_status_display }}</td><td><a href="{% url 'billing:installment_plan_detail' p.pk %}">View</a></td></tr>{% empty %}<tr><td colspan="5">No plans.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

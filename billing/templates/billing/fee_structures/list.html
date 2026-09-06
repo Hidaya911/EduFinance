@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1">Fee Structures</h2>
+            <p class="text-muted mb-0">
+                Manage school fees by academic year and grade.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'billing:fee_structure_create' %}"
+            class="btn btn-primary"
+        >
+            + Create Fee Structure
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-12 col-lg-4">
+                    <label class="form-label">
+                        Search
+                    </label>
+
+                    <input
+                        id="searchInput"
+                        type="text"
+                        class="form-control"
+                        placeholder="Search fee structures..."
+                        value="{{ search }}"
+                    >
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-3">
+                    <label class="form-label">
+                        Academic Year
+                    </label>
+
+                    <select
+                        id="academicYearFilter"
+                        class="form-select"
+                    >
+                        <option value="">
+                            All Academic Years
+                        </option>
+
+                        {% for year in academic_years %}
+                            <option
+                                value="{{ year.pk }}"
+                                {% if selected_academic_year == year.pk|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ year.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <label class="form-label">
+                        Grade
+                    </label>
+
+                    <select
+                        id="gradeFilter"
+                        class="form-select"
+                    >
+                        <option value="">
+                            All Grades
+                        </option>
+
+                        {% for grade in grades %}
+                            <option
+                                value="{{ grade.pk }}"
+                                {% if selected_grade == grade.pk|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ grade.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4 col-lg-2">
+                    <label class="form-label">
+                        Status
+                    </label>
+
+                    <select
+                        id="statusFilter"
+                        class="form-select"
+                    >
+                        <option value="">
+                            All
+                        </option>
+
+                        <option
+                            value="active"
+                            {% if selected_status == "active" %}
+                                selected
+                            {% endif %}
+                        >
+                            Active
+                        </option>
+
+                        <option
+                            value="inactive"
+                            {% if selected_status == "inactive" %}
+                                selected
+                            {% endif %}
+                        >
+                            Inactive
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-1 d-flex align-items-end">
+                    <button
+                        id="resetFilters"
+                        type="button"
+                        class="btn btn-outline-secondary w-100"
+                    >
+                        Reset
+                    </button>
+                </div>
+
+            </div>
+
+            <div
+                id="searchLoading"
+                class="small text-muted mt-3 d-none"
+            >
+                Searching...
+            </div>
+
+        </div>
+    </div>
+
+    <div id="resultsContainer">
+        {% include "billing/fee_structures/partials/results.html" %}
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const academicYearFilter =
+        document.getElementById("academicYearFilter");
+
+    const gradeFilter =
+        document.getElementById("gradeFilter");
+
+    const statusFilter =
+        document.getElementById("statusFilter");
+
+    const resetButton =
+        document.getElementById("resetFilters");
+
+    const resultsContainer =
+        document.getElementById("resultsContainer");
+
+    const loading =
+        document.getElementById("searchLoading");
+
+    let debounceTimer;
+    let controller;
+
+    function loadResults() {
+
+        if (controller) {
+            controller.abort();
+        }
+
+        controller = new AbortController();
+
+        const params = new URLSearchParams();
+
+        if (searchInput.value.trim()) {
+            params.set(
+                "q",
+                searchInput.value.trim()
+            );
+        }
+
+        if (academicYearFilter.value) {
+            params.set(
+                "academic_year",
+                academicYearFilter.value
+            );
+        }
+
+        if (gradeFilter.value) {
+            params.set(
+                "grade",
+                gradeFilter.value
+            );
+        }
+
+        if (statusFilter.value) {
+            params.set(
+                "status",
+                statusFilter.value
+            );
+        }
+
+        loading.classList.remove("d-none");
+
+        const url =
+            "{% url 'billing:fee_structure_list' %}"
+            + (
+                params.toString()
+                ? "?" + params.toString()
+                : ""
+            );
+
+        fetch(url, {
+            headers: {
+                "X-Requested-With":
+                    "XMLHttpRequest"
+            },
+            signal: controller.signal,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to load fee structures."
+                );
+            }
+
+            return response.text();
+        })
+        .then(html => {
+            resultsContainer.innerHTML = html;
+
+            history.replaceState(
+                {},
+                "",
+                url
+            );
+        })
+        .catch(error => {
+            if (error.name !== "AbortError") {
+                console.error(error);
+            }
+        })
+        .finally(() => {
+            loading.classList.add("d-none");
+        });
+    }
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+            clearTimeout(debounceTimer);
+
+            debounceTimer = setTimeout(
+                loadResults,
+                300
+            );
+        }
+    );
+
+    academicYearFilter.addEventListener(
+        "change",
+        loadResults
+    );
+
+    gradeFilter.addEventListener(
+        "change",
+        loadResults
+    );
+
+    statusFilter.addEventListener(
+        "change",
+        loadResults
+    );
+
+    resetButton.addEventListener(
+        "click",
+        function () {
+            searchInput.value = "";
+            academicYearFilter.value = "";
+            gradeFilter.value = "";
+            statusFilter.value = "";
+
+            loadResults();
+        }
+    );
+});
+</script>
+{% endblock %}

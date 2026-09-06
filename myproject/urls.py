@@ -48,13 +48,18 @@ urlpatterns = [
     ),
 
     # ========================================================
-    # DEVELOPER 2 — STUDENTS / GUARDIANS
+    # DEVELOPER 2 — ROUTES
     # ========================================================
 
     path(
         "students/",
         include("students.urls"),
     ),
+
+    path(
+    "billing/",
+    include("billing.urls"),
+),
 
     # ========================================================
     # DEVELOPER 3 — FINANCE / PAYABLES

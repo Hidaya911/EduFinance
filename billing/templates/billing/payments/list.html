@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+<div class="d-flex justify-content-between mb-3"><h2>Payments</h2><a class="btn btn-primary" href="{% url 'billing:payment_create' %}">Receive Payment</a></div><form class="d-flex gap-2 mb-3"><input class="form-control" name="q" value="{{ q }}" placeholder="Search payment or student"><button class="btn btn-outline-primary">Search</button></form><table class="table"><thead><tr><th>Payment</th><th>Student</th><th>Date</th><th>Method</th><th>Amount</th><th></th></tr></thead><tbody>{% for p in payments %}<tr><td>{{ p.payment_number }}</td><td>{{ p.student.full_name }}</td><td>{{ p.payment_date }}</td><td>{{ p.get_payment_method_display }}</td><td>{{ p.amount }}</td><td><a href="{% url 'billing:payment_detail' p.pk %}">View</a></td></tr>{% empty %}<tr><td colspan="6">No payments.</td></tr>{% endfor %}</tbody></table>
+</div>
+{% endblock %}

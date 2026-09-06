@@ -88,32 +88,74 @@
         FINANCE
       </div>
 
+
+      <!-- Fee Structures -->
+
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'billing:fee_structure_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'fee_structure' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
+        <i class="bi bi-cash-stack me-2"></i>
         Fee Structures
       </a>
 
+
+      <!-- Invoices -->
+
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'billing:invoice_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'invoice' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
+        <i class="bi bi-receipt-cutoff me-2"></i>
         Invoices
       </a>
 
+
+      <!-- Payments -->
+
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'billing:payment_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'payment' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
+        <i class="bi bi-credit-card-fill me-2"></i>
         Payments
       </a>
 
+
+      <!-- Installments -->
+
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'billing:installment_plan_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'installment' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
+        <i class="bi bi-calendar-check-fill me-2"></i>
         Installments
+      </a>
+
+
+      <!-- Receipts -->
+
+      <a
+        href="{% url 'billing:receipt_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'receipt' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
+      >
+        <i class="bi bi-file-earmark-text-fill me-2"></i>
+        Receipts
       </a>
 
 
@@ -214,12 +256,18 @@
         Reports
       </a>
 
+
+      <!-- Student Statements -->
+
       <a
-        href="#"
-        class="nav-link-custom"
+        href="{% url 'billing:statement_list' %}"
+        class="nav-link-custom
+        {% if request.resolver_match.namespace == 'billing' and 'statement' in request.resolver_match.url_name %}
+          active
+        {% endif %}"
       >
         <i class="bi bi-file-text-fill me-2"></i>
-        Statements
+        Student Statements
       </a>
 
 
@@ -312,6 +360,7 @@
 
 
         {% if can_manage_fee_categories %}
+
           <a
             href="{% url 'school_config:fee_categories_list' %}"
             class="nav-link-custom
@@ -321,9 +370,12 @@
           >
             Fee Categories
           </a>
+
         {% endif %}
 
+
         <!-- Grades -->
+
         <a
           href="{% url 'school_config:grades_list' %}"
           class="nav-link-custom
@@ -334,7 +386,9 @@
           Grades
         </a>
 
+
         <!-- Classes & Sections -->
+
         <a
           href="{% url 'school_config:classes_list' %}"
           class="nav-link-custom
@@ -350,6 +404,7 @@
     </nav>
 
   </div>
+
 
   <!-- =======================================================
        USER PROFILE
