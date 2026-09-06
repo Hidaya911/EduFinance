@@ -100,8 +100,11 @@ class UserCreateForm(forms.ModelForm):
             if role:
                 role_pk = getattr(role, 'pk', getattr(role, 'id', None))
                 db['auth_user_groups'].insert_one({
-                    'user_id': str(user.pk),
-                    'group_id': str(role_pk)
+                    # Keep the native MongoDB identifiers.  Converting these
+                    # to strings makes Django's group relation invisible to
+                    # other permission checks.
+                    'user_id': user.pk,
+                    'group_id': role_pk
                 })
 
         return user

@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Top Nav / Back Action -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Profile Settings</li>
+                </ol>
+            </nav>
+            <h1 class="h3 fw-bold text-dark mb-0">Account Management</h1>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Return to Dashboard
+        </a>
+    </div>
+
+    <!-- Feedback Messages -->
+    {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                        <div class="d-flex align-items-center">
+                            {% if message.tags == 'success' %}
+                                <i class="bi bi-check-circle-fill fs-5 me-2 text-success"></i>
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}
+                                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger"></i>
+                            {% else %}
+                                <i class="bi bi-info-circle-fill fs-5 me-2 text-primary"></i>
+                            {% endif %}
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Left Side: Profile Card Summary & Avatar -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 mb-4 bg-white">
+                <div class="card-body">
+                    <div class="user-avatar-lg mx-auto mb-3 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow" style="width: 80px; height: 80px; font-size: 2rem;">
+                        {% if user.first_name %}
+                            {{ user.first_name|slice:":1"|upper }}{% if user.last_name %}{{ user.last_name|slice:":1"|upper }}{% endif %}
+                        {% else %}
+                            {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</h4>
+                    <p class="text-muted small mb-3">@{{ user.username }}</p>
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-semibold">
+                        {% if user.is_superuser %}Super Administrator{% else %}{{ user.groups.first.name|default:"Standard User" }}{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Security Checklist</h6>
+                <ul class="list-unstyled small text-muted mb-0">
+                    <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle text-success me-2"></i> Unique username active</li>
+                    <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle text-success me-2"></i> Encrypted password storage</li>
+                    <li class="d-flex align-items-center"><i class="bi bi-check-circle text-success me-2"></i> RBAC role verification active</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side: Edit Forms -->
+        <div class="col-xl-8 col-lg-7">
+            <!-- Personal Information Form -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="p-2 bg-primary bg-opacity-10 rounded-3 text-primary me-3">
+                        <i class="bi bi-person-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Personal Information</h5>
+                        <p class="text-muted small mb-0">Update your account identity details.</p>
+                    </div>
+                </div>
+                <hr class="text-muted opacity-25">
+
+                <form method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="update_profile" value="1">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-secondary">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-at text-muted"></i></span>
+                                <input type="text" class="form-control bg-light border-start-0 ps-0" name="username" value="{{ request.user.username }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">First Name</label>
+                            <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-secondary">Last Name</label>
+                            <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-secondary">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                                <input type="email" class="form-control bg-light border-start-0 ps-0" name="email" value="{{ request.user.email }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4 text-end">
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="p-2 bg-warning bg-opacity-10 rounded-3 text-warning me-3">
+                        <i class="bi bi-key-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Change Password</h5>
+                        <p class="text-muted small mb-0">Ensure your account uses a long, random password to stay secure.</p>
+                    </div>
+                </div>
+                <hr class="text-muted opacity-25">
+
+                <form method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="change_password" value="1">
+                    
+                    <div class="row g-3">
+                        {% for field in password_form %}
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-secondary">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted" style="font-size: 0.75rem;">{{ field.help_text|safe }}</div>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="col-12 mt-4 text-end">
+                            <button type="submit" class="btn btn-dark px-4 fw-semibold shadow-sm">
+                                <i class="bi bi-shield-check me-1"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Style Django generated form fields cleanly with Bootstrap classes
+    document.addEventListener("DOMContentLoaded", function() {
+        const passwordFields = document.querySelectorAll("form input[type='password']");
+        passwordFields.forEach(field => {
+            field.classList.add("form-control");
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4">
+    <h1 class="h3 my-4">{% if is_edit %}Edit Academic Year{% else %}Create Academic Year{% endif %}</h1>
+    
+    <!-- Responsive grid sizing: full width on mobile, half width on tablets, third on large screens -->
+    <div class="row">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                            <button type="submit" class="btn btn-success flex-grow-1">Save Academic Year</button>
+                            <a href="{% url 'academic_years_list' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
