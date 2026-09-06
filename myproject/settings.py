@@ -32,8 +32,13 @@ DEBUG = os.getenv(
 # SECURITY
 # ============================================================
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    'edu-finance-seven.vercel.app'
+    '.vercel.app',  
 
+]
 CSRF_TRUSTED_ORIGINS = [
     'https://edu-finance-seven.vercel.app',
     'https://*.vercel.app',
@@ -47,7 +52,6 @@ INSTALLED_APPS = [
     "myproject.apps.MongoAdminConfig",
     "myproject.apps.MongoAuthConfig",
     "myproject.apps.MongoContentTypesConfig",
-
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
