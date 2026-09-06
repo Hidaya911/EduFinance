@@ -1,59 +1,3108 @@
-{% extends 'base.html' %}
-
-{% block title %}Audit Log — EduFinance{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4 py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 mb-1">Audit Log</h1>
-      <p class="text-muted mb-0">Review recorded system activity.</p>
-    </div>
-  </div>
 
-  <form class="card card-body mb-4" method="get">
-    <div class="row g-3">
-      <div class="col-md-4"><input class="form-control" name="q" value="{{ filters.q }}" placeholder="Search activity"></div>
-      <div class="col-md-3">
-        <select class="form-select" name="action">
-          <option value="">All actions</option>
-          {% for value, label in action_choices %}<option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
-        </select>
-      </div>
-      <div class="col-md-2"><input class="form-control" type="date" name="date_from" value="{{ filters.date_from }}"></div>
-      <div class="col-md-2"><input class="form-control" type="date" name="date_to" value="{{ filters.date_to }}"></div>
-      <div class="col-md-1"><button class="btn btn-primary w-100">Filter</button></div>
-    </div>
-  </form>
+<style>
+    /* ============================================================
+       AUDIT LOG
+       Premium read-only compliance ledger
+       ============================================================ */
 
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light"><tr><th>Time</th><th>User</th><th>Action</th><th>Record</th><th>Changes</th><th>IP</th></tr></thead>
-        <tbody>
-          {% for log in page_obj %}
-          <tr>
-            <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td>
-            <td>{{ log.user|default:"Anonymous" }}</td>
-            <td><span class="badge text-bg-secondary">{{ log.get_action_display }}</span></td>
-            <td><strong>{{ log.model_name }}</strong>{% if log.record_repr %}<br><small class="text-muted">{{ log.record_repr }}</small>{% endif %}</td>
-            <td>{{ log.changes|default:"—"|truncatechars:100 }}</td>
-            <td>{{ log.ip_address|default:"—" }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="6" class="text-center text-muted py-4">No audit entries found.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+    .aud-page {
+        --aud-navy: #07192d;
+        --aud-navy-soft: #0b2948;
 
-  {% if page_obj.has_other_pages %}
-  <nav class="mt-3"><ul class="pagination justify-content-end">
-    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
-    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
-  </ul></nav>
-  {% endif %}
+        --aud-blue: #2563eb;
+        --aud-blue-dark: #1d4ed8;
+        --aud-blue-soft: #eff6ff;
+
+        --aud-cyan: #0891b2;
+        --aud-cyan-soft: #ecfeff;
+
+        --aud-green: #16a34a;
+        --aud-green-dark: #15803d;
+        --aud-green-soft: #f0fdf4;
+
+        --aud-amber: #d97706;
+        --aud-amber-dark: #b45309;
+        --aud-amber-soft: #fffbeb;
+
+        --aud-red: #dc2626;
+        --aud-red-dark: #b91c1c;
+        --aud-red-soft: #fef2f2;
+
+        --aud-violet: #7c3aed;
+        --aud-violet-soft: #f5f3ff;
+
+        --aud-text: #0f172a;
+        --aud-text-soft: #334155;
+        --aud-muted: #64748b;
+        --aud-muted-light: #94a3b8;
+
+        --aud-border: #e2e8f0;
+        --aud-border-soft: #edf2f7;
+
+        --aud-surface: #ffffff;
+        --aud-surface-soft: #f8fafc;
+
+        min-height: calc(100vh - 64px);
+
+        padding: 24px 28px 46px;
+
+        color: var(--aud-text);
+
+        background:
+            radial-gradient(
+                circle at 92% 2%,
+                rgba(37, 99, 235, .055),
+                transparent 25%
+            ),
+            #f7f9fc;
+    }
+
+    .aud-page *,
+    .aud-page *::before,
+    .aud-page *::after {
+        box-sizing: border-box;
+    }
+
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+
+    .aud-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        padding: 30px;
+
+        border-radius: 22px;
+
+        color: white;
+
+        background:
+            radial-gradient(
+                circle at 88% 13%,
+                rgba(34, 211, 238, .18),
+                transparent 29%
+            ),
+            linear-gradient(
+                135deg,
+                #06172a 0%,
+                #082540 57%,
+                #0a3154 100%
+            );
+
+        box-shadow:
+            0 18px 46px
+            rgba(15, 23, 42, .12);
+    }
+
+    .aud-hero::before {
+        content: "";
+
+        position: absolute;
+
+        top: -175px;
+        right: -82px;
+
+        width: 305px;
+        height: 305px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .08);
+
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 38px
+            rgba(255, 255, 255, .017),
+            0 0 0 77px
+            rgba(255, 255, 255, .011);
+
+        pointer-events: none;
+    }
+
+    .aud-hero-inner {
+        position: relative;
+
+        z-index: 2;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+    }
+
+    .aud-eyebrow {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 10px;
+
+        color: #8cecff;
+
+        font-size: .66rem;
+        font-weight: 850;
+
+        letter-spacing: .13em;
+
+        text-transform: uppercase;
+    }
+
+    .aud-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #22d3ee;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(34, 211, 238, .09),
+            0 0 13px
+            rgba(34, 211, 238, .48);
+    }
+
+    .aud-title {
+        margin: 0;
+
+        color: white;
+
+        font-size:
+            clamp(
+                1.75rem,
+                2.5vw,
+                2.35rem
+            );
+
+        line-height: 1.08;
+
+        font-weight: 850;
+
+        letter-spacing: -.04em;
+    }
+
+    .aud-subtitle {
+        max-width: 740px;
+
+        margin: 10px 0 0;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .82
+            );
+
+        font-size: .88rem;
+
+        line-height: 1.65;
+    }
+
+    .aud-hero-meta {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        align-items: center;
+
+        gap: 11px 19px;
+
+        margin-top: 18px;
+    }
+
+    .aud-hero-meta-item {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .74
+            );
+
+        font-size: .7rem;
+
+        font-weight: 650;
+    }
+
+    .aud-hero-meta-item i {
+        color: #67e8f9;
+    }
+
+    .aud-hero-meta-item strong {
+        color: white;
+
+        font-weight: 850;
+    }
+
+
+    /* ============================================================
+       HERO SECURITY CARD
+       ============================================================ */
+
+    .aud-security-card {
+        width: 255px;
+
+        flex: 0 0 255px;
+
+        padding: 16px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .12);
+
+        border-radius: 15px;
+
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                .055
+            );
+
+        backdrop-filter: blur(6px);
+    }
+
+    .aud-security-top {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .aud-security-icon {
+        width: 40px;
+        height: 40px;
+
+        flex: 0 0 40px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 11px;
+
+        color: #a5f3fc;
+
+        background:
+            rgba(
+                34,
+                211,
+                238,
+                .10
+            );
+
+        font-size: .95rem;
+    }
+
+    .aud-security-label {
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .61
+            );
+
+        font-size: .56rem;
+        font-weight: 800;
+
+        letter-spacing: .09em;
+
+        text-transform: uppercase;
+    }
+
+    .aud-security-title {
+        margin-top: 3px;
+
+        color: white;
+
+        font-size: .75rem;
+
+        font-weight: 850;
+    }
+
+    .aud-security-copy {
+        margin-top: 11px;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .68
+            );
+
+        font-size: .61rem;
+
+        line-height: 1.5;
+    }
+
+
+    /* ============================================================
+       KPI CARDS
+       ============================================================ */
+
+    .aud-kpis {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                4,
+                minmax(0, 1fr)
+            );
+
+        gap: 13px;
+
+        margin-top: 15px;
+    }
+
+    .aud-kpi {
+        min-height: 106px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 14px;
+
+        padding: 17px 18px;
+
+        border:
+            1px solid
+            #e4eaf1;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 5px 18px
+            rgba(15, 23, 42, .042);
+    }
+
+    .aud-kpi-icon {
+        width: 43px;
+        height: 43px;
+
+        flex: 0 0 43px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 12px;
+
+        font-size: .95rem;
+    }
+
+    .aud-kpi-icon.blue {
+        color: var(--aud-blue);
+
+        background: var(--aud-blue-soft);
+    }
+
+    .aud-kpi-icon.cyan {
+        color: var(--aud-cyan);
+
+        background: var(--aud-cyan-soft);
+    }
+
+    .aud-kpi-icon.green {
+        color: var(--aud-green);
+
+        background: var(--aud-green-soft);
+    }
+
+    .aud-kpi-icon.violet {
+        color: var(--aud-violet);
+
+        background: var(--aud-violet-soft);
+    }
+
+    .aud-kpi-label {
+        margin-bottom: 4px;
+
+        color: var(--aud-muted);
+
+        font-size: .59rem;
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-transform: uppercase;
+    }
+
+    .aud-kpi-value {
+        color: var(--aud-text);
+
+        font-size: 1.28rem;
+
+        line-height: 1.1;
+
+        font-weight: 850;
+    }
+
+    .aud-kpi-value.textual {
+        font-size: .86rem;
+    }
+
+    .aud-kpi-detail {
+        margin-top: 4px;
+
+        color: var(--aud-muted);
+
+        font-size: .62rem;
+
+        line-height: 1.4;
+    }
+
+
+    /* ============================================================
+       INTEGRITY BAR
+       ============================================================ */
+
+    .aud-integrity {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        margin-top: 15px;
+
+        padding: 14px 17px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #f8fbff,
+                #f1f7ff
+            );
+    }
+
+    .aud-integrity-main {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .aud-integrity-icon {
+        width: 38px;
+        height: 38px;
+
+        flex: 0 0 38px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 10px;
+
+        color: var(--aud-blue);
+
+        background: white;
+
+        box-shadow:
+            0 4px 13px
+            rgba(37, 99, 235, .07);
+    }
+
+    .aud-integrity-title {
+        color: var(--aud-text);
+
+        font-size: .72rem;
+
+        font-weight: 850;
+    }
+
+    .aud-integrity-copy {
+        margin-top: 3px;
+
+        color: var(--aud-muted);
+
+        font-size: .61rem;
+
+        line-height: 1.45;
+    }
+
+    .aud-integrity-state {
+        flex: 0 0 auto;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 9px;
+
+        border:
+            1px solid
+            #bbf7d0;
+
+        border-radius: 999px;
+
+        color: var(--aud-green-dark);
+
+        background: var(--aud-green-soft);
+
+        font-size: .59rem;
+
+        font-weight: 850;
+    }
+
+
+    /* ============================================================
+       MAIN CARD
+       ============================================================ */
+
+    .aud-ledger {
+        margin-top: 15px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(15, 23, 42, .045);
+    }
+
+    .aud-ledger-header {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid
+            var(--aud-border);
+    }
+
+    .aud-kicker {
+        color: var(--aud-blue);
+
+        font-size: .59rem;
+
+        font-weight: 850;
+
+        letter-spacing: .09em;
+
+        text-transform: uppercase;
+    }
+
+    .aud-ledger-title {
+        margin-top: 3px;
+
+        color: var(--aud-text);
+
+        font-size: 1rem;
+
+        font-weight: 850;
+    }
+
+    .aud-ledger-copy {
+        margin-top: 3px;
+
+        color: var(--aud-muted);
+
+        font-size: .67rem;
+
+        line-height: 1.45;
+    }
+
+    .aud-result-pill {
+        flex: 0 0 auto;
+
+        padding: 6px 10px;
+
+        border:
+            1px solid
+            var(--aud-border);
+
+        border-radius: 999px;
+
+        color: var(--aud-muted);
+
+        background: var(--aud-surface-soft);
+
+        font-size: .62rem;
+
+        font-weight: 850;
+    }
+
+
+    /* ============================================================
+       FILTER AREA
+       ============================================================ */
+
+    .aud-filter-area {
+        padding: 14px 20px;
+
+        border-bottom:
+            1px solid
+            var(--aud-border);
+
+        background: #fbfcfe;
+    }
+
+    .aud-filter-form {
+        display: grid;
+
+        grid-template-columns:
+            minmax(230px, 1fr)
+            180px
+            155px
+            155px
+            auto;
+
+        align-items: end;
+
+        gap: 9px;
+    }
+
+    .aud-field {
+        min-width: 0;
+    }
+
+    .aud-field-label {
+        display: block;
+
+        margin-bottom: 5px;
+
+        color: var(--aud-muted);
+
+        font-size: .55rem;
+
+        font-weight: 850;
+
+        letter-spacing: .07em;
+
+        text-transform: uppercase;
+    }
+
+    .aud-search-wrap {
+        position: relative;
+    }
+
+    .aud-search-icon {
+        position: absolute;
+
+        left: 12px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        color: var(--aud-muted-light);
+
+        pointer-events: none;
+    }
+
+    .aud-input,
+    .aud-select {
+        width: 100%;
+
+        height: 41px;
+
+        border:
+            1px solid
+            var(--aud-border);
+
+        border-radius: 10px;
+
+        outline: none;
+
+        color: var(--aud-text-soft);
+
+        background: white;
+
+        font-size: .7rem;
+
+        transition:
+            border-color .16s ease,
+            box-shadow .16s ease;
+    }
+
+    .aud-search-wrap
+    .aud-input {
+        padding: 0 39px;
+    }
+
+    .aud-field >
+    .aud-input,
+    .aud-select {
+        padding: 0 11px;
+    }
+
+    .aud-input:focus,
+    .aud-select:focus {
+        border-color: #93c5fd;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(59, 130, 246, .09);
+    }
+
+    .aud-input::placeholder {
+        color: var(--aud-muted-light);
+    }
+
+    .aud-search-clear {
+        position: absolute;
+
+        top: 50%;
+        right: 8px;
+
+        width: 26px;
+        height: 26px;
+
+        display: none;
+
+        place-items: center;
+
+        transform: translateY(-50%);
+
+        padding: 0;
+
+        border: 0;
+
+        border-radius: 7px;
+
+        color: var(--aud-muted);
+
+        background: transparent;
+
+        cursor: pointer;
+    }
+
+    .aud-search-clear.visible {
+        display: grid;
+    }
+
+    .aud-search-clear:hover {
+        color: var(--aud-text);
+
+        background: #f1f5f9;
+    }
+
+    .aud-reset-btn {
+        min-height: 41px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 13px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: var(--aud-blue);
+
+        background: var(--aud-blue-soft);
+
+        text-decoration: none;
+
+        font-size: .66rem;
+
+        font-weight: 850;
+
+        white-space: nowrap;
+
+        transition:
+            background .15s ease,
+            transform .15s ease;
+    }
+
+    .aud-reset-btn:hover {
+        color: var(--aud-blue-dark);
+
+        background: #e5efff;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* ============================================================
+       FILTER INFO
+       ============================================================ */
+
+    .aud-filter-meta {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-top: 10px;
+    }
+
+    .aud-filter-chips {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        align-items: center;
+
+        gap: 6px;
+    }
+
+    .aud-filter-chip {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 5px;
+
+        padding: 5px 8px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 999px;
+
+        color: var(--aud-blue-dark);
+
+        background: var(--aud-blue-soft);
+
+        font-size: .56rem;
+
+        font-weight: 750;
+    }
+
+    .aud-filter-none {
+        color: var(--aud-muted-light);
+
+        font-size: .58rem;
+    }
+
+    .aud-auto-note {
+        flex: 0 0 auto;
+
+        color: var(--aud-muted-light);
+
+        font-size: .56rem;
+    }
+
+
+    /* ============================================================
+       TABLE
+       ============================================================ */
+
+    .aud-table-wrap {
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+    .aud-table {
+        width: 100%;
+
+        border-collapse: collapse;
+
+        table-layout: fixed;
+    }
+
+    .aud-table thead th {
+        padding: 11px 14px;
+
+        border-bottom:
+            1px solid
+            var(--aud-border);
+
+        color: var(--aud-muted);
+
+        background: #f8fafc;
+
+        font-size: .56rem;
+
+        font-weight: 850;
+
+        letter-spacing: .075em;
+
+        text-align: left;
+
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .aud-table thead th:nth-child(1) {
+        width: 145px;
+    }
+
+    .aud-table thead th:nth-child(2) {
+        width: 160px;
+    }
+
+    .aud-table thead th:nth-child(3) {
+        width: 105px;
+    }
+
+    .aud-table thead th:nth-child(4) {
+        width: 185px;
+    }
+
+    .aud-table thead th:nth-child(6) {
+        width: 115px;
+    }
+
+    .aud-table tbody tr {
+        transition:
+            background .15s ease,
+            box-shadow .15s ease;
+    }
+
+    .aud-table tbody tr:hover {
+        background: #fbfdff;
+
+        box-shadow:
+            inset
+            3px
+            0
+            0
+            rgba(37, 99, 235, .34);
+    }
+
+    .aud-table td {
+        padding: 14px;
+
+        border-bottom:
+            1px solid
+            var(--aud-border-soft);
+
+        vertical-align: middle;
+    }
+
+    .aud-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+
+    /* ============================================================
+       TIME
+       ============================================================ */
+
+    .aud-time-main {
+        color: var(--aud-text-soft);
+
+        font-size: .67rem;
+
+        font-weight: 780;
+
+        white-space: nowrap;
+    }
+
+    .aud-time-sub {
+        margin-top: 3px;
+
+        color: var(--aud-muted-light);
+
+        font-size: .54rem;
+    }
+
+
+    /* ============================================================
+       USER
+       ============================================================ */
+
+    .aud-user {
+        min-width: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .aud-user-avatar {
+        width: 35px;
+        height: 35px;
+
+        flex: 0 0 35px;
+
+        display: grid;
+
+        place-items: center;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: var(--aud-blue-dark);
+
+        background:
+            linear-gradient(
+                145deg,
+                #eff6ff,
+                #f9fbff
+            );
+
+        font-size: .61rem;
+
+        font-weight: 900;
+
+        text-transform: uppercase;
+    }
+
+    .aud-user-name {
+        overflow: hidden;
+
+        color: var(--aud-text);
+
+        font-size: .68rem;
+
+        font-weight: 850;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+    }
+
+    .aud-user-type {
+        margin-top: 3px;
+
+        color: var(--aud-muted-light);
+
+        font-size: .54rem;
+    }
+
+
+    /* ============================================================
+       ACTION
+       ============================================================ */
+
+    .aud-action {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding: 6px 9px;
+
+        border-radius: 999px;
+
+        color: #5b21b6;
+
+        border:
+            1px solid
+            #ddd6fe;
+
+        background:
+            var(--aud-violet-soft);
+
+        font-size: .57rem;
+
+        font-weight: 850;
+
+        white-space: nowrap;
+    }
+
+    .aud-action::before {
+        content: "";
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #7c3aed;
+    }
+
+    .aud-action.action-create {
+        color: var(--aud-green-dark);
+
+        border-color: #bbf7d0;
+
+        background:
+            var(--aud-green-soft);
+    }
+
+    .aud-action.action-create::before {
+        background:
+            var(--aud-green);
+    }
+
+    .aud-action.action-update {
+        color: var(--aud-blue-dark);
+
+        border-color: #bfdbfe;
+
+        background:
+            var(--aud-blue-soft);
+    }
+
+    .aud-action.action-update::before {
+        background:
+            var(--aud-blue);
+    }
+
+    .aud-action.action-delete {
+        color: var(--aud-red-dark);
+
+        border-color: #fecaca;
+
+        background:
+            var(--aud-red-soft);
+    }
+
+    .aud-action.action-delete::before {
+        background:
+            var(--aud-red);
+    }
+
+
+    /* ============================================================
+       RECORD
+       ============================================================ */
+
+    .aud-record {
+        min-width: 0;
+    }
+
+    .aud-record-type {
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color: var(--aud-text);
+
+        font-size: .68rem;
+
+        font-weight: 850;
+    }
+
+    .aud-record-type i {
+        color: var(--aud-blue);
+    }
+
+    .aud-record-name {
+        max-width: 175px;
+
+        margin-top: 4px;
+
+        overflow: hidden;
+
+        color: var(--aud-muted);
+
+        font-size: .59rem;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+    }
+
+
+    /* ============================================================
+       CHANGES
+       ============================================================ */
+
+    .aud-change {
+        color: var(--aud-text-soft);
+
+        font-size: .64rem;
+
+        line-height: 1.48;
+    }
+
+    .aud-change-preview {
+        display: -webkit-box;
+
+        overflow: hidden;
+
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .aud-change-details {
+        margin-top: 6px;
+    }
+
+    .aud-change-details summary {
+        width: max-content;
+
+        list-style: none;
+
+        color: var(--aud-blue);
+
+        font-size: .55rem;
+
+        font-weight: 850;
+
+        cursor: pointer;
+
+        user-select: none;
+    }
+
+    .aud-change-details
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .aud-change-details
+    summary::after {
+        content: "View full change";
+    }
+
+    .aud-change-details[open]
+    summary::after {
+        content: "Hide full change";
+    }
+
+    .aud-change-full {
+        margin-top: 7px;
+
+        padding: 9px 10px;
+
+        border:
+            1px solid
+            var(--aud-border);
+
+        border-radius: 9px;
+
+        color: var(--aud-muted);
+
+        background:
+            var(--aud-surface-soft);
+
+        font-size: .59rem;
+
+        line-height: 1.5;
+
+        overflow-wrap: anywhere;
+    }
+
+
+    /* ============================================================
+       IP
+       ============================================================ */
+
+    .aud-ip {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        max-width: 100px;
+
+        padding: 5px 7px;
+
+        border:
+            1px solid
+            var(--aud-border);
+
+        border-radius: 8px;
+
+        color: var(--aud-muted);
+
+        background:
+            var(--aud-surface-soft);
+
+        font-size: .55rem;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+    .aud-ip i {
+        color: var(--aud-muted-light);
+    }
+
+
+    /* ============================================================
+       PAGINATION
+       ============================================================ */
+
+    .aud-pagination {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 14px;
+
+        padding: 14px 20px;
+
+        border-top:
+            1px solid
+            var(--aud-border);
+
+        background:
+            #fbfcfe;
+    }
+
+    .aud-pagination-copy {
+        color: var(--aud-muted);
+
+        font-size: .61rem;
+    }
+
+    .aud-pagination-copy strong {
+        color: var(--aud-text-soft);
+
+        font-weight: 850;
+    }
+
+    .aud-pages {
+        display: flex;
+
+        align-items: center;
+
+        gap: 5px;
+    }
+
+    .aud-page-btn {
+        min-width: 34px;
+        height: 34px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 5px;
+
+        padding: 0 9px;
+
+        border:
+            1px solid
+            var(--aud-border);
+
+        border-radius: 8px;
+
+        color: var(--aud-text-soft);
+
+        background: white;
+
+        text-decoration: none;
+
+        font-size: .60rem;
+
+        font-weight: 800;
+
+        transition:
+            border-color .15s ease,
+            background .15s ease,
+            color .15s ease;
+    }
+
+    .aud-page-btn:hover {
+        color: var(--aud-blue);
+
+        border-color: #bfdbfe;
+
+        background:
+            var(--aud-blue-soft);
+    }
+
+    .aud-page-btn.current {
+        color: white;
+
+        border-color:
+            var(--aud-blue);
+
+        background:
+            var(--aud-blue);
+    }
+
+    .aud-page-btn.disabled {
+        color: #cbd5e1;
+
+        background: #f8fafc;
+
+        pointer-events: none;
+    }
+
+
+    /* ============================================================
+       EMPTY STATE
+       ============================================================ */
+
+    .aud-empty {
+        padding: 58px 20px;
+
+        text-align: center;
+    }
+
+    .aud-empty-icon {
+        width: 57px;
+        height: 57px;
+
+        display: grid;
+
+        place-items: center;
+
+        margin:
+            0
+            auto
+            14px;
+
+        border-radius: 16px;
+
+        color: var(--aud-blue);
+
+        background:
+            var(--aud-blue-soft);
+
+        font-size: 1.1rem;
+    }
+
+    .aud-empty-title {
+        color: var(--aud-text);
+
+        font-size: .83rem;
+
+        font-weight: 850;
+    }
+
+    .aud-empty-copy {
+        max-width: 430px;
+
+        margin:
+            5px
+            auto
+            0;
+
+        color: var(--aud-muted);
+
+        font-size: .66rem;
+
+        line-height: 1.52;
+    }
+
+    .aud-empty-reset {
+        min-height: 38px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        margin-top: 15px;
+
+        padding: 0 12px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 9px;
+
+        color: var(--aud-blue);
+
+        background:
+            var(--aud-blue-soft);
+
+        text-decoration: none;
+
+        font-size: .62rem;
+
+        font-weight: 850;
+    }
+
+
+    /* ============================================================
+       TOP LOADING BAR
+       ============================================================ */
+
+    .aud-loading {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        z-index: 100000;
+
+        height: 3px;
+
+        display: none;
+
+        overflow: hidden;
+
+        background:
+            rgba(
+                37,
+                99,
+                235,
+                .13
+            );
+    }
+
+    .aud-loading.active {
+        display: block;
+    }
+
+    .aud-loading::after {
+        content: "";
+
+        position: absolute;
+
+        inset:
+            0
+            auto
+            0
+            -30%;
+
+        width: 30%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #22d3ee
+            );
+
+        animation:
+            aud-loading-slide
+            .85s
+            infinite
+            ease-in-out;
+    }
+
+    @keyframes aud-loading-slide {
+        from {
+            left: -30%;
+        }
+
+        to {
+            left: 100%;
+        }
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @media (max-width: 1180px) {
+        .aud-kpis {
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+        }
+
+        .aud-filter-form {
+            grid-template-columns:
+                1fr
+                1fr
+                1fr;
+        }
+
+        .aud-field.search {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .aud-page {
+            padding: 18px;
+        }
+
+        .aud-hero-inner {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .aud-security-card {
+            width: 100%;
+
+            flex-basis: auto;
+        }
+
+        .aud-table {
+            min-width: 930px;
+        }
+
+        .aud-integrity {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .aud-page {
+            padding: 12px;
+        }
+
+        .aud-hero {
+            padding:
+                22px
+                18px;
+
+            border-radius: 17px;
+        }
+
+        .aud-kpis {
+            grid-template-columns: 1fr;
+        }
+
+        .aud-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .aud-field.search {
+            grid-column: auto;
+        }
+
+        .aud-filter-meta,
+        .aud-ledger-header,
+        .aud-pagination {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .aud-result-pill {
+            width: max-content;
+        }
+
+        .aud-pages {
+            justify-content: space-between;
+        }
+
+        .aud-reset-btn {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .aud-page *,
+        .aud-page *::before,
+        .aud-page *::after {
+            animation: none !important;
+
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<!-- ================================================================
+     LOADING BAR
+     ================================================================ -->
+
+<div
+    class="aud-loading"
+    id="audLoading"
+    aria-hidden="true"
+></div>
+
+
+<div class="aud-page">
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+
+    <section class="aud-hero">
+
+        <div class="aud-hero-inner">
+
+            <div>
+
+                <div class="aud-eyebrow">
+
+                    <span class="aud-eyebrow-dot"></span>
+
+                    Security & Compliance
+
+                </div>
+
+
+                <h1 class="aud-title">
+                    Audit & Activity Ledger
+                </h1>
+
+
+                <p class="aud-subtitle">
+                    Review the permanent history of important
+                    system activity across EduFinance, including
+                    the responsible user, action performed,
+                    affected record and recorded change.
+                </p>
+
+
+                <div class="aud-hero-meta">
+
+                    <span class="aud-hero-meta-item">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        Access controlled
+
+                    </span>
+
+
+                    <span class="aud-hero-meta-item">
+
+                        <i class="bi bi-journal-text"></i>
+
+                        <strong>
+                            {{ page_obj.paginator.count }}
+                        </strong>
+
+                        matching
+                        event{{ page_obj.paginator.count|pluralize }}
+
+                    </span>
+
+
+                    <span class="aud-hero-meta-item">
+
+                        <i class="bi bi-clock-history"></i>
+
+                        Chronological activity history
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <aside class="aud-security-card">
+
+                <div class="aud-security-top">
+
+                    <div class="aud-security-icon">
+
+                        <i class="bi bi-lock"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="aud-security-label">
+                            Ledger Protection
+                        </div>
+
+                        <div class="aud-security-title">
+                            Read-only audit history
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="aud-security-copy">
+                    This screen intentionally provides no
+                    edit or delete controls for audit events.
+                    Historical activity remains available
+                    for review and accountability.
+                </div>
+
+            </aside>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         KPI CARDS
+         ============================================================ -->
+
+    <section class="aud-kpis">
+
+        <article class="aud-kpi">
+
+            <div class="aud-kpi-icon blue">
+
+                <i class="bi bi-journal-text"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="aud-kpi-label">
+                    Matching Records
+                </div>
+
+
+                <div class="aud-kpi-value">
+                    {{ page_obj.paginator.count }}
+                </div>
+
+
+                <div class="aud-kpi-detail">
+                    Events matching current filters
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="aud-kpi">
+
+            <div class="aud-kpi-icon cyan">
+
+                <i class="bi bi-layout-text-window"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="aud-kpi-label">
+                    Records This Page
+                </div>
+
+
+                <div class="aud-kpi-value">
+                    {{ page_obj.object_list|length }}
+                </div>
+
+
+                <div class="aud-kpi-detail">
+                    Maximum 25 events per page
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="aud-kpi">
+
+            <div class="aud-kpi-icon green">
+
+                <i class="bi bi-files"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="aud-kpi-label">
+                    Page Position
+                </div>
+
+
+                <div class="aud-kpi-value textual">
+
+                    {{ page_obj.number }}
+                    /
+                    {{ page_obj.paginator.num_pages }}
+
+                </div>
+
+
+                <div class="aud-kpi-detail">
+                    Current pagination position
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="aud-kpi">
+
+            <div class="aud-kpi-icon violet">
+
+                <i class="bi bi-funnel"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="aud-kpi-label">
+                    Filter State
+                </div>
+
+
+                <div class="aud-kpi-value textual">
+
+                    {% if filters.q or filters.action or filters.date_from or filters.date_to %}
+
+                        Filtered
+
+                    {% else %}
+
+                        All Activity
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="aud-kpi-detail">
+
+                    {% if filters.q or filters.action or filters.date_from or filters.date_to %}
+
+                        One or more filters active
+
+                    {% else %}
+
+                        No filters currently applied
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ============================================================
+         INTEGRITY STRIP
+         ============================================================ -->
+
+    <section class="aud-integrity">
+
+        <div class="aud-integrity-main">
+
+            <div class="aud-integrity-icon">
+
+                <i class="bi bi-fingerprint"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="aud-integrity-title">
+                    Activity remains traceable
+                </div>
+
+
+                <div class="aud-integrity-copy">
+                    The audit ledger records important actions
+                    together with their user, timestamp,
+                    affected model, record description and
+                    change details.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="aud-integrity-state">
+
+            <i class="bi bi-check2-circle"></i>
+
+            Audit history available
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         LEDGER
+         ============================================================ -->
+
+    <section class="aud-ledger">
+
+        <header class="aud-ledger-header">
+
+            <div>
+
+                <div class="aud-kicker">
+                    Activity History
+                </div>
+
+
+                <div class="aud-ledger-title">
+                    Recorded System Events
+                </div>
+
+
+                <div class="aud-ledger-copy">
+                    Search by user, record or change and
+                    narrow the ledger by action or date range.
+                </div>
+
+            </div>
+
+
+            <div class="aud-result-pill">
+
+                {{ page_obj.paginator.count }}
+
+                result{{ page_obj.paginator.count|pluralize }}
+
+            </div>
+
+        </header>
+
+
+        <!-- ========================================================
+             FILTERS
+             ======================================================== -->
+
+        <div class="aud-filter-area">
+
+            <form
+                method="get"
+                class="aud-filter-form"
+                id="audFilterForm"
+            >
+
+                <!-- SEARCH -->
+
+                <div class="aud-field search">
+
+                    <label
+                        class="aud-field-label"
+                        for="audSearch"
+                    >
+                        Search Activity
+                    </label>
+
+
+                    <div class="aud-search-wrap">
+
+                        <i
+                            class="
+                                bi
+                                bi-search
+                                aud-search-icon
+                            "
+                        ></i>
+
+
+                        <input
+                            type="search"
+                            name="q"
+                            id="audSearch"
+                            class="aud-input"
+                            value="{{ filters.q }}"
+                            placeholder="User, model, record or change..."
+                            autocomplete="off"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="aud-search-clear"
+                            id="audSearchClear"
+                            aria-label="Clear search"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTION -->
+
+                <div class="aud-field">
+
+                    <label
+                        class="aud-field-label"
+                        for="audAction"
+                    >
+                        Action
+                    </label>
+
+
+                    <select
+                        name="action"
+                        id="audAction"
+                        class="aud-select"
+                    >
+
+                        <option value="">
+                            All actions
+                        </option>
+
+
+                        {% for value, label in action_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if filters.action == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- DATE FROM -->
+
+                <div class="aud-field">
+
+                    <label
+                        class="aud-field-label"
+                        for="audDateFrom"
+                    >
+                        From Date
+                    </label>
+
+
+                    <input
+                        type="date"
+                        name="date_from"
+                        id="audDateFrom"
+                        class="aud-input"
+                        value="{{ filters.date_from }}"
+                    >
+
+                </div>
+
+
+                <!-- DATE TO -->
+
+                <div class="aud-field">
+
+                    <label
+                        class="aud-field-label"
+                        for="audDateTo"
+                    >
+                        To Date
+                    </label>
+
+
+                    <input
+                        type="date"
+                        name="date_to"
+                        id="audDateTo"
+                        class="aud-input"
+                        value="{{ filters.date_to }}"
+                    >
+
+                </div>
+
+
+                <!-- RESET -->
+
+                <div class="aud-field">
+
+                    <span class="aud-field-label">
+                        Controls
+                    </span>
+
+
+                    <a
+                        href="{% url 'audit_log:audit_log_list' %}"
+                        class="aud-reset-btn"
+                    >
+                        <i
+                            class="
+                                bi
+                                bi-arrow-counterclockwise
+                            "
+                        ></i>
+
+                        Reset
+                    </a>
+
+                </div>
+
+            </form>
+
+
+            <!-- ====================================================
+                 FILTER SUMMARY
+                 ==================================================== -->
+
+            <div class="aud-filter-meta">
+
+                <div class="aud-filter-chips">
+
+                    {% if filters.q %}
+
+                        <span class="aud-filter-chip">
+
+                            <i class="bi bi-search"></i>
+
+                            Search:
+                            {{ filters.q }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if filters.action %}
+
+                        <span class="aud-filter-chip">
+
+                            <i class="bi bi-funnel"></i>
+
+                            Action:
+                            {{ filters.action }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if filters.date_from %}
+
+                        <span class="aud-filter-chip">
+
+                            <i class="bi bi-calendar-event"></i>
+
+                            From:
+                            {{ filters.date_from }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if filters.date_to %}
+
+                        <span class="aud-filter-chip">
+
+                            <i class="bi bi-calendar-check"></i>
+
+                            To:
+                            {{ filters.date_to }}
+
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if not filters.q and not filters.action and not filters.date_from and not filters.date_to %}
+
+                        <span class="aud-filter-none">
+                            Showing complete available audit history.
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="aud-auto-note">
+                    Filters apply automatically
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================================
+             TABLE
+             ======================================================== -->
+
+        {% if page_obj.object_list %}
+
+            <div class="aud-table-wrap">
+
+                <table class="aud-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                User
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                            <th>
+                                Record
+                            </th>
+
+                            <th>
+                                Change
+                            </th>
+
+                            <th>
+                                Source IP
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for log in page_obj %}
+
+                            <tr>
+
+                                <!-- =================================
+                                     TIME
+                                     ================================= -->
+
+                                <td>
+
+                                    <div class="aud-time-main">
+
+                                        {{ log.timestamp|date:"Y-m-d H:i" }}
+
+                                    </div>
+
+
+                                    <div class="aud-time-sub">
+
+                                        {{ log.timestamp|date:"D, M j, Y" }}
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     USER
+                                     ================================= -->
+
+                                <td>
+
+                                    <div class="aud-user">
+
+                                        <div class="aud-user-avatar">
+
+                                            {% if log.user %}
+
+                                                {% if log.user.username %}
+
+                                                    {{ log.user.username|slice:":2"|upper }}
+
+                                                {% elif log.user.email %}
+
+                                                    {{ log.user.email|slice:":2"|upper }}
+
+                                                {% else %}
+
+                                                    US
+
+                                                {% endif %}
+
+                                            {% else %}
+
+                                                AN
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div style="min-width:0;">
+
+                                            <div class="aud-user-name">
+
+                                                {% if log.user %}
+
+                                                    {% if log.user.username %}
+
+                                                        {{ log.user.username }}
+
+                                                    {% elif log.user.email %}
+
+                                                        {{ log.user.email }}
+
+                                                    {% else %}
+
+                                                        User
+
+                                                    {% endif %}
+
+                                                {% else %}
+
+                                                    Anonymous
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <div class="aud-user-type">
+
+                                                {% if log.user %}
+
+                                                    {% if log.user.is_superuser %}
+
+                                                        Super Administrator
+
+                                                    {% else %}
+
+                                                        Authenticated user
+
+                                                    {% endif %}
+
+                                                {% else %}
+
+                                                    No authenticated user
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     ACTION
+                                     ================================= -->
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            aud-action
+                                            action-{{ log.action|lower }}
+                                        "
+                                    >
+
+                                        {{ log.get_action_display }}
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     RECORD
+                                     ================================= -->
+
+                                <td>
+
+                                    <div class="aud-record">
+
+                                        <div class="aud-record-type">
+
+                                            <i class="bi bi-database"></i>
+
+
+                                            {% if log.model_name %}
+
+                                                {{ log.model_name }}
+
+                                            {% else %}
+
+                                                System Record
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div
+                                            class="aud-record-name"
+                                            title="{{ log.record_repr }}"
+                                        >
+
+                                            {% if log.record_repr %}
+
+                                                {{ log.record_repr }}
+
+                                            {% else %}
+
+                                                Record details unavailable
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     CHANGES
+                                     ================================= -->
+
+                                <td>
+
+                                    <div class="aud-change">
+
+                                        {% if log.changes %}
+
+                                            <div class="aud-change-preview">
+
+                                                {{ log.changes }}
+
+                                            </div>
+
+
+                                            <details class="aud-change-details">
+
+                                                <summary></summary>
+
+
+                                                <div class="aud-change-full">
+
+                                                    {{ log.changes }}
+
+                                                </div>
+
+                                            </details>
+
+                                        {% else %}
+
+                                            <span
+                                                style="
+                                                    color:#94a3b8;
+                                                "
+                                            >
+                                                No change details recorded.
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =================================
+                                     IP
+                                     ================================= -->
+
+                                <td>
+
+                                    <span
+                                        class="aud-ip"
+                                        title="{{ log.ip_address|default:'IP address unavailable' }}"
+                                    >
+
+                                        <i class="bi bi-globe2"></i>
+
+
+                                        {% if log.ip_address %}
+
+                                            {{ log.ip_address }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- ====================================================
+                 PAGINATION
+                 ==================================================== -->
+
+            <div class="aud-pagination">
+
+                <div class="aud-pagination-copy">
+
+                    Showing page
+
+                    <strong>
+                        {{ page_obj.number }}
+                    </strong>
+
+                    of
+
+                    <strong>
+                        {{ page_obj.paginator.num_pages }}
+                    </strong>
+
+                    ·
+
+                    <strong>
+                        {{ page_obj.paginator.count }}
+                    </strong>
+
+                    total matching
+                    event{{ page_obj.paginator.count|pluralize }}
+
+                </div>
+
+
+                <div class="aud-pages">
+
+                    {% if page_obj.has_previous %}
+
+                        <a
+                            href="?q={{ filters.q|urlencode }}&action={{ filters.action|urlencode }}&date_from={{ filters.date_from|urlencode }}&date_to={{ filters.date_to|urlencode }}&page={{ page_obj.previous_page_number }}"
+                            class="aud-page-btn"
+                            title="Previous page"
+                        >
+                            <i class="bi bi-chevron-left"></i>
+
+                            Prev
+                        </a>
+
+                    {% else %}
+
+                        <span
+                            class="
+                                aud-page-btn
+                                disabled
+                            "
+                        >
+                            <i class="bi bi-chevron-left"></i>
+
+                            Prev
+                        </span>
+
+                    {% endif %}
+
+
+                    <span
+                        class="
+                            aud-page-btn
+                            current
+                        "
+                    >
+                        {{ page_obj.number }}
+                    </span>
+
+
+                    {% if page_obj.has_next %}
+
+                        <a
+                            href="?q={{ filters.q|urlencode }}&action={{ filters.action|urlencode }}&date_from={{ filters.date_from|urlencode }}&date_to={{ filters.date_to|urlencode }}&page={{ page_obj.next_page_number }}"
+                            class="aud-page-btn"
+                            title="Next page"
+                        >
+                            Next
+
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+
+                    {% else %}
+
+                        <span
+                            class="
+                                aud-page-btn
+                                disabled
+                            "
+                        >
+                            Next
+
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <!-- ====================================================
+                 EMPTY STATE
+                 ==================================================== -->
+
+            <div class="aud-empty">
+
+                <div class="aud-empty-icon">
+
+                    <i class="bi bi-shield-check"></i>
+
+                </div>
+
+
+                <div class="aud-empty-title">
+                    No audit activity found
+                </div>
+
+
+                <div class="aud-empty-copy">
+
+                    {% if filters.q or filters.action or filters.date_from or filters.date_to %}
+
+                        No recorded activity matches your
+                        current search or filter selections.
+                        Reset the filters to return to the
+                        complete available history.
+
+                    {% else %}
+
+                        There are currently no recorded
+                        audit events available for review.
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if filters.q or filters.action or filters.date_from or filters.date_to %}
+
+                    <a
+                        href="{% url 'audit_log:audit_log_list' %}"
+                        class="aud-empty-reset"
+                    >
+                        <i
+                            class="
+                                bi
+                                bi-arrow-counterclockwise
+                            "
+                        ></i>
+
+                        Reset Filters
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
 </div>
+
+
+<script>
+(function () {
+    "use strict";
+
+
+    /* ============================================================
+       ELEMENTS
+       ============================================================ */
+
+    const form =
+        document.getElementById(
+            "audFilterForm"
+        );
+
+
+    const search =
+        document.getElementById(
+            "audSearch"
+        );
+
+
+    const searchClear =
+        document.getElementById(
+            "audSearchClear"
+        );
+
+
+    const action =
+        document.getElementById(
+            "audAction"
+        );
+
+
+    const dateFrom =
+        document.getElementById(
+            "audDateFrom"
+        );
+
+
+    const dateTo =
+        document.getElementById(
+            "audDateTo"
+        );
+
+
+    const loading =
+        document.getElementById(
+            "audLoading"
+        );
+
+
+    let debounceTimer = null;
+
+
+    /* ============================================================
+       LOADING
+       ============================================================ */
+
+    function showLoading() {
+        if (!loading) {
+            return;
+        }
+
+
+        loading.classList.add(
+            "active"
+        );
+
+
+        loading.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+    }
+
+
+    /* ============================================================
+       SUBMIT FILTERS
+       ============================================================ */
+
+    function submitFilters() {
+        if (!form) {
+            return;
+        }
+
+
+        showLoading();
+
+
+        form.submit();
+    }
+
+
+    /* ============================================================
+       SEARCH CLEAR STATE
+       ============================================================ */
+
+    function updateSearchClear() {
+        if (
+            !search
+            ||
+            !searchClear
+        ) {
+            return;
+        }
+
+
+        searchClear.classList.toggle(
+            "visible",
+            Boolean(
+                search.value.trim()
+            )
+        );
+    }
+
+
+    /* ============================================================
+       SEARCH — 350ms DEBOUNCE
+       ============================================================ */
+
+    if (search) {
+        search.addEventListener(
+            "input",
+            function () {
+
+                updateSearchClear();
+
+
+                window.clearTimeout(
+                    debounceTimer
+                );
+
+
+                debounceTimer =
+                    window.setTimeout(
+                        submitFilters,
+                        350
+                    );
+            }
+        );
+    }
+
+
+    /* ============================================================
+       CLEAR SEARCH
+       ============================================================ */
+
+    if (
+        search
+        &&
+        searchClear
+    ) {
+        searchClear.addEventListener(
+            "click",
+            function () {
+
+                search.value = "";
+
+
+                updateSearchClear();
+
+
+                submitFilters();
+            }
+        );
+    }
+
+
+    /* ============================================================
+       IMMEDIATE FILTERS
+       ============================================================ */
+
+    if (action) {
+        action.addEventListener(
+            "change",
+            submitFilters
+        );
+    }
+
+
+    if (dateFrom) {
+        dateFrom.addEventListener(
+            "change",
+            submitFilters
+        );
+    }
+
+
+    if (dateTo) {
+        dateTo.addEventListener(
+            "change",
+            submitFilters
+        );
+    }
+
+
+    /* ============================================================
+       DATE VALIDATION
+       ============================================================ */
+
+    if (
+        dateFrom
+        &&
+        dateTo
+    ) {
+        function synchronizeDateBounds() {
+
+            if (dateFrom.value) {
+                dateTo.min =
+                    dateFrom.value;
+            }
+
+            else {
+                dateTo.removeAttribute(
+                    "min"
+                );
+            }
+
+
+            if (dateTo.value) {
+                dateFrom.max =
+                    dateTo.value;
+            }
+
+            else {
+                dateFrom.removeAttribute(
+                    "max"
+                );
+            }
+        }
+
+
+        dateFrom.addEventListener(
+            "change",
+            synchronizeDateBounds
+        );
+
+
+        dateTo.addEventListener(
+            "change",
+            synchronizeDateBounds
+        );
+
+
+        synchronizeDateBounds();
+    }
+
+
+    /* ============================================================
+       INITIAL STATE
+       ============================================================ */
+
+    updateSearchClear();
+
+})();
+</script>
+
 {% endblock %}

@@ -1,137 +1,3390 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4 py-4">
-    <!-- Header Section -->
-    <div class="row mb-4 align-items-center">
-        <div class="col-12 col-md-8">
-            <h1 class="h3 mb-1 text-gray-800">Audit Logs</h1>
-            <p class="text-muted small mb-0">System-wide trail of logged actions tracking user activity, modifications, and timestamps.</p>
-        </div>
-    </div>
 
-    <!-- Filter Card -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body bg-light">
-            <form method="get" class="row g-3">
-                <div class="col-12 col-md-3">
-                    <label class="form-label small fw-bold">Search Keywords</label>
-                    <input type="text" name="q" value="{{ filters.q }}" class="form-control form-control-sm" placeholder="User, model, details...">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">Action Type</label>
-                    <select name="action" class="form-select form-select-sm">
-                        <option value="">All Actions</option>
-                        {% for key, val in action_choices %}
-                            <option value="{{ key }}" {% if filters.action == key %}selected{% endif %}>{{ val }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">From Date</label>
-                    <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control form-control-sm">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label small fw-bold">To Date</label>
-                    <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control form-control-sm">
-                </div>
-                <div class="col-12 col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100">
-                        <i class="fas fa-filter me-1"></i> Apply Filters
-                    </button>
-                    <a href="{% url 'audit_log:audit_log_list' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
-                </div>
-            </form>
-        </div>
-    </div>
+<style>
+    /* ============================================================
+       AUDIT LOG — FOUNDATION
+       ============================================================ */
 
-    <!-- Logs Table Card -->
-    <div class="card shadow mb-4">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Timestamp (When)</th>
-                            <th>User (Who)</th>
-                            <th>Action (What)</th>
-                            <th>Target Record</th>
-                            <th>Changes / Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in page_obj %}
-                        <tr>
-                            <td class="small text-nowrap">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
-                            <td>
-                                {% if log.user %}
-                                    <div class="fw-bold">{{ log.user.get_full_name|default:log.user.username }}</div>
-                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ log.user.email }}</div>
-                                {% else %}
-                                    <span class="text-muted fst-italic">System / Anonymous</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if log.action == 'CREATE' %}
-                                    <span class="badge bg-success">Create</span>
-                                {% elif log.action == 'UPDATE' %}
-                                    <span class="badge bg-primary">Update</span>
-                                {% elif log.action == 'DELETE' %}
-                                    <span class="badge bg-danger">Delete</span>
-                                {% elif log.action == 'LOGIN' %}
-                                    <span class="badge bg-info text-dark">Login</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ log.action }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="fw-bold text-dark">{{ log.model_name }}</div>
-                                <div class="text-muted small">ID: {{ log.record_id|default:"N/A" }} {% if log.record_repr %}({{ log.record_repr }}){% endif %}</div>
-                            </td>
-                            <td>
-                                <div class="font-monospace text-secondary small text-break" style="max-height: 80px; overflow-y: auto;">
-                                    {{ log.changes|default:"No explicit delta recorded." }}
-                                </div>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">No audit log records found matching your filters.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    .audit-page {
+        --audit-blue: #2563eb;
+        --audit-blue-dark: #1d4ed8;
+        --audit-blue-soft: #eff6ff;
+
+        --audit-cyan: #0891b2;
+        --audit-cyan-soft: #ecfeff;
+
+        --audit-green: #16a34a;
+        --audit-green-dark: #15803d;
+        --audit-green-soft: #f0fdf4;
+
+        --audit-amber: #d97706;
+        --audit-amber-dark: #b45309;
+        --audit-amber-soft: #fffbeb;
+
+        --audit-red: #dc2626;
+        --audit-red-dark: #b91c1c;
+        --audit-red-soft: #fef2f2;
+
+        --audit-violet: #7c3aed;
+        --audit-violet-soft: #f5f3ff;
+
+        --audit-text: #0f172a;
+        --audit-text-soft: #334155;
+
+        --audit-muted: #64748b;
+        --audit-muted-light: #94a3b8;
+
+        --audit-border: #e2e8f0;
+        --audit-border-soft: #edf2f7;
+
+        --audit-surface: #ffffff;
+        --audit-surface-soft: #f8fafc;
+
+        min-height: calc(100vh - 64px);
+
+        padding:
+            24px
+            28px
+            46px;
+
+        color: var(--audit-text);
+
+        background:
+            radial-gradient(
+                circle at 92% 3%,
+                rgba(37, 99, 235, 0.055),
+                transparent 25%
+            ),
+            #f7f9fc;
+    }
+
+    .audit-page *,
+    .audit-page *::before,
+    .audit-page *::after {
+        box-sizing: border-box;
+    }
+
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+
+    .audit-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        padding:
+            30px
+            31px;
+
+        border-radius: 22px;
+
+        color: white;
+
+        background:
+            radial-gradient(
+                circle at 88% 12%,
+                rgba(34, 211, 238, 0.17),
+                transparent 28%
+            ),
+            linear-gradient(
+                135deg,
+                #06182c 0%,
+                #082541 55%,
+                #0a3155 100%
+            );
+
+        box-shadow:
+            0 18px 45px
+            rgba(15, 23, 42, 0.12);
+    }
+
+    .audit-hero::before {
+        content: "";
+
+        position: absolute;
+
+        width: 290px;
+        height: 290px;
+
+        right: -75px;
+        top: -165px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, 0.08);
+
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 38px
+            rgba(255, 255, 255, 0.017),
+            0 0 0 76px
+            rgba(255, 255, 255, 0.011);
+
+        pointer-events: none;
+    }
+
+    .audit-hero-inner {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+    }
+
+    .audit-eyebrow {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        margin-bottom: 10px;
+
+        color: #8aeaff;
+
+        font-size: 0.67rem;
+        font-weight: 800;
+
+        letter-spacing: 0.13em;
+
+        text-transform: uppercase;
+    }
+
+    .audit-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #22d3ee;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(34, 211, 238, 0.09),
+            0 0 13px
+            rgba(34, 211, 238, 0.5);
+    }
+
+    .audit-title {
+        margin: 0;
+
+        color: white;
+
+        font-size:
+            clamp(
+                1.75rem,
+                2.5vw,
+                2.35rem
+            );
+
+        line-height: 1.08;
+
+        font-weight: 800;
+
+        letter-spacing: -0.04em;
+    }
+
+    .audit-subtitle {
+        max-width: 740px;
+
+        margin:
+            10px
+            0
+            0;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                0.82
+            );
+
+        font-size: 0.89rem;
+
+        line-height: 1.65;
+    }
+
+    .audit-hero-meta {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        align-items: center;
+
+        gap:
+            10px
+            19px;
+
+        margin-top: 18px;
+    }
+
+    .audit-hero-meta-item {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                0.75
+            );
+
+        font-size: 0.71rem;
+
+        font-weight: 600;
+    }
+
+    .audit-hero-meta-item i {
+        color: #67e8f9;
+    }
+
+    .audit-hero-meta-item strong {
+        color: white;
+
+        font-weight: 800;
+    }
+
+
+    /* ============================================================
+       PROTECTED BADGE
+       ============================================================ */
+
+    .audit-protected {
+        flex: 0 0 auto;
+
+        min-width: 245px;
+
+        padding:
+            15px
+            16px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, 0.12);
+
+        border-radius: 15px;
+
+        background:
+            rgba(
+                255,
+                255,
+                255,
+                0.055
+            );
+
+        backdrop-filter:
+            blur(5px);
+    }
+
+    .audit-protected-top {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+    }
+
+    .audit-protected-icon {
+        width: 38px;
+        height: 38px;
+
+        flex: 0 0 38px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 11px;
+
+        color: #a5f3fc;
+
+        background:
+            rgba(
+                34,
+                211,
+                238,
+                0.10
+            );
+    }
+
+    .audit-protected-label {
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                0.66
+            );
+
+        font-size: 0.57rem;
+
+        font-weight: 800;
+
+        letter-spacing: 0.08em;
+
+        text-transform: uppercase;
+    }
+
+    .audit-protected-title {
+        margin-top: 3px;
+
+        color: white;
+
+        font-size: 0.75rem;
+
+        font-weight: 800;
+    }
+
+    .audit-protected-copy {
+        margin-top: 10px;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                0.67
+            );
+
+        font-size: 0.61rem;
+
+        line-height: 1.5;
+    }
+
+
+    /* ============================================================
+       KPI GRID
+       ============================================================ */
+
+    .audit-kpis {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                5,
+                minmax(0, 1fr)
+            );
+
+        gap: 12px;
+
+        margin-top: 15px;
+    }
+
+    .audit-kpi {
+        min-height: 104px;
+
+        padding:
+            16px
+            17px;
+
+        border:
+            1px solid
+            #e4eaf1;
+
+        border-radius: 16px;
+
+        background: white;
+
+        box-shadow:
+            0 5px 18px
+            rgba(15, 23, 42, 0.04);
+    }
+
+    .audit-kpi-top {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 8px;
+    }
+
+    .audit-kpi-label {
+        color: var(--audit-muted);
+
+        font-size: 0.60rem;
+
+        font-weight: 800;
+
+        letter-spacing: 0.075em;
+
+        text-transform: uppercase;
+    }
+
+    .audit-kpi-icon {
+        width: 31px;
+        height: 31px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 9px;
+
+        font-size: 0.72rem;
+    }
+
+    .audit-kpi-icon.blue {
+        color: var(--audit-blue);
+
+        background: var(--audit-blue-soft);
+    }
+
+    .audit-kpi-icon.green {
+        color: var(--audit-green);
+
+        background: var(--audit-green-soft);
+    }
+
+    .audit-kpi-icon.amber {
+        color: var(--audit-amber);
+
+        background: var(--audit-amber-soft);
+    }
+
+    .audit-kpi-icon.red {
+        color: var(--audit-red);
+
+        background: var(--audit-red-soft);
+    }
+
+    .audit-kpi-icon.violet {
+        color: var(--audit-violet);
+
+        background: var(--audit-violet-soft);
+    }
+
+    .audit-kpi-value {
+        margin-top: 10px;
+
+        color: var(--audit-text);
+
+        font-size: 1.28rem;
+
+        font-weight: 800;
+
+        line-height: 1;
+    }
+
+    .audit-kpi-note {
+        margin-top: 5px;
+
+        color: var(--audit-muted-light);
+
+        font-size: 0.58rem;
+    }
+
+
+    /* ============================================================
+       INTEGRITY STRIP
+       ============================================================ */
+
+    .audit-integrity {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 18px;
+
+        margin-top: 15px;
+
+        padding:
+            14px
+            17px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #f8fbff,
+                #f0f7ff
+            );
+    }
+
+    .audit-integrity-left {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+    }
+
+    .audit-integrity-icon {
+        width: 37px;
+        height: 37px;
+
+        flex: 0 0 37px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 10px;
+
+        color: var(--audit-blue);
+
+        background: white;
+
+        box-shadow:
+            0 4px 13px
+            rgba(37, 99, 235, 0.07);
+    }
+
+    .audit-integrity-title {
+        color: var(--audit-text);
+
+        font-size: 0.72rem;
+
+        font-weight: 800;
+    }
+
+    .audit-integrity-copy {
+        margin-top: 3px;
+
+        color: var(--audit-muted);
+
+        font-size: 0.61rem;
+
+        line-height: 1.4;
+    }
+
+    .audit-integrity-badge {
+        flex: 0 0 auto;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            6px
+            9px;
+
+        border:
+            1px solid
+            #bbf7d0;
+
+        border-radius: 999px;
+
+        color: var(--audit-green-dark);
+
+        background: var(--audit-green-soft);
+
+        font-size: 0.59rem;
+
+        font-weight: 800;
+    }
+
+
+    /* ============================================================
+       LEDGER
+       ============================================================ */
+
+    .audit-ledger {
+        margin-top: 15px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(15, 23, 42, 0.045);
+    }
+
+    .audit-ledger-head {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        padding:
+            18px
+            20px;
+
+        border-bottom:
+            1px solid
+            var(--audit-border);
+    }
+
+    .audit-section-kicker {
+        color: var(--audit-blue);
+
+        font-size: 0.60rem;
+
+        font-weight: 800;
+
+        letter-spacing: 0.09em;
+
+        text-transform: uppercase;
+    }
+
+    .audit-ledger-title {
+        margin-top: 3px;
+
+        color: var(--audit-text);
+
+        font-size: 1rem;
+
+        font-weight: 800;
+    }
+
+    .audit-ledger-copy {
+        margin-top: 3px;
+
+        color: var(--audit-muted);
+
+        font-size: 0.67rem;
+
+        line-height: 1.45;
+    }
+
+    .audit-result-count {
+        flex: 0 0 auto;
+
+        padding:
+            6px
+            9px;
+
+        border:
+            1px solid
+            var(--audit-border);
+
+        border-radius: 999px;
+
+        color: var(--audit-muted);
+
+        background:
+            var(--audit-surface-soft);
+
+        font-size: 0.63rem;
+
+        font-weight: 800;
+    }
+
+
+    /* ============================================================
+       FILTERS
+       ============================================================ */
+
+    .audit-filter-panel {
+        padding:
+            14px
+            20px;
+
+        border-bottom:
+            1px solid
+            var(--audit-border);
+
+        background: #fbfcfe;
+    }
+
+    .audit-filters {
+        display: grid;
+
+        grid-template-columns:
+            minmax(220px, 1fr)
+            minmax(150px, 0.52fr)
+            minmax(145px, 0.42fr)
+            minmax(145px, 0.42fr)
+            auto;
+
+        align-items: end;
+
+        gap: 9px;
+    }
+
+    .audit-filter-group {
+        min-width: 0;
+    }
+
+    .audit-filter-label {
+        display: block;
+
+        margin-bottom: 5px;
+
+        color: var(--audit-muted);
+
+        font-size: 0.56rem;
+
+        font-weight: 800;
+
+        letter-spacing: 0.07em;
+
+        text-transform: uppercase;
+    }
+
+    .audit-search-wrap {
+        position: relative;
+    }
+
+    .audit-search-icon {
+        position: absolute;
+
+        top: 50%;
+        left: 12px;
+
+        transform:
+            translateY(-50%);
+
+        color: var(--audit-muted-light);
+
+        pointer-events: none;
+    }
+
+    .audit-input,
+    .audit-select {
+        width: 100%;
+
+        height: 41px;
+
+        outline: none;
+
+        border:
+            1px solid
+            var(--audit-border);
+
+        border-radius: 10px;
+
+        color: var(--audit-text-soft);
+
+        background: white;
+
+        font-size: 0.70rem;
+
+        transition:
+            border-color 0.16s ease,
+            box-shadow 0.16s ease;
+    }
+
+    .audit-search-wrap
+    .audit-input {
+        padding:
+            0
+            38px;
+    }
+
+    .audit-filter-group >
+    .audit-input,
+    .audit-select {
+        padding:
+            0
+            11px;
+    }
+
+    .audit-input:focus,
+    .audit-select:focus {
+        border-color: #93c5fd;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(59, 130, 246, 0.09);
+    }
+
+    .audit-input::placeholder {
+        color: var(--audit-muted-light);
+    }
+
+    .audit-search-clear {
+        position: absolute;
+
+        top: 50%;
+        right: 8px;
+
+        width: 26px;
+        height: 26px;
+
+        display: none;
+
+        place-items: center;
+
+        transform:
+            translateY(-50%);
+
+        padding: 0;
+
+        border: 0;
+
+        border-radius: 7px;
+
+        color: var(--audit-muted);
+
+        background: transparent;
+
+        cursor: pointer;
+    }
+
+    .audit-search-clear.visible {
+        display: grid;
+    }
+
+    .audit-search-clear:hover {
+        color: var(--audit-text);
+
+        background: #f1f5f9;
+    }
+
+    .audit-reset {
+        min-height: 41px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            13px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: var(--audit-blue);
+
+        background: var(--audit-blue-soft);
+
+        text-decoration: none;
+
+        font-size: 0.66rem;
+
+        font-weight: 800;
+
+        white-space: nowrap;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .audit-reset:hover {
+        color: var(--audit-blue-dark);
+
+        background: #e6f0ff;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* ============================================================
+       FILTER STATUS
+       ============================================================ */
+
+    .audit-filter-status {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-top: 10px;
+    }
+
+    .audit-filter-status-left {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        align-items: center;
+
+        gap: 6px;
+    }
+
+    .audit-filter-chip {
+        display: none;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            5px
+            8px;
+
+        border:
+            1px solid
+            var(--audit-border);
+
+        border-radius: 999px;
+
+        color: var(--audit-muted);
+
+        background: white;
+
+        font-size: 0.57rem;
+
+        font-weight: 700;
+    }
+
+    .audit-filter-chip.visible {
+        display: inline-flex;
+    }
+
+    .audit-auto-note {
+        color: var(--audit-muted-light);
+
+        font-size: 0.57rem;
+    }
+
+
+    /* ============================================================
+       TABLE
+       ============================================================ */
+
+    .audit-table-wrap {
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+    .audit-table {
+        width: 100%;
+
+        border-collapse: collapse;
+
+        table-layout: fixed;
+    }
+
+    .audit-table thead th {
+        padding:
+            11px
+            14px;
+
+        border-bottom:
+            1px solid
+            var(--audit-border);
+
+        color: var(--audit-muted);
+
+        background: #f8fafc;
+
+        font-size: 0.57rem;
+
+        font-weight: 800;
+
+        letter-spacing: 0.07em;
+
+        text-align: left;
+
+        text-transform: uppercase;
+
+        white-space: nowrap;
+    }
+
+    .audit-table thead th:nth-child(1) {
+        width: 134px;
+    }
+
+    .audit-table thead th:nth-child(2) {
+        width: 155px;
+    }
+
+    .audit-table thead th:nth-child(3) {
+        width: 105px;
+    }
+
+    .audit-table thead th:nth-child(4) {
+        width: 205px;
+    }
+
+    .audit-table thead th:nth-child(6) {
+        width: 120px;
+    }
+
+    .audit-table tbody tr {
+        transition:
+            background 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .audit-table tbody tr:hover {
+        background: #fbfdff;
+
+        box-shadow:
+            inset
+            3px
+            0
+            0
+            rgba(37, 99, 235, 0.35);
+    }
+
+    .audit-table td {
+        padding:
+            14px
+            14px;
+
+        border-bottom:
+            1px solid
+            var(--audit-border-soft);
+
+        vertical-align: middle;
+    }
+
+    .audit-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+
+    /* ============================================================
+       TIME
+       ============================================================ */
+
+    .audit-time {
+        color: var(--audit-text-soft);
+
+        font-size: 0.66rem;
+
+        font-weight: 750;
+
+        white-space: nowrap;
+    }
+
+    .audit-time-sub {
+        margin-top: 3px;
+
+        color: var(--audit-muted-light);
+
+        font-size: 0.55rem;
+    }
+
+
+    /* ============================================================
+       USER
+       ============================================================ */
+
+    .audit-user {
+        min-width: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+    }
+
+    .audit-user-avatar {
+        width: 34px;
+        height: 34px;
+
+        flex: 0 0 34px;
+
+        display: grid;
+
+        place-items: center;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: var(--audit-blue-dark);
+
+        background:
+            linear-gradient(
+                145deg,
+                #eff6ff,
+                #f8fbff
+            );
+
+        font-size: 0.62rem;
+
+        font-weight: 900;
+
+        text-transform: uppercase;
+    }
+
+    .audit-user-name {
+        overflow: hidden;
+
+        color: var(--audit-text);
+
+        font-size: 0.68rem;
+
+        font-weight: 800;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+    }
+
+    .audit-user-sub {
+        margin-top: 3px;
+
+        color: var(--audit-muted-light);
+
+        font-size: 0.54rem;
+
+        white-space: nowrap;
+    }
+
+
+    /* ============================================================
+       ACTION BADGES
+       ============================================================ */
+
+    .audit-action {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        padding:
+            6px
+            9px;
+
+        border-radius: 999px;
+
+        font-size: 0.58rem;
+
+        font-weight: 850;
+
+        white-space: nowrap;
+    }
+
+    .audit-action-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+    }
+
+    .audit-action.create {
+        color: var(--audit-green-dark);
+
+        border:
+            1px solid
+            #bbf7d0;
+
+        background:
+            var(--audit-green-soft);
+    }
+
+    .audit-action.create
+    .audit-action-dot {
+        background:
+            var(--audit-green);
+    }
+
+    .audit-action.update {
+        color: var(--audit-blue-dark);
+
+        border:
+            1px solid
+            #bfdbfe;
+
+        background:
+            var(--audit-blue-soft);
+    }
+
+    .audit-action.update
+    .audit-action-dot {
+        background:
+            var(--audit-blue);
+    }
+
+    .audit-action.delete {
+        color: var(--audit-red-dark);
+
+        border:
+            1px solid
+            #fecaca;
+
+        background:
+            var(--audit-red-soft);
+    }
+
+    .audit-action.delete
+    .audit-action-dot {
+        background:
+            var(--audit-red);
+    }
+
+    .audit-action.other {
+        color: #5b21b6;
+
+        border:
+            1px solid
+            #ddd6fe;
+
+        background:
+            var(--audit-violet-soft);
+    }
+
+    .audit-action.other
+    .audit-action-dot {
+        background:
+            var(--audit-violet);
+    }
+
+
+    /* ============================================================
+       RECORD
+       ============================================================ */
+
+    .audit-record {
+        min-width: 0;
+    }
+
+    .audit-record-type {
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        color: var(--audit-text);
+
+        font-size: 0.68rem;
+
+        font-weight: 800;
+    }
+
+    .audit-record-type i {
+        color: var(--audit-blue);
+    }
+
+    .audit-record-name {
+        max-width: 190px;
+
+        margin-top: 4px;
+
+        overflow: hidden;
+
+        color: var(--audit-muted);
+
+        font-size: 0.59rem;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+    }
+
+    .audit-record-id {
+        margin-top: 3px;
+
+        color: var(--audit-muted-light);
+
+        font-size: 0.52rem;
+    }
+
+
+    /* ============================================================
+       CHANGES
+       ============================================================ */
+
+    .audit-change {
+        max-width: 100%;
+
+        color: var(--audit-text-soft);
+
+        font-size: 0.64rem;
+
+        line-height: 1.5;
+    }
+
+    .audit-change-summary {
+        display: -webkit-box;
+
+        overflow: hidden;
+
+        -webkit-box-orient: vertical;
+
+        -webkit-line-clamp: 2;
+    }
+
+    .audit-change-details {
+        margin-top: 7px;
+    }
+
+    .audit-change-details summary {
+        width: max-content;
+
+        list-style: none;
+
+        color: var(--audit-blue);
+
+        font-size: 0.56rem;
+
+        font-weight: 800;
+
+        cursor: pointer;
+    }
+
+    .audit-change-details summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .audit-change-details summary::after {
+        content: "View details";
+    }
+
+    .audit-change-details[open]
+    summary::after {
+        content: "Hide details";
+    }
+
+    .audit-change-full {
+        margin-top: 7px;
+
+        padding:
+            9px
+            10px;
+
+        border:
+            1px solid
+            var(--audit-border);
+
+        border-radius: 9px;
+
+        color: var(--audit-muted);
+
+        background:
+            var(--audit-surface-soft);
+
+        font-size: 0.59rem;
+
+        line-height: 1.5;
+
+        white-space: normal;
+
+        overflow-wrap: anywhere;
+    }
+
+
+    /* ============================================================
+       IP
+       ============================================================ */
+
+    .audit-ip {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        max-width: 110px;
+
+        padding:
+            5px
+            7px;
+
+        border:
+            1px solid
+            var(--audit-border);
+
+        border-radius: 8px;
+
+        color: var(--audit-muted);
+
+        background:
+            var(--audit-surface-soft);
+
+        font-size: 0.56rem;
+
+        font-weight: 700;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+    .audit-ip i {
+        color: var(--audit-muted-light);
+    }
+
+
+    /* ============================================================
+       EMPTY STATE
+       ============================================================ */
+
+    .audit-empty {
+        padding:
+            60px
+            20px;
+
+        text-align: center;
+    }
+
+    .audit-empty-icon {
+        width: 58px;
+        height: 58px;
+
+        display: grid;
+
+        place-items: center;
+
+        margin:
+            0
+            auto
+            14px;
+
+        border-radius: 16px;
+
+        color: var(--audit-blue);
+
+        background:
+            var(--audit-blue-soft);
+
+        font-size: 1.15rem;
+    }
+
+    .audit-empty-title {
+        color: var(--audit-text);
+
+        font-size: 0.83rem;
+
+        font-weight: 800;
+    }
+
+    .audit-empty-copy {
+        max-width: 430px;
+
+        margin:
+            5px
+            auto
+            0;
+
+        color: var(--audit-muted);
+
+        font-size: 0.67rem;
+
+        line-height: 1.5;
+    }
+
+    .audit-empty-reset {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-top: 15px;
+
+        padding:
+            8px
+            11px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 9px;
+
+        color: var(--audit-blue);
+
+        background:
+            var(--audit-blue-soft);
+
+        text-decoration: none;
+
+        font-size: 0.63rem;
+
+        font-weight: 800;
+    }
+
+
+    /* ============================================================
+       LOADING
+       ============================================================ */
+
+    .audit-loading {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        right: 0;
+
+        z-index: 100000;
+
+        height: 3px;
+
+        display: none;
+
+        overflow: hidden;
+
+        background:
+            rgba(
+                37,
+                99,
+                235,
+                0.15
+            );
+    }
+
+    .audit-loading.active {
+        display: block;
+    }
+
+    .audit-loading::after {
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+        bottom: 0;
+
+        width: 32%;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #22d3ee
+            );
+
+        animation:
+            auditLoadingMove
+            0.85s
+            infinite
+            ease-in-out;
+    }
+
+    @keyframes auditLoadingMove {
+        from {
+            left: -32%;
+        }
+
+        to {
+            left: 100%;
+        }
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @media (max-width: 1180px) {
+        .audit-kpis {
+            grid-template-columns:
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+        }
+
+        .audit-filters {
+            grid-template-columns:
+                1fr
+                1fr
+                1fr;
+        }
+
+        .audit-filter-group.search {
+            grid-column:
+                1 / -1;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .audit-page {
+            padding: 18px;
+        }
+
+        .audit-hero-inner {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .audit-protected {
+            width: 100%;
+        }
+
+        .audit-kpis {
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+        }
+
+        .audit-integrity {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .audit-table {
+            min-width: 930px;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .audit-page {
+            padding: 12px;
+        }
+
+        .audit-hero {
+            padding:
+                22px
+                18px;
+
+            border-radius: 17px;
+        }
+
+        .audit-kpis {
+            grid-template-columns: 1fr;
+        }
+
+        .audit-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .audit-filter-group.search {
+            grid-column: auto;
+        }
+
+        .audit-ledger-head,
+        .audit-filter-status {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .audit-reset {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .audit-page *,
+        .audit-page *::before,
+        .audit-page *::after {
+            animation: none !important;
+
+            transition: none !important;
+        }
+    }
+</style>
+
+
+<!-- ============================================================
+     LOADING
+     ============================================================ -->
+
+<div
+    class="audit-loading"
+    id="auditLoading"
+    aria-hidden="true"
+></div>
+
+
+<div class="audit-page">
+
+    <!-- ========================================================
+         HERO
+         ======================================================== -->
+
+    <section class="audit-hero">
+
+        <div class="audit-hero-inner">
+
+            <div>
+
+                <div class="audit-eyebrow">
+
+                    <span
+                        class="audit-eyebrow-dot"
+                    ></span>
+
+                    Security & Compliance
+
+                </div>
+
+
+                <h1 class="audit-title">
+                    Audit & Activity Ledger
+                </h1>
+
+
+                <p class="audit-subtitle">
+                    Trace important system activity across
+                    EduFinance with a permanent history of
+                    users, actions, affected records and
+                    recorded changes.
+                </p>
+
+
+                <div class="audit-hero-meta">
+
+                    <span class="audit-hero-meta-item">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        Protected history
+
+                    </span>
+
+
+                    <span class="audit-hero-meta-item">
+
+                        <i class="bi bi-journal-text"></i>
+
+                        <strong id="auditHeroCount">
+                            {{ logs|length }}
+                        </strong>
+
+                        visible
+                        event{{ logs|length|pluralize }}
+
+                    </span>
+
+
+                    <span class="audit-hero-meta-item">
+
+                        <i class="bi bi-clock-history"></i>
+
+                        Newest activity first
+
+                    </span>
+
+                </div>
+
             </div>
-        </div>
-        
-        <!-- Pagination Footer -->
-        {% if page_obj.has_other_pages %}
-        <div class="card-footer bg-white py-3">
-            <nav aria-label="Audit log pagination">
-                <ul class="pagination justify-content-center mb-0">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ filters.q }}&action={{ filters.action }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">Previous</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    {% endif %}
 
-                    <li class="page-item disabled">
-                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                    </li>
 
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ filters.q }}&action={{ filters.action }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">Next</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled"><span class="page-link">Next</span></li>
-                    {% endif %}
-                </ul>
-            </nav>
+            <aside class="audit-protected">
+
+                <div class="audit-protected-top">
+
+                    <div class="audit-protected-icon">
+
+                        <i class="bi bi-lock"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="audit-protected-label">
+                            Ledger Mode
+                        </div>
+
+                        <div class="audit-protected-title">
+                            Read-only evidence
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="audit-protected-copy">
+                    Audit records are presented for
+                    traceability and review. This screen
+                    intentionally provides no edit or delete
+                    controls.
+                </div>
+
+            </aside>
+
         </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         KPI CARDS
+         ======================================================== -->
+
+    <section class="audit-kpis">
+
+        <article class="audit-kpi">
+
+            <div class="audit-kpi-top">
+
+                <div class="audit-kpi-label">
+                    Visible Events
+                </div>
+
+                <div class="audit-kpi-icon blue">
+
+                    <i class="bi bi-activity"></i>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-kpi-value"
+                id="auditTotalCount"
+            >
+                {{ logs|length }}
+            </div>
+
+
+            <div class="audit-kpi-note">
+                Current filtered result set
+            </div>
+
+        </article>
+
+
+        <article class="audit-kpi">
+
+            <div class="audit-kpi-top">
+
+                <div class="audit-kpi-label">
+                    Created
+                </div>
+
+                <div class="audit-kpi-icon green">
+
+                    <i class="bi bi-plus-circle"></i>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-kpi-value"
+                id="auditCreateCount"
+            >
+                0
+            </div>
+
+
+            <div class="audit-kpi-note">
+                Create operations
+            </div>
+
+        </article>
+
+
+        <article class="audit-kpi">
+
+            <div class="audit-kpi-top">
+
+                <div class="audit-kpi-label">
+                    Updated
+                </div>
+
+                <div class="audit-kpi-icon amber">
+
+                    <i class="bi bi-pencil-square"></i>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-kpi-value"
+                id="auditUpdateCount"
+            >
+                0
+            </div>
+
+
+            <div class="audit-kpi-note">
+                Change operations
+            </div>
+
+        </article>
+
+
+        <article class="audit-kpi">
+
+            <div class="audit-kpi-top">
+
+                <div class="audit-kpi-label">
+                    Deleted
+                </div>
+
+                <div class="audit-kpi-icon red">
+
+                    <i class="bi bi-trash3"></i>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-kpi-value"
+                id="auditDeleteCount"
+            >
+                0
+            </div>
+
+
+            <div class="audit-kpi-note">
+                Removal operations
+            </div>
+
+        </article>
+
+
+        <article class="audit-kpi">
+
+            <div class="audit-kpi-top">
+
+                <div class="audit-kpi-label">
+                    Active Users
+                </div>
+
+                <div class="audit-kpi-icon violet">
+
+                    <i class="bi bi-people"></i>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-kpi-value"
+                id="auditUserCount"
+            >
+                0
+            </div>
+
+
+            <div class="audit-kpi-note">
+                Users in visible activity
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ========================================================
+         INTEGRITY STRIP
+         ======================================================== -->
+
+    <section class="audit-integrity">
+
+        <div class="audit-integrity-left">
+
+            <div class="audit-integrity-icon">
+
+                <i class="bi bi-fingerprint"></i>
+
+            </div>
+
+
+            <div>
+
+                <div class="audit-integrity-title">
+                    System activity remains traceable
+                </div>
+
+                <div class="audit-integrity-copy">
+                    Use this ledger to review who changed
+                    a record, what action occurred and when
+                    it happened without modifying the
+                    historical evidence.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="audit-integrity-badge">
+
+            <i class="bi bi-check2-circle"></i>
+
+            Audit trail available
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         LEDGER
+         ======================================================== -->
+
+    <section class="audit-ledger">
+
+        <header class="audit-ledger-head">
+
+            <div>
+
+                <div class="audit-section-kicker">
+                    Activity History
+                </div>
+
+                <div class="audit-ledger-title">
+                    Recorded System Events
+                </div>
+
+                <div class="audit-ledger-copy">
+                    Search and filter the permanent system
+                    activity history.
+                </div>
+
+            </div>
+
+
+            <div
+                class="audit-result-count"
+                id="auditResultCount"
+            >
+                {{ logs|length }}
+                result{{ logs|length|pluralize }}
+            </div>
+
+        </header>
+
+
+        <!-- ====================================================
+             FILTERS
+             ==================================================== -->
+
+        <div class="audit-filter-panel">
+
+            <form
+                method="get"
+                id="auditFilterForm"
+            >
+
+                <!-- Support either q or search backend names -->
+
+                <input
+                    type="hidden"
+                    name="q"
+                    id="auditSearchAlias"
+                    value="{{ request.GET.q|default:request.GET.search }}"
+                >
+
+
+                <input
+                    type="hidden"
+                    name="start_date"
+                    id="auditStartDateAlias"
+                    value="{{ request.GET.start_date|default:request.GET.date_from }}"
+                >
+
+
+                <input
+                    type="hidden"
+                    name="end_date"
+                    id="auditEndDateAlias"
+                    value="{{ request.GET.end_date|default:request.GET.date_to }}"
+                >
+
+
+                <div class="audit-filters">
+
+                    <!-- SEARCH -->
+
+                    <div
+                        class="
+                            audit-filter-group
+                            search
+                        "
+                    >
+
+                        <label
+                            class="audit-filter-label"
+                            for="auditSearch"
+                        >
+                            Search Activity
+                        </label>
+
+
+                        <div class="audit-search-wrap">
+
+                            <i
+                                class="
+                                    bi
+                                    bi-search
+                                    audit-search-icon
+                                "
+                            ></i>
+
+
+                            <input
+                                type="search"
+                                name="search"
+                                id="auditSearch"
+                                class="audit-input"
+                                value="{{ request.GET.search|default:request.GET.q }}"
+                                placeholder="User, record or change..."
+                                autocomplete="off"
+                            >
+
+
+                            <button
+                                type="button"
+                                class="audit-search-clear"
+                                id="auditSearchClear"
+                                aria-label="Clear search"
+                            >
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTION -->
+
+                    <div class="audit-filter-group">
+
+                        <label
+                            class="audit-filter-label"
+                            for="auditAction"
+                        >
+                            Action
+                        </label>
+
+
+                        <select
+                            name="action"
+                            id="auditAction"
+                            class="audit-select"
+                        >
+
+                            <option value="">
+                                All actions
+                            </option>
+
+
+                            {% if action_choices %}
+
+                                {% for value, label in action_choices %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if request.GET.action == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+
+                                {% endfor %}
+
+                            {% elif actions %}
+
+                                {% for value, label in actions %}
+
+                                    <option
+                                        value="{{ value }}"
+                                        {% if request.GET.action == value %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ label }}
+                                    </option>
+
+                                {% endfor %}
+
+                            {% else %}
+
+                                <option
+                                    value="create"
+                                    {% if request.GET.action == "create" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Create
+                                </option>
+
+                                <option
+                                    value="update"
+                                    {% if request.GET.action == "update" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Update
+                                </option>
+
+                                <option
+                                    value="delete"
+                                    {% if request.GET.action == "delete" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Delete
+                                </option>
+
+                            {% endif %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- FROM DATE -->
+
+                    <div class="audit-filter-group">
+
+                        <label
+                            class="audit-filter-label"
+                            for="auditDateFrom"
+                        >
+                            From
+                        </label>
+
+
+                        <input
+                            type="date"
+                            name="date_from"
+                            id="auditDateFrom"
+                            class="audit-input"
+                            value="{{ request.GET.date_from|default:request.GET.start_date }}"
+                        >
+
+                    </div>
+
+
+                    <!-- TO DATE -->
+
+                    <div class="audit-filter-group">
+
+                        <label
+                            class="audit-filter-label"
+                            for="auditDateTo"
+                        >
+                            To
+                        </label>
+
+
+                        <input
+                            type="date"
+                            name="date_to"
+                            id="auditDateTo"
+                            class="audit-input"
+                            value="{{ request.GET.date_to|default:request.GET.end_date }}"
+                        >
+
+                    </div>
+
+
+                    <!-- RESET -->
+
+                    <div class="audit-filter-group">
+
+                        <span class="audit-filter-label">
+                            Controls
+                        </span>
+
+
+                        <a
+                            href="{% url 'audit_log:audit_log_list' %}"
+                            class="audit-reset"
+                        >
+                            <i
+                                class="
+                                    bi
+                                    bi-arrow-counterclockwise
+                                "
+                            ></i>
+
+                            Reset
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+
+            <!-- =================================================
+                 ACTIVE FILTER INDICATORS
+                 ================================================= -->
+
+            <div class="audit-filter-status">
+
+                <div class="audit-filter-status-left">
+
+                    <span
+                        class="audit-filter-chip"
+                        id="auditSearchChip"
+                    >
+                        <i class="bi bi-search"></i>
+
+                        Search active
+                    </span>
+
+
+                    <span
+                        class="audit-filter-chip"
+                        id="auditActionChip"
+                    >
+                        <i class="bi bi-funnel"></i>
+
+                        Action filter
+                    </span>
+
+
+                    <span
+                        class="audit-filter-chip"
+                        id="auditDateChip"
+                    >
+                        <i class="bi bi-calendar3"></i>
+
+                        Date range
+                    </span>
+
+                </div>
+
+
+                <div class="audit-auto-note">
+                    Filters apply automatically
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             TABLE
+             ==================================================== -->
+
+        {% if logs %}
+
+            <div class="audit-table-wrap">
+
+                <table class="audit-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                User
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                            <th>
+                                Record
+                            </th>
+
+                            <th>
+                                Changes
+                            </th>
+
+                            <th>
+                                Source IP
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for log in logs %}
+
+                            <tr
+                                data-audit-row
+                                data-audit-action="{{ log.action|default:''|lower }}"
+                                data-audit-user="{% if log.user %}{{ log.user.username|default:log.user.email }}{% else %}system{% endif %}"
+                            >
+
+                                <!-- =============================
+                                     TIME
+                                     ============================= -->
+
+                                <td>
+
+                                    {% if log.timestamp %}
+
+                                        <div class="audit-time">
+                                            {{ log.timestamp|date:"Y-m-d H:i" }}
+                                        </div>
+
+                                        <div class="audit-time-sub">
+                                            {{ log.timestamp|date:"D, M j" }}
+                                        </div>
+
+                                    {% elif log.created_at %}
+
+                                        <div class="audit-time">
+                                            {{ log.created_at|date:"Y-m-d H:i" }}
+                                        </div>
+
+                                        <div class="audit-time-sub">
+                                            {{ log.created_at|date:"D, M j" }}
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="audit-time">
+                                            —
+                                        </div>
+
+                                        <div class="audit-time-sub">
+                                            Timestamp unavailable
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =============================
+                                     USER
+                                     ============================= -->
+
+                                <td>
+
+                                    <div class="audit-user">
+
+                                        <div class="audit-user-avatar">
+
+                                            {% if log.user %}
+
+                                                {{ log.user.username|default:log.user.email|slice:":2"|upper }}
+
+                                            {% else %}
+
+                                                SY
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        <div style="min-width:0;">
+
+                                            <div class="audit-user-name">
+
+                                                {% if log.user %}
+
+                                                    {{ log.user.username|default:log.user.email }}
+
+                                                {% else %}
+
+                                                    System
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <div class="audit-user-sub">
+
+                                                {% if log.user and log.user.is_superuser %}
+
+                                                    Super Administrator
+
+                                                {% elif log.user %}
+
+                                                    Authenticated user
+
+                                                {% else %}
+
+                                                    Automated / anonymous
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =============================
+                                     ACTION
+                                     ============================= -->
+
+                                <td>
+
+                                    <span
+                                        class="
+                                            audit-action
+                                            other
+                                        "
+                                        data-action-badge
+                                    >
+
+                                        <span class="audit-action-dot"></span>
+
+
+                                        <span>
+
+                                            {% if log.get_action_display %}
+
+                                                {{ log.get_action_display }}
+
+                                            {% else %}
+
+                                                {{ log.action|default:"Activity" }}
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </span>
+
+                                </td>
+
+
+                                <!-- =============================
+                                     RECORD
+                                     ============================= -->
+
+                                <td>
+
+                                    <div class="audit-record">
+
+                                        <div class="audit-record-type">
+
+                                            <i
+                                                class="
+                                                    bi
+                                                    bi-database
+                                                "
+                                            ></i>
+
+
+                                            <span>
+
+                                                {% if log.model_name %}
+
+                                                    {{ log.model_name }}
+
+                                                {% elif log.entity_type %}
+
+                                                    {{ log.entity_type }}
+
+                                                {% elif log.model %}
+
+                                                    {{ log.model }}
+
+                                                {% else %}
+
+                                                    System Record
+
+                                                {% endif %}
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="audit-record-name">
+
+                                            {% if log.object_repr %}
+
+                                                {{ log.object_repr }}
+
+                                            {% elif log.record_name %}
+
+                                                {{ log.record_name }}
+
+                                            {% elif log.entity_name %}
+
+                                                {{ log.entity_name }}
+
+                                            {% else %}
+
+                                                Record activity
+
+                                            {% endif %}
+
+                                        </div>
+
+
+                                        {% if log.object_id %}
+
+                                            <div class="audit-record-id">
+                                                ID · {{ log.object_id }}
+                                            </div>
+
+                                        {% elif log.entity_id %}
+
+                                            <div class="audit-record-id">
+                                                ID · {{ log.entity_id }}
+                                            </div>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =============================
+                                     CHANGES
+                                     ============================= -->
+
+                                <td>
+
+                                    <div class="audit-change">
+
+                                        {% if log.changes %}
+
+                                            <div class="audit-change-summary">
+                                                {{ log.changes }}
+                                            </div>
+
+
+                                            <details
+                                                class="audit-change-details"
+                                            >
+                                                <summary></summary>
+
+
+                                                <div class="audit-change-full">
+                                                    {{ log.changes }}
+                                                </div>
+
+                                            </details>
+
+                                        {% elif log.description %}
+
+                                            <div class="audit-change-summary">
+                                                {{ log.description }}
+                                            </div>
+
+
+                                            <details
+                                                class="audit-change-details"
+                                            >
+                                                <summary></summary>
+
+
+                                                <div class="audit-change-full">
+                                                    {{ log.description }}
+                                                </div>
+
+                                            </details>
+
+                                        {% else %}
+
+                                            <span
+                                                style="
+                                                    color:#94a3b8;
+                                                "
+                                            >
+                                                No change details recorded.
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- =============================
+                                     IP
+                                     ============================= -->
+
+                                <td>
+
+                                    <span
+                                        class="audit-ip"
+                                        title="{{ log.ip_address|default:'IP unavailable' }}"
+                                    >
+
+                                        <i class="bi bi-globe2"></i>
+
+
+                                        {% if log.ip_address %}
+
+                                            {{ log.ip_address }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- =================================================
+                 EMPTY STATE
+                 ================================================= -->
+
+            <div class="audit-empty">
+
+                <div class="audit-empty-icon">
+
+                    <i
+                        class="
+                            bi
+                            bi-shield-check
+                        "
+                    ></i>
+
+                </div>
+
+
+                <div class="audit-empty-title">
+                    No audit activity found
+                </div>
+
+
+                <div class="audit-empty-copy">
+                    No recorded activity matches the
+                    current search and filters. Reset the
+                    filters to review the complete available
+                    audit history.
+                </div>
+
+
+                <a
+                    href="{% url 'audit_log:audit_log_list' %}"
+                    class="audit-empty-reset"
+                >
+                    <i
+                        class="
+                            bi
+                            bi-arrow-counterclockwise
+                        "
+                    ></i>
+
+                    Reset Filters
+                </a>
+
+            </div>
+
         {% endif %}
-    </div>
+
+    </section>
+
 </div>
+
+
+<script>
+(function () {
+    "use strict";
+
+
+    /* ============================================================
+       ELEMENT REFERENCES
+       ============================================================ */
+
+    const form =
+        document.getElementById(
+            "auditFilterForm"
+        );
+
+
+    const searchInput =
+        document.getElementById(
+            "auditSearch"
+        );
+
+
+    const searchAlias =
+        document.getElementById(
+            "auditSearchAlias"
+        );
+
+
+    const searchClear =
+        document.getElementById(
+            "auditSearchClear"
+        );
+
+
+    const actionSelect =
+        document.getElementById(
+            "auditAction"
+        );
+
+
+    const dateFrom =
+        document.getElementById(
+            "auditDateFrom"
+        );
+
+
+    const dateTo =
+        document.getElementById(
+            "auditDateTo"
+        );
+
+
+    const startDateAlias =
+        document.getElementById(
+            "auditStartDateAlias"
+        );
+
+
+    const endDateAlias =
+        document.getElementById(
+            "auditEndDateAlias"
+        );
+
+
+    const loading =
+        document.getElementById(
+            "auditLoading"
+        );
+
+
+    const searchChip =
+        document.getElementById(
+            "auditSearchChip"
+        );
+
+
+    const actionChip =
+        document.getElementById(
+            "auditActionChip"
+        );
+
+
+    const dateChip =
+        document.getElementById(
+            "auditDateChip"
+        );
+
+
+    let searchTimer = null;
+
+
+    /* ============================================================
+       SUBMISSION
+       ============================================================ */
+
+    function showLoading() {
+        if (!loading) {
+            return;
+        }
+
+
+        loading
+            .classList
+            .add(
+                "active"
+            );
+
+
+        loading.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+    }
+
+
+    function syncAliases() {
+        if (
+            searchAlias
+            && searchInput
+        ) {
+            searchAlias.value =
+                searchInput.value;
+        }
+
+
+        if (
+            startDateAlias
+            && dateFrom
+        ) {
+            startDateAlias.value =
+                dateFrom.value;
+        }
+
+
+        if (
+            endDateAlias
+            && dateTo
+        ) {
+            endDateAlias.value =
+                dateTo.value;
+        }
+    }
+
+
+    function submitFilters() {
+        if (!form) {
+            return;
+        }
+
+
+        syncAliases();
+
+        showLoading();
+
+        form.submit();
+    }
+
+
+    /* ============================================================
+       SEARCH
+       ============================================================ */
+
+    if (searchInput) {
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                window.clearTimeout(
+                    searchTimer
+                );
+
+
+                if (searchClear) {
+                    searchClear
+                        .classList
+                        .toggle(
+                            "visible",
+                            Boolean(
+                                searchInput.value.trim()
+                            )
+                        );
+                }
+
+
+                updateFilterChips();
+
+
+                searchTimer =
+                    window.setTimeout(
+                        submitFilters,
+                        380
+                    );
+            }
+        );
+    }
+
+
+    if (searchClear) {
+        searchClear.addEventListener(
+            "click",
+            function () {
+
+                if (!searchInput) {
+                    return;
+                }
+
+
+                searchInput.value = "";
+
+                updateFilterChips();
+
+                submitFilters();
+            }
+        );
+    }
+
+
+    /* ============================================================
+       SELECT + DATES
+       ============================================================ */
+
+    if (actionSelect) {
+        actionSelect.addEventListener(
+            "change",
+            function () {
+
+                updateFilterChips();
+
+                submitFilters();
+            }
+        );
+    }
+
+
+    if (dateFrom) {
+        dateFrom.addEventListener(
+            "change",
+            function () {
+
+                updateFilterChips();
+
+                submitFilters();
+            }
+        );
+    }
+
+
+    if (dateTo) {
+        dateTo.addEventListener(
+            "change",
+            function () {
+
+                updateFilterChips();
+
+                submitFilters();
+            }
+        );
+    }
+
+
+    /* ============================================================
+       FILTER CHIPS
+       ============================================================ */
+
+    function updateFilterChips() {
+        if (
+            searchChip
+            && searchInput
+        ) {
+            searchChip
+                .classList
+                .toggle(
+                    "visible",
+                    Boolean(
+                        searchInput
+                            .value
+                            .trim()
+                    )
+                );
+        }
+
+
+        if (
+            actionChip
+            && actionSelect
+        ) {
+            actionChip
+                .classList
+                .toggle(
+                    "visible",
+                    Boolean(
+                        actionSelect.value
+                    )
+                );
+        }
+
+
+        if (
+            dateChip
+            && dateFrom
+            && dateTo
+        ) {
+            dateChip
+                .classList
+                .toggle(
+                    "visible",
+                    Boolean(
+                        dateFrom.value
+                        || dateTo.value
+                    )
+                );
+        }
+    }
+
+
+    /* ============================================================
+       KPI CALCULATION FROM VISIBLE SERVER RESULTS
+       ============================================================ */
+
+    const rows =
+        Array.from(
+            document.querySelectorAll(
+                "[data-audit-row]"
+            )
+        );
+
+
+    const createCount =
+        document.getElementById(
+            "auditCreateCount"
+        );
+
+
+    const updateCount =
+        document.getElementById(
+            "auditUpdateCount"
+        );
+
+
+    const deleteCount =
+        document.getElementById(
+            "auditDeleteCount"
+        );
+
+
+    const userCount =
+        document.getElementById(
+            "auditUserCount"
+        );
+
+
+    let creates = 0;
+    let updates = 0;
+    let deletes = 0;
+
+    const users =
+        new Set();
+
+
+    rows.forEach(
+        function (row) {
+
+            const action =
+                (
+                    row.dataset.auditAction
+                    || ""
+                )
+                .toLowerCase();
+
+
+            const user =
+                (
+                    row.dataset.auditUser
+                    || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                action.includes(
+                    "create"
+                )
+                || action.includes(
+                    "add"
+                )
+            ) {
+                creates += 1;
+            }
+
+            else if (
+                action.includes(
+                    "update"
+                )
+                || action.includes(
+                    "edit"
+                )
+                || action.includes(
+                    "change"
+                )
+            ) {
+                updates += 1;
+            }
+
+            else if (
+                action.includes(
+                    "delete"
+                )
+                || action.includes(
+                    "remove"
+                )
+            ) {
+                deletes += 1;
+            }
+
+
+            if (user) {
+                users.add(user);
+            }
+        }
+    );
+
+
+    if (createCount) {
+        createCount.textContent =
+            creates;
+    }
+
+
+    if (updateCount) {
+        updateCount.textContent =
+            updates;
+    }
+
+
+    if (deleteCount) {
+        deleteCount.textContent =
+            deletes;
+    }
+
+
+    if (userCount) {
+        userCount.textContent =
+            users.size;
+    }
+
+
+    /* ============================================================
+       ACTION BADGE TONES
+       ============================================================ */
+
+    document
+        .querySelectorAll(
+            "[data-action-badge]"
+        )
+        .forEach(
+            function (badge) {
+
+                const row =
+                    badge.closest(
+                        "[data-audit-row]"
+                    );
+
+
+                if (!row) {
+                    return;
+                }
+
+
+                const action =
+                    (
+                        row.dataset.auditAction
+                        || badge.textContent
+                        || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                badge
+                    .classList
+                    .remove(
+                        "create",
+                        "update",
+                        "delete",
+                        "other"
+                    );
+
+
+                if (
+                    action.includes(
+                        "create"
+                    )
+                    || action.includes(
+                        "add"
+                    )
+                ) {
+                    badge
+                        .classList
+                        .add(
+                            "create"
+                        );
+                }
+
+                else if (
+                    action.includes(
+                        "update"
+                    )
+                    || action.includes(
+                        "edit"
+                    )
+                    || action.includes(
+                        "change"
+                    )
+                ) {
+                    badge
+                        .classList
+                        .add(
+                            "update"
+                        );
+                }
+
+                else if (
+                    action.includes(
+                        "delete"
+                    )
+                    || action.includes(
+                        "remove"
+                    )
+                ) {
+                    badge
+                        .classList
+                        .add(
+                            "delete"
+                        );
+                }
+
+                else {
+                    badge
+                        .classList
+                        .add(
+                            "other"
+                        );
+                }
+            }
+        );
+
+
+    /* ============================================================
+       INITIAL STATE
+       ============================================================ */
+
+    if (
+        searchInput
+        && searchClear
+    ) {
+        searchClear
+            .classList
+            .toggle(
+                "visible",
+                Boolean(
+                    searchInput
+                        .value
+                        .trim()
+                )
+            );
+    }
+
+
+    updateFilterChips();
+
+})();
+</script>
+
 {% endblock %}

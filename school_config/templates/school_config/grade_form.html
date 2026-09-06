@@ -1,35 +1,1151 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4 py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 bg-primary text-white">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-layer-group me-2"></i> {{ action }} Grade</h6>
+
+<style>
+    .grade-form-page {
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+
+        --text: #0f172a;
+        --text-2: #334155;
+        --muted: #64748b;
+        --muted-2: #94a3b8;
+
+        --line: #e2e8f0;
+        --soft: #f8fafc;
+
+        min-height:
+            calc(
+                100vh
+                - 65px
+            );
+
+        padding:
+            24px
+            28px
+            44px;
+
+        background:
+            radial-gradient(
+                circle at 90% 5%,
+                rgba(37,99,235,.055),
+                transparent 26%
+            ),
+            #f7f9fc;
+    }
+
+    .grade-form-page *,
+    .grade-form-page *::before,
+    .grade-form-page *::after {
+        box-sizing:
+            border-box;
+    }
+
+    /* ========================================================
+       HERO
+       ======================================================== */
+
+    .form-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        padding:
+            25px
+            28px;
+
+        border-radius: 20px;
+
+        color: white;
+
+        background:
+            radial-gradient(
+                circle at 88% 15%,
+                rgba(34,211,238,.16),
+                transparent 28%
+            ),
+            linear-gradient(
+                135deg,
+                #06192e,
+                #092b4b
+            );
+
+        box-shadow:
+            0
+            17px
+            42px
+            rgba(15,23,42,.12);
+    }
+
+    .form-hero-inner {
+        display: flex;
+
+        align-items: center;
+        justify-content:
+            space-between;
+
+        gap: 24px;
+    }
+
+    .form-eyebrow {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-bottom: 9px;
+
+        color: #8de9ff;
+
+        font-size: .66rem;
+
+        font-weight: 800;
+
+        letter-spacing: .12em;
+
+        text-transform: uppercase;
+    }
+
+    .form-eyebrow span {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #22d3ee;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(34,211,238,.09);
+    }
+
+    .form-title {
+        margin: 0;
+
+        color: white;
+
+        font-size:
+            clamp(
+                1.55rem,
+                2vw,
+                2rem
+            );
+
+        font-weight: 800;
+
+        letter-spacing: -.035em;
+    }
+
+    .form-hero-copy {
+        max-width: 650px;
+
+        margin:
+            8px
+            0
+            0;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .80
+            );
+
+        font-size: .82rem;
+
+        line-height: 1.6;
+    }
+
+    .back-button {
+        min-height: 40px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            14px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.14);
+
+        border-radius: 10px;
+
+        color: white;
+
+        background:
+            rgba(255,255,255,.06);
+
+        text-decoration: none;
+
+        font-size: .72rem;
+
+        font-weight: 800;
+    }
+
+    .back-button:hover {
+        color: white;
+
+        background:
+            rgba(255,255,255,.11);
+    }
+
+    /* ========================================================
+       MAIN GRID
+       ======================================================== */
+
+    .form-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1.65fr)
+            minmax(280px,.7fr);
+
+        gap: 16px;
+
+        margin-top: 16px;
+    }
+
+    .form-card,
+    .info-card {
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(15,23,42,.045);
+    }
+
+    .form-card-header {
+        padding:
+            18px
+            20px;
+
+        border-bottom:
+            1px solid
+            var(--line);
+    }
+
+    .card-kicker {
+        color: var(--blue);
+
+        font-size: .61rem;
+
+        font-weight: 800;
+
+        letter-spacing: .09em;
+
+        text-transform: uppercase;
+    }
+
+    .card-title {
+        margin-top: 4px;
+
+        color: var(--text);
+
+        font-size: .98rem;
+
+        font-weight: 800;
+    }
+
+    .card-copy {
+        margin-top: 4px;
+
+        color: var(--muted);
+
+        font-size: .69rem;
+
+        line-height: 1.5;
+    }
+
+    .form-body {
+        padding: 21px;
+    }
+
+    /* ========================================================
+       FIELDS
+       ======================================================== */
+
+    .field-group {
+        margin-bottom: 21px;
+    }
+
+    .field-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .field-label {
+        display: flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        margin-bottom: 7px;
+
+        color: var(--text-2);
+
+        font-size: .70rem;
+
+        font-weight: 800;
+    }
+
+    .field-required {
+        color: #dc2626;
+    }
+
+    .field-help {
+        margin-top: 6px;
+
+        color: var(--muted-2);
+
+        font-size: .62rem;
+
+        line-height: 1.45;
+    }
+
+    .form-control {
+        width: 100%;
+
+        border:
+            1px solid
+            #dbe3ec !important;
+
+        border-radius:
+            10px !important;
+
+        color:
+            var(--text-2) !important;
+
+        background:
+            white !important;
+
+        font-size:
+            .76rem !important;
+
+        box-shadow:
+            none !important;
+
+        transition:
+            border-color .16s ease,
+            box-shadow .16s ease !important;
+    }
+
+    input.form-control {
+        min-height: 43px;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+
+        padding: 12px 13px;
+
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        border-color:
+            #93c5fd !important;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(59,130,246,.09)
+            !important;
+    }
+
+    .field-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border:
+            1px solid
+            #fecaca;
+
+        border-radius: 8px;
+
+        color: #b91c1c;
+
+        background: #fef2f2;
+
+        font-size: .64rem;
+
+        line-height: 1.4;
+    }
+
+    .form-errors-global {
+        margin-bottom: 18px;
+
+        padding: 11px 13px;
+
+        border:
+            1px solid
+            #fecaca;
+
+        border-radius: 10px;
+
+        color: #b91c1c;
+
+        background: #fef2f2;
+
+        font-size: .67rem;
+    }
+
+    /* ========================================================
+       FOOTER
+       ======================================================== */
+
+    .form-footer {
+        display: flex;
+
+        align-items: center;
+        justify-content:
+            space-between;
+
+        gap: 12px;
+
+        padding:
+            15px
+            20px;
+
+        border-top:
+            1px solid
+            var(--line);
+
+        background: var(--soft);
+    }
+
+    .form-footer-note {
+        color: var(--muted);
+
+        font-size: .63rem;
+    }
+
+    .form-footer-actions {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .form-button {
+        min-height: 40px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 14px;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: .70rem;
+
+        font-weight: 800;
+    }
+
+    .cancel-button {
+        border:
+            1px solid
+            var(--line);
+
+        color: var(--text-2);
+
+        background: white;
+    }
+
+    .cancel-button:hover {
+        color: var(--text);
+
+        background: #f8fafc;
+    }
+
+    .save-button {
+        border:
+            1px solid
+            var(--blue);
+
+        color: white;
+
+        background: var(--blue);
+
+        box-shadow:
+            0 5px 13px
+            rgba(37,99,235,.16);
+    }
+
+    .save-button:hover {
+        color: white;
+
+        background:
+            var(--blue-dark);
+    }
+
+    .save-button:disabled {
+        cursor: not-allowed;
+
+        opacity: .72;
+    }
+
+    /* ========================================================
+       INFORMATION PANEL
+       ======================================================== */
+
+    .info-card {
+        height: max-content;
+    }
+
+    .info-card-body {
+        padding: 19px;
+    }
+
+    .info-icon {
+        width: 43px;
+        height: 43px;
+
+        display: grid;
+
+        place-items: center;
+
+        margin-bottom: 14px;
+
+        border-radius: 12px;
+
+        color: var(--blue);
+
+        background: #eff6ff;
+    }
+
+    .info-title {
+        color: var(--text);
+
+        font-size: .86rem;
+
+        font-weight: 800;
+    }
+
+    .info-copy {
+        margin-top: 6px;
+
+        color: var(--muted);
+
+        font-size: .67rem;
+
+        line-height: 1.55;
+    }
+
+    .structure-preview {
+        display: grid;
+
+        gap: 8px;
+
+        margin-top: 17px;
+    }
+
+    .preview-node {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 10px;
+
+        border:
+            1px solid
+            var(--line);
+
+        border-radius: 10px;
+
+        background: var(--soft);
+    }
+
+    .preview-number {
+        width: 28px;
+        height: 28px;
+
+        flex: 0 0 28px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 8px;
+
+        color: var(--blue);
+
+        background: #eff6ff;
+
+        font-size: .60rem;
+
+        font-weight: 900;
+    }
+
+    .preview-title {
+        color: var(--text-2);
+
+        font-size: .66rem;
+
+        font-weight: 800;
+    }
+
+    .preview-copy {
+        margin-top: 1px;
+
+        color: var(--muted-2);
+
+        font-size: .57rem;
+    }
+
+    .edit-context {
+        margin-top: 16px;
+
+        padding: 11px 12px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: #1e40af;
+
+        background: #eff6ff;
+
+        font-size: .64rem;
+
+        line-height: 1.5;
+    }
+
+    /* ========================================================
+       RESPONSIVE
+       ======================================================== */
+
+    @media (max-width: 950px) {
+        .form-layout {
+            grid-template-columns:
+                1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .grade-form-page {
+            padding: 12px;
+        }
+
+        .form-hero {
+            padding:
+                21px
+                18px;
+
+            border-radius: 17px;
+        }
+
+        .form-hero-inner {
+            flex-direction: column;
+
+            align-items:
+                flex-start;
+        }
+
+        .back-button {
+            width: 100%;
+        }
+
+        .form-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .form-footer-actions {
+            width: 100%;
+        }
+
+        .form-button {
+            flex: 1;
+        }
+    }
+
+    @media (
+        prefers-reduced-motion:
+        reduce
+    ) {
+        .grade-form-page *,
+        .grade-form-page *::before,
+        .grade-form-page *::after {
+            transition:
+                none !important;
+        }
+    }
+</style>
+
+
+<div class="grade-form-page">
+
+    <!-- ====================================================
+         HERO
+         ==================================================== -->
+
+    <section class="form-hero">
+
+        <div class="form-hero-inner">
+
+            <div>
+
+                <div class="form-eyebrow">
+                    <span></span>
+
+                    Academic Configuration
                 </div>
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Grade Name <span class="text-danger">*</span></label>
-                            {{ form.name }}
-                            {% if form.name.errors %}
-                                <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Description</label>
-                            {{ form.description }}
-                        </div>
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-between">
-                            <a href="{% url 'school_config:grades_list' %}" class="btn btn-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-success px-4">Save Grade</button>
-                        </div>
-                    </form>
-                </div>
+
+                <h1 class="form-title">
+
+                    {% if is_edit %}
+                        Edit Grade Level
+                    {% else %}
+                        Create Grade Level
+                    {% endif %}
+
+                </h1>
+
+                <p class="form-hero-copy">
+
+                    {% if is_edit %}
+
+                        Update the academic identity of
+                        {{ grade.name }} while preserving
+                        its place in the school's structure.
+
+                    {% else %}
+
+                        Add a new academic level that can
+                        later be connected to classes,
+                        student enrollment and fee
+                        configuration.
+
+                    {% endif %}
+
+                </p>
+
             </div>
+
+
+            <a
+                href="{% url 'school_config:grades_list' %}"
+                class="back-button"
+            >
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Grade Structure
+            </a>
+
         </div>
+
+    </section>
+
+
+    <!-- ====================================================
+         CONTENT
+         ==================================================== -->
+
+    <div class="form-layout">
+
+        <!-- =================================================
+             FORM
+             ================================================= -->
+
+        <section class="form-card">
+
+            <div class="form-card-header">
+
+                <div class="card-kicker">
+                    Grade Details
+                </div>
+
+                <div class="card-title">
+                    Academic Level Information
+                </div>
+
+                <div class="card-copy">
+                    Use a clear, recognizable grade name
+                    and an optional description for
+                    administrative context.
+                </div>
+
+            </div>
+
+
+            <form
+                method="post"
+                id="gradeForm"
+            >
+
+                {% csrf_token %}
+
+
+                <div class="form-body">
+
+                    {% if form.non_field_errors %}
+
+                        <div class="form-errors-global">
+
+                            {% for error in form.non_field_errors %}
+                                <div>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Name -->
+
+                    <div class="field-group">
+
+                        <label
+                            class="field-label"
+                            for="{{ form.name.id_for_label }}"
+                        >
+                            Grade Name
+
+                            <span class="field-required">
+                                *
+                            </span>
+                        </label>
+
+
+                        {{ form.name }}
+
+
+                        {% if form.name.errors %}
+
+                            {% for error in form.name.errors %}
+
+                                <div class="field-error">
+                                    <i
+                                        class="
+                                            bi
+                                            bi-exclamation-circle
+                                            me-1
+                                        "
+                                    ></i>
+
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+
+                        <div class="field-help">
+                            Example:
+                            Grade 1, Grade 8,
+                            Kindergarten 1 (KG1).
+                        </div>
+
+                    </div>
+
+
+                    <!-- Description -->
+
+                    <div class="field-group">
+
+                        <label
+                            class="field-label"
+                            for="{{ form.description.id_for_label }}"
+                        >
+                            Description
+                        </label>
+
+
+                        {{ form.description }}
+
+
+                        {% if form.description.errors %}
+
+                            {% for error in form.description.errors %}
+
+                                <div class="field-error">
+                                    <i
+                                        class="
+                                            bi
+                                            bi-exclamation-circle
+                                            me-1
+                                        "
+                                    ></i>
+
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+
+                        <div class="field-help">
+                            Optional administrative
+                            description of this academic
+                            level.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-footer">
+
+                    <div class="form-footer-note">
+                        Fields marked with
+                        <strong>*</strong>
+                        are required.
+                    </div>
+
+
+                    <div class="form-footer-actions">
+
+                        <a
+                            href="{% url 'school_config:grades_list' %}"
+                            class="
+                                form-button
+                                cancel-button
+                            "
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="
+                                form-button
+                                save-button
+                            "
+                            id="gradeSaveButton"
+                        >
+                            <i
+                                class="
+                                    bi
+                                    {% if is_edit %}
+                                        bi-check2
+                                    {% else %}
+                                        bi-plus-lg
+                                    {% endif %}
+                                "
+                            ></i>
+
+                            {% if is_edit %}
+                                Save Changes
+                            {% else %}
+                                Create Grade Level
+                            {% endif %}
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =================================================
+             CONTEXT
+             ================================================= -->
+
+        <aside class="info-card">
+
+            <div class="info-card-body">
+
+                <div class="info-icon">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+
+                <div class="info-title">
+                    Academic Structure
+                </div>
+
+                <div class="info-copy">
+                    A grade represents an academic level.
+                    Classes or sections are created beneath
+                    that grade and students can later be
+                    assigned through enrollment.
+                </div>
+
+
+                <div class="structure-preview">
+
+                    <div class="preview-node">
+
+                        <div class="preview-number">
+                            1
+                        </div>
+
+                        <div>
+                            <div class="preview-title">
+                                Grade Level
+                            </div>
+
+                            <div class="preview-copy">
+                                Example: Grade 8
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="preview-node">
+
+                        <div class="preview-number">
+                            2
+                        </div>
+
+                        <div>
+                            <div class="preview-title">
+                                Classes & Sections
+                            </div>
+
+                            <div class="preview-copy">
+                                Example: 8A, 8B, 8C
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="preview-node">
+
+                        <div class="preview-number">
+                            3
+                        </div>
+
+                        <div>
+                            <div class="preview-title">
+                                Student Enrollment
+                            </div>
+
+                            <div class="preview-copy">
+                                Students join the structure
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="preview-node">
+
+                        <div class="preview-number">
+                            4
+                        </div>
+
+                        <div>
+                            <div class="preview-title">
+                                Finance & Reporting
+                            </div>
+
+                            <div class="preview-copy">
+                                Grade-based school finance
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {% if is_edit and grade %}
+
+                    <div class="edit-context">
+                        <strong>
+                            Editing:
+                        </strong>
+
+                        {{ grade.name }}
+
+                        <br>
+
+                        Changes to the name will be
+                        reflected anywhere this grade
+                        record is displayed.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </aside>
+
     </div>
+
 </div>
+
+
+<script>
+(function () {
+    "use strict";
+
+    const form =
+        document.getElementById(
+            "gradeForm"
+        );
+
+    const button =
+        document.getElementById(
+            "gradeSaveButton"
+        );
+
+    if (
+        !form
+        || !button
+    ) {
+        return;
+    }
+
+    form.addEventListener(
+        "submit",
+        function () {
+            if (button.disabled) {
+                return;
+            }
+
+            button.disabled = true;
+
+            button.innerHTML =
+                '<span '
+                + 'class="spinner-border '
+                + 'spinner-border-sm" '
+                + 'aria-hidden="true">'
+                + '</span>'
+                + ' Saving...';
+        }
+    );
+
+})();
+</script>
+
 {% endblock %}

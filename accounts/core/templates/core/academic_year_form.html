@@ -1,25 +1,2634 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4">
-    <h1 class="h3 my-4">{% if is_edit %}Edit Academic Year{% else %}Create Academic Year{% endif %}</h1>
-    
-    <!-- Responsive grid sizing: full width on mobile, half width on tablets, third on large screens -->
-    <div class="row">
-        <div class="col-12 col-md-8 col-lg-6">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
-                            <button type="submit" class="btn btn-success flex-grow-1">Save Academic Year</button>
-                            <a href="{% url 'academic_years_list' %}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+
+<style>
+    /* ============================================================
+       ACADEMIC YEAR FORM — PREMIUM REDESIGN
+       ============================================================ */
+
+    .ayf-page {
+        --navy-950: #06182c;
+        --navy-900: #082541;
+        --navy-800: #0b3155;
+
+        --blue-700: #1d4ed8;
+        --blue-600: #2563eb;
+        --blue-500: #3b82f6;
+        --blue-100: #dbeafe;
+        --blue-50: #eff6ff;
+
+        --cyan-500: #06b6d4;
+        --cyan-50: #ecfeff;
+
+        --green-700: #047857;
+        --green-600: #059669;
+        --green-100: #a7f3d0;
+        --green-50: #ecfdf5;
+
+        --amber-700: #b45309;
+        --amber-600: #d97706;
+        --amber-100: #fde68a;
+        --amber-50: #fffbeb;
+
+        --red-700: #b91c1c;
+        --red-100: #fecaca;
+        --red-50: #fef2f2;
+
+        --text: #0f172a;
+        --text-soft: #334155;
+
+        --muted: #64748b;
+        --muted-light: #94a3b8;
+
+        --line: #e2e8f0;
+        --line-soft: #edf2f7;
+
+        --surface: #ffffff;
+        --surface-soft: #f8fafc;
+
+        min-height: calc(100vh - 64px);
+
+        padding:
+            24px
+            28px
+            48px;
+
+        color: var(--text);
+
+        background:
+            radial-gradient(
+                circle at 94% 3%,
+                rgba(37, 99, 235, .055),
+                transparent 25%
+            ),
+            #f7f9fc;
+    }
+
+    .ayf-page *,
+    .ayf-page *::before,
+    .ayf-page *::after {
+        box-sizing: border-box;
+    }
+
+
+    /* ============================================================
+       BREADCRUMB
+       ============================================================ */
+
+    .ayf-breadcrumb {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        margin-bottom: 15px;
+
+        color: var(--muted-light);
+
+        font-size: .66rem;
+
+        font-weight: 750;
+    }
+
+    .ayf-breadcrumb a {
+        color: var(--muted);
+
+        text-decoration: none;
+    }
+
+    .ayf-breadcrumb a:hover {
+        color: var(--blue-600);
+    }
+
+    .ayf-breadcrumb i {
+        font-size: .55rem;
+
+        color: #cbd5e1;
+    }
+
+    .ayf-breadcrumb-current {
+        color: var(--text-soft);
+
+        font-weight: 800;
+    }
+
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+
+    .ayf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 28px;
+
+        padding: 28px 30px;
+
+        border-radius: 21px;
+
+        color: white;
+
+        background:
+            radial-gradient(
+                circle at 88% 14%,
+                rgba(34, 211, 238, .16),
+                transparent 28%
+            ),
+            linear-gradient(
+                135deg,
+                var(--navy-950) 0%,
+                var(--navy-900) 58%,
+                var(--navy-800) 100%
+            );
+
+        box-shadow:
+            0 18px 44px
+            rgba(15, 23, 42, .12);
+    }
+
+    .ayf-hero::after {
+        content: "";
+
+        position: absolute;
+
+        top: -160px;
+        right: -80px;
+
+        width: 285px;
+        height: 285px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .08);
+
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 36px
+            rgba(255, 255, 255, .018),
+            0 0 0 72px
+            rgba(255, 255, 255, .012);
+
+        pointer-events: none;
+    }
+
+    .ayf-hero-main {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 17px;
+    }
+
+    .ayf-hero-icon {
+        width: 52px;
+        height: 52px;
+
+        flex: 0 0 52px;
+
+        display: grid;
+
+        place-items: center;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .12);
+
+        border-radius: 15px;
+
+        color: #c9f5ff;
+
+        background:
+            rgba(255, 255, 255, .075);
+
+        font-size: 1.1rem;
+    }
+
+    .ayf-eyebrow {
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-bottom: 7px;
+
+        color: #8cecff;
+
+        font-size: .64rem;
+
+        font-weight: 800;
+
+        letter-spacing: .12em;
+
+        text-transform: uppercase;
+    }
+
+    .ayf-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #22d3ee;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(34, 211, 238, .09);
+    }
+
+    .ayf-title {
+        margin: 0;
+
+        color: white;
+
+        font-size:
+            clamp(
+                1.55rem,
+                2.2vw,
+                2rem
+            );
+
+        font-weight: 800;
+
+        letter-spacing: -.035em;
+    }
+
+    .ayf-subtitle {
+        max-width: 680px;
+
+        margin: 7px 0 0;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .79
+            );
+
+        font-size: .79rem;
+
+        line-height: 1.6;
+    }
+
+    .ayf-hero-status {
+        position: relative;
+        z-index: 2;
+
+        flex: 0 0 auto;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        padding:
+            9px
+            12px;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, .12);
+
+        border-radius: 999px;
+
+        color: #e5f3ff;
+
+        background:
+            rgba(255, 255, 255, .07);
+
+        font-size: .66rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-hero-status i {
+        color: #7dd3fc;
+    }
+
+
+    /* ============================================================
+       PAGE GRID
+       ============================================================ */
+
+    .ayf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1.55fr)
+            minmax(290px, .65fr);
+
+        align-items: start;
+
+        gap: 16px;
+
+        margin-top: 16px;
+    }
+
+
+    /* ============================================================
+       CARD
+       ============================================================ */
+
+    .ayf-card {
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(15, 23, 42, .045);
+    }
+
+    .ayf-card-head {
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        padding:
+            18px
+            20px;
+
+        border-bottom:
+            1px solid
+            var(--line);
+    }
+
+    .ayf-card-icon {
+        width: 40px;
+        height: 40px;
+
+        flex: 0 0 40px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 11px;
+
+        color: var(--blue-600);
+
+        background: var(--blue-50);
+    }
+
+    .ayf-card-kicker {
+        color: var(--blue-600);
+
+        font-size: .58rem;
+
+        font-weight: 800;
+
+        letter-spacing: .08em;
+
+        text-transform: uppercase;
+    }
+
+    .ayf-card-title {
+        margin-top: 3px;
+
+        color: var(--text);
+
+        font-size: .92rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-card-copy {
+        margin-top: 3px;
+
+        color: var(--muted);
+
+        font-size: .63rem;
+
+        line-height: 1.45;
+    }
+
+    .ayf-card-body {
+        padding:
+            21px
+            22px;
+    }
+
+
+    /* ============================================================
+       ERRORS
+       ============================================================ */
+
+    .ayf-global-errors {
+        margin-bottom: 18px;
+
+        padding:
+            11px
+            12px;
+
+        border:
+            1px solid
+            var(--red-100);
+
+        border-radius: 10px;
+
+        color: var(--red-700);
+
+        background: var(--red-50);
+
+        font-size: .66rem;
+
+        line-height: 1.5;
+    }
+
+    .ayf-field-error {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 6px;
+
+        margin-top: 6px;
+
+        color: var(--red-700);
+
+        font-size: .61rem;
+
+        line-height: 1.45;
+    }
+
+
+    /* ============================================================
+       FORM FIELDS
+       ============================================================ */
+
+    .ayf-field {
+        margin-bottom: 20px;
+    }
+
+    .ayf-label-row {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-bottom: 7px;
+    }
+
+    .ayf-label {
+        color: var(--text-soft);
+
+        font-size: .68rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-required {
+        color: var(--red-700);
+
+        font-size: .6rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-help {
+        margin-top: 6px;
+
+        color: var(--muted-light);
+
+        font-size: .59rem;
+
+        line-height: 1.45;
+    }
+
+    .ayf-page
+    input.form-control {
+        width: 100% !important;
+
+        height: 44px !important;
+
+        padding:
+            0
+            13px !important;
+
+        border:
+            1px solid
+            #dbe3ec !important;
+
+        border-radius:
+            10px !important;
+
+        outline: none !important;
+
+        color:
+            var(--text-soft) !important;
+
+        background:
+            #ffffff !important;
+
+        font-size:
+            .75rem !important;
+
+        box-shadow:
+            none !important;
+
+        transition:
+            border-color .16s ease,
+            box-shadow .16s ease !important;
+    }
+
+    .ayf-page
+    input.form-control:focus {
+        border-color:
+            #93c5fd !important;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(59, 130, 246, .09)
+            !important;
+    }
+
+    .ayf-date-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 13px;
+    }
+
+
+    /* ============================================================
+       CURRENT SWITCH
+       ============================================================ */
+
+    .ayf-current-box {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 13px;
+
+        padding: 15px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 12px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #f8fbff,
+                #f0f7ff
+            );
+    }
+
+    .ayf-current-control {
+        flex: 0 0 auto;
+
+        padding-top: 2px;
+    }
+
+    .ayf-current-control
+    input[type="checkbox"] {
+        width: 40px !important;
+        height: 21px !important;
+
+        margin: 0 !important;
+
+        cursor: pointer;
+    }
+
+    .ayf-current-title {
+        color: var(--text);
+
+        font-size: .69rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-current-copy {
+        margin-top: 4px;
+
+        color: var(--muted);
+
+        font-size: .61rem;
+
+        line-height: 1.5;
+    }
+
+
+    /* ============================================================
+       PREVIEW
+       ============================================================ */
+
+    .ayf-preview {
+        margin-top: 20px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 14px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f8fbff,
+                #eff6ff
+            );
+    }
+
+    .ayf-preview-head {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        padding:
+            12px
+            14px;
+
+        border-bottom:
+            1px solid
+            #dbeafe;
+    }
+
+    .ayf-preview-title {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        color: var(--blue-700);
+
+        font-size: .66rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-preview-status {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 5px;
+
+        padding:
+            5px
+            8px;
+
+        border-radius: 999px;
+
+        color: var(--green-700);
+
+        background: var(--green-50);
+
+        font-size: .56rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-preview-status::before {
+        content: "";
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: var(--green-600);
+    }
+
+    .ayf-preview-status.inactive {
+        color: var(--muted);
+
+        background: #f1f5f9;
+    }
+
+    .ayf-preview-status.inactive::before {
+        background: var(--muted-light);
+    }
+
+    .ayf-preview-body {
+        padding:
+            17px
+            16px;
+    }
+
+    .ayf-preview-name {
+        color: var(--text);
+
+        font-size: 1.02rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-preview-caption {
+        margin-top: 3px;
+
+        color: var(--muted);
+
+        font-size: .61rem;
+    }
+
+    .ayf-timeline {
+        position: relative;
+
+        margin:
+            23px
+            9px
+            12px;
+
+        height: 4px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                90deg,
+                #2563eb,
+                #06b6d4
+            );
+    }
+
+    .ayf-timeline::before,
+    .ayf-timeline::after {
+        content: "";
+
+        position: absolute;
+
+        top: 50%;
+
+        width: 12px;
+        height: 12px;
+
+        transform:
+            translateY(-50%);
+
+        border:
+            3px solid
+            white;
+
+        border-radius: 50%;
+    }
+
+    .ayf-timeline::before {
+        left: -4px;
+
+        background: var(--blue-600);
+
+        box-shadow:
+            0 0 0 2px
+            #bfdbfe;
+    }
+
+    .ayf-timeline::after {
+        right: -4px;
+
+        background: var(--cyan-500);
+
+        box-shadow:
+            0 0 0 2px
+            #bae6fd;
+    }
+
+    .ayf-preview-dates {
+        display: grid;
+
+        grid-template-columns:
+            1fr
+            auto
+            1fr;
+
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .ayf-preview-date:last-child {
+        text-align: right;
+    }
+
+    .ayf-preview-date-label {
+        color: var(--muted-light);
+
+        font-size: .54rem;
+
+        font-weight: 800;
+
+        letter-spacing: .06em;
+
+        text-transform: uppercase;
+    }
+
+    .ayf-preview-date-value {
+        margin-top: 3px;
+
+        color: var(--text-soft);
+
+        font-size: .65rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-duration {
+        min-width: 78px;
+
+        padding:
+            7px
+            9px;
+
+        border:
+            1px solid
+            #bfdbfe;
+
+        border-radius: 10px;
+
+        text-align: center;
+
+        color: var(--blue-700);
+
+        background: white;
+    }
+
+    .ayf-duration-value {
+        font-size: .72rem;
+
+        font-weight: 850;
+    }
+
+    .ayf-duration-label {
+        margin-top: 2px;
+
+        color: var(--muted-light);
+
+        font-size: .49rem;
+
+        text-transform: uppercase;
+    }
+
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+
+    .ayf-form-footer {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-top: 21px;
+
+        padding-top: 18px;
+
+        border-top:
+            1px solid
+            var(--line);
+    }
+
+    .ayf-footer-note {
+        display: flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        color: var(--muted);
+
+        font-size: .59rem;
+    }
+
+    .ayf-footer-note i {
+        color: var(--blue-600);
+    }
+
+    .ayf-actions {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .ayf-btn {
+        min-height: 41px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding:
+            0
+            15px;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: .69rem;
+
+        font-weight: 800;
+
+        transition:
+            transform .16s ease,
+            background .16s ease,
+            border-color .16s ease,
+            box-shadow .16s ease;
+    }
+
+    .ayf-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .ayf-btn-secondary {
+        border:
+            1px solid
+            #dbe3ec;
+
+        color: var(--text-soft);
+
+        background: white;
+    }
+
+    .ayf-btn-secondary:hover {
+        color: var(--text);
+
+        background: #f8fafc;
+    }
+
+    .ayf-btn-primary {
+        border:
+            1px solid
+            var(--blue-600);
+
+        color: white;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--blue-600),
+                var(--blue-700)
+            );
+
+        box-shadow:
+            0 6px 14px
+            rgba(37, 99, 235, .17);
+    }
+
+    .ayf-btn-primary:hover {
+        color: white;
+
+        box-shadow:
+            0 9px 19px
+            rgba(37, 99, 235, .22);
+    }
+
+    .ayf-btn-primary:disabled {
+        cursor: not-allowed;
+
+        opacity: .68;
+
+        transform: none;
+    }
+
+
+    /* ============================================================
+       RIGHT COLUMN
+       ============================================================ */
+
+    .ayf-side {
+        display: grid;
+
+        gap: 15px;
+    }
+
+    .ayf-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 17px;
+
+        background: white;
+
+        box-shadow:
+            0 6px 20px
+            rgba(15, 23, 42, .04);
+    }
+
+    .ayf-side-head {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+
+        padding:
+            17px
+            18px;
+
+        border-bottom:
+            1px solid
+            var(--line);
+    }
+
+    .ayf-side-icon {
+        width: 38px;
+        height: 38px;
+
+        flex: 0 0 38px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 11px;
+
+        color: var(--blue-600);
+
+        background: var(--blue-50);
+    }
+
+    .ayf-side-icon.green {
+        color: var(--green-600);
+
+        background: var(--green-50);
+    }
+
+    .ayf-side-title {
+        color: var(--text);
+
+        font-size: .76rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-side-copy {
+        margin-top: 3px;
+
+        color: var(--muted);
+
+        font-size: .59rem;
+
+        line-height: 1.4;
+    }
+
+    .ayf-side-body {
+        padding:
+            17px
+            18px;
+    }
+
+
+    /* ============================================================
+       CURRENT STATUS BOX
+       ============================================================ */
+
+    .ayf-current-status-box {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 10px;
+
+        padding: 13px;
+
+        border:
+            1px solid
+            var(--green-100);
+
+        border-radius: 11px;
+
+        color: var(--green-700);
+
+        background: var(--green-50);
+    }
+
+    .ayf-current-status-dot {
+        width: 8px;
+        height: 8px;
+
+        flex: 0 0 8px;
+
+        margin-top: 4px;
+
+        border-radius: 50%;
+
+        background: var(--green-600);
+
+        box-shadow:
+            0 0 0 4px
+            rgba(5, 150, 105, .08);
+    }
+
+    .ayf-current-status-title {
+        font-size: .66rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-current-status-copy {
+        margin-top: 4px;
+
+        color: #4b766b;
+
+        font-size: .58rem;
+
+        line-height: 1.5;
+    }
+
+
+    /* ============================================================
+       RULES
+       ============================================================ */
+
+    .ayf-rules {
+        display: grid;
+
+        gap: 0;
+    }
+
+    .ayf-rule {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 10px;
+
+        padding:
+            12px
+            0;
+
+        border-bottom:
+            1px solid
+            var(--line-soft);
+    }
+
+    .ayf-rule:first-child {
+        padding-top: 0;
+    }
+
+    .ayf-rule:last-child {
+        padding-bottom: 0;
+
+        border-bottom: 0;
+    }
+
+    .ayf-rule-icon {
+        width: 32px;
+        height: 32px;
+
+        flex: 0 0 32px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 9px;
+
+        color: var(--blue-600);
+
+        background: var(--blue-50);
+
+        font-size: .68rem;
+    }
+
+    .ayf-rule-title {
+        color: var(--text-soft);
+
+        font-size: .64rem;
+
+        font-weight: 800;
+    }
+
+    .ayf-rule-copy {
+        margin-top: 3px;
+
+        color: var(--muted);
+
+        font-size: .56rem;
+
+        line-height: 1.48;
+    }
+
+
+    /* ============================================================
+       WARNING
+       ============================================================ */
+
+    .ayf-warning {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 9px;
+
+        padding:
+            11px
+            12px;
+
+        border:
+            1px solid
+            #fed7aa;
+
+        border-radius: 10px;
+
+        color: #9a3412;
+
+        background: #fff7ed;
+
+        font-size: .58rem;
+
+        line-height: 1.5;
+    }
+
+    .ayf-warning i {
+        flex: 0 0 auto;
+
+        margin-top: 2px;
+
+        color: #ea580c;
+    }
+
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
+    @media (max-width: 980px) {
+        .ayf-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .ayf-side {
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+        }
+    }
+
+    @media (max-width: 720px) {
+        .ayf-page {
+            padding:
+                16px
+                12px
+                40px;
+        }
+
+        .ayf-hero {
+            flex-direction: column;
+
+            align-items: flex-start;
+
+            padding:
+                22px
+                18px;
+
+            border-radius: 17px;
+        }
+
+        .ayf-hero-main {
+            align-items: flex-start;
+        }
+
+        .ayf-date-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ayf-form-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .ayf-actions {
+            width: 100%;
+        }
+
+        .ayf-btn {
+            flex: 1;
+        }
+
+        .ayf-side {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .ayf-hero-main {
+            flex-direction: column;
+        }
+
+        .ayf-preview-dates {
+            grid-template-columns: 1fr;
+
+            text-align: left;
+        }
+
+        .ayf-preview-date:last-child {
+            text-align: left;
+        }
+
+        .ayf-duration {
+            width: 100%;
+        }
+
+        .ayf-actions {
+            flex-direction: column-reverse;
+        }
+
+        .ayf-btn {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ayf-page *,
+        .ayf-page *::before,
+        .ayf-page *::after {
+            transition: none !important;
+
+            animation: none !important;
+        }
+    }
+</style>
+
+
+<div class="ayf-page">
+
+    <!-- ========================================================
+         BREADCRUMB
+         ======================================================== -->
+
+    <nav class="ayf-breadcrumb">
+
+        <a href="{% url 'dashboard' %}">
+            Dashboard
+        </a>
+
+        <i class="bi bi-chevron-right"></i>
+
+        <a href="{% url 'academic_years_list' %}">
+            Academic Years
+        </a>
+
+        <i class="bi bi-chevron-right"></i>
+
+        <span class="ayf-breadcrumb-current">
+
+            {% if is_edit %}
+                Edit Academic Year
+            {% else %}
+                Create Academic Year
+            {% endif %}
+
+        </span>
+
+    </nav>
+
+
+    <!-- ========================================================
+         HERO
+         ======================================================== -->
+
+    <section class="ayf-hero">
+
+        <div class="ayf-hero-main">
+
+            <div class="ayf-hero-icon">
+
+                {% if is_edit %}
+
+                    <i class="bi bi-calendar2-week"></i>
+
+                {% else %}
+
+                    <i class="bi bi-calendar-plus"></i>
+
+                {% endif %}
+
             </div>
+
+
+            <div>
+
+                <div class="ayf-eyebrow">
+
+                    <span class="ayf-eyebrow-dot"></span>
+
+                    Academic Configuration
+
+                </div>
+
+
+                <h1 class="ayf-title">
+
+                    {% if is_edit %}
+
+                        Edit Academic Year
+
+                    {% else %}
+
+                        Create Academic Year
+
+                    {% endif %}
+
+                </h1>
+
+
+                <p class="ayf-subtitle">
+
+                    {% if is_edit %}
+
+                        Update the academic cycle name,
+                        date boundaries and current-year
+                        designation while keeping the
+                        school structure consistent.
+
+                    {% else %}
+
+                        Create a new academic cycle with
+                        clear start and end dates and
+                        optionally make it the school's
+                        current operating year.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
         </div>
+
+
+        <div class="ayf-hero-status">
+
+            {% if is_edit %}
+
+                <i class="bi bi-pencil"></i>
+
+                Editing Existing Cycle
+
+            {% else %}
+
+                <i class="bi bi-plus-circle"></i>
+
+                New Academic Cycle
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         MAIN LAYOUT
+         ======================================================== -->
+
+    <div class="ayf-layout">
+
+        <!-- ====================================================
+             FORM CARD
+             ==================================================== -->
+
+        <section class="ayf-card">
+
+            <header class="ayf-card-head">
+
+                <div class="ayf-card-icon">
+
+                    <i class="bi bi-calendar3"></i>
+
+                </div>
+
+
+                <div>
+
+                    <div class="ayf-card-kicker">
+                        Cycle Details
+                    </div>
+
+
+                    <div class="ayf-card-title">
+                        Academic Year Information
+                    </div>
+
+
+                    <div class="ayf-card-copy">
+                        Define the identity and calendar
+                        boundaries of this academic cycle.
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <div class="ayf-card-body">
+
+                <form
+                    method="post"
+                    novalidate
+                    id="academicYearForm"
+                >
+
+                    {% csrf_token %}
+
+
+                    <!-- =========================================
+                         NON-FIELD ERRORS
+                         ========================================= -->
+
+                    {% if form.non_field_errors %}
+
+                        <div class="ayf-global-errors">
+
+                            {% for error in form.non_field_errors %}
+
+                                <div>
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- =========================================
+                         NAME
+                         ========================================= -->
+
+                    <div class="ayf-field">
+
+                        <div class="ayf-label-row">
+
+                            <label
+                                for="{{ form.name.id_for_label }}"
+                                class="ayf-label"
+                            >
+                                Academic Year Name
+                            </label>
+
+
+                            <span class="ayf-required">
+                                Required
+                            </span>
+
+                        </div>
+
+
+                        {{ form.name }}
+
+
+                        <div class="ayf-help">
+                            Use a consistent label such as
+                            <strong>2026-2027</strong>.
+                        </div>
+
+
+                        {% for error in form.name.errors %}
+
+                            <div class="ayf-field-error">
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- =========================================
+                         DATES
+                         ========================================= -->
+
+                    <div class="ayf-date-grid">
+
+                        <!-- START DATE -->
+
+                        <div class="ayf-field">
+
+                            <div class="ayf-label-row">
+
+                                <label
+                                    for="{{ form.start_date.id_for_label }}"
+                                    class="ayf-label"
+                                >
+                                    Start Date
+                                </label>
+
+
+                                <span class="ayf-required">
+                                    Required
+                                </span>
+
+                            </div>
+
+
+                            {{ form.start_date }}
+
+
+                            <div class="ayf-help">
+                                First day of the academic year.
+                            </div>
+
+
+                            {% for error in form.start_date.errors %}
+
+                                <div class="ayf-field-error">
+
+                                    <i class="bi bi-exclamation-circle"></i>
+
+                                    <span>
+                                        {{ error }}
+                                    </span>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- END DATE -->
+
+                        <div class="ayf-field">
+
+                            <div class="ayf-label-row">
+
+                                <label
+                                    for="{{ form.end_date.id_for_label }}"
+                                    class="ayf-label"
+                                >
+                                    End Date
+                                </label>
+
+
+                                <span class="ayf-required">
+                                    Required
+                                </span>
+
+                            </div>
+
+
+                            {{ form.end_date }}
+
+
+                            <div class="ayf-help">
+                                Final day of the academic year.
+                            </div>
+
+
+                            {% for error in form.end_date.errors %}
+
+                                <div class="ayf-field-error">
+
+                                    <i class="bi bi-exclamation-circle"></i>
+
+                                    <span>
+                                        {{ error }}
+                                    </span>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
+                         CURRENT YEAR
+                         ========================================= -->
+
+                    <div class="ayf-field">
+
+                        <div class="ayf-label-row">
+
+                            <span class="ayf-label">
+                                Current Year Designation
+                            </span>
+
+                        </div>
+
+
+                        <div class="ayf-current-box">
+
+                            <div class="ayf-current-control">
+
+                                {{ form.is_current }}
+
+                            </div>
+
+
+                            <div>
+
+                                <label
+                                    for="{{ form.is_current.id_for_label }}"
+                                    class="ayf-current-title"
+                                >
+                                    Set as Current Academic Year
+                                </label>
+
+
+                                <div class="ayf-current-copy">
+
+                                    Mark this cycle as the
+                                    school's current academic
+                                    year. When this record is
+                                    saved as current, the backend
+                                    automatically removes the
+                                    current designation from the
+                                    other academic years.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {% for error in form.is_current.errors %}
+
+                            <div class="ayf-field-error">
+
+                                <i class="bi bi-exclamation-circle"></i>
+
+                                <span>
+                                    {{ error }}
+                                </span>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- =========================================
+                         LIVE PREVIEW
+                         ========================================= -->
+
+                    <section class="ayf-preview">
+
+                        <header class="ayf-preview-head">
+
+                            <div class="ayf-preview-title">
+
+                                <i class="bi bi-activity"></i>
+
+                                Academic Cycle Preview
+
+                            </div>
+
+
+                            <div
+                                class="ayf-preview-status"
+                                id="previewStatus"
+                            >
+                                Current Year
+                            </div>
+
+                        </header>
+
+
+                        <div class="ayf-preview-body">
+
+                            <div
+                                class="ayf-preview-name"
+                                id="previewName"
+                            >
+                                Academic Year
+                            </div>
+
+
+                            <div class="ayf-preview-caption">
+                                Visual representation of the
+                                configured cycle.
+                            </div>
+
+
+                            <div class="ayf-timeline"></div>
+
+
+                            <div class="ayf-preview-dates">
+
+                                <div class="ayf-preview-date">
+
+                                    <div class="ayf-preview-date-label">
+                                        Start
+                                    </div>
+
+                                    <div
+                                        class="ayf-preview-date-value"
+                                        id="previewStart"
+                                    >
+                                        Select date
+                                    </div>
+
+                                </div>
+
+
+                                <div class="ayf-duration">
+
+                                    <div
+                                        class="ayf-duration-value"
+                                        id="previewDuration"
+                                    >
+                                        —
+                                    </div>
+
+                                    <div class="ayf-duration-label">
+                                        Days
+                                    </div>
+
+                                </div>
+
+
+                                <div class="ayf-preview-date">
+
+                                    <div class="ayf-preview-date-label">
+                                        End
+                                    </div>
+
+                                    <div
+                                        class="ayf-preview-date-value"
+                                        id="previewEnd"
+                                    >
+                                        Select date
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =========================================
+                         FOOTER
+                         ========================================= -->
+
+                    <div class="ayf-form-footer">
+
+                        <div class="ayf-footer-note">
+
+                            <i class="bi bi-shield-check"></i>
+
+                            Academic cycle data will be
+                            validated before saving.
+
+                        </div>
+
+
+                        <div class="ayf-actions">
+
+                            <a
+                                href="{% url 'academic_years_list' %}"
+                                class="
+                                    ayf-btn
+                                    ayf-btn-secondary
+                                "
+                            >
+                                Cancel
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="
+                                    ayf-btn
+                                    ayf-btn-primary
+                                "
+                                id="academicYearSubmit"
+                            >
+
+                                <span id="academicYearSubmitIcon">
+
+                                    {% if is_edit %}
+
+                                        <i class="bi bi-check2"></i>
+
+                                    {% else %}
+
+                                        <i class="bi bi-plus-lg"></i>
+
+                                    {% endif %}
+
+                                </span>
+
+
+                                <span id="academicYearSubmitText">
+
+                                    {% if is_edit %}
+
+                                        Save Changes
+
+                                    {% else %}
+
+                                        Create Academic Year
+
+                                    {% endif %}
+
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             RIGHT COLUMN
+             ==================================================== -->
+
+        <aside class="ayf-side">
+
+            <!-- CURRENT CYCLE STATUS -->
+
+            <section class="ayf-side-card">
+
+                <header class="ayf-side-head">
+
+                    <div class="ayf-side-icon green">
+
+                        <i class="bi bi-calendar-check"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="ayf-side-title">
+                            Cycle Status
+                        </div>
+
+                        <div class="ayf-side-copy">
+                            Current-year configuration
+                        </div>
+
+                    </div>
+
+                </header>
+
+
+                <div class="ayf-side-body">
+
+                    <div class="ayf-current-status-box">
+
+                        <span class="ayf-current-status-dot"></span>
+
+
+                        <div>
+
+                            <div
+                                class="ayf-current-status-title"
+                                id="sideCurrentTitle"
+                            >
+                                Current Academic Year
+                            </div>
+
+
+                            <div
+                                class="ayf-current-status-copy"
+                                id="sideCurrentCopy"
+                            >
+                                This academic cycle is
+                                currently marked as the
+                                school's active year.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- INTEGRITY -->
+
+            <section class="ayf-side-card">
+
+                <header class="ayf-side-head">
+
+                    <div class="ayf-side-icon">
+
+                        <i class="bi bi-shield-check"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="ayf-side-title">
+                            Cycle Integrity
+                        </div>
+
+                        <div class="ayf-side-copy">
+                            Rules that protect configuration
+                        </div>
+
+                    </div>
+
+                </header>
+
+
+                <div class="ayf-side-body">
+
+                    <div class="ayf-rules">
+
+                        <div class="ayf-rule">
+
+                            <div class="ayf-rule-icon">
+
+                                <i class="bi bi-1-circle"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="ayf-rule-title">
+                                    Single Current Year
+                                </div>
+
+                                <div class="ayf-rule-copy">
+                                    Only one academic year
+                                    can be marked current at
+                                    one time.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="ayf-rule">
+
+                            <div class="ayf-rule-icon">
+
+                                <i class="bi bi-calendar-range"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="ayf-rule-title">
+                                    Valid Date Range
+                                </div>
+
+                                <div class="ayf-rule-copy">
+                                    The end date must be later
+                                    than the start date.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="ayf-rule">
+
+                            <div class="ayf-rule-icon">
+
+                                <i class="bi bi-clock-history"></i>
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="ayf-rule-title">
+                                    Historical Reference
+                                </div>
+
+                                <div class="ayf-rule-copy">
+                                    Existing academic cycles
+                                    remain useful as historical
+                                    references across the system.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- WARNING -->
+
+            {% if is_edit %}
+
+                <section class="ayf-side-card">
+
+                    <div class="ayf-side-body">
+
+                        <div class="ayf-warning">
+
+                            <i class="bi bi-exclamation-triangle"></i>
+
+
+                            <div>
+
+                                <strong>
+                                    Editing an existing cycle
+                                </strong>
+
+                                <div style="margin-top:3px;">
+
+                                    Review date changes carefully,
+                                    because other records may
+                                    reference this academic year.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            {% endif %}
+
+        </aside>
+
     </div>
+
 </div>
+
+
+<script>
+(function () {
+    "use strict";
+
+
+    /* ============================================================
+       ELEMENTS
+       ============================================================ */
+
+    const form =
+        document.getElementById(
+            "academicYearForm"
+        );
+
+
+    const submitButton =
+        document.getElementById(
+            "academicYearSubmit"
+        );
+
+
+    const submitIcon =
+        document.getElementById(
+            "academicYearSubmitIcon"
+        );
+
+
+    const submitText =
+        document.getElementById(
+            "academicYearSubmitText"
+        );
+
+
+    const nameInput =
+        document.getElementById(
+            "{{ form.name.id_for_label }}"
+        );
+
+
+    const startInput =
+        document.getElementById(
+            "{{ form.start_date.id_for_label }}"
+        );
+
+
+    const endInput =
+        document.getElementById(
+            "{{ form.end_date.id_for_label }}"
+        );
+
+
+    const currentInput =
+        document.getElementById(
+            "{{ form.is_current.id_for_label }}"
+        );
+
+
+    const previewName =
+        document.getElementById(
+            "previewName"
+        );
+
+
+    const previewStart =
+        document.getElementById(
+            "previewStart"
+        );
+
+
+    const previewEnd =
+        document.getElementById(
+            "previewEnd"
+        );
+
+
+    const previewDuration =
+        document.getElementById(
+            "previewDuration"
+        );
+
+
+    const previewStatus =
+        document.getElementById(
+            "previewStatus"
+        );
+
+
+    const sideCurrentTitle =
+        document.getElementById(
+            "sideCurrentTitle"
+        );
+
+
+    const sideCurrentCopy =
+        document.getElementById(
+            "sideCurrentCopy"
+        );
+
+
+    /* ============================================================
+       DATE HELPERS
+       ============================================================ */
+
+    function parseDate(value) {
+        if (!value) {
+            return null;
+        }
+
+
+        const parts =
+            value.split("-");
+
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2]),
+            12,
+            0,
+            0,
+            0
+        );
+    }
+
+
+    function formatDate(value) {
+        const date =
+            parseDate(value);
+
+
+        if (!date) {
+            return "Select date";
+        }
+
+
+        return new Intl.DateTimeFormat(
+            undefined,
+            {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+            }
+        ).format(date);
+    }
+
+
+    function calculateDays(
+        startValue,
+        endValue
+    ) {
+        const start =
+            parseDate(startValue);
+
+
+        const end =
+            parseDate(endValue);
+
+
+        if (
+            !start
+            ||
+            !end
+            ||
+            end <= start
+        ) {
+            return null;
+        }
+
+
+        const milliseconds =
+            end.getTime()
+            -
+            start.getTime();
+
+
+        return Math.round(
+            milliseconds
+            /
+            86400000
+        );
+    }
+
+
+    /* ============================================================
+       LIVE PREVIEW
+       ============================================================ */
+
+    function updatePreview() {
+
+        /* NAME */
+
+        if (previewName) {
+            previewName.textContent =
+                nameInput
+                &&
+                nameInput.value.trim()
+                    ? nameInput.value.trim()
+                    : "Academic Year";
+        }
+
+
+        /* START */
+
+        if (previewStart) {
+            previewStart.textContent =
+                startInput
+                    ? formatDate(
+                        startInput.value
+                    )
+                    : "Select date";
+        }
+
+
+        /* END */
+
+        if (previewEnd) {
+            previewEnd.textContent =
+                endInput
+                    ? formatDate(
+                        endInput.value
+                    )
+                    : "Select date";
+        }
+
+
+        /* DURATION */
+
+        const duration =
+            calculateDays(
+                startInput
+                    ? startInput.value
+                    : "",
+                endInput
+                    ? endInput.value
+                    : ""
+            );
+
+
+        if (previewDuration) {
+            previewDuration.textContent =
+                duration !== null
+                    ? duration
+                    : "—";
+        }
+
+
+        /* CURRENT STATUS */
+
+        const isCurrent =
+            Boolean(
+                currentInput
+                &&
+                currentInput.checked
+            );
+
+
+        if (previewStatus) {
+            previewStatus.textContent =
+                isCurrent
+                    ? "Current Year"
+                    : "Not Current";
+
+
+            previewStatus
+                .classList
+                .toggle(
+                    "inactive",
+                    !isCurrent
+                );
+        }
+
+
+        if (sideCurrentTitle) {
+            sideCurrentTitle.textContent =
+                isCurrent
+                    ? "Current Academic Year"
+                    : "Historical / Other Cycle";
+        }
+
+
+        if (sideCurrentCopy) {
+            sideCurrentCopy.textContent =
+                isCurrent
+                    ? (
+                        "This academic cycle is marked "
+                        + "as the school's current year."
+                    )
+                    : (
+                        "This cycle will remain stored, "
+                        + "but it will not be the school's "
+                        + "current academic year."
+                    );
+        }
+
+
+        /* DATE LIMITS */
+
+        if (
+            startInput
+            &&
+            endInput
+        ) {
+            if (startInput.value) {
+                endInput.min =
+                    startInput.value;
+            } else {
+                endInput.removeAttribute(
+                    "min"
+                );
+            }
+
+
+            if (endInput.value) {
+                startInput.max =
+                    endInput.value;
+            } else {
+                startInput.removeAttribute(
+                    "max"
+                );
+            }
+        }
+    }
+
+
+    [
+        nameInput,
+        startInput,
+        endInput,
+        currentInput,
+    ].forEach(
+        function (field) {
+
+            if (!field) {
+                return;
+            }
+
+
+            field.addEventListener(
+                "input",
+                updatePreview
+            );
+
+
+            field.addEventListener(
+                "change",
+                updatePreview
+            );
+        }
+    );
+
+
+    updatePreview();
+
+
+    /* ============================================================
+       SUBMIT LOADING STATE
+       ============================================================ */
+
+    if (
+        form
+        &&
+        submitButton
+    ) {
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+
+                if (submitButton.disabled) {
+                    return;
+                }
+
+
+                submitButton.disabled =
+                    true;
+
+
+                if (submitIcon) {
+                    submitIcon.innerHTML =
+                        '<span '
+                        + 'class="spinner-border '
+                        + 'spinner-border-sm" '
+                        + 'aria-hidden="true">'
+                        + '</span>';
+                }
+
+
+                if (submitText) {
+                    submitText.textContent =
+                        "Saving...";
+                }
+            }
+        );
+    }
+
+})();
+</script>
+
 {% endblock %}

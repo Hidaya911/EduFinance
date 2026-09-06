@@ -1,55 +1,2387 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center my-4">
-        <h1 class="h3 mb-3 mb-md-0">Academic Years</h1>
-        <a href="{% url 'academic_year_create' %}" class="btn btn-primary btn-sm w-auto align-self-start align-self-md-auto">+ Add Academic Year</a>
+
+<style>
+
+/* ============================================================
+   ACADEMIC YEAR CONTROL CENTER
+   ============================================================ */
+
+.ay-page {
+    --ay-navy: #071c33;
+    --ay-navy-soft: #0b2948;
+    --ay-blue: #2563eb;
+    --ay-blue-dark: #1d4ed8;
+    --ay-blue-soft: #eff6ff;
+    --ay-cyan: #06b6d4;
+    --ay-green: #10b981;
+    --ay-green-soft: #ecfdf5;
+    --ay-amber: #f59e0b;
+    --ay-amber-soft: #fffbeb;
+    --ay-violet: #7c3aed;
+    --ay-red: #dc2626;
+    --ay-border: #e5eaf1;
+    --ay-muted: #667085;
+    --ay-text: #172033;
+    --ay-surface: #ffffff;
+    --ay-bg: #f6f8fc;
+
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 30px 32px 60px;
+    color: var(--ay-text);
+}
+
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+
+.ay-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.ay-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #8290a5;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.ay-breadcrumb .current {
+    color: #26364e;
+}
+
+.ay-context-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ay-context-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid #e1e7f0;
+    border-radius: 9px;
+    color: #536176;
+    background: #fff;
+    text-decoration: none;
+    font-size: .76rem;
+    font-weight: 700;
+    transition:
+        border-color .18s ease,
+        color .18s ease,
+        background .18s ease;
+}
+
+.ay-context-link:hover {
+    border-color: #b9c8df;
+    color: #1d4ed8;
+    background: #f8fbff;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.ay-hero {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.55fr)
+        minmax(310px, .75fr);
+    gap: 34px;
+    align-items: stretch;
+    padding: 34px;
+    border-radius: 22px;
+    background:
+        radial-gradient(
+            circle at 82% 0%,
+            rgba(37, 99, 235, .42),
+            transparent 31%
+        ),
+        radial-gradient(
+            circle at 100% 100%,
+            rgba(6, 182, 212, .14),
+            transparent 31%
+        ),
+        linear-gradient(
+            135deg,
+            #071b31 0%,
+            #0a2948 56%,
+            #0b3158 100%
+        );
+    color: #fff;
+    box-shadow:
+        0 22px 50px
+        rgba(7, 28, 51, .16);
+}
+
+.ay-hero::after {
+    content: "";
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    right: -110px;
+    top: -115px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 32px rgba(255,255,255,.02),
+        0 0 0 64px rgba(255,255,255,.015);
+    pointer-events: none;
+}
+
+.ay-hero-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.ay-hero-icon {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    border: 1px solid rgba(255,255,255,.12);
+    background:
+        rgba(255,255,255,.08);
+    box-shadow:
+        inset 0 1px 0
+        rgba(255,255,255,.1);
+}
+
+.ay-hero-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.ay-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: #7dd3fc;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+}
+
+.ay-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow:
+        0 0 0 5px
+        rgba(56,189,248,.1);
+}
+
+.ay-title {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(
+        1.75rem,
+        2.4vw,
+        2.45rem
+    );
+    font-weight: 760;
+    letter-spacing: -.035em;
+}
+
+.ay-subtitle {
+    max-width: 730px;
+    margin: 12px 0 22px;
+    color: rgba(226, 238, 250, .77);
+    line-height: 1.7;
+    font-size: .92rem;
+}
+
+.ay-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    font-size: .81rem;
+    font-weight: 760;
+    text-decoration: none;
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        background .18s ease,
+        border-color .18s ease;
+}
+
+.ay-btn:hover {
+    transform: translateY(-1px);
+}
+
+.ay-btn-primary {
+    background: #fff;
+    color: #12345e;
+    box-shadow:
+        0 8px 20px
+        rgba(0,0,0,.11);
+}
+
+.ay-btn-primary:hover {
+    color: #0b2f59;
+    background: #f7fbff;
+}
+
+.ay-btn-secondary {
+    border-color:
+        rgba(255,255,255,.16);
+    background:
+        rgba(255,255,255,.06);
+    color: #e8f3ff;
+}
+
+.ay-btn-secondary:hover {
+    color: #fff;
+    background:
+        rgba(255,255,255,.11);
+}
+
+.ay-current-panel {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    padding: 22px;
+    border: 1px solid
+        rgba(255,255,255,.12);
+    border-radius: 17px;
+    background:
+        rgba(255,255,255,.07);
+    backdrop-filter: blur(8px);
+}
+
+.ay-current-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a8d9ff;
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.ay-current-live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow:
+        0 0 0 5px
+        rgba(52,211,153,.1);
+}
+
+.ay-current-name {
+    margin-top: 15px;
+    font-size: 1.55rem;
+    font-weight: 760;
+    letter-spacing: -.02em;
+}
+
+.ay-current-dates {
+    margin-top: 6px;
+    color: rgba(233,242,252,.68);
+    font-size: .8rem;
+}
+
+.ay-current-rule {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 17px;
+    border-top:
+        1px solid
+        rgba(255,255,255,.1);
+    color: rgba(226,238,250,.74);
+    font-size: .75rem;
+    line-height: 1.55;
+}
+
+.ay-current-rule i {
+    color: #7dd3fc;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   KPI GRID
+   ============================================================ */
+
+.ay-kpis {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.ay-kpi {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 108px;
+    padding: 19px;
+    border: 1px solid var(--ay-border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow:
+        0 5px 16px
+        rgba(15, 23, 42, .035);
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+.ay-kpi:hover {
+    transform: translateY(-2px);
+    border-color: #d6e0ed;
+    box-shadow:
+        0 12px 28px
+        rgba(15,23,42,.07);
+}
+
+.ay-kpi-icon {
+    width: 45px;
+    height: 45px;
+    flex: 0 0 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    font-size: 1.05rem;
+}
+
+.ay-kpi-icon.blue {
+    color: #2563eb;
+    background: #eef4ff;
+}
+
+.ay-kpi-icon.green {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.ay-kpi-icon.amber {
+    color: #d97706;
+    background: #fff8e7;
+}
+
+.ay-kpi-icon.violet {
+    color: #7c3aed;
+    background: #f5f0ff;
+}
+
+.ay-kpi-label {
+    color: #768399;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.ay-kpi-value {
+    margin-top: 3px;
+    color: #16243a;
+    font-size: 1.47rem;
+    line-height: 1.1;
+    font-weight: 780;
+    letter-spacing: -.025em;
+}
+
+.ay-kpi-detail {
+    margin-top: 4px;
+    color: #8a96a8;
+    font-size: .7rem;
+}
+
+
+/* ============================================================
+   CURRENT CYCLE FEATURE
+   ============================================================ */
+
+.ay-focus {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.35fr)
+        minmax(270px, .65fr);
+    gap: 14px;
+}
+
+.ay-current-card,
+.ay-policy-card {
+    border: 1px solid var(--ay-border);
+    border-radius: 18px;
+    background: #fff;
+}
+
+.ay-current-card {
+    overflow: hidden;
+}
+
+.ay-current-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px 22px 16px;
+}
+
+.ay-section-kicker {
+    color: #2563eb;
+    font-size: .69rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.ay-section-title {
+    margin: 4px 0 0;
+    color: #172033;
+    font-size: 1.08rem;
+    font-weight: 750;
+}
+
+.ay-section-copy {
+    margin-top: 4px;
+    color: #7b8799;
+    font-size: .76rem;
+}
+
+.ay-current-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: .7rem;
+    font-weight: 780;
+}
+
+.ay-current-badge span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.ay-cycle-highlight {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1.4fr);
+    gap: 24px;
+    padding: 0 22px 22px;
+}
+
+.ay-cycle-name {
+    font-size: 1.65rem;
+    color: #10243f;
+    font-weight: 780;
+    letter-spacing: -.035em;
+}
+
+.ay-cycle-period {
+    margin-top: 6px;
+    color: #768399;
+    font-size: .76rem;
+}
+
+.ay-progress-shell {
+    align-self: center;
+}
+
+.ay-progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 9px;
+    color: #677489;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.ay-progress-track {
+    height: 9px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #eaf0f7;
+}
+
+.ay-progress-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #06b6d4
+        );
+    transition:
+        width .65s
+        cubic-bezier(.2,.8,.2,1);
+}
+
+.ay-current-empty {
+    padding: 24px 22px 26px;
+    color: #728095;
+    font-size: .8rem;
+}
+
+.ay-policy-card {
+    padding: 20px 21px;
+}
+
+.ay-policy-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    color: #2563eb;
+    background: #eff6ff;
+    margin-bottom: 15px;
+}
+
+.ay-policy-title {
+    font-size: .92rem;
+    font-weight: 760;
+    color: #1c2a3e;
+}
+
+.ay-policy-copy {
+    margin-top: 7px;
+    color: #788599;
+    font-size: .75rem;
+    line-height: 1.6;
+}
+
+.ay-policy-points {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.ay-policy-point {
+    display: flex;
+    gap: 9px;
+    color: #58667b;
+    font-size: .73rem;
+    line-height: 1.45;
+}
+
+.ay-policy-point i {
+    color: #10b981;
+    margin-top: 2px;
+}
+
+
+/* ============================================================
+   DIRECTORY
+   ============================================================ */
+
+.ay-directory {
+    margin-top: 18px;
+    overflow: hidden;
+    border: 1px solid var(--ay-border);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow:
+        0 5px 16px
+        rgba(15,23,42,.025);
+}
+
+.ay-directory-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    padding: 20px 22px;
+    border-bottom: 1px solid #edf1f6;
+}
+
+.ay-directory-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 27px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #526174;
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.ay-toolbar {
+    display: grid;
+    grid-template-columns:
+        minmax(240px, 1fr)
+        auto;
+    gap: 12px;
+    padding: 15px 22px;
+    border-bottom: 1px solid #edf1f6;
+    background: #fbfcfe;
+}
+
+.ay-search {
+    position: relative;
+}
+
+.ay-search i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8793a5;
+    font-size: .86rem;
+}
+
+.ay-search input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px 0 39px;
+    border: 1px solid #dfe5ed;
+    border-radius: 11px;
+    background: #fff;
+    color: #1f2a3d;
+    outline: none;
+    font-size: .78rem;
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.ay-search input:focus {
+    border-color: #8bb4ff;
+    box-shadow:
+        0 0 0 4px
+        rgba(37,99,235,.08);
+}
+
+.ay-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px;
+    border: 1px solid #e1e7ef;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.ay-filter {
+    height: 32px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 8px;
+    color: #677489;
+    background: transparent;
+    font-size: .7rem;
+    font-weight: 760;
+    cursor: pointer;
+}
+
+.ay-filter.active {
+    color: #1d4ed8;
+    background: #edf4ff;
+}
+
+
+/* ============================================================
+   TABLE / LEDGER
+   ============================================================ */
+
+.ay-table-wrap {
+    overflow-x: auto;
+}
+
+.ay-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ay-table thead th {
+    padding: 12px 20px;
+    border-bottom: 1px solid #e9edf3;
+    background: #f8fafc;
+    color: #6d798c;
+    text-align: left;
+    white-space: nowrap;
+    font-size: .66rem;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.ay-table tbody tr {
+    transition:
+        background .16s ease;
+}
+
+.ay-table tbody tr:hover {
+    background: #fbfdff;
+}
+
+.ay-table tbody td {
+    padding: 17px 20px;
+    border-bottom:
+        1px solid #eef1f5;
+    color: #344054;
+    vertical-align: middle;
+    font-size: .78rem;
+}
+
+.ay-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ay-year-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 170px;
+}
+
+.ay-year-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    color: #2563eb;
+    background: #eef4ff;
+}
+
+.ay-year-name {
+    color: #18273d;
+    font-weight: 760;
+}
+
+.ay-year-meta {
+    margin-top: 3px;
+    color: #8a95a6;
+    font-size: .66rem;
+}
+
+.ay-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 999px;
+    font-size: .67rem;
+    font-weight: 780;
+    white-space: nowrap;
+}
+
+.ay-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.ay-status.current {
+    color: #047857;
+    background: #ecfdf5;
+}
+
+.ay-status.current .ay-status-dot {
+    background: #10b981;
+}
+
+.ay-status.upcoming {
+    color: #1d4ed8;
+    background: #eff6ff;
+}
+
+.ay-status.upcoming .ay-status-dot {
+    background: #3b82f6;
+}
+
+.ay-status.historical {
+    color: #667085;
+    background: #f2f4f7;
+}
+
+.ay-status.historical .ay-status-dot {
+    background: #98a2b3;
+}
+
+.ay-status.window {
+    color: #b45309;
+    background: #fffbeb;
+}
+
+.ay-status.window .ay-status-dot {
+    background: #f59e0b;
+}
+
+.ay-date-main {
+    color: #344054;
+    font-weight: 700;
+}
+
+.ay-date-sub {
+    margin-top: 2px;
+    color: #98a2b3;
+    font-size: .65rem;
+}
+
+.ay-row-progress {
+    min-width: 145px;
+}
+
+.ay-row-progress-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    color: #758195;
+    font-size: .65rem;
+}
+
+.ay-row-track {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf1f6;
+}
+
+.ay-row-bar {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #06b6d4
+        );
+    transition:
+        width .55s ease;
+}
+
+.ay-action-wrap {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ay-edit {
+    width: 35px;
+    height: 35px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #dbe3ee;
+    border-radius: 10px;
+    color: #526176;
+    background: #fff;
+    text-decoration: none;
+    transition:
+        color .16s ease,
+        border-color .16s ease,
+        background .16s ease,
+        transform .16s ease;
+}
+
+.ay-edit:hover {
+    color: #1d4ed8;
+    border-color: #b6c9e6;
+    background: #f5f9ff;
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.ay-empty {
+    padding: 58px 24px;
+    text-align: center;
+}
+
+.ay-empty-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 15px;
+    display: grid;
+    place-items: center;
+    border-radius: 17px;
+    color: #2563eb;
+    background: #eff6ff;
+    font-size: 1.2rem;
+}
+
+.ay-empty-title {
+    color: #1d2939;
+    font-size: .96rem;
+    font-weight: 760;
+}
+
+.ay-empty-copy {
+    max-width: 450px;
+    margin: 7px auto 0;
+    color: #7d899b;
+    font-size: .76rem;
+    line-height: 1.6;
+}
+
+#aySearchEmpty {
+    display: none;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+
+    .ay-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .ay-kpis {
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+    }
+
+    .ay-focus {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .ay-page {
+        padding:
+            20px 14px
+            45px;
+    }
+
+    .ay-context {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ay-hero {
+        padding: 24px 20px;
+        border-radius: 18px;
+    }
+
+    .ay-hero-main {
+        flex-direction: column;
+    }
+
+    .ay-kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .ay-cycle-highlight {
+        grid-template-columns: 1fr;
+    }
+
+    .ay-directory-top {
+        align-items: flex-start;
+    }
+
+    .ay-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .ay-filter-group {
+        overflow-x: auto;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ay-page *,
+    .ay-page *::before,
+    .ay-page *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+    }
+
+}
+
+</style>
+
+
+<div class="ay-page">
+
+    <!-- ======================================================
+         CONTEXT
+         ====================================================== -->
+
+    <div class="ay-context">
+
+        <div class="ay-breadcrumb">
+
+            <span>
+                EduFinance
+            </span>
+
+            <span>›</span>
+
+            <span>
+                Configuration
+            </span>
+
+            <span>›</span>
+
+            <span class="current">
+                Academic Years
+            </span>
+
+        </div>
+
+
+        <div class="ay-context-links">
+
+            <a
+                href="{% url 'school_config:school_settings' %}"
+                class="ay-context-link"
+            >
+                <i class="bi bi-gear"></i>
+                School Settings
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white py-3">
-            <i class="fas fa-calendar-alt me-1 text-muted"></i> Academic Cycles List
-        </div>
-        <div class="card-body p-0">
-            <!-- Responsive wrapper to prevent horizontal breaking on small mobile viewports -->
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="py-3 ps-3">Year Name</th>
-                            <th class="py-3">Status</th>
-                            <th class="py-3">Start Date</th>
-                            <th class="py-3">End Date</th>
-                            <th class="py-3 text-end pe-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for year in years %}
-                        <tr>
-                            <td class="ps-3 fw-semibold">{{ year.name }}</td>
-                            <td>
-                                {% if year.is_current %}
-                                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Current Year</span>
-                                {% else %}
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">Historical</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ year.start_date }}</td>
-                            <td>{{ year.end_date }}</td>
-                            <td class="text-end pe-3">
-                                <a href="{% url 'academic_year_edit' year.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No academic years found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+    <!-- ======================================================
+         HERO
+         ====================================================== -->
+
+    <section class="ay-hero">
+
+        <div class="ay-hero-main">
+
+            <div class="ay-hero-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                >
+                    <rect
+                        x="3"
+                        y="5"
+                        width="18"
+                        height="16"
+                        rx="2"
+                    ></rect>
+
+                    <path d="M16 3v4"></path>
+                    <path d="M8 3v4"></path>
+                    <path d="M3 10h18"></path>
+                    <path d="M8 14h2"></path>
+                    <path d="M14 14h2"></path>
+                    <path d="M8 17h2"></path>
+                    <path d="M14 17h2"></path>
+                </svg>
+
             </div>
+
+
+            <div>
+
+                <div class="ay-eyebrow">
+
+                    <span
+                        class="ay-eyebrow-dot"
+                    ></span>
+
+                    Academic Configuration
+
+                </div>
+
+
+                <h1 class="ay-title">
+                    Academic Years
+                </h1>
+
+
+                <p class="ay-subtitle">
+
+                    Define the school's academic cycles,
+                    identify the current operating year and
+                    preserve a clear historical structure for
+                    student and financial records.
+
+                </p>
+
+
+                <div class="ay-hero-actions">
+
+                    <a
+                        href="{% url 'academic_year_create' %}"
+                        class="
+                            ay-btn
+                            ay-btn-primary
+                        "
+                    >
+                        <i class="bi bi-plus-lg"></i>
+
+                        Add Academic Year
+                    </a>
+
+
+                    <a
+                        href="#academic-year-directory"
+                        class="
+                            ay-btn
+                            ay-btn-secondary
+                        "
+                    >
+                        <i class="bi bi-list-ul"></i>
+
+                        View Cycle Directory
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
-    </div>
+
+
+        <aside class="ay-current-panel">
+
+            <div class="ay-current-label">
+
+                <span
+                    class="ay-current-live"
+                ></span>
+
+                Current Academic Cycle
+
+            </div>
+
+
+            {% if current_year %}
+
+                <div class="ay-current-name">
+                    {{ current_year.name }}
+                </div>
+
+                <div class="ay-current-dates">
+
+                    {{ current_year.start_date|date:"M d, Y" }}
+
+                    &nbsp;—&nbsp;
+
+                    {{ current_year.end_date|date:"M d, Y" }}
+
+                </div>
+
+            {% else %}
+
+                <div class="ay-current-name">
+                    Not configured
+                </div>
+
+                <div class="ay-current-dates">
+                    No academic year is currently marked
+                    as the default cycle.
+                </div>
+
+            {% endif %}
+
+
+            <div class="ay-current-rule">
+
+                <i class="bi bi-shield-check"></i>
+
+                <span>
+                    EduFinance allows only one academic year
+                    to hold the Current Year designation at
+                    a time.
+                </span>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+
+    <!-- ======================================================
+         KPI CARDS
+         ====================================================== -->
+
+    <section class="ay-kpis">
+
+        <article class="ay-kpi">
+
+            <div class="ay-kpi-icon blue">
+                <i class="bi bi-calendar3"></i>
+            </div>
+
+            <div>
+
+                <div class="ay-kpi-label">
+                    Academic Cycles
+                </div>
+
+                <div class="ay-kpi-value">
+                    {{ total_years }}
+                </div>
+
+                <div class="ay-kpi-detail">
+                    Total configured years
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="ay-kpi">
+
+            <div class="ay-kpi-icon green">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+
+            <div>
+
+                <div class="ay-kpi-label">
+                    Current Cycle
+                </div>
+
+                <div
+                    class="ay-kpi-value"
+                    style="font-size:1.05rem;"
+                >
+                    {% if current_year %}
+                        {{ current_year.name }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+
+                <div class="ay-kpi-detail">
+                    Active default year
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="ay-kpi">
+
+            <div class="ay-kpi-icon violet">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div>
+
+                <div class="ay-kpi-label">
+                    Historical
+                </div>
+
+                <div class="ay-kpi-value">
+                    {{ historical_count }}
+                </div>
+
+                <div class="ay-kpi-detail">
+                    Completed academic cycles
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <article class="ay-kpi">
+
+            <div class="ay-kpi-icon amber">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div>
+
+                <div class="ay-kpi-label">
+                    Upcoming
+                </div>
+
+                <div class="ay-kpi-value">
+                    {{ upcoming_count }}
+                </div>
+
+                <div class="ay-kpi-detail">
+                    Future academic cycles
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- ======================================================
+         CURRENT YEAR + POLICY
+         ====================================================== -->
+
+    <section class="ay-focus">
+
+        <article class="ay-current-card">
+
+            <div class="ay-current-card-head">
+
+                <div>
+
+                    <div class="ay-section-kicker">
+                        Operating Cycle
+                    </div>
+
+                    <h2 class="ay-section-title">
+                        Current Academic Year
+                    </h2>
+
+                    <div class="ay-section-copy">
+                        The cycle currently used as the
+                        school's default academic year.
+                    </div>
+
+                </div>
+
+
+                {% if current_year %}
+
+                    <span class="ay-current-badge">
+
+                        <span></span>
+
+                        Current
+
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if current_year %}
+
+                <div class="ay-cycle-highlight">
+
+                    <div>
+
+                        <div class="ay-cycle-name">
+                            {{ current_year.name }}
+                        </div>
+
+                        <div class="ay-cycle-period">
+
+                            {{ current_year.start_date|date:"F d, Y" }}
+
+                            &nbsp;→&nbsp;
+
+                            {{ current_year.end_date|date:"F d, Y" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="ay-progress-shell"
+                        data-cycle-progress
+                        data-start="{{ current_year.start_date|date:'Y-m-d' }}"
+                        data-end="{{ current_year.end_date|date:'Y-m-d' }}"
+                    >
+
+                        <div class="ay-progress-top">
+
+                            <span>
+                                Academic year progress
+                            </span>
+
+                            <strong
+                                data-progress-value
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="ay-progress-track">
+
+                            <div
+                                class="ay-progress-bar"
+                                data-progress-bar
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="ay-current-empty">
+
+                    No academic year has been designated
+                    as current yet. Create a new cycle or
+                    edit an existing one and enable
+                    <strong>Current Year</strong>.
+
+                </div>
+
+            {% endif %}
+
+        </article>
+
+
+        <aside class="ay-policy-card">
+
+            <div class="ay-policy-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div class="ay-policy-title">
+                Academic year integrity
+            </div>
+
+            <div class="ay-policy-copy">
+
+                Academic cycles act as permanent reference
+                points across the school system.
+
+            </div>
+
+
+            <div class="ay-policy-points">
+
+                <div class="ay-policy-point">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <span>
+                        Only one cycle can be marked
+                        Current Year.
+                    </span>
+
+                </div>
+
+
+                <div class="ay-policy-point">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <span>
+                        Historical cycles remain available
+                        instead of being replaced.
+                    </span>
+
+                </div>
+
+
+                <div class="ay-policy-point">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                    <span>
+                        Cycle dates provide clear academic
+                        boundaries for the school.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+
+    <!-- ======================================================
+         DIRECTORY
+         ====================================================== -->
+
+    <section
+        class="ay-directory"
+        id="academic-year-directory"
+    >
+
+        <div class="ay-directory-top">
+
+            <div>
+
+                <div class="ay-section-kicker">
+                    Academic Structure
+                </div>
+
+                <h2 class="ay-section-title">
+                    Academic Cycle Directory
+                </h2>
+
+                <div class="ay-section-copy">
+                    Review every configured academic year
+                    and open a cycle for editing.
+                </div>
+
+            </div>
+
+
+            <div class="ay-directory-count">
+
+                <span id="ayVisibleCount">
+                    {{ total_years }}
+                </span>
+
+                &nbsp;cycles
+
+            </div>
+
+        </div>
+
+
+        {% if years %}
+
+            <!-- ==============================================
+                 SEARCH / FILTER
+                 ============================================== -->
+
+            <div class="ay-toolbar">
+
+                <div class="ay-search">
+
+                    <i class="bi bi-search"></i>
+
+                    <input
+                        type="search"
+                        id="aySearch"
+                        placeholder="Search academic year..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div class="ay-filter-group">
+
+                    <button
+                        type="button"
+                        class="ay-filter active"
+                        data-ay-filter="all"
+                    >
+                        All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ay-filter"
+                        data-ay-filter="current"
+                    >
+                        Current
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ay-filter"
+                        data-ay-filter="upcoming"
+                    >
+                        Upcoming
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ay-filter"
+                        data-ay-filter="historical"
+                    >
+                        Historical
+                    </button>
+
+                    <button
+                        type="button"
+                        class="ay-filter"
+                        data-ay-filter="window"
+                    >
+                        Open Window
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================================
+                 TABLE
+                 ============================================== -->
+
+            <div
+                class="ay-table-wrap"
+                id="ayTableWrap"
+            >
+
+                <table class="ay-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Academic Year
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Start Date
+                            </th>
+
+                            <th>
+                                End Date
+                            </th>
+
+                            <th>
+                                Cycle Progress
+                            </th>
+
+                            <th
+                                style="text-align:right;"
+                            >
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for year in years %}
+
+                            <tr
+                                data-ay-row
+                                data-search="{{ year.name|lower }}"
+                                data-start="{{ year.start_date|date:'Y-m-d' }}"
+                                data-end="{{ year.end_date|date:'Y-m-d' }}"
+
+                                {% if year.is_current %}
+                                    data-status="current"
+                                {% elif year.start_date > today %}
+                                    data-status="upcoming"
+                                {% elif year.end_date < today %}
+                                    data-status="historical"
+                                {% else %}
+                                    data-status="window"
+                                {% endif %}
+                            >
+
+                                <!-- YEAR -->
+
+                                <td>
+
+                                    <div class="ay-year-cell">
+
+                                        <div class="ay-year-icon">
+
+                                            <i class="bi bi-calendar3"></i>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <div class="ay-year-name">
+                                                {{ year.name }}
+                                            </div>
+
+                                            <div class="ay-year-meta">
+                                                Academic cycle
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    {% if year.is_current %}
+
+                                        <span
+                                            class="
+                                                ay-status
+                                                current
+                                            "
+                                        >
+                                            <span
+                                                class="
+                                                    ay-status-dot
+                                                "
+                                            ></span>
+
+                                            Current Year
+                                        </span>
+
+                                    {% elif year.start_date > today %}
+
+                                        <span
+                                            class="
+                                                ay-status
+                                                upcoming
+                                            "
+                                        >
+                                            <span
+                                                class="
+                                                    ay-status-dot
+                                                "
+                                            ></span>
+
+                                            Upcoming
+                                        </span>
+
+                                    {% elif year.end_date < today %}
+
+                                        <span
+                                            class="
+                                                ay-status
+                                                historical
+                                            "
+                                        >
+                                            <span
+                                                class="
+                                                    ay-status-dot
+                                                "
+                                            ></span>
+
+                                            Historical
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            class="
+                                                ay-status
+                                                window
+                                            "
+                                        >
+                                            <span
+                                                class="
+                                                    ay-status-dot
+                                                "
+                                            ></span>
+
+                                            Open Window
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- START -->
+
+                                <td>
+
+                                    <div class="ay-date-main">
+                                        {{ year.start_date|date:"M d, Y" }}
+                                    </div>
+
+                                    <div class="ay-date-sub">
+                                        Cycle begins
+                                    </div>
+
+                                </td>
+
+
+                                <!-- END -->
+
+                                <td>
+
+                                    <div class="ay-date-main">
+                                        {{ year.end_date|date:"M d, Y" }}
+                                    </div>
+
+                                    <div class="ay-date-sub">
+                                        Cycle closes
+                                    </div>
+
+                                </td>
+
+
+                                <!-- PROGRESS -->
+
+                                <td>
+
+                                    <div
+                                        class="ay-row-progress"
+                                        data-row-progress
+                                    >
+
+                                        <div
+                                            class="
+                                                ay-row-progress-top
+                                            "
+                                        >
+
+                                            <span>
+                                                Timeline
+                                            </span>
+
+                                            <strong
+                                                data-row-progress-value
+                                            >
+                                                —
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div
+                                            class="ay-row-track"
+                                        >
+
+                                            <div
+                                                class="ay-row-bar"
+                                                data-row-progress-bar
+                                            ></div>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- ACTION -->
+
+                                <td>
+
+                                    <div class="ay-action-wrap">
+
+                                        <a
+                                            href="{% url 'academic_year_edit' year.pk %}"
+                                            class="ay-edit"
+                                            title="Edit {{ year.name }}"
+                                            aria-label="Edit {{ year.name }}"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- SEARCH EMPTY -->
+
+            <div
+                class="ay-empty"
+                id="aySearchEmpty"
+            >
+
+                <div class="ay-empty-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+
+                <div class="ay-empty-title">
+                    No matching academic years
+                </div>
+
+                <div class="ay-empty-copy">
+
+                    Try another year name or change
+                    the selected cycle-status filter.
+
+                </div>
+
+            </div>
+
+
+        {% else %}
+
+            <!-- TRUE EMPTY -->
+
+            <div class="ay-empty">
+
+                <div class="ay-empty-icon">
+                    <i class="bi bi-calendar-plus"></i>
+                </div>
+
+                <div class="ay-empty-title">
+                    No academic years configured
+                </div>
+
+                <div class="ay-empty-copy">
+
+                    Create the school's first academic
+                    cycle to begin organizing students
+                    and financial records by year.
+
+                </div>
+
+
+                <a
+                    href="{% url 'academic_year_create' %}"
+                    class="ay-btn"
+                    style="
+                        margin-top:18px;
+                        background:#2563eb;
+                        color:#fff;
+                    "
+                >
+                    <i class="bi bi-plus-lg"></i>
+
+                    Add First Academic Year
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
 </div>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    /* ========================================================
+       DATE HELPERS
+       ======================================================== */
+
+    function parseDate(value) {
+
+        if (!value) {
+            return null;
+        }
+
+        const parts =
+            value.split("-");
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2]),
+            12,
+            0,
+            0,
+            0
+        );
+
+    }
+
+
+    function getProgress(
+        startValue,
+        endValue
+    ) {
+
+        const start =
+            parseDate(startValue);
+
+        const end =
+            parseDate(endValue);
+
+        const now =
+            new Date();
+
+        now.setHours(
+            12,
+            0,
+            0,
+            0
+        );
+
+        if (
+            !start
+            ||
+            !end
+            ||
+            end <= start
+        ) {
+            return 0;
+        }
+
+        if (now <= start) {
+            return 0;
+        }
+
+        if (now >= end) {
+            return 100;
+        }
+
+        const elapsed =
+            now.getTime()
+            -
+            start.getTime();
+
+        const total =
+            end.getTime()
+            -
+            start.getTime();
+
+        return Math.max(
+            0,
+            Math.min(
+                100,
+                Math.round(
+                    (
+                        elapsed
+                        /
+                        total
+                    )
+                    *
+                    100
+                )
+            )
+        );
+
+    }
+
+
+    /* ========================================================
+       HERO CURRENT YEAR PROGRESS
+       ======================================================== */
+
+    const cycleProgress =
+        document.querySelector(
+            "[data-cycle-progress]"
+        );
+
+    if (cycleProgress) {
+
+        const percentage =
+            getProgress(
+                cycleProgress.dataset.start,
+                cycleProgress.dataset.end
+            );
+
+        const value =
+            cycleProgress.querySelector(
+                "[data-progress-value]"
+            );
+
+        const bar =
+            cycleProgress.querySelector(
+                "[data-progress-bar]"
+            );
+
+        if (value) {
+            value.textContent =
+                percentage + "%";
+        }
+
+        if (bar) {
+
+            requestAnimationFrame(
+                function () {
+                    bar.style.width =
+                        percentage + "%";
+                }
+            );
+
+        }
+
+    }
+
+
+    /* ========================================================
+       ROW PROGRESS
+       ======================================================== */
+
+    const rows =
+        Array.from(
+            document.querySelectorAll(
+                "[data-ay-row]"
+            )
+        );
+
+    rows.forEach(
+        function (row) {
+
+            const percentage =
+                getProgress(
+                    row.dataset.start,
+                    row.dataset.end
+                );
+
+            const value =
+                row.querySelector(
+                    "[data-row-progress-value]"
+                );
+
+            const bar =
+                row.querySelector(
+                    "[data-row-progress-bar]"
+                );
+
+            if (value) {
+                value.textContent =
+                    percentage + "%";
+            }
+
+            if (bar) {
+
+                requestAnimationFrame(
+                    function () {
+                        bar.style.width =
+                            percentage + "%";
+                    }
+                );
+
+            }
+
+        }
+    );
+
+
+    /* ========================================================
+       SEARCH + STATUS FILTER
+       ======================================================== */
+
+    const search =
+        document.getElementById(
+            "aySearch"
+        );
+
+    const buttons =
+        Array.from(
+            document.querySelectorAll(
+                "[data-ay-filter]"
+            )
+        );
+
+    const tableWrap =
+        document.getElementById(
+            "ayTableWrap"
+        );
+
+    const emptyState =
+        document.getElementById(
+            "aySearchEmpty"
+        );
+
+    const visibleCount =
+        document.getElementById(
+            "ayVisibleCount"
+        );
+
+    let activeFilter = "all";
+
+    let timer = null;
+
+
+    function applyFilters() {
+
+        const query =
+            search
+            ?
+            search.value
+                .trim()
+                .toLowerCase()
+            :
+            "";
+
+        let shown = 0;
+
+        rows.forEach(
+            function (row) {
+
+                const searchText =
+                    (
+                        row.dataset.search
+                        ||
+                        ""
+                    ).toLowerCase();
+
+                const status =
+                    row.dataset.status
+                    ||
+                    "";
+
+                const searchMatches =
+                    !query
+                    ||
+                    searchText.includes(
+                        query
+                    );
+
+                const statusMatches =
+                    activeFilter === "all"
+                    ||
+                    status === activeFilter;
+
+                const visible =
+                    searchMatches
+                    &&
+                    statusMatches;
+
+                row.hidden =
+                    !visible;
+
+                if (visible) {
+                    shown += 1;
+                }
+
+            }
+        );
+
+
+        if (visibleCount) {
+            visibleCount.textContent =
+                shown;
+        }
+
+        if (tableWrap) {
+
+            tableWrap.style.display =
+                shown
+                ?
+                ""
+                :
+                "none";
+
+        }
+
+        if (emptyState) {
+
+            emptyState.style.display =
+                shown
+                ?
+                "none"
+                :
+                "block";
+
+        }
+
+    }
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            function () {
+
+                clearTimeout(
+                    timer
+                );
+
+                timer =
+                    setTimeout(
+                        applyFilters,
+                        320
+                    );
+
+            }
+        );
+
+    }
+
+
+    buttons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    activeFilter =
+                        button.dataset
+                            .ayFilter;
+
+                    buttons.forEach(
+                        function (item) {
+                            item.classList
+                                .remove(
+                                    "active"
+                                );
+                        }
+                    );
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    applyFilters();
+
+                }
+            );
+
+        }
+    );
+
+})();
+
+</script>
+
 {% endblock %}

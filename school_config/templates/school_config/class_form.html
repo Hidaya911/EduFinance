@@ -1,42 +1,1663 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-3 px-md-4 py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 bg-primary text-white">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-door-open me-2"></i> {{ action }} Class Section</h6>
+
+<style>
+    .clsf-page {
+        --blue: #2563eb;
+        --blue-dark: #1d4ed8;
+        --blue-soft: #eff6ff;
+
+        --text: #0f172a;
+        --text-soft: #334155;
+
+        --muted: #64748b;
+        --muted-light: #94a3b8;
+
+        --border: #e2e8f0;
+        --surface-soft: #f8fafc;
+
+        --success: #16a34a;
+        --success-soft: #f0fdf4;
+
+        --warning: #d97706;
+        --warning-soft: #fffbeb;
+
+        min-height: calc(100vh - 64px);
+
+        padding: 24px 28px 44px;
+
+        color: var(--text);
+
+        background:
+            radial-gradient(
+                circle at 91% 4%,
+                rgba(37,99,235,.055),
+                transparent 26%
+            ),
+            #f7f9fc;
+    }
+
+    .clsf-page *,
+    .clsf-page *::before,
+    .clsf-page *::after {
+        box-sizing: border-box;
+    }
+
+
+    /* ========================================================
+       HERO
+       ======================================================== */
+
+    .clsf-hero {
+        position: relative;
+
+        overflow: hidden;
+
+        padding: 27px 29px;
+
+        border-radius: 21px;
+
+        color: white;
+
+        background:
+            radial-gradient(
+                circle at 88% 14%,
+                rgba(34,211,238,.16),
+                transparent 28%
+            ),
+            linear-gradient(
+                135deg,
+                #06192e,
+                #092b4b
+            );
+
+        box-shadow:
+            0 17px 42px
+            rgba(15,23,42,.12);
+    }
+
+    .clsf-hero::after {
+        content: "";
+
+        position: absolute;
+
+        top: -155px;
+        right: -80px;
+
+        width: 280px;
+        height: 280px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.07);
+
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 35px
+            rgba(255,255,255,.016),
+            0 0 0 70px
+            rgba(255,255,255,.01);
+
+        pointer-events: none;
+    }
+
+    .clsf-hero-inner {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 24px;
+    }
+
+    .clsf-eyebrow {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        margin-bottom: 9px;
+
+        color: #8de9ff;
+
+        font-size: .65rem;
+        font-weight: 800;
+
+        letter-spacing: .12em;
+
+        text-transform: uppercase;
+    }
+
+    .clsf-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #22d3ee;
+
+        box-shadow:
+            0 0 0 4px
+            rgba(34,211,238,.09);
+    }
+
+    .clsf-title {
+        margin: 0;
+
+        color: white;
+
+        font-size:
+            clamp(
+                1.55rem,
+                2vw,
+                2rem
+            );
+
+        font-weight: 800;
+
+        letter-spacing: -.035em;
+    }
+
+    .clsf-subtitle {
+        max-width: 660px;
+
+        margin: 8px 0 0;
+
+        color:
+            rgba(
+                226,
+                232,
+                240,
+                .80
+            );
+
+        font-size: .81rem;
+
+        line-height: 1.6;
+    }
+
+    .clsf-back {
+        min-height: 40px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 14px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.14);
+
+        border-radius: 10px;
+
+        color: white;
+
+        background:
+            rgba(255,255,255,.06);
+
+        text-decoration: none;
+
+        font-size: .71rem;
+        font-weight: 800;
+
+        transition:
+            background .16s ease,
+            transform .16s ease;
+    }
+
+    .clsf-back:hover {
+        color: white;
+
+        background:
+            rgba(255,255,255,.11);
+
+        transform: translateY(-1px);
+    }
+
+
+    /* ========================================================
+       LAYOUT
+       ======================================================== */
+
+    .clsf-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0,1.65fr)
+            minmax(290px,.72fr);
+
+        align-items: start;
+
+        gap: 16px;
+
+        margin-top: 16px;
+    }
+
+    .clsf-card,
+    .clsf-side-card {
+        overflow: hidden;
+
+        border:
+            1px solid
+            #e3e9f0;
+
+        border-radius: 18px;
+
+        background: white;
+
+        box-shadow:
+            0 7px 24px
+            rgba(15,23,42,.045);
+    }
+
+
+    /* ========================================================
+       FORM CARD
+       ======================================================== */
+
+    .clsf-card-head {
+        padding: 18px 20px;
+
+        border-bottom:
+            1px solid
+            var(--border);
+    }
+
+    .clsf-kicker {
+        color: var(--blue);
+
+        font-size: .60rem;
+        font-weight: 800;
+
+        letter-spacing: .09em;
+
+        text-transform: uppercase;
+    }
+
+    .clsf-card-title {
+        margin-top: 4px;
+
+        color: var(--text);
+
+        font-size: .97rem;
+        font-weight: 800;
+    }
+
+    .clsf-card-copy {
+        margin-top: 4px;
+
+        color: var(--muted);
+
+        font-size: .68rem;
+
+        line-height: 1.5;
+    }
+
+    .clsf-form-body {
+        padding: 22px;
+    }
+
+
+    /* ========================================================
+       FIELDS
+       ======================================================== */
+
+    .clsf-field {
+        margin-bottom: 22px;
+    }
+
+    .clsf-field:last-child {
+        margin-bottom: 0;
+    }
+
+    .clsf-label {
+        display: flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        margin-bottom: 7px;
+
+        color: var(--text-soft);
+
+        font-size: .69rem;
+        font-weight: 800;
+    }
+
+    .clsf-required {
+        color: #dc2626;
+    }
+
+    .clsf-help {
+        margin-top: 6px;
+
+        color: var(--muted-light);
+
+        font-size: .61rem;
+
+        line-height: 1.45;
+    }
+
+    .clsf-page
+    .form-control,
+    .clsf-page
+    .form-select {
+        width: 100%;
+
+        min-height: 43px;
+
+        border:
+            1px solid
+            #dbe3ec !important;
+
+        border-radius:
+            10px !important;
+
+        color:
+            var(--text-soft) !important;
+
+        background:
+            white !important;
+
+        font-size:
+            .75rem !important;
+
+        box-shadow:
+            none !important;
+
+        transition:
+            border-color .16s ease,
+            box-shadow .16s ease !important;
+    }
+
+    .clsf-page
+    .form-control:focus,
+    .clsf-page
+    .form-select:focus {
+        border-color:
+            #93c5fd !important;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(59,130,246,.09)
+            !important;
+    }
+
+    .clsf-field-error {
+        margin-top: 7px;
+
+        padding: 8px 10px;
+
+        border:
+            1px solid
+            #fecaca;
+
+        border-radius: 8px;
+
+        color: #b91c1c;
+
+        background: #fef2f2;
+
+        font-size: .63rem;
+
+        line-height: 1.4;
+    }
+
+    .clsf-global-error {
+        margin-bottom: 18px;
+
+        padding: 11px 13px;
+
+        border:
+            1px solid
+            #fecaca;
+
+        border-radius: 10px;
+
+        color: #b91c1c;
+
+        background: #fef2f2;
+
+        font-size: .66rem;
+    }
+
+
+    /* ========================================================
+       ACTIVE STATUS
+       ======================================================== */
+
+    .clsf-status-box {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 12px;
+
+        padding: 14px;
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 11px;
+
+        background: var(--surface-soft);
+    }
+
+    .clsf-status-box
+    .form-check-input {
+        width: 38px;
+        height: 20px;
+
+        flex: 0 0 auto;
+
+        margin-top: 1px;
+
+        cursor: pointer;
+    }
+
+    .clsf-status-title {
+        color: var(--text-soft);
+
+        font-size: .68rem;
+        font-weight: 800;
+    }
+
+    .clsf-status-copy {
+        margin-top: 3px;
+
+        color: var(--muted);
+
+        font-size: .60rem;
+
+        line-height: 1.45;
+    }
+
+
+    /* ========================================================
+       FORM FOOTER
+       ======================================================== */
+
+    .clsf-footer {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 12px;
+
+        padding: 15px 20px;
+
+        border-top:
+            1px solid
+            var(--border);
+
+        background: var(--surface-soft);
+    }
+
+    .clsf-footer-note {
+        color: var(--muted);
+
+        font-size: .62rem;
+    }
+
+    .clsf-footer-actions {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+    .clsf-button {
+        min-height: 40px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 0 14px;
+
+        border-radius: 9px;
+
+        text-decoration: none;
+
+        font-size: .69rem;
+        font-weight: 800;
+    }
+
+    .clsf-button.cancel {
+        border:
+            1px solid
+            var(--border);
+
+        color: var(--text-soft);
+
+        background: white;
+    }
+
+    .clsf-button.cancel:hover {
+        color: var(--text);
+
+        background: #f8fafc;
+    }
+
+    .clsf-button.save {
+        border:
+            1px solid
+            var(--blue);
+
+        color: white;
+
+        background: var(--blue);
+
+        box-shadow:
+            0 5px 13px
+            rgba(37,99,235,.16);
+    }
+
+    .clsf-button.save:hover {
+        color: white;
+
+        background:
+            var(--blue-dark);
+    }
+
+    .clsf-button.save:disabled {
+        cursor: not-allowed;
+
+        opacity: .72;
+    }
+
+
+    /* ========================================================
+       SIDE
+       ======================================================== */
+
+    .clsf-side-body {
+        padding: 19px;
+    }
+
+    .clsf-side-icon {
+        width: 43px;
+        height: 43px;
+
+        display: grid;
+
+        place-items: center;
+
+        margin-bottom: 14px;
+
+        border-radius: 12px;
+
+        color: var(--blue);
+
+        background: var(--blue-soft);
+    }
+
+    .clsf-side-title {
+        color: var(--text);
+
+        font-size: .85rem;
+        font-weight: 800;
+    }
+
+    .clsf-side-copy {
+        margin-top: 6px;
+
+        color: var(--muted);
+
+        font-size: .66rem;
+
+        line-height: 1.55;
+    }
+
+
+    /* ========================================================
+       PREVIEW
+       ======================================================== */
+
+    .clsf-preview {
+        margin-top: 17px;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #f8fbff,
+                #eff6ff
+            );
+    }
+
+    .clsf-preview-head {
+        padding: 10px 12px;
+
+        border-bottom:
+            1px solid
+            #dbeafe;
+
+        color: var(--blue);
+
+        font-size: .57rem;
+        font-weight: 800;
+
+        letter-spacing: .075em;
+
+        text-transform: uppercase;
+    }
+
+    .clsf-preview-body {
+        padding: 15px;
+    }
+
+    .clsf-preview-mark {
+        width: 40px;
+        height: 40px;
+
+        display: grid;
+
+        place-items: center;
+
+        margin-bottom: 11px;
+
+        border-radius: 11px;
+
+        color: var(--blue);
+
+        background: white;
+
+        box-shadow:
+            0 4px 12px
+            rgba(37,99,235,.08);
+
+        font-size: .71rem;
+        font-weight: 900;
+    }
+
+    .clsf-preview-grade {
+        color: var(--muted);
+
+        font-size: .59rem;
+        font-weight: 700;
+    }
+
+    .clsf-preview-name {
+        margin-top: 3px;
+
+        color: var(--text);
+
+        font-size: .89rem;
+        font-weight: 800;
+    }
+
+    .clsf-preview-status {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 6px;
+
+        margin-top: 10px;
+
+        padding: 5px 8px;
+
+        border:
+            1px solid
+            #bbf7d0;
+
+        border-radius: 999px;
+
+        color: #15803d;
+
+        background: var(--success-soft);
+
+        font-size: .58rem;
+        font-weight: 800;
+    }
+
+    .clsf-preview-status::before {
+        content: "";
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: var(--success);
+    }
+
+    .clsf-preview-status.inactive {
+        color: #b45309;
+
+        border-color: #fde68a;
+
+        background: var(--warning-soft);
+    }
+
+    .clsf-preview-status.inactive::before {
+        background: var(--warning);
+    }
+
+
+    /* ========================================================
+       GUIDE
+       ======================================================== */
+
+    .clsf-guide {
+        display: grid;
+
+        gap: 8px;
+
+        margin-top: 17px;
+    }
+
+    .clsf-guide-item {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 10px;
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 10px;
+
+        background: var(--surface-soft);
+    }
+
+    .clsf-guide-number {
+        width: 28px;
+        height: 28px;
+
+        flex: 0 0 28px;
+
+        display: grid;
+
+        place-items: center;
+
+        border-radius: 8px;
+
+        color: var(--blue);
+
+        background: var(--blue-soft);
+
+        font-size: .59rem;
+        font-weight: 900;
+    }
+
+    .clsf-guide-title {
+        color: var(--text-soft);
+
+        font-size: .64rem;
+        font-weight: 800;
+    }
+
+    .clsf-guide-copy {
+        margin-top: 1px;
+
+        color: var(--muted-light);
+
+        font-size: .56rem;
+    }
+
+    .clsf-edit-info {
+        margin-top: 16px;
+
+        padding: 11px 12px;
+
+        border:
+            1px solid
+            #dbeafe;
+
+        border-radius: 10px;
+
+        color: #1e40af;
+
+        background: var(--blue-soft);
+
+        font-size: .63rem;
+
+        line-height: 1.5;
+    }
+
+
+    /* ========================================================
+       RESPONSIVE
+       ======================================================== */
+
+    @media (max-width: 950px) {
+        .clsf-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .clsf-page {
+            padding: 12px;
+        }
+
+        .clsf-hero {
+            padding: 21px 18px;
+
+            border-radius: 17px;
+        }
+
+        .clsf-hero-inner {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .clsf-back {
+            width: 100%;
+        }
+
+        .clsf-footer {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+        .clsf-footer-actions {
+            width: 100%;
+        }
+
+        .clsf-button {
+            flex: 1;
+        }
+    }
+</style>
+
+
+<div class="clsf-page">
+
+    <!-- ====================================================
+         HERO
+         ==================================================== -->
+
+    <section class="clsf-hero">
+
+        <div class="clsf-hero-inner">
+
+            <div>
+
+                <div class="clsf-eyebrow">
+
+                    <span
+                        class="clsf-eyebrow-dot"
+                    ></span>
+
+                    Academic Configuration
+
                 </div>
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Grade Level <span class="text-danger">*</span></label>
-                            {{ form.grade }}
-                            {% if form.grade.errors %}
-                                <div class="text-danger small mt-1">{{ form.grade.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Class Section Name <span class="text-danger">*</span></label>
-                            {{ form.name }}
-                            {% if form.name.errors %}
-                                <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-3 form-check">
-                            {{ form.is_active }}
-                            <label class="form-check-label fw-bold" for="{{ form.is_active.id_for_label }}">Active Status</label>
-                        </div>
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-between">
-                            <a href="{% url 'school_config:classes_list' %}" class="btn btn-secondary px-4">Cancel</a>
-                            <button type="submit" class="btn btn-success px-4">Save Class</button>
-                        </div>
-                    </form>
-                </div>
+
+
+                <h1 class="clsf-title">
+
+                    {% if is_edit %}
+
+                        Edit Class Section
+
+                    {% else %}
+
+                        Create Class Section
+
+                    {% endif %}
+
+                </h1>
+
+
+                <p class="clsf-subtitle">
+
+                    {% if is_edit %}
+
+                        Update the parent grade, section
+                        identity or operational status for
+                        this academic class.
+
+                    {% else %}
+
+                        Create a section beneath an existing
+                        grade level and extend the school's
+                        academic structure.
+
+                    {% endif %}
+
+                </p>
+
             </div>
+
+
+            <a
+                href="{% url 'school_config:classes_list' %}"
+                class="clsf-back"
+            >
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Classes & Sections
+            </a>
+
         </div>
+
+    </section>
+
+
+    <!-- ====================================================
+         LAYOUT
+         ==================================================== -->
+
+    <div class="clsf-layout">
+
+        <!-- =================================================
+             FORM
+             ================================================= -->
+
+        <section class="clsf-card">
+
+            <header class="clsf-card-head">
+
+                <div class="clsf-kicker">
+                    Section Details
+                </div>
+
+                <div class="clsf-card-title">
+                    Academic Class Information
+                </div>
+
+                <div class="clsf-card-copy">
+                    Choose the parent grade, enter a clear
+                    class-section name and control whether
+                    the section is currently active.
+                </div>
+
+            </header>
+
+
+            <form
+                method="post"
+                id="classForm"
+            >
+                {% csrf_token %}
+
+
+                <div class="clsf-form-body">
+
+                    {% if form.non_field_errors %}
+
+                        <div class="clsf-global-error">
+
+                            {% for error in form.non_field_errors %}
+
+                                <div>
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- =====================================
+                         GRADE
+                         ===================================== -->
+
+                    <div class="clsf-field">
+
+                        <label
+                            class="clsf-label"
+                            for="{{ form.grade.id_for_label }}"
+                        >
+                            Parent Grade
+
+                            <span class="clsf-required">
+                                *
+                            </span>
+                        </label>
+
+
+                        {{ form.grade }}
+
+
+                        {% if form.grade.errors %}
+
+                            {% for error in form.grade.errors %}
+
+                                <div class="clsf-field-error">
+
+                                    <i
+                                        class="
+                                            bi
+                                            bi-exclamation-circle
+                                            me-1
+                                        "
+                                    ></i>
+
+                                    {{ error }}
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+
+                        <div class="clsf-help">
+                            Select the academic grade this
+                            class section belongs to.
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         NAME
+                         ===================================== -->
+
+                    <div class="clsf-field">
+
+                        <label
+                            class="clsf-label"
+                            for="{{ form.name.id_for_label }}"
+                        >
+                            Section Name
+
+                            <span class="clsf-required">
+                                *
+                            </span>
+                        </label>
+
+
+                        {{ form.name }}
+
+
+                        {% if form.name.errors %}
+
+                            {% for error in form.name.errors %}
+
+                                <div class="clsf-field-error">
+
+                                    <i
+                                        class="
+                                            bi
+                                            bi-exclamation-circle
+                                            me-1
+                                        "
+                                    ></i>
+
+                                    {{ error }}
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+
+                        <div class="clsf-help">
+                            Examples:
+                            1A, 1B, 3A, 8A or another
+                            consistent section naming scheme.
+                        </div>
+
+                    </div>
+
+
+                    <!-- =====================================
+                         STATUS
+                         ===================================== -->
+
+                    <div class="clsf-field">
+
+                        <label class="clsf-label">
+                            Operational Status
+                        </label>
+
+
+                        <div class="clsf-status-box">
+
+                            {{ form.is_active }}
+
+
+                            <div>
+
+                                <label
+                                    class="clsf-status-title"
+                                    for="{{ form.is_active.id_for_label }}"
+                                >
+                                    Active Class Section
+                                </label>
+
+
+                                <div class="clsf-status-copy">
+                                    Keep enabled while the
+                                    section is part of the
+                                    school's current academic
+                                    structure.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {% if form.is_active.errors %}
+
+                            {% for error in form.is_active.errors %}
+
+                                <div class="clsf-field-error">
+                                    {{ error }}
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     FOOTER
+                     ========================================= -->
+
+                <div class="clsf-footer">
+
+                    <div class="clsf-footer-note">
+                        Fields marked with
+                        <strong>*</strong>
+                        are required.
+                    </div>
+
+
+                    <div class="clsf-footer-actions">
+
+                        <a
+                            href="{% url 'school_config:classes_list' %}"
+                            class="
+                                clsf-button
+                                cancel
+                            "
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="
+                                clsf-button
+                                save
+                            "
+                            id="classSaveButton"
+                        >
+
+                            <i
+                                class="
+                                    bi
+                                    {% if is_edit %}
+                                        bi-check2
+                                    {% else %}
+                                        bi-plus-lg
+                                    {% endif %}
+                                "
+                            ></i>
+
+
+                            <span>
+
+                                {% if is_edit %}
+
+                                    Save Changes
+
+                                {% else %}
+
+                                    Create Class Section
+
+                                {% endif %}
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- =================================================
+             PREVIEW
+             ================================================= -->
+
+        <aside class="clsf-side-card">
+
+            <div class="clsf-side-body">
+
+                <div class="clsf-side-icon">
+
+                    <i class="bi bi-diagram-3"></i>
+
+                </div>
+
+
+                <div class="clsf-side-title">
+                    Section Preview
+                </div>
+
+
+                <div class="clsf-side-copy">
+                    See how this class section will appear
+                    within the school's grade hierarchy
+                    while you configure it.
+                </div>
+
+
+                <!-- =========================================
+                     LIVE PREVIEW
+                     ========================================= -->
+
+                <div class="clsf-preview">
+
+                    <div class="clsf-preview-head">
+                        Live Structure Preview
+                    </div>
+
+
+                    <div class="clsf-preview-body">
+
+                        <div
+                            class="clsf-preview-mark"
+                            id="classPreviewMark"
+                        >
+                            CL
+                        </div>
+
+
+                        <div
+                            class="clsf-preview-grade"
+                            id="classPreviewGrade"
+                        >
+                            Select a grade
+                        </div>
+
+
+                        <div
+                            class="clsf-preview-name"
+                            id="classPreviewName"
+                        >
+                            Class Section
+                        </div>
+
+
+                        <div
+                            class="clsf-preview-status"
+                            id="classPreviewStatus"
+                        >
+                            Active
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     GUIDE
+                     ========================================= -->
+
+                <div class="clsf-guide">
+
+                    <div class="clsf-guide-item">
+
+                        <div class="clsf-guide-number">
+                            1
+                        </div>
+
+                        <div>
+
+                            <div class="clsf-guide-title">
+                                Grade Level
+                            </div>
+
+                            <div class="clsf-guide-copy">
+                                Example: Grade 8
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="clsf-guide-item">
+
+                        <div class="clsf-guide-number">
+                            2
+                        </div>
+
+                        <div>
+
+                            <div class="clsf-guide-title">
+                                Class Section
+                            </div>
+
+                            <div class="clsf-guide-copy">
+                                Example: 8A or 8B
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="clsf-guide-item">
+
+                        <div class="clsf-guide-number">
+                            3
+                        </div>
+
+                        <div>
+
+                            <div class="clsf-guide-title">
+                                Student Placement
+                            </div>
+
+                            <div class="clsf-guide-copy">
+                                Students can be associated
+                                through enrollment.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {% if is_edit and school_class %}
+
+                    <div class="clsf-edit-info">
+
+                        <strong>
+                            Editing:
+                        </strong>
+
+                        {{ school_class.grade.name }}
+                        ·
+                        {{ school_class.name }}
+
+                        <br>
+
+                        Changes will update this existing
+                        class-section record.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </aside>
+
     </div>
+
 </div>
+
+
+<script>
+(function () {
+    "use strict";
+
+
+    const form =
+        document.getElementById(
+            "classForm"
+        );
+
+
+    const saveButton =
+        document.getElementById(
+            "classSaveButton"
+        );
+
+
+    const gradeSelect =
+        document.getElementById(
+            "{{ form.grade.id_for_label }}"
+        );
+
+
+    const nameInput =
+        document.getElementById(
+            "{{ form.name.id_for_label }}"
+        );
+
+
+    const activeInput =
+        document.getElementById(
+            "{{ form.is_active.id_for_label }}"
+        );
+
+
+    const previewGrade =
+        document.getElementById(
+            "classPreviewGrade"
+        );
+
+
+    const previewName =
+        document.getElementById(
+            "classPreviewName"
+        );
+
+
+    const previewMark =
+        document.getElementById(
+            "classPreviewMark"
+        );
+
+
+    const previewStatus =
+        document.getElementById(
+            "classPreviewStatus"
+        );
+
+
+    /* ========================================================
+       PREVIEW
+       ======================================================== */
+
+    function updatePreview() {
+        let gradeText =
+            "Select a grade";
+
+
+        let sectionText =
+            "Class Section";
+
+
+        if (
+            gradeSelect
+            && gradeSelect.selectedIndex >= 0
+        ) {
+            const option =
+                gradeSelect.options[
+                    gradeSelect.selectedIndex
+                ];
+
+
+            if (
+                option
+                && option.value
+            ) {
+                gradeText =
+                    option.text.trim();
+            }
+        }
+
+
+        if (
+            nameInput
+            && nameInput.value.trim()
+        ) {
+            sectionText =
+                nameInput.value.trim();
+        }
+
+
+        if (previewGrade) {
+            previewGrade.textContent =
+                gradeText;
+        }
+
+
+        if (previewName) {
+            previewName.textContent =
+                sectionText;
+        }
+
+
+        if (previewMark) {
+            const mark =
+                sectionText
+                    .replace(
+                        /\s+/g,
+                        ""
+                    )
+                    .slice(
+                        0,
+                        3
+                    )
+                    .toUpperCase();
+
+
+            previewMark.textContent =
+                mark
+                || "CL";
+        }
+
+
+        if (
+            previewStatus
+            && activeInput
+        ) {
+            if (activeInput.checked) {
+                previewStatus.textContent =
+                    "Active";
+
+
+                previewStatus
+                    .classList
+                    .remove(
+                        "inactive"
+                    );
+            }
+
+            else {
+                previewStatus.textContent =
+                    "Inactive";
+
+
+                previewStatus
+                    .classList
+                    .add(
+                        "inactive"
+                    );
+            }
+        }
+    }
+
+
+    if (gradeSelect) {
+        gradeSelect.addEventListener(
+            "change",
+            updatePreview
+        );
+    }
+
+
+    if (nameInput) {
+        nameInput.addEventListener(
+            "input",
+            updatePreview
+        );
+    }
+
+
+    if (activeInput) {
+        activeInput.addEventListener(
+            "change",
+            updatePreview
+        );
+    }
+
+
+    updatePreview();
+
+
+    /* ========================================================
+       SUBMIT
+       ======================================================== */
+
+    if (
+        form
+        && saveButton
+    ) {
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (saveButton.disabled) {
+                    return;
+                }
+
+
+                saveButton.disabled =
+                    true;
+
+
+                saveButton.innerHTML =
+                    '<span '
+                    + 'class="spinner-border '
+                    + 'spinner-border-sm" '
+                    + 'aria-hidden="true">'
+                    + '</span>'
+                    + '<span>Saving...</span>';
+            }
+        );
+    }
+
+})();
+</script>
+
 {% endblock %}
