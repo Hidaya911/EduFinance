@@ -32,13 +32,7 @@ DEBUG = os.getenv(
 # SECURITY
 # ============================================================
 
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    'edu-finance-seven.vercel.app'
-    '.vercel.app',  
-
-]
+ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = [
     'https://edu-finance-seven.vercel.app',
     'https://*.vercel.app',
