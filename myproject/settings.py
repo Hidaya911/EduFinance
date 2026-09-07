@@ -85,6 +85,7 @@ MIDDLEWARE = [
 
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'audit_log.middleware.CurrentUserMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 
@@ -244,8 +245,9 @@ STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-]
 
+]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ============================================================
 # MEDIA FILES
