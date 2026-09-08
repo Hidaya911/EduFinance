@@ -15,8 +15,10 @@ from .models import (
     FinancialAssistanceRequest, PaymentReminder, Refund, Scholarship,
     Supplier, SupplierBill, SupplierPayment,
 )
-from .overdue_services import summarize_overdue_rows
-from .overdue_views import get_student_invoice_overdue_rows
+from .student_finance_services import (
+    get_student_finance_data, school_context, issued_receipt,
+    installment_remaining, installment_status, reminder_invoice,
+)
 from .report_services import (
     get_report_definition,
     get_reports_catalog,
@@ -74,8 +76,9 @@ def get_dashboard_context(user):
     """Build the dashboard from verified records without mutating any model."""
     now, today = timezone.localtime(), timezone.localdate()
     school = School.objects.first()
-    currency = school.default_currency if school and school.default_currency else "USD"
-    academic_year = school.current_academic_year.strip() if school and school.current_academic_year else "Not configured"
+    school_info = school_context(school)
+    currency, academic_year = school_info["currency_code"], school_info["academic_year"]
+    finance = get_student_finance_data(school, today)
     readiness = _readiness()
 
     expenses = list(Expense.objects.all())
@@ -103,10 +106,14 @@ def get_dashboard_context(user):
         category_totals[str(item.category_id)] += item.amount or ZERO
 
     monthly_expenses = [{"label": date(int(key[:4]), int(key[5:]), 1).strftime("%b"), "year": key[:4], "amount": month_totals[key]} for key in _month_keys(today)]
-    max_month_expense = max((item["amount"] for item in monthly_expenses), default=ZERO)
-    for item in monthly_expenses:
-        item["height"] = _percent(item["amount"], max_month_expense)
-        item["formatted"] = _money(item["amount"])
+    for month, key in zip(monthly_expenses, _month_keys(today)):
+        month["revenue"] = finance["monthly_revenue"].get(key, ZERO)
+    chart_max = max((max(x["amount"], x["revenue"]) for x in monthly_expenses), default=ZERO)
+    for month in monthly_expenses:
+        month["height"] = _percent(month["amount"], chart_max)
+        month["revenue_height"] = _percent(month["revenue"], chart_max)
+        month["formatted"] = _money(month["amount"])
+        month["revenue_formatted"] = _money(month["revenue"])
 
     expense_distribution = [
         {"name": categories.get(category_id, "Unassigned"), "amount": amount, "formatted": _money(amount), "percent": _percent(amount, total_expenses)}
@@ -127,11 +134,19 @@ def get_dashboard_context(user):
     pending_approvals = [item for item in approvals if item.status in (ApprovalRequest.Status.REQUESTED, ApprovalRequest.Status.PENDING)]
     pending_approvals.sort(key=lambda item: item.submitted_at or item.created_at, reverse=True)
 
-    overdue_rows = list(get_student_invoice_overdue_rows())
-    overdue_summary = summarize_overdue_rows(overdue_rows)
+    overdue_summary = finance["overdue_summary"]
     recent_expenses = sorted(expenses, key=lambda item: item.updated_at, reverse=True)[:6]
     recent_supplier_payments = sorted(posted_supplier_payments, key=lambda item: item.payment_date, reverse=True)[:4]
     recent_reminders = sorted(reminders, key=lambda item: item.updated_at, reverse=True)[:4]
+    invoices_by_number = {x.invoice_number: x for x in finance["invoices"]}
+    reminder_preview = []
+    for item in recent_reminders:
+        invoice = reminder_invoice(item, invoices_by_number)
+        reminder_preview.append({
+            "pk": item.pk, "number": item.reminder_number, "invoice": item.invoice_reference,
+            "date": item.reminder_date, "status": item.status, "status_label": item.get_status_display(),
+            "current_invoice_balance": _money(max(invoice.balance, ZERO)) if invoice else None,
+        })
     report_counts = readiness["catalog"]["counts"]
 
     quick_actions = [
@@ -146,14 +161,30 @@ def get_dashboard_context(user):
         "display_name": _display_user(user), "as_of": now,
         "currency_code": currency, "academic_year": academic_year, "readiness": readiness,
         "primary_kpis": [
-            {"label": "Expected revenue", "value": "Integration pending", "detail": "Student invoice source unavailable", "icon": "bi-graph-up-arrow", "tone": "blue", "available": False},
-            {"label": "Total collected", "value": "Integration pending", "detail": "Student payment source unavailable", "icon": "bi-bank", "tone": "green", "available": False},
-            {"label": "Outstanding", "value": "Integration pending", "detail": "Student receivables unavailable", "icon": "bi-hourglass-split", "tone": "amber", "available": False},
-            {"label": "Overdue amount", "value": "Integration pending", "detail": "Student invoice due dates unavailable", "icon": "bi-exclamation-circle", "tone": "red", "available": False},
-            {"label": "Current month revenue", "value": "Integration pending", "detail": "No recognized revenue source", "icon": "bi-calendar2-week", "tone": "blue", "available": False},
+            {"label": "Expected revenue", "value": _money(finance["expected"]), "detail": "Issued student invoices; all academic years", "icon": "bi-graph-up-arrow", "tone": "blue", "available": True},
+            {"label": "Total collected", "value": _money(finance["collected"]), "detail": "Completed student payments; gross collections", "icon": "bi-bank", "tone": "green", "available": True},
+            {"label": "Outstanding", "value": _money(finance["outstanding"]), "detail": "Canonical invoice balances; all academic years", "icon": "bi-hourglass-split", "tone": "amber", "available": True},
+            {"label": "Overdue amount", "value": _money(overdue_summary["total_overdue_amount"]), "detail": "Past due with a positive balance", "icon": "bi-exclamation-circle", "tone": "red", "available": True},
+            {"label": "Current month revenue", "value": _money(finance["month_revenue"]), "detail": "Completed payments dated this month", "icon": "bi-calendar2-week", "tone": "blue", "available": True},
             {"label": "Current month expenses", "value": _money(month_expenses), "detail": f"{len(current_month)} active record(s)", "icon": "bi-wallet2", "tone": "violet", "available": True},
-            {"label": "Net financial position", "value": "Integration pending", "detail": "Requires verified revenue and expense data", "icon": "bi-intersect", "tone": "slate", "available": False},
+            {"label": "Net financial position", "value": _money(finance["month_revenue"] - month_expenses), "detail": "This month: collections less active expenses", "icon": "bi-intersect", "tone": "slate", "available": True},
         ],
+        "student_finance": finance,
+        "collection": {
+            "expected": _money(finance["expected"]), "collected": _money(finance["collected"]),
+            "outstanding": _money(finance["outstanding"]),
+            "percent": f'{finance["collection_percent"]:,.2f}' if finance["collection_percent"] is not None else None,
+            "progress": _percent(finance["collected"], finance["expected"]),
+        },
+        "recent_student_payments": [{"pk": x.pk, "student": x.student.full_name,
+            "number": x.payment_number, "receipt": issued_receipt(x), "date": x.payment_date,
+            "amount": _money(x.amount), "method": x.get_payment_method_display(),
+            "status": x.get_status_display()} for x in finance["recent_payments"]],
+        "upcoming_installments": [{"plan_pk": x.plan_id, "student": x.plan.student.full_name,
+            "number": x.installment_number, "invoice": x.plan.invoice.invoice_number,
+            "date": x.due_date, "amount": _money(installment_remaining(x)),
+            "status": dict(x.STATUS_CHOICES)[installment_status(x, today)]}
+            for x in finance["upcoming_installments"]],
         "total_expenses": _money(total_expenses), "expense_count": len(active_expenses),
         "month_expenses": _money(month_expenses), "monthly_expenses": monthly_expenses,
         "has_monthly_expenses": any(item["amount"] for item in monthly_expenses),
@@ -181,7 +212,7 @@ def get_dashboard_context(user):
         "approval_preview": [{"pk": item.pk, "number": item.request_number, "type": item.get_operation_type_display(), "title": item.title, "amount": _money(item.amount) if item.amount is not None else "Not monetary", "requester": _display_user(item.requester), "submitted": item.submitted_at or item.created_at, "status": item.get_status_display()} for item in pending_approvals[:5]],
         "recent_expenses": [{"pk": item.pk, "number": item.expense_number, "description": item.description, "category": categories.get(str(item.category_id), "Unassigned"), "date": item.expense_date, "amount": _money(item.amount), "approval": item.get_approval_status_display(), "record_status": item.record_status} for item in recent_expenses],
         "reminder_counts": {status: sum(item.status == status for item in reminders) for status in (PaymentReminder.Status.DRAFT, PaymentReminder.Status.SENT, PaymentReminder.Status.FAILED, PaymentReminder.Status.CANCELLED)},
-        "recent_reminders": [{"pk": item.pk, "number": item.reminder_number, "invoice": item.invoice_reference, "date": item.reminder_date, "status": item.status, "status_label": item.get_status_display()} for item in recent_reminders],
+        "recent_reminders": reminder_preview,
         "important_notifications": important_notifications,
         "unread_dashboard_notifications": sum(not item["is_read"] for item in important_notifications),
         "payables": {"total": _money(payable_total), "paid": _money(payable_paid), "outstanding": _money(payable_remaining), "overdue": _money(overdue_payable_amount), "open_bills": sum(item.remaining_amount > ZERO for item in active_bills), "overdue_bills": len(overdue_bills), "settled_percent": _percent(payable_paid, payable_total)},

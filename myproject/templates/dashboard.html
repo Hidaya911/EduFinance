@@ -13,7 +13,7 @@
       <div class="hero-copy">
         <p class="dashboard-eyebrow"><span></span> Financial operations center</p>
         <h1 class="dashboard-title" id="dashboard-title">{{ greeting }}, {{ display_name }}</h1>
-        <p class="dashboard-subtitle">A verified view of school finance for <strong>{{ academic_year }}</strong>.</p>
+        <p class="dashboard-subtitle">A verified view of school finance across all academic years.</p>
         <div class="hero-meta"><span><i class="bi bi-calendar3"></i> {{ as_of|date:"l, d F Y" }}</span><span><i class="bi bi-currency-exchange"></i> Base currency <strong>{{ currency_code }}</strong></span><span><i class="bi bi-mortarboard"></i> Academic year <strong>{{ academic_year }}</strong></span></div>
       </div>
       <div class="header-actions">
@@ -42,13 +42,13 @@
 
   <div class="dashboard-grid dashboard-grid-wide">
     <section class="dashboard-card" aria-labelledby="collection-title">
-      <div class="card-heading"><div><span class="section-kicker">Student receivables</span><h2 class="card-title" id="collection-title">Collection Health</h2><p class="card-description">Expected fees, collections, and remaining student balances</p></div><span class="card-badge pending">Integration pending</span></div>
-      <div class="dependency-state collection-state"><span class="dependency-visual"><i class="bi bi-bank"></i><b></b></span><div><strong>Student billing source unavailable</strong><p>Collection progress will activate when student invoices and payments are connected.</p><div class="dependency-points"><span><i class="bi bi-dash-circle"></i> Expected revenue</span><span><i class="bi bi-dash-circle"></i> Collected</span><span><i class="bi bi-dash-circle"></i> Remaining</span></div></div></div>
+      <div class="card-heading"><div><span class="section-kicker">Student receivables</span><h2 class="card-title" id="collection-title">Collection Health</h2><p class="card-description">Expected fees, collections, and remaining student balances</p></div><span class="card-badge live">Verified records</span></div>
+      <div class="dependency-state collection-state"><span class="dependency-visual"><i class="bi bi-bank"></i><b></b></span><div><strong>{% if collection.percent != None %}{{ collection.percent }}% collected{% else %}No issued invoice obligations{% endif %}</strong><p>Gross completed collections against issued invoices across all academic years.</p><div class="dependency-points"><span>Expected {{ currency_code }} {{ collection.expected }}</span><span>Collected {{ currency_code }} {{ collection.collected }}</span><span>Remaining {{ currency_code }} {{ collection.outstanding }}</span></div><div class="distribution-track"><i style="--distribution: {{ collection.progress }}%;"></i></div></div></div>
     </section>
 
     <section class="dashboard-card" aria-labelledby="expense-trend-title">
-      <div class="card-heading"><div><span class="section-kicker">Six-month operating view</span><h2 class="card-title" id="expense-trend-title">Revenue vs Expense</h2><p class="card-description">Verified active expenses; revenue remains unavailable</p></div><span class="card-badge partial">Partial</span></div>
-      {% if has_monthly_expenses %}<div class="expense-chart" aria-label="Monthly active expense chart">{% for month in monthly_expenses %}<div class="expense-column"><span class="expense-tooltip">{{ currency_code }} {{ month.formatted }}</span><div class="expense-bar-track"><i style="--bar-height: {{ month.height }}%;"></i></div><strong>{{ month.label }}</strong><small>{{ month.year }}</small></div>{% endfor %}</div><div class="chart-legend"><span><i class="legend-expense"></i> Active expenses</span><span class="unavailable"><i></i> Revenue unavailable</span></div>{% else %}<div class="compact-empty"><i class="bi bi-bar-chart"></i><strong>No active expense history yet</strong><span>Monthly expense values will appear after expenses are recorded.</span></div>{% endif %}
+      <div class="card-heading"><div><span class="section-kicker">Six-month operating view</span><h2 class="card-title" id="expense-trend-title">Revenue vs Expense</h2><p class="card-description">Completed student collections and active expenses</p></div><span class="card-badge live">Verified records</span></div>
+      <div class="expense-chart" aria-label="Six chronological months of student revenue and active expenses">{% for month in monthly_expenses %}<div class="expense-column"><span class="expense-tooltip">Revenue {{ currency_code }} {{ month.revenue_formatted }}<br>Expense {{ currency_code }} {{ month.formatted }}</span><div class="expense-bar-track finance-bar-pair"><i class="revenue-bar" style="--bar-height: {{ month.revenue_height }}%;" aria-label="Revenue {{ month.revenue_formatted }}"></i><i style="--bar-height: {{ month.height }}%;" aria-label="Expense {{ month.formatted }}"></i></div><strong>{{ month.label }}</strong><small>{{ month.year }}</small></div>{% endfor %}</div><div class="chart-legend"><span><i class="legend-revenue"></i> Student revenue</span><span><i class="legend-expense"></i> Active expenses</span></div>
     </section>
   </div>
 
@@ -93,12 +93,12 @@
 
   <div class="dashboard-grid">
     <section class="dashboard-card" aria-labelledby="student-activity-title">
-      <div class="card-heading"><div><span class="section-kicker">Student collections</span><h2 class="card-title" id="student-activity-title">Recent Payment Activity</h2><p class="card-description">Student payments only—never supplier transactions</p></div><span class="card-badge pending">Integration pending</span></div>
-      <div class="dependency-state slim"><span class="dependency-visual"><i class="bi bi-credit-card"></i><b></b></span><div><strong>Payment ledger not connected</strong><p>Verified student collections will appear when the shared ledger is available.</p></div></div>
+      <div class="card-heading"><div><span class="section-kicker">Student collections</span><h2 class="card-title" id="student-activity-title">Recent Payment Activity</h2><p class="card-description">Student payments only—never supplier transactions</p></div><span class="card-badge live">Verified records</span></div>
+      {% if recent_student_payments %}<div class="mini-ledger">{% for payment in recent_student_payments %}<a class="dash-nav" href="{% url 'billing:payment_detail' payment.pk %}"><span><strong>{{ payment.student }}</strong><small>{{ payment.number }}{% if payment.receipt %} ? {{ payment.receipt }}{% endif %}</small><small>{{ payment.date|date:"d M Y" }} ? {{ payment.method }} ? {{ payment.status }}</small></span><em>{{ currency_code }} {{ payment.amount }}</em></a>{% endfor %}</div>{% else %}<div class="compact-empty compact"><i class="bi bi-credit-card"></i><strong>No completed student payments</strong><span>Completed payments will appear here when recorded.</span></div>{% endif %}
     </section>
     <section class="dashboard-card" aria-labelledby="installment-title">
-      <div class="card-heading"><div><span class="section-kicker">Payment schedules</span><h2 class="card-title" id="installment-title">Upcoming Installments</h2><p class="card-description">Student installment commitments and due dates</p></div><span class="card-badge pending">Integration pending</span></div>
-      <div class="dependency-state slim"><span class="dependency-visual"><i class="bi bi-calendar2-check"></i><b></b></span><div><strong>Installment source unavailable</strong><p>No student schedule is inferred from supplier bills or reminders.</p></div></div>
+      <div class="card-heading"><div><span class="section-kicker">Payment schedules</span><h2 class="card-title" id="installment-title">Upcoming Installments</h2><p class="card-description">Student installment commitments and due dates</p></div><span class="card-badge live">Verified records</span></div>
+      {% if upcoming_installments %}<div class="mini-ledger">{% for installment in upcoming_installments %}<a class="dash-nav" href="{% url 'billing:installment_plan_detail' installment.plan_pk %}"><span><strong>{{ installment.student }}</strong><small>{{ installment.invoice }} ? #{{ installment.number }} ? {{ installment.date|date:"d M Y" }}</small><small>{{ installment.status }}</small></span><em>{{ currency_code }} {{ installment.amount }}</em></a>{% endfor %}</div>{% else %}<div class="compact-empty compact"><i class="bi bi-calendar2-check"></i><strong>No upcoming unpaid installments</strong><span>Open installments due today or later appear here, nearest due date first.</span></div>{% endif %}
     </section>
   </div>
 

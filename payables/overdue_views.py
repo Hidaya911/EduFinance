@@ -48,44 +48,8 @@ def get_school_currency():
 # OVERDUE SOURCE ADAPTER
 # ============================================================
 
-def get_student_invoice_overdue_rows():
-    """
-    Return overdue rows from Developer 2's student Invoice model.
-
-    IMPORTANT:
-    The student Invoice model does not yet exist in the current
-    shared codebase.
-
-    Do not use SupplierBill here. Supplier bills represent money
-    the school owes suppliers, while this module represents
-    money students owe the school.
-
-    When Developer 2 adds the real Invoice model, this is the
-    only integration point that needs to be replaced.
-
-    Expected row shape:
-
-        {
-            "source_id": "...",
-            "invoice_number": "...",
-            "student_reference": "...",
-            "student_name": "...",
-            "academic_year": "...",
-            "grade": "...",
-            "class_name": "...",
-            "due_date": date(...),
-            "outstanding_amount": Decimal(...),
-            "source_status": "...",
-            "days_overdue": 14,
-            "aging_bucket": "8_30",
-            "aging_label": "8–30 Days",
-        }
-
-    The actual overdue calculation must use
-    payables.overdue_services.build_overdue_row().
-    """
-
-    return []
+# Keep the existing import location compatible with callers.
+from .student_finance_services import get_student_invoice_overdue_rows
 
 
 # ============================================================
@@ -395,11 +359,10 @@ def overdue_list(
     # --------------------------------------------------------
     # SOURCE INTEGRATION STATE
     #
-    # Currently false because the shared Student Invoice model
-    # does not yet exist.
+    # The adapter reads issued billing.Invoice records.
     # --------------------------------------------------------
 
-    invoice_integration_ready = False
+    invoice_integration_ready = True
 
     context = {
         "overdue_rows":

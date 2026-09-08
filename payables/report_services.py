@@ -19,27 +19,32 @@ from .models import (
     SupplierBill,
     SupplierPayment,
 )
-from .overdue_views import get_student_invoice_overdue_rows
+from .student_finance_services import (
+    get_student_finance_data, school_context, summarize_student_finance,
+    invoice_overdue_rows, outstanding, issued_receipt,
+    installment_remaining, installment_status,
+)
+from .overdue_services import AGING_LABELS, summarize_overdue_rows
 
 
 ZERO = Decimal("0.00")
 
 
 REPORT_DEFINITIONS = (
-    {"id": "REP-001", "slug": "fee-collection", "title": "Fee Collection Report", "category": "Revenue & Collections", "status": "integration_pending", "description": "Expected, collected, remaining, and collection performance from student invoices and payments.", "dependency": "Student Invoice and Student Payment models"},
-    {"id": "REP-002", "slug": "student-balance", "title": "Student Balance Report", "category": "Student Receivables", "status": "integration_pending", "description": "Student-level invoiced, paid, outstanding, and overdue balances.", "dependency": "Student Invoice, Student Payment, and academic placement data"},
-    {"id": "REP-003", "slug": "payment-report", "title": "Payment Report", "category": "Revenue & Collections", "status": "integration_pending", "description": "Traceable student payment register with method, date, and receipt context.", "dependency": "Student Payment model"},
-    {"id": "REP-004", "slug": "daily-collection", "title": "Daily Collection Report", "category": "Revenue & Collections", "status": "integration_pending", "description": "Daily student collections and transaction volume.", "dependency": "Student Payment model"},
-    {"id": "REP-005", "slug": "monthly-revenue", "title": "Monthly Revenue Report", "category": "Revenue & Collections", "status": "integration_pending", "description": "Monthly recognized student revenue and collection trends.", "dependency": "Student Payment or recognized revenue model"},
+    {"id": "REP-001", "slug": "fee-collection", "title": "Fee Collection Report", "category": "Revenue & Collections", "status": "ready", "description": "Expected, collected, remaining, and collection performance from student invoices and payments.", "dependency": ""},
+    {"id": "REP-002", "slug": "student-balance", "title": "Student Balance Report", "category": "Student Receivables", "status": "ready", "description": "Student-level invoiced, paid, outstanding, and overdue balances.", "dependency": ""},
+    {"id": "REP-003", "slug": "payment-report", "title": "Payment Report", "category": "Revenue & Collections", "status": "ready", "description": "Traceable student payment register with method, date, and receipt context.", "dependency": ""},
+    {"id": "REP-004", "slug": "daily-collection", "title": "Daily Collection Report", "category": "Revenue & Collections", "status": "ready", "description": "Daily student collections and transaction volume.", "dependency": ""},
+    {"id": "REP-005", "slug": "monthly-revenue", "title": "Monthly Revenue Report", "category": "Revenue & Collections", "status": "ready", "description": "Monthly gross student collections and collection trends.", "dependency": ""},
     {"id": "REP-006", "slug": "expense-report", "title": "Expense Report", "category": "Operations & Payables", "status": "ready", "description": "Active and voided operating expenses with approval and payment context.", "dependency": ""},
-    {"id": "REP-007", "slug": "revenue-vs-expense", "title": "Revenue vs Expense Report", "category": "Executive Analysis", "status": "partial", "description": "Verified expense trend with revenue held pending student-payment integration.", "dependency": "Student Payment or recognized revenue model"},
+    {"id": "REP-007", "slug": "revenue-vs-expense", "title": "Revenue vs Expense Report", "category": "Executive Analysis", "status": "ready", "description": "Completed student collections compared with active operating expenses.", "dependency": ""},
     {"id": "REP-008", "slug": "scholarship-report", "title": "Scholarship Report", "category": "Financial Adjustments", "status": "ready", "description": "Scholarship portfolio by lifecycle, academic year, and value type.", "dependency": ""},
     {"id": "REP-009", "slug": "discount-report", "title": "Discount Report", "category": "Financial Adjustments", "status": "ready", "description": "Discount register with fixed and percentage values reported separately.", "dependency": ""},
-    {"id": "REP-010", "slug": "installment-report", "title": "Installment Report", "category": "Student Receivables", "status": "integration_pending", "description": "Installment schedules, due dates, payments, and remaining balances.", "dependency": "Installment or InstallmentPlan model"},
-    {"id": "REP-011", "slug": "overdue-report", "title": "Overdue Payment Report", "category": "Student Receivables", "status": "integration_pending", "description": "Student receivables overdue under the official aging rules.", "dependency": "Student Invoice adapter for the existing Overdue service"},
-    {"id": "REP-012", "slug": "refund-report", "title": "Refund Report", "category": "Financial Adjustments", "status": "partial", "description": "Real refund requests and workflow values without claiming payment-ledger reversal.", "dependency": "Student Payment model for validated payment linkage"},
+    {"id": "REP-010", "slug": "installment-report", "title": "Installment Report", "category": "Student Receivables", "status": "ready", "description": "Installment schedules, due dates, payments, and remaining balances.", "dependency": ""},
+    {"id": "REP-011", "slug": "overdue-report", "title": "Overdue Payment Report", "category": "Student Receivables", "status": "ready", "description": "Student receivables overdue under the official aging rules.", "dependency": ""},
+    {"id": "REP-012", "slug": "refund-report", "title": "Refund Report", "category": "Financial Adjustments", "status": "partial", "description": "Real refund requests and workflow values without claiming payment-ledger reversal.", "dependency": "Validated originating-payment linkage and refundable-balance accounting"},
     {"id": "REP-013", "slug": "supplier-balance", "title": "Supplier Balance Report", "category": "Operations & Payables", "status": "ready", "description": "Supplier billed, paid, and outstanding positions excluding cancelled and voided activity.", "dependency": ""},
-    {"id": "REP-014", "slug": "payment-method", "title": "Payment Method Report", "category": "Revenue & Collections", "status": "integration_pending", "description": "Student collections grouped by payment method.", "dependency": "Student Payment model"},
+    {"id": "REP-014", "slug": "payment-method", "title": "Payment Method Report", "category": "Revenue & Collections", "status": "ready", "description": "Student collections grouped by payment method.", "dependency": ""},
     {"id": "REP-015", "slug": "financial-assistance", "title": "Financial Assistance Report", "category": "Financial Adjustments", "status": "ready", "description": "Assistance cases, documentation, academic-year context, and approval lifecycle.", "dependency": ""},
 )
 
@@ -57,11 +62,7 @@ def get_reports_catalog():
 
 
 def get_school_context():
-    school = School.objects.first()
-    return {
-        "currency_code": school.default_currency if school and school.default_currency else "USD",
-        "academic_year": school.current_academic_year.strip() if school and school.current_academic_year else "Not configured",
-    }
+    return school_context(School.objects.first())
 
 
 def _date(value):
@@ -185,7 +186,7 @@ def get_refund_report(params, currency):
     rows = [_row([x.refund_number, timezone.localtime(x.requested_at).strftime("%d %b %Y"), x.student_reference, x.original_payment_reference, x.get_refund_method_display(), _money(x.amount, currency), x.get_status_display(), x.reason], [x.refund_number, timezone.localtime(x.requested_at).date().isoformat(), x.student_reference, x.original_payment_reference, x.get_refund_method_display(), _number(x.amount), x.get_status_display(), x.reason], x.status, 6) for x in filtered]
     filters = [_filter("search", "Search", search, "search", placeholder="Refund, student, payment reference or reason"), _filter("date_from", "Requested from", params.get("date_from", ""), "date"), _filter("date_to", "Requested to", params.get("date_to", ""), "date"), _filter("refund_method", "Method", method, options=_choice_options(Refund.RefundMethod.choices)), _filter("status", "Status", status, options=_choice_options(Refund.Status.choices))]
     kpis = [{"label": "Refund requests", "value": len(records), "tone": "blue"}, {"label": "Active requested value", "value": _money(sum((x.amount for x in active), ZERO), currency), "tone": "amber"}, {"label": "Processed records", "value": len(processed), "tone": "green"}, {"label": "Processed value", "value": _money(sum((x.amount for x in processed), ZERO), currency), "tone": "violet"}]
-    return _base_result(get_report_definition("refund-report"), filters, ["Refund", "Requested", "Student reference", "Payment reference", "Method", f"Amount ({currency})", "Workflow status", "Reason"], rows, kpis, "These are real refund workflow records. Payment references are currently text snapshots, so this report does not claim a verified student-ledger reversal.", note="Student Payment integration is still required to validate each refund against its originating collection.")
+    return _base_result(get_report_definition("refund-report"), filters, ["Refund", "Requested", "Student reference", "Payment reference", "Method", f"Amount ({currency})", "Workflow status", "Reason"], rows, kpis, "These are real refund workflow records. Payment references are currently text snapshots, so this report does not claim a verified student-ledger reversal.", note="The existing refund workflow still blocks processing until originating-payment linkage and the remaining refundable balance are validated.")
 
 
 def get_supplier_balance_report(params, currency):
@@ -231,21 +232,128 @@ def get_financial_assistance_report(params, currency):
     return _base_result(get_report_definition("financial-assistance"), filters, ["Case", "Student reference", "Academic year", "Status", "Documentation", "Created", "Reason"], rows, kpis, "Financial assistance has no BRD-defined amount. This report intentionally measures requests, evidence, and lifecycle only.")
 
 
-def get_revenue_vs_expense_report(params, currency):
+STUDENT_REPORTS = {
+    "fee-collection", "student-balance", "payment-report", "daily-collection",
+    "monthly-revenue", "revenue-vs-expense", "installment-report",
+    "overdue-report", "payment-method",
+}
+
+
+def get_student_report(slug, params, currency):
+    """Filter real source records, then summarize the same definitions as the dashboard."""
+    data = get_student_finance_data()
+    today = timezone.localdate()
     start, end = _date(params.get("date_from")), _date(params.get("date_to"))
-    active = [x for x in Expense.objects.all() if x.record_status == Expense.RecordStatus.ACTIVE and _within(x.expense_date, start, end)]
-    months = defaultdict(Decimal)
-    for expense in active:
-        months[expense.expense_date.strftime("%Y-%m")] += expense.amount or ZERO
-    rows = [_row([datetime.strptime(month, "%Y-%m").strftime("%B %Y"), "Integration pending", _money(amount, currency), "Not calculated"], [month, "", _number(amount), ""], "partial") for month, amount in sorted(months.items(), reverse=True)]
-    filters = [_filter("date_from", "Expense date from", params.get("date_from", ""), "date"), _filter("date_to", "Expense date to", params.get("date_to", ""), "date")]
-    kpis = [{"label": "Verified expenses", "value": _money(sum((x.amount for x in active), ZERO), currency), "tone": "red"}, {"label": "Revenue", "value": "Integration pending", "tone": "amber"}, {"label": "Net position", "value": "Not calculated", "tone": "blue"}]
-    return _base_result(get_report_definition("revenue-vs-expense"), filters, ["Month", f"Revenue ({currency})", f"Active expense ({currency})", f"Net ({currency})"], rows, kpis, "Only the expense side is available and it excludes voided expenses. Revenue and net position are never inferred or fabricated.", note="Student revenue integration is required before a complete comparison can be calculated.")
+    search = params.get("search", "").strip()
+    filters = [_filter("date_from", "From", params.get("date_from", ""), "date"),
+               _filter("date_to", "To", params.get("date_to", ""), "date")]
+    if slug != "revenue-vs-expense":
+        filters.insert(0, _filter("search", "Student / reference", search, "search"))
+    invoices = [x for x in data["invoices"] if
+                _matches(search, x.invoice_number, x.student.full_name, x.student.student_number)
+                and _within(timezone.localtime(x.created_at).date(), start, end)]
+    payments = [x for x in data["payments"] if
+                _matches(search, x.payment_number, issued_receipt(x), x.student.full_name, x.student.student_number)
+                and _within(x.payment_date, start, end)]
+    rows, kpis = [], []
+    summary = "Completed payments are gross collections by payment date. Refund workflow values remain separate. Totals cover the filtered records across academic years."
 
+    def money_kpi(label, value, tone="blue"):
+        return {"label": label, "value": _money(value, currency), "tone": tone}
 
-def get_overdue_integration_state():
-    """Exercise the existing adapter without duplicating overdue rules."""
-    return list(get_student_invoice_overdue_rows())
+    def financial_row(labels, amounts):
+        return _row(labels + [_money(x, currency) for x in amounts],
+                    labels + [_number(x) for x in amounts])
+
+    if slug in ("fee-collection", "student-balance"):
+        # Date filters deliberately operate on each ledger's own transaction date.
+        totals = summarize_student_finance(invoices, payments, today)
+        overdue = invoice_overdue_rows(invoices, today)
+        overdue_by_student = defaultdict(Decimal)
+        for row in overdue:
+            overdue_by_student[row["student_reference"]] += row["outstanding_amount"]
+        positions = {}
+        for item in invoices + payments:
+            positions.setdefault(str(item.student_id), {"student": item.student, "invoices": [], "payments": []})
+        for item in invoices:
+            positions[str(item.student_id)]["invoices"].append(item)
+        for item in payments:
+            positions[str(item.student_id)]["payments"].append(item)
+        for position in sorted(positions.values(), key=lambda x: x["student"].full_name):
+            student = position["student"]
+            values = summarize_student_finance(position["invoices"], position["payments"], today)
+            years = ", ".join(sorted({x.academic_year.name for x in position["invoices"]}))
+            rows.append(financial_row([student.student_number, student.full_name, years],
+                        [values["expected"], values["collected"], values["outstanding"], overdue_by_student[student.student_number]]))
+        columns = ["Student number", "Student", "Invoice academic years", "Invoiced", "Collected", "Outstanding", "Overdue"]
+        kpis = [money_kpi("Expected revenue", totals["expected"]), money_kpi("Total collected", totals["collected"], "green"),
+                money_kpi("Outstanding", totals["outstanding"], "amber"),
+                {"label": "Collection percentage", "value": f'{totals["collection_percent"]:,.2f}%' if totals["collection_percent"] is not None else "Not applicable", "tone": "blue"}]
+        summary += " Invoice dates use local created_at; payment dates use payment_date. Outstanding is the current canonical balance of the selected invoices, not a reconstructed historical balance. No discount or scholarship is subtracted again."
+    elif slug == "payment-report":
+        method = params.get("payment_method", "").strip()
+        payments = [x for x in payments if not method or x.payment_method == method]
+        from billing.models import Payment
+        filters.append(_filter("payment_method", "Method", method, options=_choice_options(Payment.METHOD_CHOICES)))
+        columns = ["Payment", "Student number", "Student", "Date", "Method", "Receipt", "Status", f"Amount ({currency})"]
+        for x in payments:
+            rows.append(financial_row([x.payment_number, x.student.student_number, x.student.full_name,
+                        x.payment_date.isoformat(), x.get_payment_method_display(), issued_receipt(x), x.get_status_display()], [x.amount]))
+        kpis = [money_kpi("Total collected", summarize_student_finance([], payments, today)["collected"], "green"),
+                {"label": "Payments", "value": len(payments), "tone": "blue"}]
+    elif slug in ("daily-collection", "monthly-revenue", "payment-method"):
+        groups = defaultdict(lambda: {"amount": ZERO, "count": 0})
+        for x in payments:
+            key = x.payment_date.isoformat() if slug == "daily-collection" else (x.payment_date.strftime("%Y-%m") if slug == "monthly-revenue" else x.get_payment_method_display())
+            groups[key]["amount"] += x.amount
+            groups[key]["count"] += 1
+        columns = ["Day" if slug == "daily-collection" else "Month" if slug == "monthly-revenue" else "Method", "Payments", f"Collected ({currency})"]
+        rows = [financial_row([key, value["count"]], [value["amount"]]) for key, value in sorted(groups.items())]
+        kpis = [money_kpi("Total collected", summarize_student_finance([], payments, today)["collected"], "green")]
+    elif slug == "installment-report":
+        selected = [x for x in data["installments"] if _within(x.due_date, start, end) and
+                    _matches(search, x.plan.student.full_name, x.plan.student.student_number, x.plan.invoice.invoice_number)]
+        columns = ["Student", "Invoice", "Academic year", "Installment", "Due date", "Status", "Scheduled", "Paid", "Remaining"]
+        for x in selected:
+            rows.append(financial_row([x.plan.student.full_name, x.plan.invoice.invoice_number, x.plan.academic_year.name,
+                        x.installment_number, x.due_date.isoformat(), dict(x.STATUS_CHOICES)[installment_status(x, today)]],
+                        [x.amount, x.paid_amount, installment_remaining(x)]))
+        kpis = [money_kpi("Scheduled", sum((x.amount for x in selected), ZERO)),
+                money_kpi("Remaining", sum((installment_remaining(x) for x in selected), ZERO), "amber")]
+        summary = "Due-date filters; active and completed plans on issued invoices only. Cancelled plans and draft/void invoices are excluded. Remaining is max(amount - paid_amount, 0); schedules are not added to invoice obligations."
+    elif slug == "overdue-report":
+        aging = params.get("aging", "").strip()
+        filters.append(_filter("aging", "Aging", aging, options=_choice_options(AGING_LABELS.items())))
+        selected = [x for x in data["overdue_rows"] if _within(x["due_date"], start, end) and
+                    _matches(search, x["invoice_number"], x["student_reference"], x["student_name"]) and
+                    (not aging or x["aging_bucket"] == aging)]
+        selected.sort(key=lambda x: x["days_overdue"], reverse=True)
+        columns = ["Invoice", "Student number", "Student", "Academic year", "Grade", "Class", "Due date", "Days overdue", "Aging", "Outstanding"]
+        rows = [financial_row([x["invoice_number"], x["student_reference"], x["student_name"], x["academic_year"],
+                x["grade"], x["class_name"], x["due_date"].isoformat(), x["days_overdue"], x["aging_label"]],
+                [x["outstanding_amount"]]) for x in selected]
+        totals = summarize_overdue_rows(selected)
+        kpis = [money_kpi("Overdue", totals["total_overdue_amount"], "red"),
+                {"label": "Invoices", "value": totals["overdue_invoice_count"], "tone": "amber"},
+                {"label": "Students", "value": totals["overdue_student_count"], "tone": "blue"}]
+        summary = "Due date < today and canonical outstanding balance > 0. Uses the shared overdue service and its four aging bands; filters use invoice due dates."
+    else:  # revenue-vs-expense
+        # Search is not exposed here: both sides must use the same date scope.
+        payments = [x for x in data["payments"] if _within(x.payment_date, start, end)]
+        expenses = summarize_expenses([x for x in Expense.objects.all() if _within(x.expense_date, start, end)], today)
+        revenue = summarize_student_finance([], payments, today)
+        expense_months = defaultdict(Decimal)
+        for x in expenses["active"]:
+            expense_months[x.expense_date.strftime("%Y-%m")] += x.amount
+        months = sorted(set(revenue["monthly_revenue"]) | set(expense_months))
+        columns = ["Month", f"Revenue ({currency})", f"Active expense ({currency})", f"Net ({currency})"]
+        for month in months:
+            collected, spent = revenue["monthly_revenue"].get(month, ZERO), expense_months[month]
+            rows.append(financial_row([month], [collected, spent, collected - spent]))
+        kpis = [money_kpi("Revenue", revenue["collected"], "green"), money_kpi("Active expenses", expenses["active_total"], "red"),
+                money_kpi("Net position", revenue["collected"] - expenses["active_total"])]
+        summary += " Net position is gross completed student collections less active expenses, using payment_date and expense_date respectively."
+    return _base_result(get_report_definition(slug), filters, columns, rows, kpis, summary)
 
 
 REPORT_BUILDERS = {
@@ -255,7 +363,6 @@ REPORT_BUILDERS = {
     "refund-report": get_refund_report,
     "supplier-balance": get_supplier_balance_report,
     "financial-assistance": get_financial_assistance_report,
-    "revenue-vs-expense": get_revenue_vs_expense_report,
 }
 
 
@@ -263,8 +370,8 @@ def build_report(slug, params, currency):
     definition = get_report_definition(slug)
     if not definition:
         return None
-    if slug == "overdue-report":
-        get_overdue_integration_state()
+    if slug in STUDENT_REPORTS:
+        return get_student_report(slug, params, currency)
     builder = REPORT_BUILDERS.get(slug)
     if builder:
         return builder(params, currency)
