@@ -1,6 +1,40 @@
 {% extends "base.html" %}
+{% load static %}
+{% block title %}Receipts | EduFinance{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/receipts.css' %}">{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-<h2>Receipts</h2><form class="d-flex gap-2 my-3"><input class="form-control" name="q" value="{{ q }}" placeholder="Search receipt, payment or student"><button class="btn btn-outline-primary">Search</button></form><table class="table"><thead><tr><th>Receipt</th><th>Student</th><th>Payment</th><th>Amount</th><th>Issued</th><th></th></tr></thead><tbody>{% for r in receipts %}<tr><td>{{ r.receipt_number }}</td><td>{{ r.student.full_name }}</td><td>{{ r.payment.payment_number }}</td><td>{{ r.amount }}</td><td>{{ r.issued_at }}</td><td><a href="{% url 'billing:receipt_detail' r.pk %}">View</a></td></tr>{% empty %}<tr><td colspan="6">No receipts.</td></tr>{% endfor %}</tbody></table>
+<div class="receipt-workspace">
+  {% include 'billing/receipts/mobile_nav.html' %}
+  <header class="receipt-page-heading"><div><span class="receipt-eyebrow">Student finance / Payment records</span><h1>Receipts</h1><p>A clear record of every student payment. View, print, and save official receipts.</p></div><span class="receipt-heading-icon"><i class="bi bi-receipt-cutoff" aria-hidden="true"></i></span></header>
+  <section class="receipt-kpis" aria-label="Receipt register totals">
+    <div><span>Total receipts</span><strong>{{ summary.count }}</strong><small>All receipt records</small></div>
+    <div><span>Issued &amp; completed</span><strong>{{ summary.issued }}</strong><small>Valid payment receipts</small></div>
+    <div><span>Receipted amount</span><strong><small>{{ currency_code }}</small> {{ summary.amount|floatformat:"2g" }}</strong><small>Issued receipts for completed payments</small></div>
+    <div><span>Void records</span><strong>{{ summary.void }}</strong><small>Void receipt or payment</small></div>
+  </section>
+  <section class="receipt-register">
+    <form class="receipt-filters" method="get" id="receiptFilters" role="search">
+      <label class="receipt-search">Search receipts<input name="q" type="search" value="{{ q }}" placeholder="Receipt, payment or student" autocomplete="off"></label>
+      <label>Status<select name="status"><option value="">All statuses</option><option value="issued" {% if status == 'issued' %}selected{% endif %}>Issued / completed</option><option value="void" {% if status == 'void' %}selected{% endif %}>Void receipt or payment</option></select></label>
+      <label>Payment method<select name="method"><option value="">All methods</option>{% for value,label in method_choices %}<option value="{{ value }}" {% if method == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <label>Payment from<input type="date" name="date_from" value="{{ date_from }}"></label><label>Payment to<input type="date" name="date_to" value="{{ date_to }}"></label>
+      <button class="receipt-button primary" type="submit">Search</button><a class="receipt-reset" href="{% url 'billing:receipt_list' %}">Reset</a>
+    </form>
+    {% if date_error %}<p class="receipt-warning" role="alert">{{ date_error }}</p>{% endif %}
+    <div class="receipt-register-heading"><h2>Receipt register</h2><span>{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}</span></div>
+    <div class="receipt-table-wrap"><table class="receipt-table"><thead><tr><th>Receipt / issued</th><th>Student</th><th>Payment / invoices</th><th>Method / payment date</th><th>Status</th><th class="receipt-numeric">Amount</th><th><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+    {% for r in receipts %}<tr>
+      <td><a class="receipt-reference" href="{% url 'billing:receipt_detail' r.pk %}">{{ r.receipt_number }}</a><small>{{ r.issued_at|date:"d M Y" }}</small></td>
+      <td><strong>{{ r.student.full_name }}</strong><small>{{ r.student.student_number }}</small></td>
+      <td><span>{{ r.payment.payment_number }}</span>{% for allocation in r.payment.allocations.all %}<small>{{ allocation.invoice.invoice_number }}</small>{% endfor %}</td>
+      <td>{{ r.payment.get_payment_method_display }}<small>{{ r.payment.payment_date|date:"d M Y" }}</small></td>
+      <td><span class="receipt-status {% if r.status == 'void' or r.payment.status == 'void' %}invalid{% endif %}">{{ r.get_status_display }}</span><small>Payment: {{ r.payment.get_status_display }}</small></td>
+      <td class="receipt-numeric"><strong>{{ currency_code }} {{ r.amount|floatformat:"2g" }}</strong></td>
+      <td><a class="receipt-button compact" href="{% url 'billing:receipt_detail' r.pk %}" aria-label="View receipt {{ r.receipt_number }}">View <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td>
+    </tr>{% empty %}<tr><td colspan="7"><div class="receipt-empty"><i class="bi bi-receipt" aria-hidden="true"></i><h3>{% if q or status or method or date_from or date_to %}No matching receipts{% else %}No receipts yet{% endif %}</h3><p>{% if q or status or method or date_from or date_to %}Try a different search or reset your filters.{% else %}Receipts appear here when student payments are recorded.{% endif %}</p></div></td></tr>{% endfor %}
+    </tbody></table></div>
+    {% if page_obj.has_other_pages %}<nav class="receipt-pagination" aria-label="Receipt pages">{% if page_obj.has_previous %}<a href="?{{ filter_query }}&amp;page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?{{ filter_query }}&amp;page={{ page_obj.next_page_number }}">Next</a>{% endif %}</nav>{% endif %}
+  </section>
 </div>
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/receipts.js' %}" defer></script>{% endblock %}

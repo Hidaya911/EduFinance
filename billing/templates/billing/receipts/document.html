@@ -1,0 +1,28 @@
+<article class="receipt-paper{% if not valid_receipt %} receipt-paper-void{% endif %}" aria-label="Payment receipt {{ receipt.receipt_number }}">
+  <header class="receipt-document-header">
+    <div class="receipt-school-brand">
+      {% if logo_url %}<img class="receipt-school-logo" src="{{ logo_url }}" alt="{{ school.name }} logo">{% endif %}
+      <div><span class="receipt-document-eyebrow">Finance office</span><h2>{{ school.name }}</h2>{% if school.address %}<p>{{ school.address|linebreaksbr }}</p>{% endif %}<div class="receipt-school-contact">{% if school.phone %}<span>{{ school.phone }}</span>{% endif %}{% if school.email %}<span>{{ school.email }}</span>{% endif %}{% if school.website %}<span>{{ school.website }}</span>{% endif %}</div></div>
+    </div>
+    <div class="receipt-document-identity"><span class="receipt-document-eyebrow">Payment receipt</span><strong>{{ receipt.receipt_number }}</strong><span>Issued {{ receipt.issued_at|date:"d M Y" }}</span><span class="receipt-status{% if not valid_receipt %} invalid{% endif %}">{{ receipt.get_status_display }}</span></div>
+  </header>
+
+  {% if not valid_receipt %}<div class="receipt-void-notice"><strong>VOID — NOT VALID AS PROOF OF PAYMENT</strong><span>Receipt: {{ receipt.get_status_display }} · Payment: {{ payment.get_status_display }}</span></div>{% endif %}
+  {% if allocation_mismatch or payment_mismatch %}<div class="receipt-warning"><strong>Record discrepancy</strong><p>The recorded receipt amount differs from its {% if payment_mismatch %}payment{% else %}allocation total{% endif %}. Contact the finance office for clarification. Original amounts are shown unchanged.</p></div>{% endif %}
+
+  <div class="receipt-document-title"><h1>PAYMENT RECEIPT</h1><p>Student payment acknowledgment</p></div>
+  <div class="receipt-parties">
+    <section><h3>Student information</h3><strong class="receipt-student-name">{{ receipt.student.full_name }}</strong><dl><div><dt>Student number</dt><dd>{{ receipt.student.student_number }}</dd></div>{% if placements %}<div><dt>Grade / Class</dt><dd>{{ placements }}</dd></div>{% endif %}{% if academic_years %}<div><dt>Academic year</dt><dd>{{ academic_years }}</dd></div>{% endif %}</dl></section>
+    <section><h3>Payment details</h3><dl><div><dt>Payment number</dt><dd>{{ payment.payment_number }}</dd></div><div><dt>Payment date</dt><dd>{{ payment.payment_date|date:"d M Y" }}</dd></div><div><dt>Method</dt><dd>{{ payment.get_payment_method_display }}</dd></div><div><dt>Payment status</dt><dd>{{ payment.get_status_display }}</dd></div></dl></section>
+  </div>
+
+  <section class="receipt-breakdown"><h3>Payment allocation</h3><table><thead><tr><th>Description</th><th>Invoice / reference</th><th class="receipt-numeric">Amount ({{ currency_code }})</th></tr></thead><tbody>
+    {% for row in allocation_rows %}<tr><td>{{ row.description }}<small>{{ row.invoice.academic_year.name }}</small></td><td>{{ row.invoice.invoice_number }}{% if row.invoice.status == 'void' %}<small>Invoice: Void</small>{% endif %}</td><td class="receipt-numeric">{{ row.amount|floatformat:"2g" }}</td></tr>
+    {% empty %}<tr><td>Student payment</td><td>{{ payment.payment_number }}</td><td class="receipt-numeric">{{ receipt.amount|floatformat:"2g" }}</td></tr>{% endfor %}
+  </tbody></table></section>
+
+  <div class="receipt-total-block"><span>{% if valid_receipt %}Amount paid{% else %}Recorded amount · Void{% endif %}</span><strong><small>{{ currency_code }}</small> {{ receipt.amount|floatformat:"2g" }}</strong></div>
+
+  <div class="receipt-document-bottom"><p><span>Received by</span><strong>{{ cashier }}</strong></p><p><span>Receipt issued</span><strong>{{ receipt.issued_at|date:"d M Y, H:i T" }}</strong></p></div>
+  <footer class="receipt-document-footer"><strong>{% if valid_receipt %}Thank you for your payment.{% else %}Retained for your records. This document is void.{% endif %}</strong><p>This receipt was generated electronically by EduFinance.</p><span>{{ receipt.receipt_number }}</span></footer>
+</article>

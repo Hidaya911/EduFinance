@@ -1,1 +1,13 @@
-{% extends "base.html" %}{% block content %}<div class="container py-4"><div class="card card-body mx-auto" style="max-width:760px"><div class="d-flex justify-content-between"><div><h2>Receipt</h2><strong>{{ receipt.receipt_number }}</strong></div><button onclick="window.print()" class="btn btn-outline-secondary d-print-none">Print</button></div><hr><p><strong>Student:</strong> {{ receipt.student.full_name }}</p><p><strong>Payment:</strong> {{ receipt.payment.payment_number }}</p><p><strong>Amount:</strong> {{ receipt.amount }}</p><p><strong>Issued:</strong> {{ receipt.issued_at }}</p><p><strong>Status:</strong> {{ receipt.get_status_display }}</p></div></div>{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ receipt.receipt_number }} | Payment Receipt{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/receipts.css' %}">{% endblock %}
+{% block content %}
+<div class="receipt-workspace receipt-preview-workspace">
+  {% include 'billing/receipts/mobile_nav.html' %}
+  <header class="receipt-preview-heading receipt-no-print"><div><a class="receipt-back" href="{% url 'billing:receipt_list' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to Receipts</a><h1>Payment receipt</h1><p>Official document preview ? {{ receipt.receipt_number }}</p></div><div class="receipt-actions"><button type="button" class="receipt-button" data-receipt-print><i class="bi bi-printer" aria-hidden="true"></i> Print Receipt</button><a class="receipt-button primary" href="{% url 'billing:receipt_print' receipt.pk %}?print=1" target="_blank" rel="noopener"><i class="bi bi-download" aria-hidden="true"></i> Save as PDF</a></div></header>
+  <p class="receipt-print-hint receipt-no-print">To download a PDF, choose <strong>Save as PDF</strong> in your browser's print dialog. The document prints without the application navigation.</p>
+  {% include 'billing/receipts/document.html' %}
+</div>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/receipts.js' %}" defer></script>{% endblock %}

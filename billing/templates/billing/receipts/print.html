@@ -1,0 +1,6 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ receipt.receipt_number }}</title><link rel="stylesheet" href="{% static 'css/receipts.css' %}"></head>
+<body class="receipt-print-page"{% if auto_print %} data-receipt-auto-print{% endif %}>
+<div class="receipt-print-toolbar receipt-no-print"><a class="receipt-button" href="{% url 'billing:receipt_detail' receipt.pk %}">Back to receipt</a><button type="button" class="receipt-button primary" data-receipt-print>Print / Save as PDF</button><p>Choose Save as PDF to download. Use A4 paper and turn off browser headers and footers.</p></div>
+{% include 'billing/receipts/document.html' %}
+<script src="{% static 'js/receipts.js' %}" defer></script></body></html>
