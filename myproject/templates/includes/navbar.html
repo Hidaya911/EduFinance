@@ -13,15 +13,36 @@
   <!-- Right Action Controls -->
   <div class="d-flex align-items-center gap-3">
     <!-- Notification Bell -->
-    <div class="position-relative">
-      <a href="{% url 'accounts:notifications_list' %}" class="btn btn-light rounded-circle position-relative p-2 d-inline-flex align-items-center justify-content-center text-decoration-none" style="width: 40px; height: 40px;">
-        <i class="bi bi-bell-fill text-warning"></i>
+    <div class="edu-notification-center">
+      <button type="button" id="eduNotificationToggle" class="btn btn-light rounded-circle position-relative p-2 d-inline-flex align-items-center justify-content-center edu-notification-toggle" aria-label="Notifications{% if unread_notifications_count %}, {{ unread_notifications_count }} unread{% endif %}" aria-expanded="false" aria-haspopup="dialog" aria-controls="eduNotificationPanel">
+        <i class="bi bi-bell-fill text-warning" aria-hidden="true"></i>
         {% if unread_notifications_count > 0 %}
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
           {{ unread_notifications_count }}
         </span>
         {% endif %}
-      </a>
+      </button>
+      <section id="eduNotificationPanel" class="edu-notification-panel" role="dialog" aria-modal="false" aria-labelledby="eduNotificationHeading" hidden>
+        <div class="edu-notification-header">
+          <h2 id="eduNotificationHeading">Notifications</h2>
+          {% if unread_notifications_count %}<span class="edu-notification-count">{{ unread_notifications_count }} unread</span>{% endif %}
+        </div>
+        <div class="edu-notification-items">
+          {% for notification in latest_notifications %}
+            {% if notification.link %}<a href="{{ notification.link }}" class="edu-notification-item{% if not notification.is_read %} is-unread{% endif %}">{% else %}<div class="edu-notification-item{% if not notification.is_read %} is-unread{% endif %}">{% endif %}
+              <span class="edu-notification-icon" aria-hidden="true"><i class="bi {% if notification.is_read %}bi-bell{% else %}bi-bell-fill{% endif %}"></i></span>
+              <span class="edu-notification-copy">
+                <strong>{{ notification.title }}</strong>
+                <span class="edu-notification-message">{{ notification.message }}</span>
+                <span class="edu-notification-meta">{% if notification.created_at %}<time datetime="{{ notification.created_at|date:'c' }}">{{ notification.created_at|timesince }} ago</time>{% endif %}<span class="edu-notification-state">{% if notification.is_read %}Read{% else %}Unread{% endif %}</span></span>
+              </span>
+            {% if notification.link %}</a>{% else %}</div>{% endif %}
+          {% empty %}
+            <div class="edu-notification-empty"><i class="bi bi-bell" aria-hidden="true"></i><strong>You're all caught up</strong><p>No notifications to show.</p></div>
+          {% endfor %}
+        </div>
+        <a class="edu-notification-footer" href="{% url 'accounts:notifications_list' %}">View all notifications <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </section>
     </div>
 
     <!-- User Avatar Dropdown -->

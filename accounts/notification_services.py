@@ -1,10 +1,10 @@
 """Read-only notification helpers for authenticated dashboard previews."""
 
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
-from django.conf import settings
+from django.db import connection
 from django.urls import Resolver404, resolve
-from pymongo import ASCENDING, DESCENDING, MongoClient
+from pymongo import ASCENDING, DESCENDING
 
 from .context_processors import _notification_id_variants
 from .models import Notification
@@ -21,7 +21,12 @@ def _safe_internal_link(value):
     if not link or not link.startswith("/") or link.startswith("//") or "\\" in link:
         return ""
 
-    parsed = urlsplit(link)
+    try:
+        parsed = urlsplit(link)
+    except ValueError:
+        return ""
+    if parse_qs(parsed.query).get("mark_all_read"):
+        return ""
     if parsed.scheme or parsed.netloc or not parsed.path.startswith("/"):
         return ""
 
@@ -36,26 +41,22 @@ def _safe_internal_link(value):
     return link
 
 
-def get_user_notification_preview(user, limit=5):
-    """Return unread-first recent notifications owned by ``user``."""
+def _load_notifications(user, limit=5, include_count=False):
+    """Use the backend connection and the existing legacy recipient-ID mapping."""
+    result = {"latest_notifications": [], "unread_notifications_count": 0}
     if not user or not user.is_authenticated:
-        return []
-
-    client = None
+        return result
     try:
-        client = MongoClient(
-            settings.MONGO_URI if hasattr(settings, "MONGO_URI")
-            else settings.DATABASES["default"]["CLIENT"]["host"]
-        )
-        database = client[settings.DATABASES["default"]["NAME"]]
+        database = connection.database
         recipient_ids = _notification_id_variants(database, user.pk)
+        collection = database[Notification._meta.db_table]
+        owner = {"user_id": {"$in": recipient_ids}}
         cursor = (
-            database[Notification._meta.db_table]
-            .find({"user_id": {"$in": recipient_ids}})
-            .sort([("is_read", ASCENDING), ("created_at", DESCENDING)])
+            collection.find(owner, {"title": 1, "message": 1, "created_at": 1, "is_read": 1, "link": 1})
+            .sort([("is_read", ASCENDING), ("created_at", DESCENDING), ("_id", DESCENDING)])
             .limit(max(1, min(int(limit), 5)))
         )
-        return [
+        result["latest_notifications"] = [
             {
                 "title": str(item.get("title") or "Notification"),
                 "message": str(item.get("message") or ""),
@@ -65,8 +66,19 @@ def get_user_notification_preview(user, limit=5):
             }
             for item in cursor
         ]
+        if include_count:
+            result["unread_notifications_count"] = collection.count_documents({**owner, "is_read": False})
+        return result
     except Exception:
-        return []
-    finally:
-        if client is not None:
-            client.close()
+        # Preserve the existing preview's graceful failure behavior.
+        return {"latest_notifications": [], "unread_notifications_count": 0}
+
+
+def get_user_notification_preview(user, limit=5):
+    """Keep the dashboard's existing preview API and read-only behavior."""
+    return _load_notifications(user, limit)["latest_notifications"]
+
+
+def get_user_notification_center(user):
+    """Five unread-first notifications plus the full unread count for the navbar."""
+    return _load_notifications(user, include_count=True)

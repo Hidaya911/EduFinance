@@ -2,7 +2,6 @@ from bson.objectid import ObjectId
 from django.conf import settings
 from pymongo import MongoClient
 
-from accounts.models import Notification
 
 
 # EDIT: Count records from the same MongoDB collection used by the notification
@@ -22,36 +21,20 @@ def _notification_id_variants(db, user_id):
         variants.extend([user.get('id'), user.get('_id'), str(user.get('id')), str(user.get('_id'))])
     return [value for value in variants if value is not None]
 
-def unread_notifications(request):
-    if request.user.is_authenticated:
-        try:
-            # EDIT: Djongo can miss records inserted through PyMongo; query
-            # MongoDB directly so the unread count matches the notifications UI.
-            client = MongoClient(
-                settings.MONGO_URI if hasattr(settings, 'MONGO_URI')
-                else settings.DATABASES['default']['CLIENT']['host']
-            )
-            db = client[settings.DATABASES['default']['NAME']]
-            # EDIT: Use normalized string comparisons to count both ObjectId
-            # and numeric user_id values produced by Djongo/MongoDB.
-            user_id_strings = {
-                str(user_id) for user_id in _notification_id_variants(db, request.user.pk)
-            }
-            count = sum(
-                str(notification.get('user_id')) in user_id_strings
-                for notification in db['accounts_notification'].find({'is_read': False})
-            )
-        except Exception:
-            count = 0
-    else:
-        count = 0
+def _navbar_notifications(request):
+    """Share one bounded preview/count result across registered processors."""
+    if not hasattr(request, "_edu_notification_context"):
+        from .notification_services import get_user_notification_center
+        request._edu_notification_context = get_user_notification_center(request.user)
+    return request._edu_notification_context
 
+
+def unread_notifications(request):
     return {
-        'unread_notifications_count': count,
+        **_navbar_notifications(request),
         'can_manage_configuration': _can_manage_configuration(request),
         'can_manage_fee_categories': _has_role(
-            request,
-            {'Super Admin', 'Super Administrator'},
+            request, {'Super Admin', 'Super Administrator'},
         ),
     }
 
@@ -96,7 +79,4 @@ def _can_manage_configuration(request):
         {'Super Admin', 'Super Administrator', 'School Administrator'},
     )
 def notification_badge(request):
-    if request.user.is_authenticated:
-        count = Notification.objects.filter(user=request.user, is_read=False).count()
-        return {'unread_notifications_count': count}
-    return {'unread_notifications_count': 0}
+    return _navbar_notifications(request)
